@@ -1459,37 +1459,51 @@
       ],
       "text": "你此处战力低于我的单位无法被敌方法术或技能选作目标。",
       "scope": "你此处战力低于我的单位无法被敌方法术或技能选作目标。",
-      "status": "missing",
-      "reason": "只有基础壁垒单位；缺少此处战力低于来源的友方单位不能成为敌方法术／技能目标的持续保护",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享持续规则按当前控制者、相同实际位置及严格更高的当前战力检查每个公开单位及其有效复制文本。在报价／提交／结算重新检查敌方法术与技能目标；官方FAQ响应增战力后暗刃的摧毁和关联抽牌均失效，学生仍观察到法术。平战力、不同位置、私有来源及友方法术不受该保护；包括实际变为单位的装备。",
+      "rules": "中国区核心355.9.b／359.3.f.2.a（目标限制及无效目标）、365.1（场上被动）、740.1（当前控制者友敌）、178（多类型单位）；破限裁判FAQ260511第23页三问；UNL-057官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 7,
-            "sourceUnitTags": "猫科|壁垒",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "HERE_LOWER_MIGHT_FRIENDLY_UNIT_ENEMY_TARGET_PROTECTION"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CurrentMightHereRestrictions.cs",
           "contains": [
-            "\"UNL-057/219\"",
-            "\"WILDCLAW_BEASTMASTER_PLAY_KEYWORD_UNIT\""
+            "IsFaceUpNonStandbyUnit(source) && IsObjectOnField(state.PlayerZones, source.ObjectId)",
+            "EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source)",
+            "IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, source.ObjectId, target.ObjectId)",
+            "AttachedRuleTextRules.Instances(state, source)",
+            "ability => ability.Kind == kind",
+            "evaluated.CardObjects[source.ObjectId]) > targetPower"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/TargetProtectionRules.cs",
+          "contains": [
+            "CoreRuleEngine.IsTargetProtectedByHigherMightFriendlyUnitHere(state, sourceControllerId, targetObjectId)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/WildclawAlphaTargetProtectionTests.cs",
+          "methods": [
+            "PrintedAbilityParsesTheSameLocationCurrentMightComparison",
+            "OfficialFaqResponseGrowthInvalidatesBothDarkBladeInstructionsButTheStudentStillObservesTheSpell",
+            "OnlyStrictlyLowerCurrentMightAtTheSamePublicLocationPreventsTheEnemySpell",
+            "NativeActivatedSkillsUseTheSameStrictCurrentMightProtection",
+            "CurrentControlGovernsProtectionEvenWhenBothPhysicalCardsBelongToTheOtherPlayer",
+            "ARealSourceDepartureEndsItsProtectionBeforeTheOriginalDarkBladeResolves",
+            "AnActuallyAnimatedEquipmentUnitReceivesTheSameProtectionInItsCurrentBase"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1497,37 +1511,57 @@
       ],
       "text": "此处战力低于我的敌方单位无法造成战斗伤害。",
       "scope": "此处战力低于我的敌方单位无法造成战斗伤害。",
-      "status": "missing",
-      "reason": "据守抽牌另句已有路径；本句缺少按当前战力比较此处敌方单位并禁止其造成战斗伤害的被动",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享持续规则按当前控制者、相同实际位置及严格更高的当前战力检查每个公开单位及其有效复制文本。仅将更低战力的敌方单位战斗伤害贡献置零，原战力与致死门槛不变；防守坚守、响应加战力、来源移动以及当前控制者立即影响比较。正常法术伤害不受影响，双方各有来源也不会令战力计算递归。",
+      "rules": "中国区核心143.2.a（当前有效战力）、142.4（致命伤害）、467.2／467.2.c.5（战斗伤害贡献与分配）、365.1（场上被动）、740.1（当前控制者友敌）、807／814（当前进攻／防守角色战力）；UNL-060／060a两种官方中文表述",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 8,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 8,
-            "sourceUnitTags": "蜘蛛",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "HERE_LOWER_MIGHT_ENEMY_UNIT_COMBAT_DAMAGE_PREVENTION"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CurrentMightHereRestrictions.cs",
           "contains": [
-            "\"UNL-060/219\"",
-            "\"VILEMAW_SPIDER_PLAY_UNIT\""
+            "IsFaceUpNonStandbyUnit(source) && IsObjectOnField(state.PlayerZones, source.ObjectId)",
+            "EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source)",
+            "IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, source.ObjectId, target.ObjectId)",
+            "AttachedRuleTextRules.Instances(state, source)",
+            "ability => ability.Kind == kind",
+            "evaluated.CardObjects[source.ObjectId]) > targetPower"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "contains": [
+            "!IsCombatDamagePreventedByHigherMightEnemyHere(state, source)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "if (damageContribution && (IsStunnedForBattle(cardObject) || !CanDealCombatDamage(state, cardObject)))",
+            "ResolveCurrentFieldUnitPowerFromEvaluatedKeywords"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VilemawCombatDamageTests.cs",
+          "methods": [
+            "BothOfficialWordingsParseTheSameCombatOnlyCurrentMightRestriction",
+            "ARealBattleUsesCurrentMightForDamageSuppressionButKeepsTheOpponentsLethalThreshold",
+            "ARealResponseBuffChangesTheMightComparisonBeforeDamageAssignments",
+            "MovingTheSourceToBaseBeforeCombatRestoresTheEnemyDamageAtTheOriginalBattlefield",
+            "CurrentControlRatherThanPhysicalOwnershipDeterminesTheAffectedEnemies",
+            "CombatDamagePreventionDoesNotProtectItsSourceFromOrdinaryEnemySpellDamage"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1535,37 +1569,57 @@
       ],
       "text": "此处战力低于我的敌方单位无法在战斗中造成伤害。",
       "scope": "此处战力低于我的敌方单位无法在战斗中造成伤害。",
-      "status": "missing",
-      "reason": "据守抽牌另句已有路径；本句缺少按当前战力比较此处敌方单位并禁止其造成战斗伤害的被动",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享持续规则按当前控制者、相同实际位置及严格更高的当前战力检查每个公开单位及其有效复制文本。仅将更低战力的敌方单位战斗伤害贡献置零，原战力与致死门槛不变；防守坚守、响应加战力、来源移动以及当前控制者立即影响比较。正常法术伤害不受影响，双方各有来源也不会令战力计算递归。",
+      "rules": "中国区核心143.2.a（当前有效战力）、142.4（致命伤害）、467.2／467.2.c.5（战斗伤害贡献与分配）、365.1（场上被动）、740.1（当前控制者友敌）、807／814（当前进攻／防守角色战力）；UNL-060／060a两种官方中文表述",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 8,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 8,
-            "sourceUnitTags": "蜘蛛",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "HERE_LOWER_MIGHT_ENEMY_UNIT_COMBAT_DAMAGE_PREVENTION"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CurrentMightHereRestrictions.cs",
           "contains": [
-            "\"UNL-060a/219\"",
-            "\"VILEMAW_ALT_A_AMBUSH_COMBAT_STATIC\""
+            "IsFaceUpNonStandbyUnit(source) && IsObjectOnField(state.PlayerZones, source.ObjectId)",
+            "EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source)",
+            "IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, source.ObjectId, target.ObjectId)",
+            "AttachedRuleTextRules.Instances(state, source)",
+            "ability => ability.Kind == kind",
+            "evaluated.CardObjects[source.ObjectId]) > targetPower"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "contains": [
+            "!IsCombatDamagePreventedByHigherMightEnemyHere(state, source)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "if (damageContribution && (IsStunnedForBattle(cardObject) || !CanDealCombatDamage(state, cardObject)))",
+            "ResolveCurrentFieldUnitPowerFromEvaluatedKeywords"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VilemawCombatDamageTests.cs",
+          "methods": [
+            "BothOfficialWordingsParseTheSameCombatOnlyCurrentMightRestriction",
+            "ARealBattleUsesCurrentMightForDamageSuppressionButKeepsTheOpponentsLethalThreshold",
+            "ARealResponseBuffChangesTheMightComparisonBeforeDamageAssignments",
+            "MovingTheSourceToBaseBeforeCombatRestoresTheEnemyDamageAtTheOriginalBattlefield",
+            "CurrentControlRatherThanPhysicalOwnershipDeterminesTheAffectedEnemies",
+            "CombatDamagePreventionDoesNotProtectItsSourceFromOrdinaryEnemySpellDamage"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1697,36 +1751,64 @@
       ],
       "text": "{{绝念>}} 对一名敌方单位造成4点伤害。（当我被摧毁后，发动此效果。）",
       "scope": "{{绝念>}} 对一名敌方单位造成4点伤害。（当我被摧毁后，发动此效果。）",
-      "status": "missing",
-      "reason": "只有基础单位；缺少绝念选择敌方单位并在响应后造成4点伤害的规格与消费者",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "单位摧毁时按当前控制者捕获独立绝念；确认一名任意场上敌方单位，响应后只对仍为原代际且合法的原目标造成4点伤害。来源所有者不同不改变技能控制者，原生复制文字及绝念重复分别入链；目标返手不追踪新物体，原死亡捕获不可擦除或改写。",
+      "rules": "中国区核心355.9–355.10 目标、383.2.c.3／383.4 独立摧毁触发、418 伤害、740.1 友敌按当前控制权、808 绝念；UNL-067 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
-          {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 6,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
-          }
-        ]
+        "unitEventAbility": {
+          "timing": "LAST_BREATH",
+          "effect": "DAMAGE_ENEMY_UNIT",
+          "amount": 4
+        }
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
           "contains": [
-            "\"UNL-067/219\"",
-            "\"RUINED_SHARK_CANNON_LAST_BREATH_DAMAGE_STATIC\""
+            "LastBreathUnitEvents = CaptureLastBreathUnitEvents(state, zones, cards, unit, deathId, fact)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentLastBreath.cs",
+          "contains": [
+            "ArmamentDeath = new(deathId, fact, repetition)",
+            "controller != unit.ControllerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "UnitEventEnemyDamageEffect or \"STUN_ENEMY\" => IsFaceUpNonStandbyUnit(c)",
+            "spec.Effect is UnitEventEnemyDamageEffect or RuneDomainDamageEffect or ArmamentUnitEventRules.FixedDamageEffect"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuneDomainReveal.cs",
+          "contains": [
+            "StackObjectRules.ReferencesCurrentObject(state, item, target)",
+            "UnitEventTargets(state, item).Contains(target)",
+            "onlyPrimary: spec.Effect != RuneDomainDamageEffect"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeployedEquipment.cs",
+          "contains": [
+            "var targets = onlyPrimary ? primary is null ? [] : new[] { primary } : UnitEventEnemiesHere(state, item);"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RuinedSharkCannonLastBreathTests.cs",
+          "methods": [
+            "TheDestroyedSourcesCurrentControllerConfirmsAnyEnemyUnitThenDealsFourAfterResponses",
+            "FriendlyOrMultipleTargetsAreAtomicRejections",
+            "AReturnedEnemyIsANewObjectAndCannotReceiveTheConfirmedDamage",
+            "ActualCopiedTextAndALocalAmplifierEarnFourSeparateLastBreaths",
+            "RecoveryBindsTheIndependentSkillToTheOriginalAcceptedDeath"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2031,41 +2113,66 @@
       ],
       "text": "{{绝念>}} 重复此装备的打出效果。（当此牌被摧毁后，发动此效果。）",
       "scope": "{{绝念>}} 重复此装备的打出效果。（当此牌被摧毁后，发动此效果。）",
-      "status": "missing",
-      "reason": "打出指示物已实现，但没有装备绝念重复打出效果的捕获与独立结算；来源被摧毁后不会创建精灵",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "普通公开场上装备被实际摧毁时复用共享绝念捕获；装备已经变为单位时只走一次单位死亡捕获，避免重复。自然瞬息、自毁额外费用和印爆术摧毁均生成可响应的独立技能，返手不触发；响应后在捕获控制者基地打出活跃3战力瞬息精灵，死亡来源仍进其所有者废牌堆。",
+      "rules": "中国区核心178 多类别物体、187.2 精灵指示物、383.2.c.3／383.4 独立摧毁触发、440 指示物打出、740.1、808 绝念、816 瞬息及开始阶段得分前响应；UNL-078 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
-          {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "createdBaseUnitTokenCount": 1,
-            "createdBaseUnitTokenEntersReady": true,
-            "createdBaseUnitTokenPower": 3,
-            "createdBaseUnitTokenName": "精灵",
-            "createdBaseUnitTokenTags": "瞬息",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceEquipmentTags": "瞬息",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
-          }
-        ]
+        "unitEventAbility": {
+          "timing": "LAST_BREATH",
+          "effect": "CREATE_UNIT_TOKEN",
+          "amount": 1,
+          "createdTokenFactoryCardNo": "UNL·T07",
+          "createdUnitTokenEntersReady": true
+        }
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentLastBreathEvents.cs",
           "contains": [
-            "\"UNL-078/219\"",
-            "\"SPRITE_LANTERN_PLAY_EQUIPMENT_CREATE_SPRITE\""
+            "source.Tags.Contains(CardObjectTags.UnitCard)",
+            "CaptureLastBreathUnitEvents(state, zones, cards, source, deathId, fact)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "if (!removal.WasUnit) RuleChoices.Value.InstructionUnitEvents.AddRange(equipmentLastBreaths);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentUnitEvents.cs",
+          "contains": [
+            "TryUnitEventTokenLocation(state, item, spec, out var field)",
+            "spec.CreatedUnitTokenEntersReady",
+            "tokenIdentitySeed: \"unit-event-token-\" + MatchStateHasher.HashValue(item.StackItemId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitTokenEntry.cs",
+          "contains": [
+            "tokenIdentitySeed ??",
+            "isExhausted: !entersReady"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SpriteLanternLastBreathTests.cs",
+          "methods": [
+            "DestroyingTheEquipmentEarnsOneRespondableReadyEphemeralSpriteInItsControllersBase",
+            "ReturningTheEquipmentDoesNotCountAsItsDestruction",
+            "NaturalEphemeralDestructionEarnsTheLastBreathBeforeScoringAndTheNewSpriteSurvivesThisStart",
+            "RecoveryRejectsARewrittenOrErasedEquipmentDeathSkill",
+            "DestroyingTheEquipmentAsAnActualAdditionalCostAlsoEarnsItsIndependentLastBreath"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.EquipmentPlay.cs",
+          "methods": [
+            "CoreRuleEnginePlaysSpriteLanternEquipmentCreateSprite"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2208,41 +2315,81 @@
       ],
       "text": "当你打出我时或在你的开始阶段开始时，打出一名处于活跃状态的3{{S}}“精灵”到你的基地，它拥有{{瞬息}}。（在其控制者的下个开始阶段开始时，结算得分之前将其摧毁。）",
       "scope": "当你打出我时或在你的开始阶段开始时，打出一名处于活跃状态的3{{S}}“精灵”到你的基地，它拥有{{瞬息}}。（在其控制者的下个开始阶段开始时，结算得分之前将其摧毁。）",
-      "status": "missing",
-      "reason": "入场创建精灵已有执行，但同一句的开始阶段触发缺失；来源留场时下个开始阶段不会再打出活跃瞬息精灵",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "保留原生打出精灵效果，并在控制者真实开始阶段、得分前捕获独立开始技能；响应后在原控制者基地打出活跃3战力瞬息精灵。来源返手不抹去赚取技能，也不泄露私有来源标识。相邻真实回合开始先清除旧瞬息，新造精灵仅在下个己方开始阶段销毁，指示物身份不复用；原始开始捕获不能被擦除或改写。",
+      "rules": "中国区核心187.2、315–316 开始阶段顺序、383.2–383.4 独立开始触发、440、740.1、816 瞬息；UNL-084 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 7,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
             "createdBaseUnitTokenCount": 1,
-            "createdBaseUnitTokenEntersReady": true,
             "createdBaseUnitTokenPower": 3,
-            "createdBaseUnitTokenName": "精灵",
-            "createdBaseUnitTokenTags": "瞬息",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 6,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "createdBaseUnitTokenEntersReady": true,
+            "createdBaseUnitTokenTags": "瞬息"
           }
-        ]
+        ],
+        "unitEventAbility": {
+          "timing": "START",
+          "effect": "CREATE_UNIT_TOKEN",
+          "amount": 1,
+          "createdTokenFactoryCardNo": "UNL·T07",
+          "createdUnitTokenEntersReady": true
+        }
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TurnSequence.cs",
           "contains": [
-            "\"UNL-084/219\"",
-            "\"SPRITE_QUEEN_PLAY_UNIT_CREATE_SPRITE\""
+            "state = QueueBeginningUnitEventAbilities(state, events);",
+            "TurnStartStep = \"SCORE\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "private static MatchState QueueBeginningUnitEventAbilities",
+            "c) == state.TurnPlayerId)",
+            "UnitEventTrigger(observation, state.Tick, ordinal, \"TURN_START_BEGAN\")"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "or ArmamentLastBreathRules.Timing or \"FRIENDLY_UNIT_PLAYED\" or \"START\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentUnitEvents.cs",
+          "contains": [
+            "TryUnitEventTokenLocation(state, item, spec, out var field)",
+            "spec.CreatedUnitTokenEntersReady",
+            "tokenIdentitySeed: \"unit-event-token-\" + MatchStateHasher.HashValue(item.StackItemId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitTokenEntry.cs",
+          "contains": [
+            "tokenIdentitySeed ??",
+            "isExhausted: !entersReady"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SpriteQueenBeginningTests.cs",
+          "methods": [
+            "OnlyAPublicSourceControlledByTheStartingPlayerEarnsTheBeforeScoringSkill",
+            "ReturningTheSourceBeforeResolutionPreservesTheEarnedRewardAndHidesItsIdentity",
+            "TheNextActualOwnStartDestroysTheOldEphemeralBeforeScoringAndEarnsAFreshReadySprite",
+            "RecoveryRequiresTheOriginalAcceptedBeginningCapture"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitPlay.cs",
+          "methods": [
+            "CoreRuleEnginePlaysSpriteQueenCreateSprite"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2250,37 +2397,71 @@
       ],
       "text": "当一名对手得分时，抽一张牌。",
       "scope": "当一名对手得分时，抽一张牌。",
-      "status": "missing",
-      "reason": "只有反应／瞬息装备打出；缺少任一对手得分观察器和独立抽1张技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "真实据守或征服的得分行动独立赚取当前控制者的抽牌技能；最后一分改抽牌与禁止获得该分不抹去行动，燃尽等普通获得分数不算得分行动。来源返手后保留原始技能并隐藏其私有化身，原始已接受的得分者和战场参与恢复校验。",
+      "rules": "中国区核心470.1–470.3、473、383及403–407；地沟区地图官方中文牌面。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "canPlayDuringPriority": true,
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceEquipmentTags": "瞬息",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "OPPONENT_SCORED",
+              "effect": "DRAW",
+              "amount": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "\"UNL-085/219\"",
-            "\"SUMPWORKS_MAP_PLAY_EQUIPMENT_EPHEMERAL\""
+            "CaptureOpponentScoringAction("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ScoringActionEvents.cs",
+          "contains": [
+            "OpponentScoringActionTiming = \"OPPONENT_SCORED\"",
+            "origin.PlayerId != controller",
+            "\"BATTLEFIELD_CONQUERED_SCORE\" or \"BATTLEFIELD_HELD_SCORE\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "or OpponentScoringActionTiming",
+            "context.ScoringAction"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ValidScoringActionOrigin(state, c, spec, controller)",
+            "ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId, spec.Amount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)",
+            "!expected.SetEquals(current.Select(item => item.Id))"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SumpworksMapScoringActionTests.cs",
+          "methods": [
+            "AnActualOpponentConquestEarnsOneIndependentDrawForTheCurrentController",
+            "AnActualSourceReturnPreservesTheEarnedDrawAndHidesThePrivateIncarnation",
+            "NaturalOpponentHoldAlsoEarnsTheDrawAfterTheScoringAction",
+            "ReplacingTheLastConquestPointOrPreventingItsGainStillLeavesOneScoringAction",
+            "AnOwnScoringActionDoesNotTriggerTheEquipment",
+            "APointGainedByAnOpponentFromActualBurnoutIsNotAScoringAction",
+            "RecoveryBindsTheSkillToTheOriginalAcceptedScoringAction"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2366,35 +2547,67 @@
       ],
       "text": "在你的开始阶段开始时，如果你有且仅有四张手牌，且你在各处战场上有且仅有四名单位，则立即赢得对局。",
       "scope": "在你的开始阶段开始时，如果你有且仅有四张手牌，且你在各处战场上有且仅有四名单位，则立即赢得对局。",
-      "status": "missing",
-      "reason": "现有装备和弃牌造战鹰主动技能不能替代本句；缺少开始阶段恰四手牌且战场单位总数恰四的立即获胜技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "开始时按当时手牌数和所有真实战场上的当前友方公开单位数检查两个精确4；指示物属于单位，基地单位和普通装备不计。满足后赚取独立无目标获胜技能，响应改变数量不取消；正常确认与响应后由原控制者直接获胜，不增加分数，并核对原始已接受的开始捕获。",
+      "rules": "中国区核心195–196、315.2、383.2.a.1及383／403–407；倾颓宫殿官方中文牌面。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 4,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "START",
+              "effect": "WIN_GAME",
+              "beginningExactHandCount": 4,
+              "beginningExactBattlefieldUnitCount": 4
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"UNL-088/219\"",
-            "\"CRUMBLING_PALACE_PLAY_EQUIPMENT\""
+            "BeginningUnitEventConditionSatisfied(state, o)",
+            "if (spec.Effect == BeginningWinEffect) return ResolveUnitEventWin(state, item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningConditionalWin.cs",
+          "contains": [
+            "Hand.Count == hand",
+            "IsFaceUpNonStandbyUnit(c)",
+            "EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == observation.Controller",
+            "at.Zone == \"BATTLEFIELD\"",
+            "WinnerPlayerId = item.ControllerId",
+            "\"MATCH_WON\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "or \"START\"",
+            "ObservedUnitEventCaptureHash"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)",
+            "!expected.SetEquals(current.Select(item => item.Id))"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/CrumblingPalaceBeginningWinTests.cs",
+          "methods": [
+            "OnlyExactlyFourHandCardsAndFourUnitsAcrossAllBattlefieldsEarnTheBeforeScoringWin",
+            "TheStartingPlayerMustCurrentlyControlTheEquipmentRegardlessOfItsOwner",
+            "AUnitTokenCountsButABaseUnitAndOrdinaryEquipmentDoNot",
+            "ARealBlinkChangingBothCountsCannotCancelTheAlreadyEarnedWin",
+            "RecoveryRequiresTheOriginalAcceptedBeginningWinCapture"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

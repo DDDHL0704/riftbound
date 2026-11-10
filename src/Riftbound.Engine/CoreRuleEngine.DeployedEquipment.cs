@@ -66,7 +66,9 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveUnitEventAreaDamage(MatchState state, StackItemState item, int amount,
         string? primary = null, int? primaryAmount = null, bool onlyPrimary = false)
     {
-        var targets = UnitEventEnemiesHere(state, item);
+        // Point damage has already validated its confirmed target. It does
+        // not acquire a location restriction from the area-damage consumer.
+        var targets = onlyPrimary ? primary is null ? [] : new[] { primary } : UnitEventEnemiesHere(state, item);
         var cards = state.CardObjects.ToDictionary(); var zones = NormalizeZonesForSeats(state);
         var locations = state.ObjectLocations.ToDictionary(); var destroyed = new HashSet<string>(StringComparer.Ordinal);
         var events = new List<GameEvent>();
@@ -76,7 +78,7 @@ public sealed partial class CoreRuleEngine
             var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, target,
                 ApplySpellSkillDamageBonuses(state, item.ControllerId, target, target == primary ? primaryAmount!.Value : amount, item), destroyed,
                 state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
-            events.Add(new("DAMAGE_APPLIED", "技能对此处敌方单位造成伤害", BuildDamagePayload(item.SourceObjectId, target, damage)));
+            events.Add(new("DAMAGE_APPLIED", "技能对敌方单位造成伤害", BuildDamagePayload(item.SourceObjectId, target, damage)));
         }
         var cleanup = RunStateBasedCleanupLoop(state, zones, cards, item, state.RunePools,
             damageTriggeredDestroyTargetObjectIds: destroyed, objectLocations: locations,

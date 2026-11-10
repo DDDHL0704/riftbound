@@ -7,7 +7,7 @@ public sealed partial class CoreRuleEngine
     internal static bool RequiresObservedUnitEventHistory(UnitEventContext? context)
         => context?.Timing is UnitEventTimings.PrintedPowerCardPlayed or UnitEventTimings.BoonConsumed
                 or UnitEventTimings.PlayerDefend or UnitEventTimings.FriendlyUnitTargeted
-                or ArmamentLastBreathRules.Timing or "FRIENDLY_UNIT_PLAYED"
+                or ArmamentLastBreathRules.Timing or "FRIENDLY_UNIT_PLAYED" or "START" or OpponentScoringActionTiming
             || context?.Timing == "MOVE" && SelectedUnitEventSpec(context) is { RequiresMoveToBattlefield: true } or { PreservesMovementCapture: true }
             || context?.Origin?.ArmamentGranted == true
             || context is not null && HasSourcePlayCondition(UnitEventSpec(context.CardNo))
@@ -23,6 +23,8 @@ public sealed partial class CoreRuleEngine
             : MatchStateHasher.HashValue(new { observation, context.SourcePlayCondition });
         if (context.SourceConqueredBeforeEnd is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.SourceConqueredBeforeEnd });
+        if (context.ScoringAction is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.ScoringAction });
         return context.TriggeringBattlefield is null && context.DelayedReceipt is null ? capture
             : MatchStateHasher.HashValue(new { capture, context.TriggeringBattlefield, context.DelayedReceipt });
     }

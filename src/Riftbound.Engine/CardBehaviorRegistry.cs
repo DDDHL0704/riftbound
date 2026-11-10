@@ -2110,7 +2110,8 @@ public static class CardBehaviorRegistry
             CreatedBaseUnitTokenName: "精灵",
             CreatedBaseUnitTokenTags: CardObjectTags.Ephemeral,
             PlaysSourceToBaseAsEquipment: true,
-            SourceEquipmentTags: CardObjectTags.Ephemeral),
+            SourceEquipmentTags: CardObjectTags.Ephemeral,
+            UnitEventAbility: new("LAST_BREATH", "CREATE_UNIT_TOKEN", 1, CreatedTokenFactoryCardNo: P6TokenFactoryCatalog.FaerieTokenCardNo) { CreatedUnitTokenEntersReady = true }),
         new(
             "UNL-085/219",
             "地沟区地图",
@@ -2119,7 +2120,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsEquipment: true,
-            SourceEquipmentTags: CardObjectTags.Ephemeral),
+            SourceEquipmentTags: CardObjectTags.Ephemeral,
+            UnitEventAbility: new(CoreRuleEngine.OpponentScoringActionTiming, "DRAW", 1)),
         new(
             "UNL-136/219",
             "占卜花朵",
@@ -2538,7 +2540,8 @@ public static class CardBehaviorRegistry
             "CRUMBLING_PALACE_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("START", CoreRuleEngine.BeginningWinEffect, 1) { BeginningExactHandCount = 4, BeginningExactBattlefieldUnitCount = 4 }),
         new(
             "UNL-109/219",
             "猩红玫瑰",
@@ -7412,7 +7415,8 @@ public static class CardBehaviorRegistry
             CreatedBaseUnitTokenName: "精灵",
             CreatedBaseUnitTokenTags: CardObjectTags.Ephemeral,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 6),
+            SourceUnitPower: 6,
+            UnitEventAbility: new("START", "CREATE_UNIT_TOKEN", 1, CreatedTokenFactoryCardNo: P6TokenFactoryCatalog.FaerieTokenCardNo) { CreatedUnitTokenEntersReady = true }),
         new(
             "SFD·101/221",
             "仙灵龙",
@@ -7741,7 +7745,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 6),
+            SourceUnitPower: 6, UnitEventAbility: new("LAST_BREATH", CoreRuleEngine.UnitEventEnemyDamageEffect, 4)),
         new(
             "UNL-079/219",
             "黛安娜",
