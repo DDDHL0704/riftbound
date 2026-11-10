@@ -17,7 +17,7 @@
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
-      "note": "从手牌支付费用打出单位、加入结算链、双方让过后结算；单位是公开对象，可记录战力、标签和活跃/休眠状态。费用减少、进攻触发和战场位置路径暂缓。"
+      "note": "从手牌支付费用打出单位；单位是公开对象，可记录战力、标签和活跃/休眠状态。本夹具验证没有相关属性单位时全额支付并活跃进场，属性减费和进攻触发另由逐卡用例验证。"
     },
     {
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
@@ -115,7 +115,7 @@
           "stackItemId": "STACK-1-P1-UNIT-DAISY",
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-DAISY",
-          "effectKind": "DAISY_ACTIVE_UNIT_NO_TRAIT_DISCOUNT"
+          "effectKind": "DAISY_READY_UNIT_WITH_DISTINCT_TRAIT_DISCOUNT"
         }
       },
       {
