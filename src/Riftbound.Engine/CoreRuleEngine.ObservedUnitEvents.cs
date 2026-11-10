@@ -36,6 +36,8 @@ public sealed partial class CoreRuleEngine
             capture = MatchStateHasher.HashValue(new { capture, context.SourceOptionalExperiencePaid });
         if (context.SpellInstruction is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.SpellInstruction });
+        if (context.PaidLegendPlayCost is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.PaidLegendPlayCost });
         if (context.RevealedDeckSelection is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.RevealedDeckSelection });
         if (context.TriggeringBattlefield is not null || context.DelayedReceipt is not null)

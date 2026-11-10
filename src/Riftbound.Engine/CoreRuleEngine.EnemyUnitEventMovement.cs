@@ -15,14 +15,19 @@ public sealed partial class CoreRuleEngine
     internal const string MoveWeakerEnemyHereToAnotherBattlefieldEffect = "MOVE_WEAKER_ENEMY_HERE_TO_ANOTHER_BATTLEFIELD";
 
     private static bool IsDeclaredUnitEventMovementEffect(UnitEventContext context)
-        => SelectedUnitEventSpec(context)?.Effect is "MOVE_ENEMY" or MoveWeakerEnemyHereToAnotherBattlefieldEffect;
+        => SelectedUnitEventSpec(context)?.Effect is "MOVE_ENEMY" or MoveWeakerEnemyHereToAnotherBattlefieldEffect
+            or MoveFriendlyGroupToOpenBattlefieldEffect;
 
     internal static bool RequiresUnitEventMovementDeclarationHistory(StackItemState item)
         => item.UnitEvent is { } context && SelectedUnitEventSpec(context)?.PreservesMovementCapture == true
             && IsDeclaredUnitEventMovementEffect(context) && item.TargetGenerations is not null && item.Destination.Length > 0;
 
     internal static string DeclaredUnitEventMovementHash(StackItemState item)
-        => MatchStateHasher.HashValue(new { item.StackItemId, item.Destination, item.TargetObjectIds, item.TargetGenerations });
+    {
+        var hash = MatchStateHasher.HashValue(new { item.StackItemId, item.Destination, item.TargetObjectIds, item.TargetGenerations });
+        return item.UnitEventMovementBattlefield is null ? hash
+            : MatchStateHasher.HashValue(new { hash, item.UnitEventMovementBattlefield });
+    }
 
     private static IEnumerable<RuleChoiceOption> UnitEventMovementDestinations(MatchState state,
         StackItemState item, string target)
