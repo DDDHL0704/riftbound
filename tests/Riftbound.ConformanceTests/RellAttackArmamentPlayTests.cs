@@ -112,19 +112,28 @@ public sealed partial class RellAttackArmamentPlayTests
     public async Task SourceDepartureDoesNotCancelThePlayButCannotAttachToADepartedIncarnation(bool beforePlay)
     {
         var game = new Driver(Position()); await Attack(game);
+        var firstPrivateEvent = -1;
         if (beforePlay) {
             await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["RELL"])); await game.Top();
+            firstPrivateEvent = game.Events().Count();
         }
         await game.Top(); Assert.NotNull(game.State.PendingEffectPlay);
         await game.Act("P1", new PlayCardCommand("GEAR", Shield, []));
         if (!beforePlay) {
             await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["RELL"])); await game.Top();
+            firstPrivateEvent = game.Events().Count();
         }
         Assert.Contains("RELL", game.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain("RELL", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
         await game.Top();
         Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
-        Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId); await game.Replay();
+        Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
+        Assert.True(firstPrivateEvent >= 0);
+        // Only inspect events born after the real return. Earlier accepted
+        // public records remain untouched, including a skill earned on field.
+        Assert.All(game.Events().Skip(firstPrivateEvent), record =>
+            Assert.DoesNotContain("\"RELL\"", JsonSerializer.Serialize(record.Event.Payload)));
+        await game.Replay();
     }
 
     [Theory, InlineData("all-costs"), InlineData("mana"), InlineData("power"), InlineData("optional"),
