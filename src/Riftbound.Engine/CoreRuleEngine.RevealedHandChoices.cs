@@ -140,6 +140,6 @@ public sealed partial class CoreRuleEngine
             StackItems = state.StackItems.Take(state.StackItems.Count - 1).Append(item with { CompletedHandExecutions = item.CompletedHandExecutions + 1 }).ToArray() };
         if (item.DeathRevealContext is not null) next = GrantFaceDownLook(next, item, owner, events);
         var resumed = ResolvePassPriority(next, new("hand-continuation", item.ControllerId, CommandTypes.PassPriority), forceResolve: true);
-        return resumed with { Events = RedactUnitEventContinuationSource(state, item, events).Concat(resumed.Events).ToArray() };
+        return resumed with { Events = RedactUnitEventSourceEvents(state, item, events).Concat(resumed.Events).ToArray() };
     }
 }

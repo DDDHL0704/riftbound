@@ -108,13 +108,4 @@ public sealed partial class CoreRuleEngine
                     ["scheduleId"] = schedule.Receipt.Id }))).ToArray() };
     }
 
-    private static IReadOnlyList<GameEvent> RedactUnitEventContinuationSource(MatchState state,
-        StackItemState item, IReadOnlyList<GameEvent> events)
-    {
-        if (item.UnitEvent is null) return events;
-        var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
-        return source == item.SourceObjectId ? events : events.Select(ev =>
-            Equals(ev.Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId)
-                ? ev with { Payload = new Dictionary<string, object?>(ev.Payload) { ["sourceObjectId"] = source } } : ev).ToArray();
-    }
 }

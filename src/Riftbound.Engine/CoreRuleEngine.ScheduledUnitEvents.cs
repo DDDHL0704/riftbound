@@ -42,7 +42,7 @@ public sealed partial class CoreRuleEngine
 
     internal static long ObservedUnitEventOccurrenceTick(UnitEventContext context)
         => HasArmamentPlayAttachment(context) && context.ReflexiveTick is { } tick
-            ? tick : context.DelayedReceipt?.FiredTick ?? context.CapturedTick;
+            ? tick : context.RevealedDeckSelection?.RevealedTick ?? context.DelayedReceipt?.FiredTick ?? context.CapturedTick;
 
     private static bool ValidScheduledUnitEventReceipt(MatchState state, UnitEventContext context,
         string source, string? controller)

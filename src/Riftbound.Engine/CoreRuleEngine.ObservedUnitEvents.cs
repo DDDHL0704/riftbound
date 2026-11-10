@@ -17,6 +17,7 @@ public sealed partial class CoreRuleEngine
             || context?.Timing == "PLAY" && (UnitEventRequiresOpponent(SelectedUnitEventSpec(context))
                 || SelectedUnitEventSpec(context) is { ReturnAllUnitsMaximumMight: not null }
                     or { ExemptsControllerIfExperiencePaid: true } or { GraveyardReturnAnyTags: not null })
+            || context is not null && UnitEventSpecForContext(context) is { Effect: UnitEventLookUnitEffect, DeckSelection: not null }
             || context?.TriggeringBattlefield is not null || context?.DelayedReceipt is not null;
 
     internal static string ObservedUnitEventCaptureHash(UnitEventContext context, string source, string controller)
@@ -41,6 +42,8 @@ public sealed partial class CoreRuleEngine
             capture = MatchStateHasher.HashValue(new { capture, context.SpellInstruction });
         if (context.PaidLegendPlayCost is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.PaidLegendPlayCost });
+        if (context.RevealedDeckSelection is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.RevealedDeckSelection });
         if (context.AgilePlayGrant is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.AgilePlayGrant });
         if (context.TriggeringBattlefield is not null || context.DelayedReceipt is not null)

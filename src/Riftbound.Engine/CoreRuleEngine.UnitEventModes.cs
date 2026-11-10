@@ -17,6 +17,8 @@ public sealed partial class CoreRuleEngine
             spec = spec with { Effect = holdEffect, Optional = false };
         if (HasArmamentPlayAttachment(context) && context.ReflexiveTick is not null)
             return spec! with { Effect = AttachPlayedArmamentEffect, Optional = false };
+        if (context.RevealedDeckSelection is not null && spec is { Effect: UnitEventLookUnitEffect, DeckSelection: not null })
+            spec = spec with { Effect = "BOON_FRIENDLY", Amount = 1, Optional = false };
         if (spec?.DamageUsesAssignedOverkill == true && context.AssignedOverkill is { } assigned)
             spec = spec with { Amount = assigned };
         if (context.Mode is null) return spec;

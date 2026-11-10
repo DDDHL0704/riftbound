@@ -7936,11 +7936,12 @@ public static class CardBehaviorRegistry
             "UNL-051/219",
             "艾翁",
             5,
-            "IVERN_LOOK_UNIT_BOON_STATIC",
+            "IVERN_LOOK_UNIT_BOON_EVENT",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4) { UnitEventAbility = new("PLAY_OR_HOLD", CoreRuleEngine.UnitEventLookUnitEffect, 3) {
+                DeckSelection = new(["鸟类", "猫科", "犬形", "魄罗"]) } },
         new(
             "UNL-137/219",
             "悚悚魄罗",
@@ -7967,11 +7968,12 @@ public static class CardBehaviorRegistry
             "UNL-051a/219",
             "艾翁",
             5,
-            "IVERN_ALT_A_LOOK_UNIT_BOON_STATIC",
+            "IVERN_ALT_A_LOOK_UNIT_BOON_EVENT",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4) { UnitEventAbility = new("PLAY_OR_HOLD", CoreRuleEngine.UnitEventLookUnitEffect, 3) {
+                DeckSelection = new(["鸟类", "猫科", "犬形", "魄罗"]) } },
         new(
             "UNL-071/219",
             "环刃舞者",

@@ -317,9 +317,9 @@
       ],
       "text": "当你打出我时，或当我据守一处战场时，查看你主牌堆顶部的三张牌。",
       "scope": "当你打出我时，或当我据守一处战场时，查看你主牌堆顶部的三张牌。",
-      "status": "missing",
-      "reason": "仅基础单位登记；缺少打出／据守查看顶部3张、可选展示单位并抽取、回收其余及四类属性展示后的友方增益整组关联技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "独立打出／据守技能实际私有查看顶部三张",
+      "rules": "官方中文UNL051／051a艾翁·自然恩赐；核心158.3、383.2–383.4、388–389、403–407；先查看，再可选展示单位并抽取、回收其余；按实际展示特性创建独立增益技能，不以抽取成功作为触发条件。",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -339,14 +339,33 @@
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"UNL-051/219\"",
-            "\"IVERN_LOOK_UNIT_BOON_STATIC\""
+            "if (spec.Effect == UnitEventLookUnitEffect)",
+            "return BeginDeckChoice(state, item, deck);"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "MainDeckLookCount: spec.Amount",
+            "MainDeckTargetRequiredTag: CardObjectTags.UnitCard"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": "UnitEventSpecs(context.CardNo).SingleOrDefault(spec => spec.Timing == context.Timing)"
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/IvernRevealedDeckSelectionTests.cs",
+          "methods": [
+            "TheIndependentPlaySkillLooksThreePrivatelyThenRevealsDrawsAndRecyclesBeforeTheBoon",
+            "AnActualOwnTurnHoldLooksAndDrawsBeforeTheOrdinaryChannelAndDraw"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -355,9 +374,9 @@
       ],
       "text": "你可以选择从中展示一名单位，并抽取该卡牌。",
       "scope": "当你打出我时，或当我据守一处战场时，查看你主牌堆顶部的三张牌。",
-      "status": "missing",
-      "reason": "仅基础单位登记；缺少打出／据守查看顶部3张、可选展示单位并抽取、回收其余及四类属性展示后的友方增益整组关联技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "可选展示所查看的单位并通过共享抽取执行",
+      "rules": "官方中文UNL051／051a艾翁·自然恩赐；核心158.3、383.2–383.4、388–389、403–407；先查看，再可选展示单位并抽取、回收其余；按实际展示特性创建独立增益技能，不以抽取成功作为触发条件。",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -377,14 +396,33 @@
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"UNL-051/219\"",
-            "\"IVERN_LOOK_UNIT_BOON_STATIC\""
+            "if (spec.Effect == UnitEventLookUnitEffect)",
+            "return BeginDeckChoice(state, item, deck);"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "MainDeckLookCount: spec.Amount",
+            "MainDeckTargetRequiredTag: CardObjectTags.UnitCard"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": "DrawSelectedMainDeckTargetsAndRecycleRest("
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/IvernRevealedDeckSelectionTests.cs",
+          "methods": [
+            "TheIndependentPlaySkillLooksThreePrivatelyThenRevealsDrawsAndRecyclesBeforeTheBoon",
+            "RevealingAUnitWithoutTheFourTraitsStillDrawsItWithoutABoon"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -393,9 +431,9 @@
       ],
       "text": "回收其余的卡牌。",
       "scope": "当你打出我时，或当我据守一处战场时，查看你主牌堆顶部的三张牌。",
-      "status": "missing",
-      "reason": "仅基础单位登记；缺少打出／据守查看顶部3张、可选展示单位并抽取、回收其余及四类属性展示后的友方增益整组关联技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "通过共享执行器回收其余的所查看卡牌",
+      "rules": "官方中文UNL051／051a艾翁·自然恩赐；核心158.3、383.2–383.4、388–389、403–407；先查看，再可选展示单位并抽取、回收其余；按实际展示特性创建独立增益技能，不以抽取成功作为触发条件。",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -415,14 +453,33 @@
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"UNL-051/219\"",
-            "\"IVERN_LOOK_UNIT_BOON_STATIC\""
+            "if (spec.Effect == UnitEventLookUnitEffect)",
+            "return BeginDeckChoice(state, item, deck);"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "MainDeckLookCount: spec.Amount",
+            "MainDeckTargetRequiredTag: CardObjectTags.UnitCard"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": "RecyclesUnselectedMainDeckLookCards: true"
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/IvernRevealedDeckSelectionTests.cs",
+          "methods": [
+            "DecliningTheRevealRecyclesAllThreeWithoutRevealingThemOrCreatingABoon",
+            "ShortDecksUseOnlyTheActuallyLookedCardsAndDoNotBurnOut"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -431,9 +488,9 @@
       ],
       "text": "如果你展示了一名“鸟类”、“猫科”、“犬形”或“魄罗”属性单位，则进行一次：给予一名友方单位{{增益}}。（如果其未拥有增益，则获得一个{{S}}+1增益。）",
       "scope": "当你打出我时，或当我据守一处战场时，查看你主牌堆顶部的三张牌。",
-      "status": "missing",
-      "reason": "仅基础单位登记；缺少打出／据守查看顶部3张、可选展示单位并抽取、回收其余及四类属性展示后的友方增益整组关联技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "以实际展示特性为事实创建独立友方增益；来源返手仍保留技能并核对原始观察历史",
+      "rules": "官方中文UNL051／051a艾翁·自然恩赐；核心158.3、383.2–383.4、388–389、403–407；先查看，再可选展示单位并抽取、回收其余；按实际展示特性创建独立增益技能，不以抽取成功作为触发条件。",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -453,14 +510,35 @@
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"UNL-051/219\"",
-            "\"IVERN_LOOK_UNIT_BOON_STATIC\""
+            "if (spec.Effect == UnitEventLookUnitEffect)",
+            "return BeginDeckChoice(state, item, deck);"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "MainDeckLookCount: spec.Amount",
+            "MainDeckTargetRequiredTag: CardObjectTags.UnitCard"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": "AppendDeckSelectionBoonEvent(item, selectionReveal, events);"
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/IvernRevealedDeckSelectionTests.cs",
+          "methods": [
+            "EachPrintedAnimalTraitEarnsExactlyOneIndependentBoon",
+            "ReturningTheSourceBeforeTheLookDoesNotCancelThePrivateSelectionOrItsNestedBoon",
+            "OriginalAcceptedRevealAndNestedSkillHistoryCannotBeCoherentlyRewritten",
+            "AnObservedPrivateCardKeepsItsOriginalSourceEvenWhenAnotherRealIvernHasTheSameValidShape"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
