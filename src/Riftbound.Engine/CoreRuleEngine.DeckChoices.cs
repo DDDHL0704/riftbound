@@ -21,6 +21,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool TryGetDeckChoiceBehavior(MatchState state, StackItemState item, out CardBehaviorDefinition behavior)
     {
+        if (TryUnitEventDeckChoiceBehavior(item, out behavior)) return true;
         if (item.HeldContext is { Kind: "LOOK_EQUIPMENT" } held
             && HeldDefinition(held.CardNo)?.Kind == held.Kind)
             return CardBehaviorRegistry.TryGetByCardNo(held.CardNo, out behavior!) && IsDeferredDeckChoice(behavior);
@@ -87,12 +88,14 @@ public sealed partial class CoreRuleEngine
         var cards=state.CardObjects.ToDictionary();var revealEvents=new List<GameEvent>();
         var pools = state.RunePools.ToDictionary();
         var remainingCount=choice.ContextObjectIds.Count;
+        RevealedDeckSelectionFact? selectionReveal = null;
         if((!string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag) || behavior.MainDeckTargetAllowedTags.Length > 0) && selected.Count>0)
         {
             BeforeDeckReveal(state, zones, cards, item, item.ControllerId, revealEvents, item.CompletedDeckExecutions, selectionReveal: true);
             selected = selected.Where(id => zones[item.ControllerId].MainDeck.Contains(id)).ToArray();
             if (selected.Count > 0) revealEvents.Add(new("CARD_REVEALED","展示选择的卡牌",new Dictionary<string,object?> {
                 ["playerId"]=item.ControllerId,["sourceObjectId"]=item.SourceObjectId,["objectId"]=selected[0],["cardNo"]=cards[selected[0]].CardNo}));
+            selectionReveal = CaptureDeckSelectionReveal(state, item, cards, selected);
             var kept=ObserveDeckCards(state,zones,cards,item,item.ControllerId,selected,"REVEAL",item.CompletedDeckExecutions,revealEvents,selectionReveal:true, pools:pools);
             remainingCount-=selected.Count-kept.Length;selected=kept;
         }
@@ -105,6 +108,7 @@ public sealed partial class CoreRuleEngine
         var events = revealEvents.Concat(result.Events.Select(e => e.Kind == "CARDS_RECYCLED"
             ? e with { Payload = e.Payload.Where(field => field.Key != "cardIds").ToDictionary(field => field.Key, field => field.Value) }
             : e)).ToList();
+        AppendDeckSelectionBoonEvent(item, selectionReveal, events);
         // Card Trick says 'put into hand', not 'draw'. Filtered choices explicitly
         // reveal the selected card; unselected looked cards remain private.
         if (!behavior.MainDeckSelectionIsDraw)
@@ -120,6 +124,6 @@ public sealed partial class CoreRuleEngine
             StackItems = state.StackItems.Take(state.StackItems.Count - 1).Append(nextItem).ToArray()
         };
         var resumed = ResolvePassPriority(next, new("deck-continuation", item.ControllerId, CommandTypes.PassPriority), forceResolve: true);
-        return resumed with { Events = events.Concat(resumed.Events).ToArray() };
+        return resumed with { Events = RedactUnitEventSourceEvents(state, item, events.Concat(resumed.Events).ToArray()) };
     }
 }

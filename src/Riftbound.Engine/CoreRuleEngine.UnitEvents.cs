@@ -392,7 +392,7 @@ public sealed partial class CoreRuleEngine
                         && burnedBehavior.PlaysSourceToBaseAsUnit && burnedBehavior.SourceUnitPower == burned.Power
                         && PredictBindingMatches(state, burned.Binding, burned.CardNo, burned.FaceRevision, reflexive, null)
                     : c.ReflexiveTick is null
-                : c.BurnedUnit is null && (spec.Effect == RuneDomainRevealEffect || c.ReflexiveTick is null))
+                : c.BurnedUnit is null && (spec.Effect is RuneDomainRevealEffect or UnitEventDeckSelectionEffect || c.ReflexiveTick is null))
             && ValidTargetSelectionContext(state, c, spec, source, controller)
             && ValidScoringActionOrigin(state, c, spec, controller)
             && ValidFriendlyUnitActionContext(state, c, spec, controller)
@@ -405,6 +405,7 @@ public sealed partial class CoreRuleEngine
             && ValidTriggeringBattlefield(c, spec)
             && ValidScheduledUnitEventReceipt(state, c, source, controller)
             && ValidRevealedRuneContext(state, c, controller)
+            && ValidDeckSelectionReveal(state, c, spec)
             && ValidExhaustionBatchContext(state, c, spec)
             && ValidPlayedUnitRuneObservation(state, c, source, controller)
             && (spec.Effect == DeploymentPlayMoveEffect ? ValidDeploymentPlayBattlefield(state, c) : c.DeploymentBattlefield is null)
@@ -563,10 +564,17 @@ public sealed partial class CoreRuleEngine
     {
         var result = ResolveConquestUnitEventInstruction(state, item) ?? ResolveUnitEventInstruction(state, item);
         result = AppendIndependentUnitEventExperience(state, item, result);
+        return result with { Events = RedactUnitEventSourceEvents(state, item, result.Events) };
+    }
+
+    private static IReadOnlyList<GameEvent> RedactUnitEventSourceEvents(MatchState state, StackItemState item,
+        IReadOnlyList<GameEvent> events)
+    {
+        if (item.UnitEvent is null) return events;
         var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
-        return source == item.SourceObjectId ? result : result with { Events = result.Events.Select(e =>
+        return source == item.SourceObjectId ? events : events.Select(e =>
             Equals(e.Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId)
-                ? e with { Payload = new Dictionary<string, object?>(e.Payload) { ["sourceObjectId"] = source } } : e).ToArray() };
+                ? e with { Payload = new Dictionary<string, object?>(e.Payload) { ["sourceObjectId"] = source } } : e).ToArray();
     }
 
     private static StackResolutionResult ResolveUnitEventInstruction(MatchState state, StackItemState item)
@@ -575,6 +583,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId))
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = SelectedUnitEventSpec(context)!;
+        if (spec.Effect == UnitEventDeckSelectionEffect) return ResolveUnitEventDeckSelection(state, item);
         if (spec.Effect == ScheduleNextMainUnitEventEffect) return ScheduleNextMainUnitEvent(state, item);
         if (spec.Effect == "GAIN_EXPERIENCE") return ResolveUnitEventExperience(state, item, spec);
         if (spec.Effect == DetachOriginDamageSourceEffect) return ResolveDetachOriginDamageSource(state, item, spec);

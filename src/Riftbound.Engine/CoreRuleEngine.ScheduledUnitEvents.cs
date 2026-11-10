@@ -41,7 +41,7 @@ public sealed partial class CoreRuleEngine
             creatingStack, tick, source, controller, Context = context with { DelayedReceipt = null } });
 
     internal static long ObservedUnitEventOccurrenceTick(UnitEventContext context)
-        => context.DelayedReceipt?.FiredTick ?? context.CapturedTick;
+        => context.RevealedDeckSelection?.RevealedTick ?? context.DelayedReceipt?.FiredTick ?? context.CapturedTick;
 
     private static bool ValidScheduledUnitEventReceipt(MatchState state, UnitEventContext context,
         string source, string? controller)

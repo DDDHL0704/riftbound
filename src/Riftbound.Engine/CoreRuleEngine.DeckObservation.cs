@@ -97,7 +97,7 @@ public sealed partial class CoreRuleEngine
         var instruction = context.Instruction; var before = instruction.BeforeReveal;
         // Bind the public capture facts. Other privately looked cards and the
         // parent's private continuation do not belong in a public digest.
-        return MatchStateHasher.HashValue(new {
+        var capture = MatchStateHasher.HashValue(new {
             ParentStackItemId = instruction.Parent?.StackItemId, ParentCardNo = instruction.Parent?.CardNo,
             ParentControllerId = instruction.Parent?.ControllerId, ParentEffectKind = instruction.Parent?.EffectKind,
             instruction.PlayerId, instruction.Kind, instruction.ExecutionIndex, instruction.SelectionReveal,
@@ -109,6 +109,11 @@ public sealed partial class CoreRuleEngine
                 before.ExecutionIndex, before.InstanceIndex, before.Origin, before.SourceTokenFactoryCardNo,
                 before.SelectionReveal }
         });
+        // Existing spell/insight observation digests remain unchanged. A
+        // captured unit-event parent must also preserve its original source.
+        return instruction.Parent?.UnitEvent is { } unitEvent
+            ? MatchStateHasher.HashValue(new { capture, ParentUnitEventCapture = ObservedUnitEventCaptureHash(
+                unitEvent, instruction.Parent.SourceObjectId, instruction.Parent.ControllerId) }) : capture;
     }
 
     private static ResolutionResult CollectObservedDeckPlays(ResolutionResult result)
@@ -274,6 +279,8 @@ public sealed partial class CoreRuleEngine
             : IsMovementRevealObservation(parent)
                 ? ValidMovementObserver(state,parent.MovementObserver!,parent.EffectKind,parent.ControllerId,parent.SourceObjectId,parent.CardNo)
             : parent.FieldContext is { } field ? ValidFieldContextState(state,field,parent.SourceObjectId,parent.ControllerId,parent.EffectKind,parent.CardNo)
+            : parent.UnitEvent is { } unitEvent ? TryUnitEventDeckChoiceBehavior(parent, out _)
+                && ValidUnitEvent(state, unitEvent, parent.EffectKind, parent.SourceObjectId, parent.CardNo, parent.ControllerId)
             : parent.InsightContext is { } insight ? ValidInsightTrigger(insight,parent.EffectKind,parent.ControllerId,parent.CardNo)
                 && ValidConquestLookSource(state,insight,parent.SourceObjectId)
                 && ValidPredictEntryBindings(state,insight,parent.SourceObjectId)

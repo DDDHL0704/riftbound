@@ -11,7 +11,8 @@ public sealed partial class CoreRuleEngine
             || context?.Timing == "MOVE" && SelectedUnitEventSpec(context) is { RequiresMoveToBattlefield: true } or { PreservesMovementCapture: true }
             || context?.Origin?.ArmamentGranted == true
             || context is not null && HasSourcePlayCondition(UnitEventSpec(context.CardNo))
-            || context?.TriggeringBattlefield is not null || context?.DelayedReceipt is not null;
+            || context?.TriggeringBattlefield is not null || context?.DelayedReceipt is not null
+            || context is not null && UnitEventSpec(context.CardNo)?.Effect == UnitEventDeckSelectionEffect;
 
     internal static string ObservedUnitEventCaptureHash(UnitEventContext context, string source, string controller)
     {
@@ -25,6 +26,8 @@ public sealed partial class CoreRuleEngine
             capture = MatchStateHasher.HashValue(new { capture, context.SourceConqueredBeforeEnd });
         if (context.ScoringAction is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.ScoringAction });
+        if (context.RevealedDeckSelection is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.RevealedDeckSelection });
         return context.TriggeringBattlefield is null && context.DelayedReceipt is null ? capture
             : MatchStateHasher.HashValue(new { capture, context.TriggeringBattlefield, context.DelayedReceipt });
     }
