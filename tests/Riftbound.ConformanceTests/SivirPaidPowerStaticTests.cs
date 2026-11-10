@@ -244,4 +244,51 @@ public sealed class SivirPaidPowerStaticTests
         Passive(game.State, true);
         await game.Replay();
     }
+
+    [Fact]
+    public async Task ACommittedResourceChildCapturesItsMightyCrossingOnceBeforeTheOuterInstructionResumes()
+    {
+        var initial = RadGearTestPosition.Put(Position(), "FIORA", "SFD·180/221", "P1", "BASE");
+        initial = RadGearTestPosition.Put(initial, "SPELL", "OGN·268/298", "P1", "HAND");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["HOST"] = initial.CardObjects["HOST"] with { IsExhausted = true } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("SPELL", "OGN·268/298", ["BF"]));
+        await game.Top();
+        var request = game.State.PendingRuleChoice!.Request;
+        var selected = $"RESOURCE:CONVERT:{P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId}:"
+            + P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix + "2";
+        await game.Act("P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", [selected]));
+        var captured = Assert.Single(game.State.TriggerQueue, item => item.MightySkill is not null).MightySkill!;
+        Assert.Equal(4, captured.BeforeMight); Assert.Equal(6, captured.AfterMight);
+        Assert.Equal(2, captured.After.PaidPowerThisTurn["P1"]);
+        request = game.State.PendingRuleChoice!.Request;
+        await game.Act("P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["SPEND_POWER:0"]));
+        Assert.Single(game.State.StackItems, item => item.MightySkill is not null);
+        Assert.Single(game.Events(), row => row.Event.Kind == "TRIGGER_QUEUED"
+            && Equals(row.Event.Payload.GetValueOrDefault("effectKind"), CoreRuleEngine.MightyReadyEffect));
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]));
+        await game.Replay();
+    }
+
+    [Theory, InlineData("payer"), InlineData("other-player"), InlineData("missing")]
+    public async Task RebuildingViewsCannotAuthenticateAlteredMightyPaymentInputsAgainstOriginalRecords(string mutation)
+    {
+        var initial = RadGearTestPosition.Put(Position(), "FIORA", "SFD·180/221", "P1", "BASE");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["HOST"] = initial.CardObjects["HOST"] with { IsExhausted = true } } };
+        var game = new Driver(initial);
+        await Convert(game, 2);
+        var item = Assert.Single(game.State.StackItems, item => item.MightySkill is not null);
+        var context = item.MightySkill!;
+        var counts = new Dictionary<string, int>(context.After.PaidPowerThisTurn);
+        if (mutation == "missing") counts.Clear();
+        else counts[mutation == "payer" ? "P1" : "P2"]++;
+        var altered = game.State with { StackItems = game.State.StackItems.Select(row => row == item
+            ? row with { MightySkill = context with { After = context.After with { PaidPowerThisTurn = counts } } }
+            : row).ToArray() };
+        Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game, altered));
+        await game.Replay();
+    }
 }

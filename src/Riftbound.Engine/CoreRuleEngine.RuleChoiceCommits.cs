@@ -50,7 +50,7 @@ public sealed partial class CoreRuleEngine
         var next = committed.Deserialize<MatchState>(ResourceStepJson)!;
         if (next.RunePools.Values.Any(pool => !pool.HasSupportedAmounts))
             throw new InvalidOperationException("Completed resource steps produced an unsupported pool.");
-        return next;
+        return RecomputeRuleDerivedKeywords(next);
     }
 
     private static JsonNode? ApplyRuleChoiceResourceDifference(JsonNode? current, JsonNode? before, JsonNode? after, string path)
