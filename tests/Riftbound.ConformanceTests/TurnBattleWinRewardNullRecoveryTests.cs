@@ -33,7 +33,15 @@ public sealed class TurnBattleWinRewardNullRecoveryTests
         var corrupted = frame with { UntilEndOfTurnEffects = effects };
         var forged = inOrigin ? game.State with { PendingRuleChoice = pending with { Origin = corrupted } } : corrupted;
         var before = MatchStateHasher.HashValue(game.State);
-        var errors = ArmamentGrantedCombatTriggerTests.Errors(game, forged);
+        // Keep the real player views: the malformed recovered state cannot be
+        // serialized to manufacture a new spectator hash before validation.
+        var sequence = game.Commands().Last().CompletedEventSequence;
+        var snapshots = ResolutionResult.BuildSnapshots(game.State);
+        var prompts = ResolutionResult.BuildPrompts(game.State);
+        var views = game.State.Seats.Keys.ToDictionary(player => player, player => new RecoveredPlayerView(
+            player, game.State.Tick, sequence, snapshots[player], game.State.Tick, sequence, prompts[player]));
+        var errors = MatchRecoveryValidator.Validate(game.State.RoomId, sequence,
+            game.Commands(), game.Events(), views, forged, game.State.Tick);
         Assert.Contains(errors, error => error.Contains(
             "turn battle-win reward history contains a null effect list or value", StringComparison.Ordinal));
         Assert.Equal(before, MatchStateHasher.HashValue(game.State));
