@@ -20544,12 +20544,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return PaymentCostRules.CanPayPowerCost(pool, anyPowerCost, powerCostByTrait);
     }
 
-    private static (int AnyPower, IReadOnlyDictionary<string, int> PowerByTrait) PayPowerCost(
+    private static RunePool PayPowerCost(
         RunePool pool,
         int anyPowerCost,
         IReadOnlyDictionary<string, int> powerCostByTrait)
     {
-        return PaymentCostRules.PayPowerCost(pool, anyPowerCost, powerCostByTrait);
+        return PaymentCostRules.PayPowerCost(pool, anyPowerCost, powerCostByTrait, PowerPaymentPurpose.Other);
     }
 
     private static IReadOnlyDictionary<string, int> NormalizePowerCostByTrait(
