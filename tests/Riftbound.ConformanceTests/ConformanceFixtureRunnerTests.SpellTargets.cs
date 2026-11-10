@@ -2129,10 +2129,22 @@ public sealed partial class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.DoesNotContain("P1-HOUSECLEANING-FRIENDLY-001", result.FinalState.CardObjects.Keys);
-        Assert.DoesNotContain("P2-HOUSECLEANING-ENEMY-001", result.FinalState.CardObjects.Keys);
-        Assert.Equal(["P1-HOUSECLEANING-KEEPER-001"], result.FinalState.PlayerZones["P1"].Battlefields);
-        Assert.Equal(["P2-HOUSECLEANING-KEEPER-001"], result.FinalState.PlayerZones["P2"].Base);
+        Assert.Empty(Assert.Single(result.FinalState.StackItems).TargetObjectIds);
+        var resolving = await OfficialGraveyardRecastTests.Top(result.FinalState);
+        var first = Assert.IsType<RuleChoiceContinuation>(resolving.State.PendingRuleChoice);
+        Assert.Equal("P1", first.Request.PlayerId);
+        var chosen = await OfficialGraveyardRecastTests.Act(resolving.State, "P1",
+            new PayCostCommand(first.Request.Id, "RULE_REPLACEMENT", ["P1-HOUSECLEANING-FRIENDLY-001"]));
+        var second = Assert.IsType<RuleChoiceContinuation>(chosen.State.PendingRuleChoice);
+        Assert.Equal("P2", second.Request.PlayerId);
+        var completed = await OfficialGraveyardRecastTests.Act(chosen.State, "P2",
+            new PayCostCommand(second.Request.Id, "RULE_REPLACEMENT", ["P2-HOUSECLEANING-ENEMY-001"]));
+        Assert.Contains("P1-HOUSECLEANING-FRIENDLY-001", completed.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("P2-HOUSECLEANING-ENEMY-001", completed.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal(["P1-HOUSECLEANING-KEEPER-001"], completed.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-HOUSECLEANING-KEEPER-001"], completed.State.PlayerZones["P2"].Base);
+        Assert.Equal("P2", Assert.Single(completed.Events, e => e.Kind == "UNIT_DESTROYED"
+            && Equals(e.Payload["targetObjectId"], "P2-HOUSECLEANING-ENEMY-001")).Payload["destroyedByPlayerId"]);
     }
 
     [Fact]

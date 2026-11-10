@@ -68,7 +68,7 @@ public static partial class MatchRecoveryValidator
         {
             if (frame is null) continue;
             var items = frame.PendingEffectPlay?.Parent is { } parent ? frame.StackItems.Append(parent) : frame.StackItems;
-            foreach (var item in items.Where(CoreRuleEngine.IsUnitEventGraveyardPlay))
+            foreach (var item in items.Where(CoreRuleEngine.RequiresUnitEventTargetHistory))
             {
                 var originals = confirmations.Where(record => TryReadObjectString(record.Event.Payload,
                     "stackItemId", out var stack) && stack == item.StackItemId).ToArray();

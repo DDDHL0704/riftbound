@@ -8,11 +8,13 @@ public sealed partial class CoreRuleEngine
         => HasArmamentPlayAttachment(context)
             || context?.Timing is UnitEventTimings.PrintedPowerCardPlayed or UnitEventTimings.BoonConsumed
                 or UnitEventTimings.PlayerDefend or UnitEventTimings.FriendlyUnitTargeted
-                or ArmamentLastBreathRules.Timing or "FRIENDLY_UNIT_PLAYED" or "START" or OpponentScoringActionTiming
+                or ArmamentLastBreathRules.Timing or FirstFriendlyStartPhaseDeathTiming or SpellInstructionReflexiveTiming or "FRIENDLY_UNIT_PLAYED" or "START" or OpponentScoringActionTiming
             || context?.Timing == "MOVE" && SelectedUnitEventSpec(context) is { RequiresMoveToBattlefield: true } or { PreservesMovementCapture: true }
+            || context?.RequiredUnitDestruction is not null
             || context?.Origin?.ArmamentGranted == true
             || context is not null && HasSourcePlayCondition(UnitEventSpec(context.CardNo))
             || context?.Timing == "PLAY" && SelectedUnitEventSpec(context) is { UnitTokenPlayedByChosenOpponent: true } or { ReturnAllUnitsMaximumMight: not null }
+                or { ExemptsControllerIfExperiencePaid: true } or { GraveyardReturnAnyTags: not null }
             || context?.TriggeringBattlefield is not null || context?.DelayedReceipt is not null;
 
     internal static string ObservedUnitEventCaptureHash(UnitEventContext context, string source, string controller)
@@ -27,6 +29,12 @@ public sealed partial class CoreRuleEngine
             capture = MatchStateHasher.HashValue(new { capture, context.SourceConqueredBeforeEnd });
         if (context.ScoringAction is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.ScoringAction });
+        if (context.RequiredUnitDestruction is not null || context.StartPhaseUnitDeath is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.RequiredUnitDestruction, context.StartPhaseUnitDeath });
+        if (context.SourceOptionalExperiencePaid)
+            capture = MatchStateHasher.HashValue(new { capture, context.SourceOptionalExperiencePaid });
+        if (context.SpellInstruction is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.SpellInstruction });
         if (context.PaidLegendPlayCost is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.PaidLegendPlayCost });
         if (context.TriggeringBattlefield is not null || context.DelayedReceipt is not null)

@@ -1,6 +1,7 @@
 import copy
 import importlib.util
 from pathlib import Path
+import re
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -48,11 +49,29 @@ class LilliaTokenPlayAuditTests(unittest.TestCase):
 
     def test_real_token_entry_must_reach_the_shared_observer(self):
         for name, token in [
-            ('CoreRuleEngine.UnitEntryTriggers.cs', 'CaptureOtherUnitPlayed(ev, zones, cards, entered, player, turnEffects)'),
+            ('CoreRuleEngine.UnitEntryTriggers.cs', 'CaptureOtherUnitPlayed('),
             ('CoreRuleEngine.UnitTokenEntry.cs', 'CaptureUnitEntry(new("UNIT_TOKEN_CREATED"'),
             ('CoreRuleEngine.UnitEvents.cs', 'UnitEventTrigger(captured,')]:
             with self.subTest(name=name):
                 self.assertEqual('missing', self.status(sources=self.changed_source(name, token)))
+
+    def test_entry_accepts_the_confirmed_play_receipt_but_rejects_changed_observer_arguments(self):
+        path = 'src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs'
+        original = self.sources.files[path]
+        for suffix, expected in [('', 'route'), (', playedItem', 'route'),
+                                 (', anotherItem', 'missing'), (', playedItem, extra', 'missing')]:
+            with self.subTest(suffix=suffix):
+                sources = copy.copy(self.sources); sources.files = dict(self.sources.files)
+                sources.files[path], count = re.subn(r'CaptureOtherUnitPlayed\([^;]+?\);',
+                    'CaptureOtherUnitPlayed(ev, zones, cards, entered, player, turnEffects' + suffix + ');', original)
+                self.assertEqual(1, count)
+                self.assertEqual(expected, self.status(sources=sources))
+
+    def test_an_unused_entry_observer_call_cannot_replace_the_live_entry_hook(self):
+        sources = self.changed_source('CoreRuleEngine.UnitEntryTriggers.cs', 'CaptureOtherUnitPlayed(')
+        path = 'src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs'
+        sources.files[path] += '\n    private static void Unused() { CaptureOtherUnitPlayed(ev, zones, cards, entered, player, turnEffects, playedItem); }\n'
+        self.assertEqual('missing', self.status(sources=sources))
 
     def test_the_actual_capture_requires_own_controller_and_intrinsic_token_identity(self):
         for token in ['EffectiveFieldControllerId(zones, c.ObjectId, c) == player',

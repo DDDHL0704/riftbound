@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-safety-inspector-experience-destroy-static",
-  "description": "Safety Inspector enters as a Yordle unit while experience cost and mutual destroy text are deferred.",
+  "description": "Safety Inspector pays its optional experience cost, enters, and its independent skill preserves the controller when the opponent has no units.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-164/219 安全检查员",
-      "note": "官方卡面：费用 5；单位；战力 3；约德尔人属性；可消耗 3 经验作为额外费用，打出时每名玩家必须摧毁自己的一名单位，若支付额外费用则自己无需摧毁。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场并记录约德尔人标签；经验额外费用、各玩家单位选择、摧毁和免除自己摧毁路径暂缓。"
+      "note": "官方卡面：费用5、战力3、约德尔人；打出时各玩家摧毁自己一名单位。此夹具按额外费用消耗3经验，豁免自己的摧毁指示；经验、法力及最终来源位置均独立断言。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -28,10 +28,18 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-164/219；核心355.1.a、355.18、383及412.1",
+      "note": "本夹具明确支付3经验豁免自己的摧毁指示；对手没有单位，技能正常结算；未支付及每名玩家各自选择由逐卡规则测试覆盖。"
     }
   ],
   "roomId": "p2-preflight-unl-164-safety-inspector-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302777,
     "turnNumber": 777,
@@ -39,7 +47,10 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
       "P1": {
         "mana": 5,
@@ -55,29 +66,53 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-SAFETY-INSPECTOR"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-SAFETY-INSPECTOR"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
-    "cardObjects": {}
+    "cardObjects": {},
+    "experience": {
+      "P1": 3,
+      "P2": 0
+    }
   },
   "commands": [
     {
@@ -87,11 +122,26 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-SAFETY-INSPECTOR",
         "cardNo": "UNL-164/219",
-        "targetObjectIds": []
+        "targetObjectIds": [],
+        "optionalCosts": [
+          "SPEND_EXPERIENCE:3"
+        ]
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-164-safety-inspector-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-164-safety-inspector-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-unl-164-safety-inspector-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-unl-164-safety-inspector-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
   ],
   "expected": {
     "finalTick": 3,
@@ -101,27 +151,48 @@
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED"
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": {
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
     "finalState": {
       "turnNumber": 777,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
+          "mainDeck": [
+            "P1-MAIN-001"
+          ],
           "hand": [],
-          "base": ["P1-UNIT-SAFETY-INSPECTOR"],
+          "base": [
+            "P1-UNIT-SAFETY-INSPECTOR"
+          ],
           "graveyard": []
         }
       },
@@ -129,14 +200,31 @@
       "cardObjects": {
         "P1-UNIT-SAFETY-INSPECTOR": {
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT", "约德尔人"],
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "约德尔人"
+          ],
           "isExhausted": true
         }
+      },
+      "experience": {
+        "P1": 0,
+        "P2": 0
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

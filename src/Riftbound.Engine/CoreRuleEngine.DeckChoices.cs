@@ -21,6 +21,15 @@ public sealed partial class CoreRuleEngine
 
     internal static bool TryGetDeckChoiceBehavior(MatchState state, StackItemState item, out CardBehaviorDefinition behavior)
     {
+        if (item.EffectKind == UnitEventEffect && item.UnitEvent is { } context
+            && SelectedUnitEventSpec(context) is { Effect: UnitEventLookUnitEffect, Amount: > 0 } spec)
+        {
+            behavior = new(item.CardNo, "查看牌库并展示抽取一名单位", 0, item.EffectKind, 0, 1,
+                TargetScope: CardTargetScopes.FriendlyMainDeckCard, MinTargetCount: 0,
+                MainDeckLookCount: spec.Amount, MainDeckTargetRequiredTag: CardObjectTags.UnitCard,
+                DrawsSelectedMainDeckTarget: true, RecyclesUnselectedMainDeckLookCards: true);
+            return true;
+        }
         if (item.HeldContext is { Kind: "LOOK_EQUIPMENT" } held
             && HeldDefinition(held.CardNo)?.Kind == held.Kind)
             return CardBehaviorRegistry.TryGetByCardNo(held.CardNo, out behavior!) && IsDeferredDeckChoice(behavior);

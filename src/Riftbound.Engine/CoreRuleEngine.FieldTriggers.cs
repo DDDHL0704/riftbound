@@ -495,7 +495,7 @@ public sealed partial class CoreRuleEngine
             if (equipment.TargetTokenFactoryCardNo is not null)
                 confirmationPayload["targetTokenFactoryCardNo"] = equipment.TargetTokenFactoryCardNo;
         }
-        if (IsUnitEventGraveyardPlay(confirmed))
+        if (RequiresUnitEventTargetHistory(confirmed))
         {
             confirmationPayload["stackItemId"] = confirmed.StackItemId;
             confirmationPayload["unitEventTargetsHash"] = UnitEventPlayTargetsHash(confirmed);

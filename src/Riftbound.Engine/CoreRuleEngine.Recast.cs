@@ -156,7 +156,8 @@ public sealed partial class CoreRuleEngine
     }
 
     internal static bool ValidRecastPending(MatchState state, PendingEffectPlayState pending)
-        => RecastSpec(pending.Parent) is not null && pending.PlayerId == pending.Parent.ControllerId
+        => IsUnitEventSelfGraveSpellPlay(pending.Parent) ? ValidSelfGraveSpellPlay(state, pending)
+            : RecastSpec(pending.Parent) is not null && pending.PlayerId == pending.Parent.ControllerId
             && state.Seats.ContainsKey(pending.PlayerId) && state.PlayerZones.TryGetValue(pending.PlayerId, out var zones)
             && (pending.Parent.RecastContext is not { } context || ValidRecastContext(context, pending.Parent.EffectKind, pending.Parent.CardNo))
             && (pending.Parent.RecastContext?.Kind == TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit) == (pending.Parent.RecycledUnit is not null)

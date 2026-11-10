@@ -1230,37 +1230,80 @@
       ],
       "text": "你可以选择消耗3经验，作为打出我的额外费用。",
       "scope": "你可以选择消耗3经验，作为打出我的额外费用。",
-      "status": "missing",
-      "reason": "只有基础约德尔单位；缺少可选消耗3经验费用、每位玩家各自选择摧毁一名单位，以及支付后自己豁免的独立入场技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享可选费用流程在打出时声明并支付3经验，保存原始已支付选择；独立打出技能响应后按回合顺序由每名玩家在结算中挑选并摧毁自己的单位。付款者仅豁免原技能控制者，不减少基础法力；各玩家分别为实际摧毁负责。来源返手或自身先被摧毁仍继续结算，恢复拒绝改写付款捕获或抹去技能。",
+      "rules": "中国区核心303.2.a、355.1.a、355.5.b、355.10.e、355.18、356–357、383.2–383.3、403及412.1；安全检查员官方中文牌面。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
             "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitTags": "约德尔人",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "optionalExperienceCost": 3,
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "EACH_PLAYER_DESTROY_OWN_UNIT",
+              "exemptsControllerIfExperiencePaid": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.OptionalExperiencePlay.cs",
           "contains": [
-            "\"UNL-164/219\"",
-            "\"SAFETY_INSPECTOR_EXPERIENCE_DESTROY_STATIC\""
+            "HasOptionalExperiencePayment(",
+            "behavior.OptionalExperienceCost > 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "SourceOptionalExperiencePaid = OptionalExperiencePaymentSelected(",
+            "ResolveEachPlayerDestroyUnit(state, item, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EachPlayerUnitDestruction.cs",
+          "contains": [
+            "PlayerIdsStartingAfter(state, state.TurnPlayerId)",
+            "SourceOptionalExperiencePaid",
+            "FriendlyDestructionChoices(current, player, CardObjectTags.UnitCard)",
+            "RuleChoices.Value!.Choose(player",
+            "responsiblePlayers: new Dictionary<string, string> { [id] = player }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionAttribution.cs",
+          "contains": [
+            "if (item.UnitEvent is { } captured)",
+            "captured.SourceGeneration",
+            "responsible ?? item.ControllerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "ExemptsControllerIfExperiencePaid: true",
+            "context.SourceOptionalExperiencePaid"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SafetyInspectorSacrificeTests.cs",
+          "methods": [
+            "EachPlayerChoosesOnlyDuringResolutionAndPaidExperienceExemptsOnlyTheOriginalController",
+            "AnUnpaidInspectorMayBeItsControllersOnlyUnitAndItsIndependentInstructionStillReachesTheOpponent",
+            "ReturningTheSourceCannotCancelItsPaidExemptionOrRebindTheDestructionToItsPrivateGeneration",
+            "TheOpponentsChoiceIsUntargetedAndCanDestroyItsOwnProtectedBaron",
+            "AnOpponentWithoutUnitsDoesNotPreventThePaidInstructionFromCompleting",
+            "InvalidAdditionalCostsCannotSpendResourcesOrStartEntry",
+            "RecoveryRejectsChangingTheOriginallyCapturedPaidChoiceInEitherDirection",
+            "RecoveryRejectsErasingTheEarnedInstructionAndClientTargetsAreRejectedBeforeEntry",
+            "QuotesAndPromptsOfferTheExperienceChoiceWithoutAdvertisingAManaDiscount"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1268,37 +1311,80 @@
       ],
       "text": "当你打出我时，每名玩家必须摧毁自己的一名单位。",
       "scope": "当你打出我时，每名玩家必须摧毁自己的一名单位。",
-      "status": "missing",
-      "reason": "只有基础约德尔单位；缺少可选消耗3经验费用、每位玩家各自选择摧毁一名单位，以及支付后自己豁免的独立入场技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享可选费用流程在打出时声明并支付3经验，保存原始已支付选择；独立打出技能响应后按回合顺序由每名玩家在结算中挑选并摧毁自己的单位。付款者仅豁免原技能控制者，不减少基础法力；各玩家分别为实际摧毁负责。来源返手或自身先被摧毁仍继续结算，恢复拒绝改写付款捕获或抹去技能。",
+      "rules": "中国区核心303.2.a、355.1.a、355.5.b、355.10.e、355.18、356–357、383.2–383.3、403及412.1；安全检查员官方中文牌面。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
             "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitTags": "约德尔人",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "optionalExperienceCost": 3,
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "EACH_PLAYER_DESTROY_OWN_UNIT",
+              "exemptsControllerIfExperiencePaid": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.OptionalExperiencePlay.cs",
           "contains": [
-            "\"UNL-164/219\"",
-            "\"SAFETY_INSPECTOR_EXPERIENCE_DESTROY_STATIC\""
+            "HasOptionalExperiencePayment(",
+            "behavior.OptionalExperienceCost > 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "SourceOptionalExperiencePaid = OptionalExperiencePaymentSelected(",
+            "ResolveEachPlayerDestroyUnit(state, item, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EachPlayerUnitDestruction.cs",
+          "contains": [
+            "PlayerIdsStartingAfter(state, state.TurnPlayerId)",
+            "SourceOptionalExperiencePaid",
+            "FriendlyDestructionChoices(current, player, CardObjectTags.UnitCard)",
+            "RuleChoices.Value!.Choose(player",
+            "responsiblePlayers: new Dictionary<string, string> { [id] = player }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionAttribution.cs",
+          "contains": [
+            "if (item.UnitEvent is { } captured)",
+            "captured.SourceGeneration",
+            "responsible ?? item.ControllerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "ExemptsControllerIfExperiencePaid: true",
+            "context.SourceOptionalExperiencePaid"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SafetyInspectorSacrificeTests.cs",
+          "methods": [
+            "EachPlayerChoosesOnlyDuringResolutionAndPaidExperienceExemptsOnlyTheOriginalController",
+            "AnUnpaidInspectorMayBeItsControllersOnlyUnitAndItsIndependentInstructionStillReachesTheOpponent",
+            "ReturningTheSourceCannotCancelItsPaidExemptionOrRebindTheDestructionToItsPrivateGeneration",
+            "TheOpponentsChoiceIsUntargetedAndCanDestroyItsOwnProtectedBaron",
+            "AnOpponentWithoutUnitsDoesNotPreventThePaidInstructionFromCompleting",
+            "InvalidAdditionalCostsCannotSpendResourcesOrStartEntry",
+            "RecoveryRejectsChangingTheOriginallyCapturedPaidChoiceInEitherDirection",
+            "RecoveryRejectsErasingTheEarnedInstructionAndClientTargetsAreRejectedBeforeEntry",
+            "QuotesAndPromptsOfferTheExperienceChoiceWithoutAdvertisingAManaDiscount"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1306,37 +1392,80 @@
       ],
       "text": "如果你支付了我的额外费用，则你无需以此方式摧毁一名单位。",
       "scope": "当你打出我时，每名玩家必须摧毁自己的一名单位。",
-      "status": "missing",
-      "reason": "只有基础约德尔单位；缺少可选消耗3经验费用、每位玩家各自选择摧毁一名单位，以及支付后自己豁免的独立入场技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享可选费用流程在打出时声明并支付3经验，保存原始已支付选择；独立打出技能响应后按回合顺序由每名玩家在结算中挑选并摧毁自己的单位。付款者仅豁免原技能控制者，不减少基础法力；各玩家分别为实际摧毁负责。来源返手或自身先被摧毁仍继续结算，恢复拒绝改写付款捕获或抹去技能。",
+      "rules": "中国区核心303.2.a、355.1.a、355.5.b、355.10.e、355.18、356–357、383.2–383.3、403及412.1；安全检查员官方中文牌面。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
             "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitTags": "约德尔人",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "optionalExperienceCost": 3,
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "EACH_PLAYER_DESTROY_OWN_UNIT",
+              "exemptsControllerIfExperiencePaid": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.OptionalExperiencePlay.cs",
           "contains": [
-            "\"UNL-164/219\"",
-            "\"SAFETY_INSPECTOR_EXPERIENCE_DESTROY_STATIC\""
+            "HasOptionalExperiencePayment(",
+            "behavior.OptionalExperienceCost > 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "SourceOptionalExperiencePaid = OptionalExperiencePaymentSelected(",
+            "ResolveEachPlayerDestroyUnit(state, item, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EachPlayerUnitDestruction.cs",
+          "contains": [
+            "PlayerIdsStartingAfter(state, state.TurnPlayerId)",
+            "SourceOptionalExperiencePaid",
+            "FriendlyDestructionChoices(current, player, CardObjectTags.UnitCard)",
+            "RuleChoices.Value!.Choose(player",
+            "responsiblePlayers: new Dictionary<string, string> { [id] = player }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionAttribution.cs",
+          "contains": [
+            "if (item.UnitEvent is { } captured)",
+            "captured.SourceGeneration",
+            "responsible ?? item.ControllerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "ExemptsControllerIfExperiencePaid: true",
+            "context.SourceOptionalExperiencePaid"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SafetyInspectorSacrificeTests.cs",
+          "methods": [
+            "EachPlayerChoosesOnlyDuringResolutionAndPaidExperienceExemptsOnlyTheOriginalController",
+            "AnUnpaidInspectorMayBeItsControllersOnlyUnitAndItsIndependentInstructionStillReachesTheOpponent",
+            "ReturningTheSourceCannotCancelItsPaidExemptionOrRebindTheDestructionToItsPrivateGeneration",
+            "TheOpponentsChoiceIsUntargetedAndCanDestroyItsOwnProtectedBaron",
+            "AnOpponentWithoutUnitsDoesNotPreventThePaidInstructionFromCompleting",
+            "InvalidAdditionalCostsCannotSpendResourcesOrStartEntry",
+            "RecoveryRejectsChangingTheOriginallyCapturedPaidChoiceInEitherDirection",
+            "RecoveryRejectsErasingTheEarnedInstructionAndClientTargetsAreRejectedBeforeEntry",
+            "QuotesAndPromptsOfferTheExperienceChoiceWithoutAdvertisingAManaDiscount"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1477,37 +1606,71 @@
       ],
       "text": "当你打出我时，让你废牌堆中的一名“鸟类”、“猫科”、“犬形”或“魄罗”属性单位返回你的手牌。",
       "scope": "当你打出我时，让你废牌堆中的一名“鸟类”、“猫科”、“犬形”或“魄罗”属性单位返回你的手牌。",
-      "status": "missing",
-      "reason": "只有基础犬形单位；缺少独立打出技能从自己废牌堆选择四种指定属性之一单位并返手",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "独立打出技能在确认时只允许选择自己废牌堆中带鸟类、猫科、犬形或魄罗属性的真实单位牌；确认后双方可响应，再按原目标代际重新检查并通过共享返手流程返回自己的手牌。没有有效目标则退休未确认技能；来源返手不取消已确认技能，回收响应使原目标失效，恢复拒绝替换原始已确认目标或抹去技能。",
+      "rules": "中国区核心355.5.b、355.8–355.9、383.2–383.3、403、407及跨区域代际规则；星獒官方中文牌面。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 6,
-            "sourceUnitTags": "犬形",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "RETURN_GRAVEYARD_UNIT_TO_HAND",
+              "graveyardReturnAnyTags": [
+                "鸟类",
+                "猫科",
+                "犬形",
+                "魄罗"
+              ]
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventGraveyardReturn.cs",
           "contains": [
-            "\"UNL-167/219\"",
-            "\"STARHOUND_GRAVEYARD_RETURN_STATIC\""
+            "IsUnitEventGraveyardReturnTarget(",
+            "state.PlayerZones[item.ControllerId].Graveyard.Contains(id)",
+            "tags.Any(tag => HasAttribute(card, tag))",
+            "StackObjectRules.ReferencesCurrentObject(state, item, target)",
+            "TryReturnGraveyardCardToHand("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "UnitEventGraveyardReturnEffect",
+            "UnitEventTargets("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventPlays.cs",
+          "contains": [
+            "RequiresUnitEventTargetHistory("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventTargets.cs",
+          "contains": [
+            "items.Where(CoreRuleEngine.RequiresUnitEventTargetHistory)",
+            "original accepted confirmation"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/StarhoundGraveyardReturnTests.cs",
+          "methods": [
+            "EachOfTheFourPrintedAnimalTagsIsAnOwnGraveyardTargetAndReturnsOnlyAfterResponses",
+            "OtherZonesPlayersTypesAndTagsCannotBeInjectedAsTheChosenTarget",
+            "NoEligibleCardLeavesTheUnitEnteredAndTheUnconfirmableSkillRetired",
+            "ARealSourceReturnCannotCancelTheCapturedGraveyardReturn",
+            "AnActualRecycleResponseMakesTheOriginalGraveyardTargetUnavailable",
+            "RecoveryRejectsReplacingAnOriginallyConfirmedTargetWithAnotherLegalCardOrErasingTheSkill"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1675,38 +1838,76 @@
       ],
       "text": "当我进攻时，防守方必须摧毁其在此处的一名单位。",
       "scope": "当我进攻时，防守方必须摧毁其在此处的一名单位。",
-      "status": "missing",
-      "reason": "可选摧毁减费已有消费者；本句缺少进攻时由防守玩家选择摧毁此处一名其单位的独立触发",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "真实争夺建立进攻角色时捕获独立技能，并保存原防守玩家和原战场；双方响应后仅该防守玩家在结算中挑选其当前位于该战场的一名单位并为摧毁负责，不选为敌方技能目标。来源返手后仍结算，目标响应离场后不再列入选择。战斗声明使用仍在参与的公开绑定和指示物记录，保留原始历史与严格恢复校验，不重复触发进攻。",
+      "rules": "中国区核心303.2.a、355.10.e、355.18、383.2–383.4、403、412.1／412.5、466进攻与防守角色；厄塔汗官方中文牌面。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 10,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 7,
-            "sourceUnitTags": "游走",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
             "maySacrificeUnitForPrintedCostReduction": true,
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "ATTACK",
+              "effect": "EACH_PLAYER_DESTROY_OWN_UNIT",
+              "requiredUnitDestructionScope": "DEFENDING_PLAYER_HERE"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EachPlayerUnitDestruction.cs",
           "contains": [
-            "\"UNL-170/219\"",
-            "\"ATAKHAN_OPTIONAL_DESTROY_ROAM_STATIC\""
+            "ResolveRequiredUnitDestructions(",
+            "FriendlyDestructionChoices(current, player, CardObjectTags.UnitCard)",
+            "RuleChoices.Value!.Choose(player",
+            "responsiblePlayers: new Dictionary<string, string> { [id] = player }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RequiredUnitDestructionCapture.cs",
+          "contains": [
+            "CaptureRequiredUnitDestruction(",
+            "BattleLimitedMarkers.ScopeFor(state, id)?.DefendingPlayerId",
+            "RequiredUnitDestruction = new(new(id, field.ObjectGeneration), defender)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "o = CaptureRequiredUnitDestruction(state, o);",
+            "ValidRequiredUnitDestruction(state, c, spec, controller)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "context?.RequiredUnitDestruction is not null",
+            "context.RequiredUnitDestruction, context.StartPhaseUnitDeath"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleStartRoles.cs",
+          "contains": [
+            "MarkBattleCombatStarted(",
+            "context.CeasedTokens?.Where(pair => participants.Contains(pair.Key))",
+            "publicObjectBindings: context.PublicObjectBindings?.Where(binding => participants.Contains(binding.ObjectId))"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AtakhanDefenderDestructionTests.cs",
+          "methods": [
+            "AnActualAttackEarnsAnUntargetedSkillAndOnlyTheDefenderChoosesAUnitHereAtResolution",
+            "DeclaringCombatAfterTheEarnedSkillDoesNotCaptureTheAttackAgain",
+            "ReturningTheAttackerDoesNotChangeTheCapturedDefenderOrBattlefield",
+            "ARealDefenderReturnResponseRemovesOnlyThatUnitFromTheLaterChoice",
+            "AProtectedDefenderCanBePickedWithoutBecomingAnEnemySkillTarget",
+            "BecomingADefenderDoesNotEarnTheAttackInstruction",
+            "RecoveryRejectsChangingOrErasingTheOriginallyEarnedAttackInstruction"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1749,35 +1950,72 @@
       ],
       "text": "每回合首次，当友方单位在你的开始阶段被摧毁时，每名对手必须摧毁自己的一名单位。",
       "scope": "每回合首次，当友方单位在你的开始阶段被摧毁时，每名对手必须摧毁自己的一名单位。",
-      "status": "missing",
-      "reason": "只有基础装备打出；缺少自己开始阶段友方单位被摧毁的每回合首次观察器及由每位对手各自选择摧毁单位的技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "在真实单位摧毁发生前捕获存续来源的开始阶段死亡观察，读取共享的当前回合开始阶段死亡记录。只在自己开始阶段的首个友方摧毁事件触发，即使来源后来新入场或获得新复制也不能重置首次；同时满足时由控制者选择一次。独立技能响应后按回合顺序让每名对手各自挑选并摧毁自己的单位，各自承担摧毁责任。召回替换不算摧毁，敌方死亡及主阶段死亡不触发，原始捕获及退休受已接受历史校验。",
+      "rules": "中国区核心303.2.a、315.2、355.10.e、355.18、383.1.b、383.2.c、383.3、403及412.1；逆转碎片官方中文牌面。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "FIRST_FRIENDLY_START_PHASE_DEATH",
+              "effect": "EACH_PLAYER_DESTROY_OWN_UNIT",
+              "requiredUnitDestructionScope": "OPPONENTS"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EachPlayerUnitDestruction.cs",
           "contains": [
-            "\"UNL-174/219\"",
-            "\"REVERSAL_SHARD_PLAY_EQUIPMENT\""
+            "ResolveRequiredUnitDestructions(",
+            "FriendlyDestructionChoices(current, player, CardObjectTags.UnitCard)",
+            "RuleChoices.Value!.Choose(player",
+            "responsiblePlayers: new Dictionary<string, string> { [id] = player }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StartPhaseDeathUnitEvents.cs",
+          "contains": [
+            "CaptureStartPhaseDeathUnitEvents(",
+            "unit.ControllerId != state.TurnPlayerId",
+            "!RuleChoices.Value!.CurrentDestructions.Contains(card.ObjectId)",
+            "ledger.StartPhaseUnitControllers",
+            "if (!seen.Add(player)) continue;",
+            "kind: \"FIRST_DEATH_OCCURRENCE\"",
+            "queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+          "contains": [
+            "StartPhaseUnitEvents = CaptureStartPhaseDeathUnitEvents(state, zones, cards, fact, deathId)",
+            "QueueFirstStartPhaseDeathUnitEvents(before, state, ledger, deaths, queue, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "FirstFriendlyStartPhaseDeathTiming",
+            "context.RequiredUnitDestruction, context.StartPhaseUnitDeath"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ReversalShardStartDeathTests.cs",
+          "methods": [
+            "ARealStartPhaseDestructionCostEarnsOneOpponentInstructionForControlledUnitsIncludingTokens",
+            "ARecallReplacementPreventsTheQualifyingDeath",
+            "AnEnemyDeathDuringYourStartPhaseDoesNotQualify",
+            "ARealMainPhaseFriendlyDestructionDoesNotQualify",
+            "TwoSeparateEphemeralDestructionsInTheSameStartPhaseStillEarnOnlyOneInstruction",
+            "SimultaneousFirstDeathsLetTheControllerSelectOneOccurrenceAndTriggerOnlyOnce",
+            "RecoveryRejectsChangingOrErasingTheOriginalStartPhaseDeathCapture"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1856,23 +2094,26 @@
       ],
       "text": "当我移动至一处战场时，查看你主牌堆顶部的三张牌。",
       "scope": "当我移动至一处战场时，查看你主牌堆顶部的三张牌。",
-      "status": "missing",
-      "reason": "只有基础单位；缺少移动后私下查看3张／可选展示抽单位／回收其余，以及绝念从手牌免基础法力实际打出单位的两个独立技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "同一印刷的两个技能按原始触发时机独立捕获；移动到战场后在结算时私下查看最多3张，可选展示并抽取其中一名单位，其余按共享随机回收流程置于牌库底",
+      "rules": "中国区核心383.2.c.3、383.3.a.3（独立触发和结算时选择）；356.1.b.2–3、356.2（仅免对应基础费用）；417.1、417.5（回收位置与随机顺序）；官方中文UNL-179/179a",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 8,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 7,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "MOVE",
+              "effect": "LOOK_TOP_REVEAL_DRAW_UNIT_RECYCLE_REST",
+              "amount": 3,
+              "observesMovementByAnyPlayer": true,
+              "requiresMoveToBattlefield": true
+            },
+            "additionalUnitEventAbilities": [
+              {
+                "timing": "LAST_BREATH",
+                "effect": "PLAY_HAND_UNIT_IGNORE_BASE_MANA"
+              }
+            ]
           }
         ]
       },
@@ -1881,11 +2122,43 @@
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
             "\"UNL-179/219\"",
-            "\"RIFT_HERALD_MOVE_LAST_BREATH_STATIC\""
+            "\"UNL-179a/219\"",
+            "AdditionalUnitEventAbilities = [new(ArmamentLastBreathRules.Timing, CoreRuleEngine.UnitEventHandUnitPlayEffect)]"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "UnitEventSpecs(i.CardNo).Where",
+            "UnitEventSpecForContext(c) is { } spec",
+            "spec.Timing == context.Timing",
+            "if (spec.Effect == UnitEventLookUnitEffect)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "Effect: UnitEventLookUnitEffect, Amount: > 0",
+            "MainDeckLookCount: spec.Amount, MainDeckTargetRequiredTag: CardObjectTags.UnitCard",
+            "DrawsSelectedMainDeckTarget: true, RecyclesUnselectedMainDeckLookCards: true",
+            "BeforeDeckReveal",
+            "DrawSelectedMainDeckTargetsAndRecycleRest"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RiftHeraldMovementLookTests.cs",
+          "methods": [
+            "ArrivalPrivatelyLooksAtThreeThenRevealsDrawsTheUnitAndRecyclesOnlyTheRest",
+            "DecliningOrFindingNoUnitStillRecyclesAllAvailableLookedCards",
+            "MovingBackToBaseDoesNotTriggerEitherIndependentSkill",
+            "AnOpponentsForcedMoveAwardsTheLookToTheHeraldsController",
+            "AnEarnedMovementLookStillResolvesAfterARealSourceReturn",
+            "RecoveryBindsTheEarnedMovementToItsOriginalSkillAndArrival"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1894,23 +2167,26 @@
       ],
       "text": "你可以选择从中展示一名单位，并抽取该卡牌。",
       "scope": "当我移动至一处战场时，查看你主牌堆顶部的三张牌。",
-      "status": "missing",
-      "reason": "只有基础单位；缺少移动后私下查看3张／可选展示抽单位／回收其余，以及绝念从手牌免基础法力实际打出单位的两个独立技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "同一印刷的两个技能按原始触发时机独立捕获；移动到战场后在结算时私下查看最多3张，可选展示并抽取其中一名单位，其余按共享随机回收流程置于牌库底",
+      "rules": "中国区核心383.2.c.3、383.3.a.3（独立触发和结算时选择）；356.1.b.2–3、356.2（仅免对应基础费用）；417.1、417.5（回收位置与随机顺序）；官方中文UNL-179/179a",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 8,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 7,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "MOVE",
+              "effect": "LOOK_TOP_REVEAL_DRAW_UNIT_RECYCLE_REST",
+              "amount": 3,
+              "observesMovementByAnyPlayer": true,
+              "requiresMoveToBattlefield": true
+            },
+            "additionalUnitEventAbilities": [
+              {
+                "timing": "LAST_BREATH",
+                "effect": "PLAY_HAND_UNIT_IGNORE_BASE_MANA"
+              }
+            ]
           }
         ]
       },
@@ -1919,11 +2195,43 @@
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
             "\"UNL-179/219\"",
-            "\"RIFT_HERALD_MOVE_LAST_BREATH_STATIC\""
+            "\"UNL-179a/219\"",
+            "AdditionalUnitEventAbilities = [new(ArmamentLastBreathRules.Timing, CoreRuleEngine.UnitEventHandUnitPlayEffect)]"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "UnitEventSpecs(i.CardNo).Where",
+            "UnitEventSpecForContext(c) is { } spec",
+            "spec.Timing == context.Timing",
+            "if (spec.Effect == UnitEventLookUnitEffect)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "Effect: UnitEventLookUnitEffect, Amount: > 0",
+            "MainDeckLookCount: spec.Amount, MainDeckTargetRequiredTag: CardObjectTags.UnitCard",
+            "DrawsSelectedMainDeckTarget: true, RecyclesUnselectedMainDeckLookCards: true",
+            "BeforeDeckReveal",
+            "DrawSelectedMainDeckTargetsAndRecycleRest"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RiftHeraldMovementLookTests.cs",
+          "methods": [
+            "ArrivalPrivatelyLooksAtThreeThenRevealsDrawsTheUnitAndRecyclesOnlyTheRest",
+            "DecliningOrFindingNoUnitStillRecyclesAllAvailableLookedCards",
+            "MovingBackToBaseDoesNotTriggerEitherIndependentSkill",
+            "AnOpponentsForcedMoveAwardsTheLookToTheHeraldsController",
+            "AnEarnedMovementLookStillResolvesAfterARealSourceReturn",
+            "RecoveryBindsTheEarnedMovementToItsOriginalSkillAndArrival"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1932,23 +2240,26 @@
       ],
       "text": "回收其余的卡牌。",
       "scope": "当我移动至一处战场时，查看你主牌堆顶部的三张牌。",
-      "status": "missing",
-      "reason": "只有基础单位；缺少移动后私下查看3张／可选展示抽单位／回收其余，以及绝念从手牌免基础法力实际打出单位的两个独立技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "同一印刷的两个技能按原始触发时机独立捕获；移动到战场后在结算时私下查看最多3张，可选展示并抽取其中一名单位，其余按共享随机回收流程置于牌库底",
+      "rules": "中国区核心383.2.c.3、383.3.a.3（独立触发和结算时选择）；356.1.b.2–3、356.2（仅免对应基础费用）；417.1、417.5（回收位置与随机顺序）；官方中文UNL-179/179a",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 8,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 7,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "MOVE",
+              "effect": "LOOK_TOP_REVEAL_DRAW_UNIT_RECYCLE_REST",
+              "amount": 3,
+              "observesMovementByAnyPlayer": true,
+              "requiresMoveToBattlefield": true
+            },
+            "additionalUnitEventAbilities": [
+              {
+                "timing": "LAST_BREATH",
+                "effect": "PLAY_HAND_UNIT_IGNORE_BASE_MANA"
+              }
+            ]
           }
         ]
       },
@@ -1957,11 +2268,43 @@
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
             "\"UNL-179/219\"",
-            "\"RIFT_HERALD_MOVE_LAST_BREATH_STATIC\""
+            "\"UNL-179a/219\"",
+            "AdditionalUnitEventAbilities = [new(ArmamentLastBreathRules.Timing, CoreRuleEngine.UnitEventHandUnitPlayEffect)]"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "UnitEventSpecs(i.CardNo).Where",
+            "UnitEventSpecForContext(c) is { } spec",
+            "spec.Timing == context.Timing",
+            "if (spec.Effect == UnitEventLookUnitEffect)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "Effect: UnitEventLookUnitEffect, Amount: > 0",
+            "MainDeckLookCount: spec.Amount, MainDeckTargetRequiredTag: CardObjectTags.UnitCard",
+            "DrawsSelectedMainDeckTarget: true, RecyclesUnselectedMainDeckLookCards: true",
+            "BeforeDeckReveal",
+            "DrawSelectedMainDeckTargetsAndRecycleRest"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RiftHeraldMovementLookTests.cs",
+          "methods": [
+            "ArrivalPrivatelyLooksAtThreeThenRevealsDrawsTheUnitAndRecyclesOnlyTheRest",
+            "DecliningOrFindingNoUnitStillRecyclesAllAvailableLookedCards",
+            "MovingBackToBaseDoesNotTriggerEitherIndependentSkill",
+            "AnOpponentsForcedMoveAwardsTheLookToTheHeraldsController",
+            "AnEarnedMovementLookStillResolvesAfterARealSourceReturn",
+            "RecoveryBindsTheEarnedMovementToItsOriginalSkillAndArrival"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1970,23 +2313,26 @@
       ],
       "text": "{{绝念>}} 从你的手牌中打出一名单位到你的基地，无视其法力费用。（当我被摧毁后，发动此效果。仍需支付所有符能费用。）",
       "scope": "{{绝念>}} 从你的手牌中打出一名单位到你的基地，无视其法力费用。（当我被摧毁后，发动此效果。仍需支付所有符能费用。）",
-      "status": "missing",
-      "reason": "只有基础单位；缺少移动后私下查看3张／可选展示抽单位／回收其余，以及绝念从手牌免基础法力实际打出单位的两个独立技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "摧毁前捕获独立绝念，来源进入废牌堆甚至再被回收后仍结算；仅允许从原控制者手牌实际打出一名单位到基地，免基础法力但保留印刷符能、额外费用和增费",
+      "rules": "中国区核心383.2.c.3、383.3.a.3（独立触发和结算时选择）；356.1.b.2–3、356.2（仅免对应基础费用）；417.1、417.5（回收位置与随机顺序）；官方中文UNL-179/179a",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 8,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 7,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "MOVE",
+              "effect": "LOOK_TOP_REVEAL_DRAW_UNIT_RECYCLE_REST",
+              "amount": 3,
+              "observesMovementByAnyPlayer": true,
+              "requiresMoveToBattlefield": true
+            },
+            "additionalUnitEventAbilities": [
+              {
+                "timing": "LAST_BREATH",
+                "effect": "PLAY_HAND_UNIT_IGNORE_BASE_MANA"
+              }
+            ]
           }
         ]
       },
@@ -1995,11 +2341,57 @@
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
             "\"UNL-179/219\"",
-            "\"RIFT_HERALD_MOVE_LAST_BREATH_STATIC\""
+            "\"UNL-179a/219\"",
+            "AdditionalUnitEventAbilities = [new(ArmamentLastBreathRules.Timing, CoreRuleEngine.UnitEventHandUnitPlayEffect)]"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "UnitEventSpecs(i.CardNo).Where",
+            "UnitEventSpecForContext(c) is { } spec",
+            "spec.Timing == context.Timing",
+            "if (spec.Effect == UnitEventHandUnitPlayEffect)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventHandUnitPlay.cs",
+          "contains": [
+            "EffectPlaySourceZone: \"HAND\", EffectPlayIgnoreBaseMana: true",
+            "EffectPlayIgnoreBasePower: false, EffectPlayIgnoreAllCosts: false",
+            "EffectPlayDestination: \"BASE\", EffectPlayOptional: false",
+            "ValidUnitEventHandUnitPlay"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentLastBreath.cs",
+          "contains": [
+            "CaptureUnitEvents(frame.PlayerZones, frame.CardObjects",
+            "ArmamentLastBreathRules.Timing",
+            "UnitEventTrigger(new(death.Unit.ObjectId, death.Unit.ControllerId, context)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "TryGetUnitEventHandUnitPlayDefinition(parent, out definition)",
+            "BeginEffectPlay(MatchState state",
+            "EffectPlaySourceMatches(card, behavior)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RiftHeraldLastBreathHandPlayTests.cs",
+          "methods": [
+            "RealDeathOffersOnlyHandUnitsAndWaivesBaseManaWhileChargingPrintedPower",
+            "OptionalHasteStillCostsOneManaAndOneRedAndEntersReadyOnlyWhenPaid",
+            "LackingPrintedPowerCannotBeBypassedByTheManaWaiver",
+            "TheCapturedLastBreathSurvivesAnOpponentRecyclingTheDeadSourceIntoItsPrivateDeck",
+            "RecoveryRejectsForgedHandPermissionsAndCapturedSkillSelection"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2202,37 +2594,58 @@
       ],
       "text": "然后，如果该单位不高于3{{S}}，则进行一次：你可以选择支付{{A}}，以此将此牌从废牌堆中打出。",
       "scope": "然后，如果该单位不高于3{{S}}，则进行一次：你可以选择支付{{A}}，以此将此牌从废牌堆中打出。",
-      "status": "missing",
-      "reason": "现有法术只摧毁所选战场单位；缺少不高于3当前战力条件捕获、独立内嵌触发及可选1通用符能从废牌堆重打权限",
-      "rules": "核心388–389、383.3、356.1 替代费用；UNL-186 官方中文牌面",
+      "status": "route",
+      "reason": "有效目标的摧毁指示完成后读取当前或离场前战力；不高于3时创建独立内嵌技能，确认时可选支付1通用符能，以替代费用实际重打原牌的废牌堆代际，保留额外费用与增费；官方沙漏召回替代仍满足条件",
+      "rules": "中国区核心359.3.e.13–14、388.4（涌泉示例）、356.1.b、420.3；官方区域公开赛（西安）赛后判例第1问 https://mp.weixin.qq.com/s/l1v1WbRO8vg3IzEdhlX5og",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 4,
-            "requiredTargetCount": 1,
             "destroysTarget": true,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "targetScopeIsExplicit": true,
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "SPELL_INSTRUCTION_REFLEXIVE",
+              "effect": "PLAY_THIS_SPELL_FROM_GRAVEYARD",
+              "leadingPowerCost": 1,
+              "optional": true,
+              "reflexiveTargetMaximumMight": 3
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellInstructionReflexives.cs",
           "contains": [
-            "\"UNL-186/219\"",
-            "\"WELLSPRING_OF_HATRED_DESTROY_BATTLEFIELD_UNIT\""
+            "CaptureTargetInstructionReflexive",
+            "TryGetByEffectKind(item.EffectKind, out var behavior)",
+            "MatchStateHasher.HashValue(source.StackItemId)",
+            "EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true",
+            "EffectPlayIgnoreAllCosts: false",
+            "ValidSelfGraveSpellPlay",
+            "card.ObjectGeneration != item.UnitEvent.SourceGeneration + 1"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CaptureTargetInstructionReflexive(state, stackItem, behavior, targetObjectId,"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/WellspringReflexiveRecastTests.cs",
+          "methods": [
+            "AnActualLastBreathQueuesBesideTheOptionalReflexiveWithoutChangingEitherReceipt",
+            "AThreeMightDestructionCreatesAnIndependentOptionalReplayForOneGenericPower",
+            "TheOfficialHourglassRecallCaseStillEarnsTheOptionalReflexiveReplay",
+            "DecliningTheConfirmationCostDoesNotUndoTheOriginalDestructionOrSpendPower",
+            "DestroyingAUnitAboveThreeDoesNotEarnAReflexiveReplay",
+            "ARealResponseChangingTheTargetsMightChangesTheResolutionCondition",
+            "RecyclingTheSourceAfterConfirmationPreventsReplayingItsPrivateNewIncarnation",
+            "RecoveryRejectsForgedReflexiveConditionsAndReplayPermissions"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2338,30 +2751,54 @@
       "text": "选择一名友方单位。",
       "scope": "选择一名友方单位。",
       "status": "route",
-      "reason": "第一目标允许公开在场友方单位作为当前战力来源，第二目标限定敌方战场单位，基地友方单位仍可提供战力，敌方基地或非单位拒绝",
-      "rules": "核心355／359／383；该卡官方中文牌面",
+      "reason": "第一目标为公开在场友方单位，后续可选多名敌方战场单位；共享流程以确认时战力限制目标数、结算时当前战力分配正整数伤害；战力降低时只能移除超额的原目标；指名单位伤害不受法术技能伤害修正影响",
+      "rules": "中国区核心355.14.a–i、359.3.e.14、418.6.b.3；UNL-192官方中文牌面",
       "runtime": {
         "behaviors": [
           {
             "targetScope": "FRIENDLY_THEN_ENEMY_BATTLEFIELD_UNITS",
-            "damagesSecondTargetByFirstTargetPower": true
+            "damagesSecondTargetByFirstTargetPower": true,
+            "anyNumberOfTargets": true,
+            "minTargetCount": 2,
+            "damageDistributionUsesFirstTargetMight": true,
+            "unitEventAbility": {
+              "timing": "SPELL_INSTRUCTION_REFLEXIVE",
+              "effect": "GAIN_EXPERIENCE",
+              "amount": 1
+            }
           }
         ]
       },
       "evidence": [
         {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DistributedSpellDamage.cs",
+          "contains": [
+            "behavior.DamageDistributionUsesFirstTargetMight ? targets.Skip(1)",
+            "DistributedUnitDamageMight",
+            "while (targets.Count > remaining)",
+            "DISTRIBUTED_DAMAGE_AMOUNT"
+          ]
+        },
+        {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "CardTargetScopes.FriendlyThenEnemyBattlefieldUnits"
+            "else if (behavior.DamageDistributionUsesFirstTargetMight)",
+            "BuildDamagePayload(stackItem.SourceObjectId, target, damage, source)"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellChoices.cs",
+          "path": "tests/Riftbound.ConformanceTests/AlphaStrikeReflexiveExperienceTests.cs",
           "methods": [
-            "CoreRuleEnginePlaysAlphaStrikeSingleEnemyPowerDamage",
-            "CoreRuleEngineRejectsAlphaStrikeWhenEnemyTargetIsNotBattlefieldUnit"
+            "MultipleEnemiesTakeDistributedUnitDamageAndEachActualDeathEarnsOneIndependentExperienceSkill",
+            "InitialEnemyCountCannotExceedTheChosenUnitsMight",
+            "ARealMightReductionRequiresKeepingExactlyTheMaximumLegalNumberOfOriginalTargets",
+            "SpellDamagePreventionDoesNotPreventDamageExplicitlyDealtByTheChosenUnit",
+            "ASourceReturnBeforeResolutionIgnoresItsAssociatedDamageAndEarnsNoExperience",
+            "ARecallReplacementDoesNotCountAsAnActualDestructionForExperience",
+            "EchoCountsActualDeathsAfterTheRepeatedDamageInsteadOfRewardingEveryDamageHit",
+            "RecoveryRejectsReplacingOrErasingTheActualInstructionDeathReceipt"
           ]
         }
       ]
@@ -2372,38 +2809,63 @@
       ],
       "text": "每有一名单位因此被摧毁，则进行一次：获得1经验。",
       "scope": "每有一名单位因此被摧毁，则进行一次：获得1经验。",
-      "status": "missing",
-      "reason": "现有法术只按友方战力伤害一个敌方单位；缺少按该指示实际摧毁数量创建每次各获得1经验的独立内嵌触发",
-      "rules": "核心388–389、383.2.c.3／383.3；UNL-192 官方中文牌面",
+      "status": "route",
+      "reason": "共享伤害记录区分被指名单位的伤害来源与施法指示；只对同代际单位的实际摧毁各生成一个独立内嵌技能，回应和回响不按命中次数多发经验",
+      "rules": "中国区核心355.14.a–i（355.14.h.1阿尔法突袭示例）、359.3.e.14、388–389、418.6.b.3；UNL-192官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "requiredTargetCount": 2,
             "targetScope": "FRIENDLY_THEN_ENEMY_BATTLEFIELD_UNITS",
-            "drawRecipientKind": "CONTROLLER",
             "damagesSecondTargetByFirstTargetPower": true,
-            "mainDeckSelectionIsDraw": true,
-            "targetRequiredTag": "CARD_TYPE:UNIT",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "canPlayDuringSpellDuel": true,
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "anyNumberOfTargets": true,
+            "minTargetCount": 2,
+            "damageDistributionUsesFirstTargetMight": true,
+            "unitEventAbility": {
+              "timing": "SPELL_INSTRUCTION_REFLEXIVE",
+              "effect": "GAIN_EXPERIENCE",
+              "amount": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionAttribution.cs",
           "contains": [
-            "\"UNL-192/219\"",
-            "\"ALPHA_STRIKE_FRIENDLY_POWER_DAMAGE_ENEMY_BATTLEFIELD\""
+            "CapturedSpellInstructionSource? ReflexiveSource = null",
+            "CaptureSpellInstructionSource(frame.ResolutionItem)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellInstructionReflexives.cs",
+          "contains": [
+            "QueueDamageInstructionReflexives",
+            "d.Target.Generation == death.Unit.Generation",
+            "SpellInstructionContext(source, death.Id)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+          "contains": [
+            "QueueDamageInstructionReflexives("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AlphaStrikeReflexiveExperienceTests.cs",
+          "methods": [
+            "MultipleEnemiesTakeDistributedUnitDamageAndEachActualDeathEarnsOneIndependentExperienceSkill",
+            "InitialEnemyCountCannotExceedTheChosenUnitsMight",
+            "ARealMightReductionRequiresKeepingExactlyTheMaximumLegalNumberOfOriginalTargets",
+            "SpellDamagePreventionDoesNotPreventDamageExplicitlyDealtByTheChosenUnit",
+            "ASourceReturnBeforeResolutionIgnoresItsAssociatedDamageAndEarnsNoExperience",
+            "ARecallReplacementDoesNotCountAsAnActualDestructionForExperience",
+            "EchoCountsActualDeathsAfterTheRepeatedDamageInsteadOfRewardingEveryDamageHit",
+            "RecoveryRejectsReplacingOrErasingTheActualInstructionDeathReceipt"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

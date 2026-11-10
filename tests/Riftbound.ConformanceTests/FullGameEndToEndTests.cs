@@ -25644,7 +25644,8 @@ public sealed partial class FullGameEndToEndTests
                     {
                         Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", item.EffectKind);
                         Assert.True(CardBehaviorRegistry.TryGetByCardNo(unitEvent.CardNo, out var behavior));
-                        var capturedAbility = Assert.IsType<UnitEventAbilitySpec>(CoreRuleEngine.UnitEventSpec(unitEvent.CardNo));
+                        var capturedAbility = Assert.Single(CoreRuleEngine.UnitEventSpecs(unitEvent.CardNo),
+                            registered => registered.Timing == unitEvent.Timing);
                         Assert.True(CoreRuleEngine.ValidUnitEvent(result.State, unitEvent, item.EffectKind,
                             item.SourceObjectId, item.CardNo, item.ControllerId));
                         behavior = behavior with { UnitEventAbility = capturedAbility };
