@@ -1072,6 +1072,12 @@ public static partial class MatchRecoveryValidator
         if (authoritativeState is null || view.SnapshotTick != authoritativeState.Tick
             || view.Snapshot.Timing is null
             || !TryReadObjectList(view.Snapshot.Timing, "continuousEffects", out var payloads)) return;
+        if (authoritativeState.UntilEndOfTurnEffects is null
+            || authoritativeState.UntilEndOfTurnEffects.Any(effect => effect is null))
+        {
+            errors.Add($"snapshot for {view.PlayerId} timing Might provenance requires a valid authoritative effect list");
+            return;
+        }
 
         var expected = BuildAuthoritativeContinuousEffectsById(authoritativeState.ContinuousEffects);
         var seen = new HashSet<string>(StringComparer.Ordinal);

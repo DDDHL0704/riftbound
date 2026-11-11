@@ -4008,6 +4008,11 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateDynamicPowerAuraViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
     {
+        if (state.UntilEndOfTurnEffects is null || state.UntilEndOfTurnEffects.Any(effect => effect is null))
+        {
+            errors.Add($"{label} dynamic power auras require a valid authoritative effect list");
+            return;
+        }
         var expected = state.ContinuousEffects.Where(e => IsValidatedDynamicPowerAura(e.EffectKind, e.SourceCardNo))
             .ToDictionary(e => e.EffectId, StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
