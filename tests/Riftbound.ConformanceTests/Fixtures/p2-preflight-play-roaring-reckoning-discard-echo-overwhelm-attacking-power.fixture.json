@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-roaring-reckoning-discard-echo-overwhelm-attacking-power",
-  "description": "Roaring Reckoning discards a hand card as Echo optional cost, then repeats Overwhelm 4 and the attacking +4 power modifier.",
+  "description": "以临时强攻实例验证进攻身份内的有效战力，保留原有出牌、费用、目标和回响命令。",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -95,7 +95,8 @@
         "isAttacking": true,
         "isExhausted": false,
         "untilEndOfTurnEffects": [],
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "tags": ["CARD_TYPE:UNIT"]
       }
     }
   },
@@ -141,10 +142,8 @@
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
       "STATUS_EFFECT_APPLIED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN",
       "SPELL_EXECUTION_COMPLETED",
       "STATUS_EFFECT_APPLIED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN",
       "SPELL_EXECUTION_COMPLETED"
     ],
     "events": [
@@ -207,20 +206,7 @@
         "payload": {
           "sourceObjectId": "P1-SPELL-ROARING-RECKONING",
           "targetObjectId": "P2-UNIT-ROARING-RECKONING-001",
-          "effectId": "OVERWHELM_4"
-        }
-      },
-      {
-        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
-        "tick": 3,
-        "sequence": 9,
-        "payload": {
-          "sourceObjectId": "P1-SPELL-ROARING-RECKONING",
-          "targetObjectId": "P2-UNIT-ROARING-RECKONING-001",
-          "powerDelta": 4,
-          "appliedPowerDelta": 4,
-          "minimumPower": 0,
-          "resultingPower": 6
+          "effectId": "COMBAT_KEYWORD:强攻4"
         }
       },
       {
@@ -232,24 +218,11 @@
       {
         "kind": "STATUS_EFFECT_APPLIED",
         "tick": 3,
-        "sequence": 11,
+        "sequence": 10,
         "payload": {
           "sourceObjectId": "P1-SPELL-ROARING-RECKONING",
           "targetObjectId": "P2-UNIT-ROARING-RECKONING-001",
-          "effectId": "OVERWHELM_4"
-        }
-      },
-      {
-        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
-        "tick": 3,
-        "sequence": 12,
-        "payload": {
-          "sourceObjectId": "P1-SPELL-ROARING-RECKONING",
-          "targetObjectId": "P2-UNIT-ROARING-RECKONING-001",
-          "powerDelta": 4,
-          "appliedPowerDelta": 4,
-          "minimumPower": 0,
-          "resultingPower": 10
+          "effectId": "COMBAT_KEYWORD:强攻4"
         }
       },
       {
@@ -304,13 +277,17 @@
       "cardObjects": {
         "P2-UNIT-ROARING-RECKONING-001": {
           "damage": 0,
-          "power": 10,
+          "power": 2,
           "untilEndOfTurnEffects": [
-            "OVERWHELM_4"
+            "COMBAT_KEYWORD:强攻4:1",
+            "COMBAT_KEYWORD:强攻4:2"
           ],
-          "untilEndOfTurnPowerModifier": 8,
+          "untilEndOfTurnPowerModifier": 0,
           "isAttacking": true,
-          "isExhausted": false
+          "isExhausted": false,
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ]
         }
       },
       "stackItems": []

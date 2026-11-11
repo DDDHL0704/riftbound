@@ -108,32 +108,56 @@
       ],
       "text": "让一名单位本回合内获得{{强攻2}}和{{游走}}。（如果它是进攻方，则{{S}}+2。它可以向其它战场进行移动。）",
       "scope": "让一名单位本回合内获得{{强攻2}}和{{游走}}。（如果它是进攻方，则{{S}}+2。它可以向其它战场进行移动。）",
-      "status": "missing",
-      "reason": "强攻效果错误地登记为 OVERWHELM 状态和结算时的进攻战力快照；没有授予可供当前强攻数值读取、后续进攻角色变化生效的强攻关键词",
-      "rules": "核心807 强攻、479 当前战力；该卡官方中文牌面",
+      "status": "route",
+      "reason": "以独立临时关键词授予强攻2；共享数值消费者相加全部授予，只在当前进攻角色提供战力，角色结束立即停止加成，回合结束及离场重构清除",
+      "rules": "核心807.1–807.3 数值强攻及相加、466.2 战斗角色、186.1 新物体；本卡官方中文牌面",
       "runtime": {
         "behaviors": [
           {
-            "powerModifierConditionKind": "TARGET_IS_ATTACKING"
+            "statusEffectId": "COMBAT_KEYWORD:强攻2",
+            "requiredTargetCount": 1,
+            "targetScope": "ANY_UNIT",
+            "powerModifierAmount": 0,
+            "powerModifierConditionKind": "NONE",
+            "secondaryStatusEffectId": "ROAM"
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "\"OVERWHELM_2\"",
-            "\"OVERWHELM_4\""
+            "TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId)",
+            "isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast",
+            "UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost"
           ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CountedCombatKeywords.cs",
+          "member": "ResolveCountedCombatKeywordFromLayer",
           "contains": [
-            "ResolvePowerModifierAmount("
+            "TemporaryCombatKeywordRules.Amount(unit, keyword)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/TemporaryCombatKeywordRules.cs",
+          "contains": [
+            "definition + \":\"",
+            "Keywords(card).Sum(tag => CardCombatKeywordRules.KeywordAmount([tag], keyword))"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PrintedAssaultGrantTests.cs",
+          "methods": [
+            "AGrantCastInBaseAppliesOnALaterRealAttackAndEndsWithTheAttackRole",
+            "ARecalledTargetDoesNotGiveItsNewPrivateIncarnationTheOldAssault",
+            "ARealSwiftPlayDuringTheDuelDoesNotLeaveAnUnconditionalPowerBonusAfterBattle",
+            "PowerPunchStillGrantsRoamAlongsideTheIndependentAssault"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -141,32 +165,53 @@
       ],
       "text": "让一名单位本回合内获得{{强攻4}}。（如果它是进攻方，则{{S}}+4。）",
       "scope": "让一名单位本回合内获得{{强攻4}}。（如果它是进攻方，则{{S}}+4。）",
-      "status": "missing",
-      "reason": "强攻效果错误地登记为 OVERWHELM 状态和结算时的进攻战力快照；没有授予可供当前强攻数值读取、后续进攻角色变化生效的强攻关键词",
-      "rules": "核心807 强攻、479 当前战力；该卡官方中文牌面",
+      "status": "route",
+      "reason": "以独立临时关键词授予强攻4；共享数值消费者相加全部授予，只在当前进攻角色提供战力，角色结束立即停止加成，回合结束及离场重构清除",
+      "rules": "核心807.1–807.3 数值强攻及相加、466.2 战斗角色、186.1 新物体；本卡官方中文牌面",
       "runtime": {
         "behaviors": [
           {
-            "powerModifierConditionKind": "TARGET_IS_ATTACKING"
+            "statusEffectId": "COMBAT_KEYWORD:强攻4",
+            "requiredTargetCount": 1,
+            "targetScope": "ANY_UNIT",
+            "powerModifierAmount": 0,
+            "powerModifierConditionKind": "NONE",
+            "effectRepeatCountIfDiscardHandCardOptionalCost": 2
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "\"OVERWHELM_2\"",
-            "\"OVERWHELM_4\""
+            "TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId)",
+            "isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast"
           ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CountedCombatKeywords.cs",
+          "member": "ResolveCountedCombatKeywordFromLayer",
           "contains": [
-            "ResolvePowerModifierAmount("
+            "TemporaryCombatKeywordRules.Amount(unit, keyword)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/TemporaryCombatKeywordRules.cs",
+          "contains": [
+            "definition + \":\"",
+            "Keywords(card).Sum(tag => CardCombatKeywordRules.KeywordAmount([tag], keyword))"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PrintedAssaultGrantTests.cs",
+          "methods": [
+            "AGrantCastInBaseAppliesOnALaterRealAttackAndEndsWithTheAttackRole",
+            "ARecalledTargetDoesNotGiveItsNewPrivateIncarnationTheOldAssault"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -453,7 +498,7 @@
       "scope": "— 弃置一张手牌（你可以选择支付此额外费用，以重复此法术效果。）",
       "status": "route",
       "reason": "弃置一张其他手牌作为可选费用，确认付款时即弃置；已支付时生成两次法术指示，不能弃置来源本身",
-      "rules": "核心204.2、356–357、820 回响；UNL-017 官方中文牌面（强攻授予另句缺失）",
+      "rules": "核心204.2、356–357、820 回响；UNL-017 官方中文牌面（强攻授予另句独立核对）",
       "runtime": {
         "behaviors": [
           {
