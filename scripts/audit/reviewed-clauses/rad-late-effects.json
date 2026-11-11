@@ -225,8 +225,8 @@
       ],
       "text": "你可以选择打出一名战力低于该单位的单位，无视其费用。",
       "scope": "支付{{紫色}}，{{T}}：让一名友方单位返回其所属的手牌。",
-      "status": "missing",
-      "reason": "后续手牌免费打出错误开启IgnoreAllCosts，免掉额外费用和增费；原文无视其费用仅免基础法力／符能。当前严格低于被返还单位当前战力与可选放弃已有路径，需保留",
+      "status": "route",
+      "reason": "仅免基础法力和基础符能；急速、强制额外费用及增费沿共享产费、出牌确认与恢复流程支付",
       "rules": "核心356.1.b／356.5.a 区分基础费用与全部费用；RAD·115 官方中文牌面",
       "runtime": {
         "activations": [
@@ -240,18 +240,36 @@
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.ReturnUnitPlay.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "member": "EffectPlayBehavior",
           "contains": [
-            "ResolveReturnUnitThenFreePlay(",
-            "IgnoreAllCosts: true"
+            "IgnorePrintedPowerCost = pending.IgnoreBasePower"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "contains": [
+            "effect?.IgnoreBaseMana == true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ReturnUnitPlay.cs",
+          "member": "ResolveReturnUnitThenFreePlay",
+          "contains": [
+            "IgnoreBaseMana: true, IgnoreBasePower: true, ManaReduction: 0,",
+            "DestinationPolicy: \"\", Optional: true,",
+            "MaximumUnitPower: capturedPower - 1"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/TranspositionMageActivatedAbilityTests.cs",
+          "path": "tests/Riftbound.ConformanceTests/EffectPlayBaseCostTests.cs",
           "methods": [
-            "SourceChangingControllerKeepsTheOriginalPlayersReturnAndFreePlay"
+            "BaseWaiverStillQuotesAndPaysTheRealOptionalHasteCost",
+            "AnExistingHeldUnitTaxStillIncreasesTheOtherwiseFreePlay",
+            "RecoveryRejectsReplacingTheBaseWaiverWithAnAllCostsWaiver",
+            "ARealMandatoryAdditionalSacrificeIsNeverWaived"
           ]
         }
       ]
@@ -727,33 +745,54 @@
       ],
       "text": "从你的废牌堆中打出最多三个法力费用不高于{{3}}且符能费用不高于{{A}}的单位和/或装备，无视其费用。",
       "scope": "从你的废牌堆中打出最多三个法力费用不高于{{3}}且符能费用不高于{{A}}的单位和/或装备，无视其费用。",
-      "status": "missing",
-      "reason": "数量、费用上限及单位／装备过滤已有路径，但EffectPlayIgnoreAllCosts错误把无视其费用扩大为无视全部额外费用和增费；应只免基础法力和符能",
+      "status": "route",
+      "reason": "仅免基础法力和基础符能；急速、强制额外费用及增费沿共享产费、出牌确认与恢复流程支付",
       "rules": "核心356.1.b／356.5.a 无视费用与无视一切费用；RAD·135 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
-            "effectPlayIgnoreAllCosts": true,
             "effectPlaySourceZone": "GRAVEYARD",
             "effectPlayMaximumManaCost": 3,
-            "effectPlayMaximumPowerCost": 1
+            "effectPlayMaximumPowerCost": 1,
+            "effectPlayIgnoreBaseMana": true,
+            "effectPlayIgnoreBasePower": true,
+            "effectPlayMaximumCount": 3,
+            "effectPlayRequiresUnitOrEquipment": true,
+            "effectPlayOptional": true
           }
         ]
       },
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "member": "EffectPlayBehavior",
+          "contains": [
+            "IgnorePrintedPowerCost = pending.IgnoreBasePower"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "contains": [
+            "effect?.IgnoreBaseMana == true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "member": "ValidGraveyardUnitEffectPlay",
           "contains": [
             "pending.IgnoreAllCosts == behavior.EffectPlayIgnoreAllCosts",
-            "EffectPlayIgnoreAllCosts"
+            "pending.IgnoreBaseMana == behavior.EffectPlayIgnoreBaseMana",
+            "pending.IgnoreBasePower == behavior.EffectPlayIgnoreBasePower"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/RadSpellBatchTests.cs",
+          "path": "tests/Riftbound.ConformanceTests/EffectPlayBaseCostTests.cs",
           "methods": [
-            "UndyingRemembranceReplaysUpToThreeCheapUnitsOrEquipmentWithoutTheirCosts"
+            "BaseWaiverStillQuotesAndPaysTheRealOptionalHasteCost",
+            "AnExistingHeldUnitTaxStillIncreasesTheOtherwiseFreePlay",
+            "RecoveryRejectsReplacingTheBaseWaiverWithAnAllCostsWaiver"
           ]
         }
       ]
@@ -764,8 +803,8 @@
       ],
       "text": "当你据守此处时，摧毁此牌，以此打出所放逐的卡牌，无视其费用。（指示物不是卡牌。）",
       "scope": "当你据守此处时，摧毁此牌，以此打出所放逐的卡牌，无视其费用。（指示物不是卡牌。）",
-      "status": "missing",
-      "reason": "据守自毁确认费用及关联放逐牌已有独立触发，但后续打出错误开启IgnoreAllCosts，无视全部额外费用和增费；原文只要求免基础费用，指示物不得成为可重放卡牌",
+      "status": "route",
+      "reason": "仅免基础法力和基础符能；急速、强制额外费用及增费沿共享产费、出牌确认与恢复流程支付",
       "rules": "核心356.1.b／356.5.a 费用、383.4.d 据守、186 指示物；RAD·136 官方中文牌面",
       "runtime": {
         "legacyRoutes": {
@@ -777,24 +816,34 @@
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "member": "EffectPlayBehavior",
           "contains": [
-            "parent.HeldContext?.Kind == LinkedExileHeldKind",
-            "EffectPlayIgnoreAllCosts: true"
+            "IgnorePrintedPowerCost = pending.IgnoreBasePower"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "contains": [
+            "effect?.IgnoreBaseMana == true"
           ]
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.LinkedUnitExile.cs",
+          "member": "ValidLinkedExileEffectPlay",
           "contains": [
-            "IgnoreAllCosts: true"
+            "pending.ChoiceId == $\"EFFECT-PLAY:LINKED-EXILE:{pending.Parent.StackItemId}\"",
+            "!pending.IgnoreAllCosts && pending.IgnoreBaseMana && pending.IgnoreBasePower"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/RadDocksideCageTests.cs",
+          "path": "tests/Riftbound.ConformanceTests/EffectPlayBaseCostTests.cs",
           "methods": [
-            "ExactPrintingExilesHereThenPaysSelfDestructionBeforePlayingTheOwnedCardForFree",
-            "ATokenDisappearsAndCannotBecomeALinkedCard"
+            "BaseWaiverStillQuotesAndPaysTheRealOptionalHasteCost",
+            "AnExistingHeldUnitTaxStillIncreasesTheOtherwiseFreePlay",
+            "RecoveryRejectsReplacingTheBaseWaiverWithAnAllCostsWaiver",
+            "ARealMandatoryAdditionalSacrificeIsNeverWaived"
           ]
         }
       ]
@@ -838,36 +887,49 @@
       ],
       "text": "放逐同样数量的你所控制的单位，然后，于每个所放逐的单位，其所属者将其打出回到相同位置或到其基地，无视其费用。（顺序由你决定。）",
       "scope": "放逐同样数量的你所控制的单位，然后，于每个所放逐的单位，其所属者将其打出回到相同位置或到其基地，无视其费用。（顺序由你决定。）",
-      "status": "missing",
-      "reason": "放逐、所属者重放与位置绑定已有路径，但重放权限的IgnoreAllCosts错误免除全部额外费用及施加费用；“无视其费用”只免基础法力与符能，不能免费取得急速等额外费用带来的收益",
+      "status": "route",
+      "reason": "仅免基础法力和基础符能；急速、强制额外费用及增费沿共享产费、出牌确认与恢复流程支付",
       "rules": "核心356.1.b.1–3 明确急速额外费用例子、356.5.a；RAD·140 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
             "deckPlayKind": "OWNED_FIELD_UNIT_REPLAY",
-            "effectPlayIgnoreAllCosts": true
+            "effectPlayIgnoreBaseMana": true,
+            "effectPlayIgnoreBasePower": true,
+            "effectPlayDestination": "ORIGINAL_LOCATION_OR_BASE"
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "member": "EffectPlayBehavior",
           "contains": [
-            "definition.EffectPlayIgnoreAllCosts"
+            "IgnorePrintedPowerCost = pending.IgnoreBasePower"
           ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
           "contains": [
-            "pending.IgnoreAllCosts == behavior.EffectPlayIgnoreAllCosts"
+            "effect?.IgnoreBaseMana == true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "member": "DeckPlayPending",
+          "contains": [
+            "IgnoreAllCosts: definition.EffectPlayIgnoreAllCosts)"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/RadChronobreakBoundaryTests.cs",
+          "path": "tests/Riftbound.ConformanceTests/EffectPlayBaseCostTests.cs",
           "methods": [
-            "IgnoreAllCostsKeepsTheChosenPeakAndHasteBenefitsWithNoResourcesRemaining"
+            "BaseWaiverStillQuotesAndPaysTheRealOptionalHasteCost",
+            "AnExistingHeldUnitTaxStillIncreasesTheOtherwiseFreePlay",
+            "RecoveryRejectsReplacingTheBaseWaiverWithAnAllCostsWaiver",
+            "ARealMandatoryAdditionalSacrificeIsNeverWaived"
           ]
         }
       ]

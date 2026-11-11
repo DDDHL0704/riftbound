@@ -498,7 +498,7 @@
             "definition.DeckPlayKind == \"OPPONENT_REVEAL_PLAY\"",
             "PlayerIdsStartingAfter(state, controller)",
             "AddDeckPlayPendingCard(",
-            "IgnoreAllCosts: c.Kind == \"OPPONENT_REVEAL_PLAY\" || definition.EffectPlayIgnoreAllCosts"
+            "IgnoreAllCosts: definition.EffectPlayIgnoreAllCosts"
           ]
         }
       ],
@@ -506,7 +506,7 @@
         {
           "path": "tests/Riftbound.ConformanceTests/RadOpponentDeckPlayUnitTests.cs",
           "methods": [
-            "EntersBeforeRevealingAndActuallyPlaysTheChosenCardIgnoringEveryCost",
+            "EntersBeforeRevealingAndPlaysTheChosenCardWaivingOnlyBaseCosts",
             "AllOpponentsRevealButOnlyOneCardCanBeSelectedAcrossTheirDecks",
             "EmptyOpponentDecksAreSkippedWithoutDrawingOrBurnout",
             "AResponseReturningTheTrainerDoesNotCancelItsEarnedDeckPlay"
@@ -520,8 +520,8 @@
       ],
       "text": "你从中选择一张，将其放逐，然后将其打出，无视其费用。",
       "scope": "当你打出我时，展示每名对手主牌堆顶部的一张牌。",
-      "status": "missing",
-      "reason": "费用豁免错误：把“无视其费用”设为IgnoreAllCosts，错误免除额外费用和增费；应只豁免基础法力与基础符能，仍执行正常额外费用",
+      "status": "route",
+      "reason": "仅免基础法力和基础符能；急速、强制额外费用及增费沿共享产费、出牌确认与恢复流程支付",
       "rules": "核心356.1.b／356.5.a 区分无视费用与无视一切费用、383.4.a.2、329／337／420.3、417／128；RAD·018 官方中文牌面",
       "runtime": {
         "behaviors": [
@@ -533,23 +533,34 @@
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "member": "EffectPlayBehavior",
           "contains": [
-            "definition.DeckPlayKind == \"OPPONENT_REVEAL_PLAY\"",
-            "PlayerIdsStartingAfter(state, controller)",
-            "AddDeckPlayPendingCard(",
-            "IgnoreAllCosts: c.Kind == \"OPPONENT_REVEAL_PLAY\" || definition.EffectPlayIgnoreAllCosts"
+            "IgnorePrintedPowerCost = pending.IgnoreBasePower"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "contains": [
+            "effect?.IgnoreBaseMana == true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "member": "DeckPlayPending",
+          "contains": [
+            "IgnoreAllCosts: definition.EffectPlayIgnoreAllCosts)"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/RadOpponentDeckPlayUnitTests.cs",
+          "path": "tests/Riftbound.ConformanceTests/EffectPlayBaseCostTests.cs",
           "methods": [
-            "EntersBeforeRevealingAndActuallyPlaysTheChosenCardIgnoringEveryCost",
-            "AllOpponentsRevealButOnlyOneCardCanBeSelectedAcrossTheirDecks",
-            "EmptyOpponentDecksAreSkippedWithoutDrawingOrBurnout",
-            "AResponseReturningTheTrainerDoesNotCancelItsEarnedDeckPlay"
+            "BaseWaiverStillQuotesAndPaysTheRealOptionalHasteCost",
+            "AnExistingHeldUnitTaxStillIncreasesTheOtherwiseFreePlay",
+            "RecoveryRejectsReplacingTheBaseWaiverWithAnAllCostsWaiver",
+            "ARealMandatoryAdditionalSacrificeIsNeverWaived"
           ]
         }
       ]
@@ -578,7 +589,7 @@
             "definition.DeckPlayKind == \"OPPONENT_REVEAL_PLAY\"",
             "PlayerIdsStartingAfter(state, controller)",
             "AddDeckPlayPendingCard(",
-            "IgnoreAllCosts: c.Kind == \"OPPONENT_REVEAL_PLAY\" || definition.EffectPlayIgnoreAllCosts"
+            "IgnoreAllCosts: definition.EffectPlayIgnoreAllCosts"
           ]
         }
       ],
@@ -586,7 +597,7 @@
         {
           "path": "tests/Riftbound.ConformanceTests/RadOpponentDeckPlayUnitTests.cs",
           "methods": [
-            "EntersBeforeRevealingAndActuallyPlaysTheChosenCardIgnoringEveryCost",
+            "EntersBeforeRevealingAndPlaysTheChosenCardWaivingOnlyBaseCosts",
             "AllOpponentsRevealButOnlyOneCardCanBeSelectedAcrossTheirDecks",
             "EmptyOpponentDecksAreSkippedWithoutDrawingOrBurnout",
             "AResponseReturningTheTrainerDoesNotCancelItsEarnedDeckPlay"

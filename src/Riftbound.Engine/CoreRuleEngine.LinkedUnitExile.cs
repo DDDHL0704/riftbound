@@ -130,9 +130,9 @@ public sealed partial class CoreRuleEngine
             return result;
         // CN204.1.c: self-destruction was paid at confirmation, before responses.
         // The captured controller plays the card, while its owner stays unchanged.
-        var pending = new PendingEffectPlayState($"EFFECT-PLAY:{state.Tick + 1}:{item.StackItemId}", item.ControllerId,
+        var pending = new PendingEffectPlayState($"EFFECT-PLAY:LINKED-EXILE:{item.StackItemId}", item.ControllerId,
             item, "BANISHED", new Dictionary<string, long> { [binding.Key] = binding.Value }, true, true,
-            0, "ANY", false, IgnoreAllCosts: true) { SourcePlayerId = origin.TargetOwnerId };
+            0, "ANY", false) { SourcePlayerId = origin.TargetOwnerId };
         return result with { PendingEffectPlay = pending };
     }
 
@@ -141,9 +141,9 @@ public sealed partial class CoreRuleEngine
             && pending.Parent.TriggerCost is not null && ValidTriggerCostReceipt(state, pending.Parent)
             && !pending.Parent.EffectPlayCompleted && HeldLinkedGroup(state, pending.Parent) is { UnitEventOrigin: { } origin } group
             && ValidLinkedUnitExile(state, group)
-            && pending.ChoiceId == $"EFFECT-PLAY:{state.Tick}:{pending.Parent.StackItemId}"
+            && pending.ChoiceId == $"EFFECT-PLAY:LINKED-EXILE:{pending.Parent.StackItemId}"
             && pending.PlayerId == pending.Parent.ControllerId && pending.SourcePlayerId == origin.TargetOwnerId
-            && pending.SourceZone == "BANISHED" && pending.IgnoreAllCosts && pending.IgnoreBaseMana && pending.IgnoreBasePower
+            && pending.SourceZone == "BANISHED" && !pending.IgnoreAllCosts && pending.IgnoreBaseMana && pending.IgnoreBasePower
             && pending.ManaReduction == 0 && pending.DestinationPolicy == "ANY" && !pending.Optional
             && pending.ViewedCardIds is null && pending.RevealedHand is null && pending.SourceReplay is null
             && pending.MaximumUnitPower is null && pending.OriginalLocation is null && pending.OriginalBattlefield is null

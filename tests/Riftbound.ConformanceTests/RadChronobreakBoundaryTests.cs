@@ -235,7 +235,7 @@ public sealed class RadChronobreakBoundaryTests
 
     [Theory]
     [InlineData("BASE")] [InlineData("BATTLEFIELD:BF")]
-    public async Task IgnoreAllCostsKeepsTheChosenPeakAndHasteBenefitsWithNoResourcesRemaining(string destination)
+    public async Task BaseWaiverRequiresRealPaymentForBothPeakAndHasteBenefits(string destination)
     {
         var initial = Position();
         initial = initial with {
@@ -243,16 +243,23 @@ public sealed class RadChronobreakBoundaryTests
                 ["ALLY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ALLY", "OGN·001/298", "P1"),
                 ["BF"] = OfficialGarenConquestBattlefieldCountTests.Printed("BF", "VEN·157", "P1") with { ControllerId = null } },
             RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new(2, 1) } };
+        foreach (var id in new[] { "FEE-1", "FEE-2", "FEE-3" })
+            initial = VenConditionalPlayCostTests.Place(initial, id, "OGN·007/298", "P1", "BASE");
         var g = new Driver(initial); await g.Act("P1", Cast(1)); await g.Top();
         Assert.Equal(RunePool.Empty, g.State.RunePools["P1"]);
         var play = new PlayCardCommand("ALLY", "OGN·001/298", [], Destination: destination,
             OptionalCosts: ["BATTLEFIELD_UNIT_PLAY:BF", HasteOptionalCostNames.HasteReady]);
         var quote = new CoreRuleEngine().PreviewPlayCard(g.State, "P1", PlayCostPreviewTests.Request(g.State, play));
-        Assert.True(quote.CanPay, quote.Message); Assert.Equal(0, quote.Cost!.Mana);
-        Assert.Equal(0, quote.Cost.GenericPower); Assert.Empty(quote.Cost.PowerByTrait);
+        Assert.False(quote.CanPay); Assert.Equal(1, quote.Cost!.Mana);
+        Assert.Equal(2, quote.Cost.GenericPower); Assert.Equal(1, quote.Cost.PowerByTrait[RuneTrait.Red]);
+        await RadGearTestPosition.Reject(g.State, "P1", play);
+        await g.Act("P1", new TapRuneCommand("FEE-1"));
+        foreach (var id in new[] { "FEE-1", "FEE-2", "FEE-3" })
+            await g.Act("P1", new RecycleRuneCommand(id));
         await g.Act("P1", play);
         Assert.Equal(RunePool.Empty, g.State.RunePools["P1"]); Assert.False(g.State.CardObjects["ALLY"].IsExhausted);
         Assert.Equal(destination == "BASE" ? "BASE" : "BATTLEFIELD", g.State.ObjectLocations["ALLY"].Zone);
+        await g.Replay();
     }
 
     [Fact]

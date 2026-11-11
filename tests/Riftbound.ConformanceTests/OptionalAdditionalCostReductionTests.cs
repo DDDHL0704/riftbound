@@ -581,25 +581,28 @@ public sealed class OptionalAdditionalCostReductionTests
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
     }
 
-    [Fact]
-    public async Task AnIgnoredDiscardCostStillSelectsTheConditionalSpellEffectWithoutRevealingTheRetainedHandCard()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task BaseCostWaiverRequiresTheSelectedDiscardAndUsesItsConditionalDamage(bool discard)
     {
         var initial = DeckPlaySequenceTests.TopCard(DeckPlaySequenceTests.Position(DeckPlaySequenceTests.BlindFury), "P2_TOP", "VEN·008");
         initial = HandDiscardObserverTests.Put(initial, "COST_CARD", "OGN·219/298", "P1", "HAND");
         initial = LocalDestructionRecallTests.At(initial, "HOST", "P1", "BATTLEFIELD", "F");
-        var game = DeckPlaySequenceTests.Driver(initial, "waived-discard-conditional-damage");
+        var game = DeckPlaySequenceTests.Driver(initial, "base-waived-discard-conditional-damage-" + discard);
         await game.Act("P1", new PlayCardCommand("PARENT", DeckPlaySequenceTests.BlindFury, [])); await game.Top();
         await DeckPlaySequenceTests.Select(game, "P2_TOP");
-        Assert.True(game.State.PendingEffectPlay!.IgnoreAllCosts);
+        Assert.False(game.State.PendingEffectPlay!.IgnoreAllCosts);
         var pool = game.State.RunePools["P1"];
-        await game.Act("P1", new PlayCardCommand("P2_TOP", "VEN·008", ["HOST"], OptionalCosts: ["DISCARD_HAND_CARD:COST_CARD"]));
+        await game.Act("P1", new PlayCardCommand("P2_TOP", "VEN·008", ["HOST"],
+            OptionalCosts: discard ? ["DISCARD_HAND_CARD:COST_CARD"] : []));
         Assert.Equal(pool, game.State.RunePools["P1"]);
-        Assert.Equal(5, Assert.Single(game.State.StackItems).DamageAmount);
-        Assert.Contains("COST_CARD", game.State.PlayerZones["P1"].Hand);
-        Assert.DoesNotContain("COST_CARD", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]));
-        Assert.DoesNotContain("COST_CARD", JsonSerializer.Serialize(ResolutionResult.BuildSpectatorSnapshot(game.State)));
+        Assert.Equal(discard ? 5 : 3, Assert.Single(game.State.StackItems).DamageAmount);
+        Assert.Equal(!discard, game.State.PlayerZones["P1"].Hand.Contains("COST_CARD"));
+        Assert.Equal(discard, game.State.PlayerZones["P1"].Graveyard.Contains("COST_CARD"));
+        Assert.Equal(discard, JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]).Contains("COST_CARD"));
+        Assert.Equal(discard, JsonSerializer.Serialize(ResolutionResult.BuildSpectatorSnapshot(game.State)).Contains("COST_CARD"));
         await game.Top();
-        Assert.Equal(5, Assert.Single(game.Events(), e => e.Event.Kind == "DAMAGE_APPLIED"
+        Assert.Equal(discard ? 5 : 3, Assert.Single(game.Events(), e => e.Event.Kind == "DAMAGE_APPLIED"
             && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "P2_TOP")).Event.Payload["damage"]);
         await RideTheWindCurrentMovementTests.Replay(initial, game);
     }

@@ -90,7 +90,7 @@ public sealed class RadOpponentDeckPlayUnitTests
         }
     }
 
-    private static MatchState Position(string source = Trainer, bool multiplayer = false)
+    internal static MatchState Position(string source = Trainer, bool multiplayer = false)
     {
         var state = VenUnitEntryBasicTests.Position(source);
         if (multiplayer)
@@ -104,7 +104,7 @@ public sealed class RadOpponentDeckPlayUnitTests
         return state;
     }
 
-    private static MatchState TopCard(MatchState state, string player, string cardNo)
+    internal static MatchState TopCard(MatchState state, string player, string cardNo)
     {
         var id = player + "-TOP";
         return state with {
@@ -142,10 +142,12 @@ public sealed class RadOpponentDeckPlayUnitTests
     [InlineData("SFD·044/221", false)]
     [InlineData("SFD·022/221", true)]
     [InlineData("UNL-091/219", false)]
-    public async Task EntersBeforeRevealingAndActuallyPlaysTheChosenCardIgnoringEveryCost(string cardNo, bool equipment)
+    public async Task EntersBeforeRevealingAndPlaysTheChosenCardWaivingOnlyBaseCosts(string cardNo, bool equipment)
     {
         var state = TopCard(Position(), "P2", cardNo);
         state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(9, 2) } };
+        if (cardNo == "SFD·044/221")
+            state = VenConditionalPlayCostTests.Place(state, "COST_GEAR", "SFD·022/221", "P1", "BASE");
         var game = new Driver(state);
         await game.Act("P1", new PlayCardCommand("UNIT", Trainer, [], Destination: "BASE"));
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
@@ -156,9 +158,17 @@ public sealed class RadOpponentDeckPlayUnitTests
         var choice = game.State.PendingCardChoice!;
         Assert.Equal("P1", choice.PlayerId); Assert.Equal(["P2-TOP"], choice.LegalObjectIds);
         await Select(game, "P2-TOP");
-        Assert.True(game.State.PendingEffectPlay!.IgnoreAllCosts);
+        Assert.False(game.State.PendingEffectPlay!.IgnoreAllCosts);
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
-        await game.Act("P1", new PlayCardCommand("P2-TOP", cardNo, equipment ? ["ALLY"] : []));
+        var additionalCosts = cardNo switch {
+            "OGN·208/298" => new[] { "DESTROY_FRIENDLY_UNIT:ALLY" },
+            "SFD·044/221" => new[] { "RETURN_FRIENDLY_EQUIPMENT:COST_GEAR" },
+            _ => [] };
+        if (additionalCosts.Length != 0)
+            await Reject(game.State, "P1", new PlayCardCommand("P2-TOP", cardNo, []));
+        await game.Act("P1", new PlayCardCommand("P2-TOP", cardNo, equipment ? ["ALLY"] : [], OptionalCosts: additionalCosts));
+        if (cardNo == "OGN·208/298") Assert.Contains("ALLY", game.State.PlayerZones["P1"].Graveyard);
+        if (cardNo == "SFD·044/221") Assert.Contains("COST_GEAR", game.State.PlayerZones["P1"].Hand);
         Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]);
         Assert.Equal("P2", game.State.CardObjects["P2-TOP"].OwnerId);
         if (cardNo == "UNL-091/219") {
@@ -269,7 +279,7 @@ public sealed class RadOpponentDeckPlayUnitTests
         await Select(game, "P2-TOP");
         var pending = game.State.PendingEffectPlay!;
         foreach (var forged in new[] {
-            pending with { IgnoreAllCosts = false }, pending with { PlayerId = "P2" }, pending with { SourceZone = "HAND" },
+            pending with { IgnoreAllCosts = true }, pending with { PlayerId = "P2" }, pending with { SourceZone = "HAND" },
             pending with { Sources = new Dictionary<string, long> { ["P2-DRAW-1"] = game.State.CardObjects["P2-DRAW-1"].ObjectGeneration } } })
             Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { PendingEffectPlay = forged }));
         await game.Act("P1", new PlayCardCommand("P2-TOP", "OGN·219/298", [])); await game.Replay();

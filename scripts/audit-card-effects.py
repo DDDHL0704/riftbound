@@ -4073,6 +4073,116 @@ def battlefield_unit_play_route(card: dict, clause: dict, sources: Sources) -> d
         if exact else result('missing', '缺少精确战场打出规格、独立确认响应或原始首次事件与对象连续性校验')
 
 
+def base_cost_effect_play_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    """Match the repaired base-cost permissions, including their payer.
+
+    The runtime exporter omits default false flags. An absent IgnoreAllCosts
+    therefore remains distinct from true; positive base waivers and the actual
+    continuation/recovery consumers are required as well.
+    """
+    shape = (normalize(unparenthesize(clause["text"])), normalize(unparenthesize(clause["scope"])))
+    def pair(text, scope=None):
+        return normalize(text), normalize(scope or text)
+    trainer = pair("你从中选择一张，将其放逐，然后将其打出，无视其费用。",
+                   "当你打出我时，展示每名对手主牌堆顶部的一张牌。")
+    fury = pair("你从中选择一张，将其放逐，然后当作自己的牌打出，无视费用。")
+    mage = pair("你可以选择打出一名战力低于该单位的单位，无视其费用。",
+                "支付{{紫色}}，{{横置}}：让一名友方单位返回其所属的手牌。")
+    grave = pair("从你的废牌堆中打出最多三个法力费用不高于{{3}}且符能费用不高于{{A}}的单位和/或装备，无视其费用。")
+    cage = pair("当你据守此处时，摧毁此牌，以此打出所放逐的卡牌，无视其费用。")
+    replay = pair("放逐同样数量的你所控制的单位，然后，于每个所放逐的单位，其所属者将其打出回到相同位置或到其基地，无视其费用。")
+    if shape not in (trainer, fury, mage, grave, cage, replay):
+        return None
+    bad_policy = (
+        shape in (trainer, fury) and 'IgnoreAllCosts: c.Kind == "OPPONENT_REVEAL_PLAY" || definition.EffectPlayIgnoreAllCosts'
+        in sources.files.get("src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs", "")
+        or shape == mage and 'DestinationPolicy: "", Optional: true, IgnoreAllCosts: true,'
+        in sources.files.get("src/Riftbound.Engine/CoreRuleEngine.ReturnUnitPlay.cs", "")
+        or shape == cage and '0, "ANY", false, IgnoreAllCosts: true)'
+        in sources.files.get("src/Riftbound.Engine/CoreRuleEngine.LinkedUnitExile.cs", ""))
+    if bad_policy:
+        return result("missing", "无视其费用被扩大为无视一切费用，额外费用及增费错误豁免")
+    behaviors = card.get("behaviors", [])
+    required = {
+        "CoreRuleEngine.cs": ["EffectPlayBehavior(state, intent.PlayerId, behavior)"],
+        "CoreRuleEngine.PlayManaCost.cs": ["effect?.IgnoreBaseMana == true"],
+        "CoreRuleEngine.EffectPlay.cs": [
+            "} : behavior with { IgnorePrintedPowerCost = pending.IgnoreBasePower } : behavior;",
+            "if (pending.IgnoreAllCosts) return RejectWithCorePrompts(",
+            "if (command is TapRuneCommand tap) return ResolveTapRune(state, intent, tap);",
+            "if (command is RecycleRuneCommand recycle) return ResolveRecycleRune(state, intent, recycle);"]}
+    def add(filename, *fragments):
+        required.setdefault(filename, []).extend(fragments)
+    def base_only(behavior):
+        return (behavior.get("effectPlayIgnoreBaseMana") is True
+                and behavior.get("effectPlayIgnoreBasePower") is True
+                and not behavior.get("effectPlayIgnoreAllCosts", False))
+    if shape in (trainer, fury, replay):
+        kind = "OPPONENT_REVEAL_PLAY" if shape in (trainer, fury) else "OWNED_FIELD_UNIT_REPLAY"
+        matching = [b for b in behaviors if b.get("deckPlayKind") == kind]
+        if any(b.get("effectPlayIgnoreAllCosts") for b in matching):
+            return result("missing", "无视其费用被扩大为无视一切费用，额外费用及增费错误豁免")
+        if not any(not b.get("effectPlayIgnoreAllCosts", False)
+                   and (b.get("effectPlayAllowsAnyCard") is True if shape in (trainer, fury) else
+                        base_only(b) and b.get("effectPlayDestination") == "ORIGINAL_LOCATION_OR_BASE")
+                   for b in matching):
+            return result("review", "基础费用豁免的规格或执行消费者不完整")
+        add("CoreRuleEngine.cs", "return BeginDeckPlaySequence(state, stackItem, behavior);")
+        add("CoreRuleEngine.DeckPlaySequence.cs",
+            'IgnoreAllCosts: definition.EffectPlayIgnoreAllCosts)',
+            'c.Kind is "OPPONENT_REVEAL_PLAY" or "EACH_PLAYER_LOOK_PLAY" || definition.EffectPlayIgnoreBaseMana',
+            'c.Kind == "OPPONENT_REVEAL_PLAY" || definition.EffectPlayIgnoreBasePower',
+            'var expected = DeckPlayPending(pending.Parent, c);',
+            'pending.IgnoreAllCosts == expected.IgnoreAllCosts', 'AddDeckPlayPendingCard(')
+    elif shape == mage:
+        if not any(a.get("simpleEffect", {}).get("returnsFriendlyUnitThenFreePlayUpToPower") is True
+                   and a.get("requiredTargetCount") == 1
+                   and activation_cost_matches(a, dict(clause, text=clause["scope"]))
+                   for a in card.get("activations", [])):
+            return result("review", "基础费用豁免的规格或执行消费者不完整")
+        add("CoreRuleEngine.ReturnUnitPlay.cs", 'ResolveReturnUnitThenFreePlay(',
+            'IgnoreBaseMana: true, IgnoreBasePower: true, ManaReduction: 0,',
+            'DestinationPolicy: "", Optional: true,\n            MaximumUnitPower: capturedPower - 1);')
+        add("CoreRuleEngine.SimpleActivatedAbilities.cs", 'ValidTranspositionMageEffectPlay(',
+            '!pending.Optional || pending.IgnoreAllCosts || !pending.IgnoreBaseMana || !pending.IgnoreBasePower',
+            'return ResolveReturnUnitThenFreePlay(')
+    elif shape == grave:
+        if any(b.get("effectPlayIgnoreAllCosts") for b in behaviors):
+            return result("missing", "无视其费用被扩大为无视一切费用，额外费用及增费错误豁免")
+        if not any(base_only(b) and inventory_contains(b, dict(
+                effectPlaySourceZone="GRAVEYARD", effectPlayMaximumCount=3,
+                effectPlayMaximumManaCost=3, effectPlayMaximumPowerCost=1,
+                effectPlayRequiresUnitOrEquipment=True, effectPlayOptional=True)) for b in behaviors):
+            return result("review", "基础费用豁免的规格或执行消费者不完整")
+        add("CoreRuleEngine.cs", "return BeginEffectPlay(state, stackItem, behavior);")
+        add("CoreRuleEngine.EffectPlay.cs", 'pending.IgnoreAllCosts == behavior.EffectPlayIgnoreAllCosts',
+            'pending.IgnoreBaseMana == behavior.EffectPlayIgnoreBaseMana',
+            'pending.IgnoreBasePower == behavior.EffectPlayIgnoreBasePower',
+            'IgnoreAllCosts: behavior.EffectPlayIgnoreAllCosts)', 'BeginEffectPlay(')
+    else:
+        if (card.get("legacyRoutes", {}).get("HeldDefinition", {}).get("kind") != "PLAY_LINKED_EXILE"
+                or not any(b.get("unitEventAbility", {}).get("effect") == "BANISH_LINKED_UNIT_HERE"
+                           and b.get("heldPlaysLinkedExile") is True for b in behaviors)):
+            return result("review", "基础费用豁免的规格或执行消费者不完整")
+        add("CoreRuleEngine.Hold.cs", "if (context.Kind == LinkedExileHeldKind) return ResolveLinkedExileHeld(state, item);")
+        add("CoreRuleEngine.LinkedUnitExile.cs", 'ResolveLinkedExileHeld(',
+            'pending.ChoiceId == $"EFFECT-PLAY:LINKED-EXILE:{pending.Parent.StackItemId}"',
+            'item, "BANISHED", new Dictionary<string, long> { [binding.Key] = binding.Value }, true, true,\n            0, "ANY", false)',
+            'pending.SourceZone == "BANISHED" && !pending.IgnoreAllCosts && pending.IgnoreBaseMana && pending.IgnoreBasePower',
+            'ValidTriggerCostReceipt(state, item)')
+        add("CoreRuleEngine.EffectPlay.cs", 'parent.HeldContext?.Kind == LinkedExileHeldKind',
+            'EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true,\n                EffectPlayAllowsAnyCard: true, EffectPlayDestination: "ANY");')
+    evidence = []
+    for filename, fragments in required.items():
+        path = "src/Riftbound.Engine/" + filename
+        code = sources.files.get(path, "")
+        if not all(fragment in code for fragment in fragments):
+            return result("review", "基础费用豁免的规格或执行消费者不完整")
+        evidence.append(path)
+    return result("route", "只免基础法力／符能；额外费用沿共享出牌、产费和恢复流程支付", evidence)
+
+
+
 def friendly_equipment_ready_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     if text != normalize("当你打出一件装备时，让我变为活跃状态。"):
@@ -4153,6 +4263,8 @@ def friendly_equipment_ready_route(card: dict, clause: dict, sources: Sources) -
 
 
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
+    if base_cost := base_cost_effect_play_route(card, clause, sources):
+        return base_cost
     if clause.get("location") == "armament":
         matched = audit_armament_clause(card, clause, sources)
         if matched["status"] != "route" and (reviewed := reviewed_clause_route(card, clause, sources)):

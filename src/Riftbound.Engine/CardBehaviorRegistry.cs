@@ -9821,7 +9821,7 @@ public static class CardBehaviorRegistry
     [
         new("RAD·140/167", "时空断裂", 2, "CHRONOBREAK_OWNED_UNIT_REPLAY", 0, 0,
             DeckPlayKind: CoreRuleEngine.OwnedUnitReplayKind, EffectPlayIgnoreBaseMana: true,
-            EffectPlayIgnoreBasePower: true, EffectPlayIgnoreAllCosts: true,
+            EffectPlayIgnoreBasePower: true,
             EffectPlayDestination: "ORIGINAL_LOCATION_OR_BASE") { MayPayAnyAdditionalPower = true },
         new("RAD·142/167", "海克斯爆破雷区", 2, "HEXTECH_MINEFIELD_DESTROY_REBUILD_BOMBS", 0, 0,
             TargetScope: CardTargetScopes.FriendlyEquipment, AnyNumberOfTargets: true,
@@ -9914,7 +9914,7 @@ public static class CardBehaviorRegistry
             Showcase: new("ANY"), ShowcaseMinimumManaCost: 7),
         new("RAD·135/167", "不朽铭记", 8, "RAD_135_REPLAY_UP_TO_THREE_CHEAP_PERMANENTS", 0, 3,
             TargetScope: CardTargetScopes.FriendlyGraveyardCard, MinTargetCount: 0,
-            EffectPlaySourceZone: "GRAVEYARD", EffectPlayIgnoreAllCosts: true,
+            EffectPlaySourceZone: "GRAVEYARD", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true,
             EffectPlayAllowsAnyCard: true, EffectPlayRequiresUnitOrEquipment: true,
             EffectPlayMaximumCount: 3, EffectPlayMaximumManaCost: 3,
             EffectPlayMaximumPowerCost: 1, EffectPlayOptional: true)
