@@ -11,6 +11,31 @@ using Riftbound.Persistence;
 // Current CN Annie + four Teemo printings + Void Gate; only performed counted defense damage.
 internal static class ControllerDamageBonusSqlAcceptance
 {
+    internal static MatchState CreateInitialState(string room, string printing, int printedCount)
+    {
+        var deck = new[] { "TOP1", "TOP2", "TOP3", "TOP4", "TOP5", "LOWER" };
+        var cards = new Dictionary<string, CardObjectState> {
+            // This fixture exercises Teemo's defense, not Mighty Faerie's
+            // independent confirmation after moving to the battlefield.
+            ["ATTACKER"] = Unit("ATTACKER", "P1", "OGN·219/298", 7),
+            ["ANNIE"] = Unit("ANNIE", "P2", "OGS·001/024", 4),
+            ["DEFENDER"] = Unit("DEFENDER", "P2", printing, 2),
+            ["FIELD"] = new("FIELD", cardNo: "OGN·296/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P2", controllerId: "P2")
+        };
+        foreach (var (id, index) in deck.Select((id, index) => (id, index)))
+            cards[id] = Unit(id, "P2", index < printedCount ? "OGN·121/298" : "SFD·125/221", index < printedCount ? 2 : 3);
+        var locations = deck.ToDictionary(id => id, _ => new ObjectLocationState("P2", "MAIN_DECK"));
+        locations["ATTACKER"] = new("P1", "BASE");
+        locations["ANNIE"] = new("P2", "BASE");
+        locations["DEFENDER"] = new("P2", "BATTLEFIELD", "FIELD");
+        locations["FIELD"] = new("P2", "BATTLEFIELD", "FIELD");
+        return new MatchState(room, 0, 7, "P1", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
+            status: MatchStatuses.InProgress, readyPlayerIds: ["P1", "P2"], turnPlayerId: "P1", phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones> { ["P1"] = PlayerZones.Empty with { Base = ["ATTACKER"] }, ["P2"] = PlayerZones.Empty with { Base = ["ANNIE"], Battlefields = ["FIELD", "DEFENDER"], MainDeck = deck } },
+            cardObjects: cards, objectLocations: locations, untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted("FIELD")],
+            playerScores: new Dictionary<string, int> { ["P1"] = 0, ["P2"] = 0 }, runePools: new Dictionary<string, RunePool> { ["P1"] = new(20, 10), ["P2"] = new(20, 10) });
+    }
+
     public static async Task RunAsync(NpgsqlDataSource source, string output)
     {
         Check(!Directory.Exists(output), "Fresh controller-bonus counted-defense SQL output required.");
@@ -24,25 +49,8 @@ internal static class ControllerDamageBonusSqlAcceptance
             Directory.CreateDirectory(folder);
             var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
             var room = "controller-counted-defense-" + Guid.NewGuid().ToString("N");
-            var deck = new[] { "TOP1", "TOP2", "TOP3", "TOP4", "TOP5", "LOWER" };
-            var cards = new Dictionary<string, CardObjectState> {
-                ["ATTACKER"] = Unit("ATTACKER", "P1", "SFD·125/221", 7),
-                ["ANNIE"] = Unit("ANNIE", "P2", "OGS·001/024", 4),
-                ["DEFENDER"] = Unit("DEFENDER", "P2", printing, 2),
-                ["FIELD"] = new("FIELD", cardNo: "OGN·296/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P2", controllerId: "P2")
-            };
-            foreach (var (id, index) in deck.Select((id, index) => (id, index)))
-                cards[id] = Unit(id, "P2", index < printedCount ? "OGN·121/298" : "SFD·125/221", index < printedCount ? 2 : 3);
-            var locations = deck.ToDictionary(id => id, _ => new ObjectLocationState("P2", "MAIN_DECK"));
-            locations["ATTACKER"] = new("P1", "BASE");
-            locations["ANNIE"] = new("P2", "BASE");
-            locations["DEFENDER"] = new("P2", "BATTLEFIELD", "FIELD");
-            locations["FIELD"] = new("P2", "BATTLEFIELD", "FIELD");
-            var initial = new MatchState(room, 0, 7, "P1", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
-                status: MatchStatuses.InProgress, readyPlayerIds: ["P1", "P2"], turnPlayerId: "P1", phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen,
-                playerZones: new Dictionary<string, PlayerZones> { ["P1"] = PlayerZones.Empty with { Base = ["ATTACKER"] }, ["P2"] = PlayerZones.Empty with { Base = ["ANNIE"], Battlefields = ["FIELD", "DEFENDER"], MainDeck = deck } },
-                cardObjects: cards, objectLocations: locations, untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted("FIELD")],
-                playerScores: new Dictionary<string, int> { ["P1"] = 0, ["P2"] = 0 }, runePools: new Dictionary<string, RunePool> { ["P1"] = new(20, 10), ["P2"] = new(20, 10) });
+            var initial = CreateInitialState(room, printing, printedCount);
+            var deck = initial.PlayerZones["P2"].MainDeck;
             await File.WriteAllTextAsync(Path.Combine(folder, "explicit-original-controlled-initial.json"), JsonSerializer.Serialize(initial, json));
             var engine = new CoreRuleEngine();
             var journal = new PostgresMatchJournal(source);
