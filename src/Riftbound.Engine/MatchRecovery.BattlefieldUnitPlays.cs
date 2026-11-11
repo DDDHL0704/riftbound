@@ -24,6 +24,12 @@ public static partial class MatchRecoveryValidator
                     yield return (NormalizeId(item.StackItemId), item.SourceObjectId, item.ControllerId, context, item, frame.Tick);
         }
         var frames = new[] { state, state.PendingRuleChoice?.Origin }.OfType<MatchState>().ToArray();
+        if (frames.Any(frame => frame.UntilEndOfTurnEffects is null
+            || frame.UntilEndOfTurnEffects.Any(value => value is null)))
+        {
+            errors.Add("battlefield unit-play history contains a null effect list or value");
+            return;
+        }
         var current = frames.SelectMany(Scope).ToArray();
         var boundary = CurrentGameAcceptedEventBoundary(state, commands, events);
         var captures = events.Where(entry => entry.Sequence > boundary
