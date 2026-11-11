@@ -1373,6 +1373,12 @@ public sealed partial class ConformanceFixtureRunnerTests
                 },
                 ["P2"] = PlayerZones.Empty
             },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-CRAFTSMAN"] = new("P1", "HAND"),
+                ["P1-BATTLEFIELD-METEOR-SPRING"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-METEOR-SPRING"),
+                ["P1-BATTLEFIELD-ALLY"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-METEOR-SPRING")
+            },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 ["P1-UNIT-CRAFTSMAN"] = new(

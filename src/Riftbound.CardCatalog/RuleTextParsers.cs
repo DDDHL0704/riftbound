@@ -1226,7 +1226,7 @@ public static class TriggerParser
                 CreatedTokenDestination: TriggerTokenDestinations.Battlefield, CreatedTokenExhausted: false);
 
         var playedHereToken = Regex.Match(segment,
-            @"^(?:(?<play>当你打出我时)|(?<held>当我据守一处战场时))，在此处打出(?:一名|一个)(?<ready>活跃的|处于活跃状态的)?(?<might>[1-9][0-9]*)\{\{S\}\}(?:的)?“(?<name>[^”]+)”(?:单位指示物)?(?:，它拥有\{\{(?<keyword>[^}]+)\}\})?。?$",
+            @"^(?:(?<play>当你打出我时)|(?<held>当我据守一处战场时))，在此处(?:额外)?打出(?:一名|一个)(?<ready>活跃的|处于活跃状态的)?(?<might>[1-9][0-9]*)\{\{S\}\}(?:的)?“(?<name>[^”]+)”(?:单位指示物)?(?:，它拥有\{\{(?<keyword>[^}]+)\}\})?。?$",
             RegexOptions.CultureInvariant);
         if (playedHereToken.Success)
             return new(playedHereToken.Groups["held"].Success ? TriggerKinds.UnitBattlefieldHeldCreateUnitHere

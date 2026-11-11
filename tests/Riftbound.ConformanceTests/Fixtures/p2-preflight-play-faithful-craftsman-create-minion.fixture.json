@@ -12,12 +12,12 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGN·211/298 忠实的工坊主",
-      "note": "官方卡面：费用 3；单位；战力 2；当你打出我时，在此处额外打出一名 1 战力“随从”。当前 fixture 覆盖单位源牌入场与随从指示物创建路径，精确目的地选择暂缓。"
+      "note": "官方卡面：费用3，战力2；当你打出我时，在此处额外打出一名1战力随从。共享打出技能按来源结算时的位置生成，本场景明确选择默认基地。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
-      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算；当前 preflight 用控制者基地代表未接入目的地选择的单位入场。"
+      "note": "核心359.3.f.2、383.3：此处取原来源结算时的位置；单位在确认阶段进场，额外随从由独立打出技能经双方响应后创建。此场景仍覆盖原三条真实命令，补充独立技能移入结算链的公开事件。"
     },
     {
       "source": "data/official/upstream/2026-10-04/rules-manifest.json",
@@ -112,6 +112,7 @@
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
@@ -153,6 +154,9 @@
       },
       {
         "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "TRIGGERS_MOVED_TO_STACK"
       },
       {
         "kind": "PRIORITY_PASSED"

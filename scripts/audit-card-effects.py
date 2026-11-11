@@ -3815,12 +3815,200 @@ def temporary_assault_grant_route(card: dict, clause: dict, sources: Sources) ->
     return result("missing", "本句未授予正确数量的持续强攻；结算当下条件加战力不能代替临时关键词")
 
 
+def executable_member(sources: Sources, filename: str, name: str, *, field=False) -> str:
+    """Bound evidence to one actual declaration; ambiguous overloads stay open."""
+    code = sources.files.get('src/Riftbound.Engine/' + filename, '')
+    code = re.sub(r'/\*.*?\*/|//[^\n]*', '', code, flags=re.S)
+    declarations = list(re.finditer(
+        r'(?m)^    (?:private|internal|public) (?:static )?[^()\n=;{}]+?\b'
+        + re.escape(name) + (r'\s*=' if field else r'\s*\('), code))
+    if len(declarations) != 1:
+        return ''
+    start = declarations[0]
+    following = re.search(r'(?m)^    (?:private|internal|public)\b', code[start.end():])
+    return code[start.start():start.end() + following.start()] if following else code[start.start():]
+
+
+def source_play_here_unit_token_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    plain = re.sub(r'\s+', '', unparenthesize(clause['text']))
+    match = re.fullmatch(r'当你打出我时[，,]在此处(?:额外)?打出(?:一名|一个)(?P<ready>活跃的|处于活跃状态的)?'
+        r'(?P<power>[1-9][0-9]*)\{\{S\}\}(?:的)?“(?P<name>[^”]+)”(?:单位指示物)?'
+        r'(?:[，,]它拥有\{\{(?P<keyword>[^}]+)\}\})?[。.]?', plain)
+    if match is None:
+        return None
+    expected = dict(kind='SOURCE_UNIT_PLAYED_OR_SCORED_CREATE_UNIT', timing='SOURCE_UNIT_PLAYED',
+        targetScope='SOURCE_UNIT', createdTokenCount=1, createdTokenPower=int(match['power']),
+        createdTokenName=match['name'], createdTokenDestination='SOURCE_LOCATION')
+    entries = card.get('triggers')
+    nodes = [entry.get('node') for entry in entries if isinstance(entry, dict)] if isinstance(entries, list) else []
+    candidates = [node for node in nodes if isinstance(node, dict)
+        and normalize(unparenthesize(node.get('text', ''))) == normalize(plain)]
+    exact = clause.get('location', 'upper') == 'upper' and clause['kind'] == 'trigger' \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} \
+        and normalize(unparenthesize(clause['scope'])) == normalize(plain) and len(candidates) == 1
+    node = candidates[0] if len(candidates) == 1 else {}
+    allowed = set(expected) | {'text', 'createdTokenExhausted', 'createdTokenKeywords'}
+    exact = exact and inventory_contains(node, expected) \
+        and type(node.get('createdTokenExhausted', False)) is bool \
+        and node.get('createdTokenExhausted', False) == (match['ready'] is None) \
+        and inventory_contains(node.get('createdTokenKeywords') or [], [match['keyword']] if match['keyword'] else []) \
+        and not any(meaningful(value) for key, value in node.items() if key not in allowed)
+    filename = 'CoreRuleEngine.SourceUnitTokens.cs'
+    checks = [
+        (filename, 'SourceUnitTokenFactory', ['SourceUnitTokenSpecs.Value.TryGetValue(no, out var spec)',
+            'f.TokenFamilyName == spec.CreatedTokenName', 'f.DefaultPower == spec.CreatedTokenPower',
+            'f.Tags.Contains(CardObjectTags.UnitCard)', '(spec.CreatedTokenKeywords ?? []).All(f.Tags.Contains)']),
+        ('CoreRuleEngine.UnitEntryTriggers.cs', 'CaptureUnitEntry', ['CaptureSourcePlayTokens(ev, zones, cards, entered, player)']),
+        (filename, 'CaptureSourcePlayTokens', ['"UNIT_PLAYED_TO_BATTLEFIELD"', 'CaptureSourceUnitTokens(zones, cards, entered, player, "PLAY")']),
+        (filename, 'CaptureSourceUnitTokens', ['AttachedRuleTextRules.Instances(zones, cards, source)',
+            'timing == "PLAY"', 'TriggerTimings.SourceUnitPlayed or TriggerTimings.SourceUnitPlayedOrScored',
+            'new(source.ObjectId, source.ObjectGeneration)']),
+        ('CoreRuleEngine.BattleResultContinuation.cs', 'CollectResolutionEffects', ['QueueSourceUnitTokens(state, result)']),
+        (filename, 'QueueSourceUnitTokens', ['old.ObjectGeneration + 1', 'CapturedTick = result.State.Tick',
+            'SourceUnitTokens = context', 'BuildTriggerQueuedEvent(trigger)']),
+        ('CoreRuleEngine.cs', 'ShouldCreateBaseUnitTokens', ['SourceUnitTokenSpecs.Value.TryGetValue(behavior.CardNo, out var sourceTokens)',
+            'sourceTokens.Timing is TriggerTimings.SourceUnitPlayed or TriggerTimings.SourceUnitPlayedOrScored)\n            return false']),
+        ('CoreRuleEngine.cs', 'ResolveStackItemEffectCore', ['if (stackItem.SourceUnitTokens is not null) return ResolveSourceUnitTokens(state, stackItem)']),
+        (filename, 'ResolveSourceUnitTokens', ['ValidSourceUnitTokens(', 'if (!TrySourceUnitTokenDestination(state, item, out var battlefield)) return NoopStackResolutionResult(state)',
+            'CreateUnitTokenBatch(state, item, SourceUnitTokenFactory(item.SourceUnitTokens.CardNo)!.CardNo',
+            'spec.CreatedTokenCount!.Value + AdditionalUnitTokens(item)', 'entersReady: spec.CreatedTokenExhausted != true', 'battlefieldId: battlefield']),
+        (filename, 'TrySourceUnitTokenDestination', ['spec.CreatedTokenDestination != TriggerTokenDestinations.SourceLocation',
+            'source.ObjectGeneration != context.Source.Generation', '!IsFaceUpNonStandbyUnit(source)',
+            '!IsObjectOnField(state.PlayerZones, source.ObjectId)', '!state.ObjectLocations.TryGetValue(source.ObjectId, out var at)',
+            'if (at.Zone == "BASE") return at.PlayerId == item.ControllerId',
+            'BattlefieldLocalRules.PreventsUnitPlay(', 'battlefield = at.BattlefieldObjectId']),
+        (filename, 'ValidSourceUnitTokens', ['context.CapturedTick <= 0 || context.CapturedTick > state.Tick',
+            'context.Timing == "PLAY"', 'PredictBindingMatches(', 'AttachedRuleTextRules.ValidCaptured(']),
+    ]
+    selector = executable_member(sources, filename, 'SourceUnitTokenSpecs', field=True)
+    exact = exact and all(token in selector for token in ['RuleTextParser.Parse(c).Triggers.FirstOrDefault(',
+        'TriggerKinds.SourceUnitPlayedOrScoredCreateUnit or TriggerKinds.UnitBattlefieldHeldCreateUnitHere'])
+    exact = exact and all(all(token in executable_member(sources, path, name) for token in tokens)
+                          for path, name, tokens in checks)
+    evidence = sorted({'src/Riftbound.Engine/' + path for path, _, _ in checks})
+    return result('route', '打出后独立结算真实单位指示物，按原来源当前区域判定此处，检查来源代际且不重复执行旧基地生成字段', evidence) if exact else result(
+        'missing', '缺少精确打出／此处指示物规格、来源代际与位置、独立结算或防止旧基地路径重复执行的消费者')
+
+
+def battlefield_unit_play_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause['text']))
+    shapes = {
+        normalize('当一名玩家在此处打出一名单位时，该玩家可以选择支付{{1}}，以此给予该单位{{增益}}。'):
+            dict(kind='BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON', timing='BATTLEFIELD_UNIT_PLAYED',
+                 targetScope='PLAYED_UNIT_AT_THIS_BATTLEFIELD', manaCost=1, boonCount=1),
+        normalize('每回合首次，当玩家在此处打出一名非指示物单位时，该玩家可以选择将自己在此处控制的另一名单位移动到其基地。'):
+            dict(kind='BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE', timing='BATTLEFIELD_UNIT_PLAYED',
+                 targetScope='OTHER_CONTROLLED_UNIT_AT_THIS_BATTLEFIELD', moveCount=1,
+                 moveDestination='OWNER_BASE', oncePerTurn=True, excludesTokens=True),
+    }
+    if text not in shapes:
+        return None
+    expected = shapes[text]
+    clause_kind = 'rule' if expected.get('oncePerTurn') else 'trigger'
+    nodes = [entry.get('node') for entry in card.get('triggers', []) if isinstance(entry, dict)]
+    nodes = [node for node in nodes if isinstance(node, dict)
+        and normalize(unparenthesize(node.get('text', ''))) == text]
+    exact = card.get('cardCategory') == 'battlefield' and clause.get('location', 'upper') == 'upper' \
+        and clause['kind'] == clause_kind and normalize(unparenthesize(clause['scope'])) == text \
+        and len(nodes) == 1 and inventory_contains(nodes[0], expected) \
+        and not any(meaningful(value) for key, value in nodes[0].items()
+                    if key not in {*expected, 'text', 'reason'})
+    family = 'CoreRuleEngine.BattlefieldUnitPlayTriggers.cs'
+    recovery = 'MatchRecovery.BattlefieldUnitPlays.cs'
+    checks = [
+        ('CoreRuleEngine.UnitEntryTriggers.cs', 'CaptureUnitEntry', ['CaptureBattlefieldUnitPlay(ev, zones, cards, entered, player)']),
+        ('CoreRuleEngine.BattleResultContinuation.cs', 'CollectResolutionEffects', [
+            'collected = QueueBattlefieldUnitPlays(state, collected)', 'DeferCompanionPermanentPlayOrdering(state, collected)']),
+        (family, 'BattlefieldUnitPlayDefinition', [
+            'BattlefieldTriggerSpecRules.TriggersForCard(cardNo)', 'spec.ManaCost == 1 && spec.BoonCount == 1',
+            'spec.MoveCount == 1 && spec.OncePerTurn == true && spec.ExcludesTokens == true',
+            'specs.Length == 1 ? specs[0] : null']),
+        (family, 'CaptureBattlefieldUnitPlay', [
+            'ev.Kind is not ("UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED")',
+            '!TryBattlefieldPermanentPlay(ev, out var actor, out var field) || actor != player',
+            'TryGetBattlefieldCardObject(zones, cards, field, out var id, out var source)',
+            'source.ObjectGeneration', 'entered.ObjectGeneration', 'BattlefieldUnitPlayDefinition(source.CardNo, kind)']),
+        (family, 'QueueBattlefieldUnitPlays', [
+            'before.UntilEndOfTurnEffects', 'BattlefieldUnitPlayObservationKey', 'queue.Add(trigger)',
+            'BuildTriggerQueuedEvent(trigger)', 'observation.Player, observation.Source, FieldTriggerEffect, ev.Kind'
+        ]),
+        ('CoreRuleEngine.cs', 'BuildTriggerQueuedEvent', ['AddBattlefieldUnitPlayReceipt(trigger, payload)']),
+        (family, 'BattlefieldUnitPlayCaptureHash', [
+            'source, player, context.CardNo, context.Kind', 'context.SourceGeneration, context.BattlefieldId, context.BattlefieldUnitPlay']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'ResolveFieldTrigger', [
+            'IsBattlefieldUnitPlayKind(item.FieldContext?.Kind)', 'ResolveBattlefieldUnitPlay(state, item)']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'ValidFieldContext', [
+            'IsBattlefieldUnitPlayKind(context.Kind)', 'return ValidBattlefieldUnitPlayShape(context, effect, cardNo)',
+            'if (context.BattlefieldUnitPlay is not null) return false']),
+        ('CoreRuleEngine.CombatMight.cs', 'ValidFieldContextState', [
+            'IsBattlefieldUnitPlayKind(context.Kind)',
+            'return ValidBattlefieldUnitPlayState(state, context, sourceId, controller, effect, cardNo)']),
+        (family, 'ValidBattlefieldUnitPlayStack', [
+            'ValidBattlefieldUnitPlayState(state, context, item.SourceObjectId, item.ControllerId',
+            'item.TargetObjectIds.Count == 0 && item.TargetGenerations is null', 'item.TriggerCost is null']),
+        ('MatchRecovery.cs', 'Validate', ['return ValidateFrame(', 'requireAcceptedBattleHistory: true']),
+        ('MatchRecovery.cs', 'ValidateFrame', ['ValidateBattlefieldUnitPlayHistory(authoritativeState, commands, events, errors)']),
+        ('MatchRecovery.cs', 'ValidateSpellContinuations', ['!CoreRuleEngine.ValidBattlefieldUnitPlayStack(state, item)']),
+        (recovery, 'ValidateBattlefieldUnitPlayHistory', [
+            'state.PendingRuleChoice?.Origin', 'command.Accepted && command.CompletedTick == entry.Tick',
+            'command.StartedEventSequence < entry.Sequence', 'command.CompletedEventSequence >= entry.Sequence',
+            'original[0].Tick != origin.CapturedTick', 'CoreRuleEngine.BattlefieldUnitPlayCaptureHash(item.Context, item.Source, item.Controller)',
+            'expected.ExceptWith(retired)', 'expected.SetEquals(current.Select(item => item.Id))']),
+    ]
+    if expected['kind'] == 'BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON':
+        checks += [
+            ('CoreRuleEngine.TriggerCosts.cs', 'LeadingTriggerCost', [
+                'item.FieldContext?.Kind == BattlefieldEntryBoonKind ? new(Mana: 1)']),
+            ('CoreRuleEngine.FieldTriggers.cs', 'NeedsTriggerConfirmation', ['NeedsTriggerCostConfirmation(i)']),
+            ('CoreRuleEngine.FieldTriggers.cs', 'PrepareTriggerConfirmation', [
+                'if (NeedsTriggerCostConfirmation(item)) return PrepareTriggerCostConfirmation(result, item)']),
+            ('CoreRuleEngine.TriggerCosts.cs', 'ValidLeadingCostContext', [
+                'ValidBattlefieldUnitPlayShape(battlefield, item.EffectKind, item.CardNo)',
+                'battlefield.BattlefieldUnitPlay!.PlayerId == item.ControllerId',
+                'item.TargetObjectIds.Count == 0 && item.TargetGenerations is null']),
+            (family, 'ResolveBattlefieldUnitPlay', [
+                'context.Kind == BattlefieldEntryBoonKind && (item.TriggerCost is null || !ValidTriggerCostReceipt(state, item))',
+                'unit.ObjectGeneration == origin.Unit.Generation', 'IsFaceUpNonStandbyUnit(unit)',
+                'IsObjectOnField(zones, unit.ObjectId)',
+                'GrantLegendBoon(cards, unit.ObjectId, item.ControllerId, item.SourceObjectId, context.Kind, events, zones)']),
+        ]
+    else:
+        checks += [
+            (family, 'QueueBattlefieldUnitPlays', [
+                'var marker = BattlefieldFirstEntryUse(new(observation.Source, observation.SourceGeneration))',
+                'if (!used.Add(marker)) continue', 'used.Clear()', 'turn == result.State.TurnNumber']),
+            (family, 'BattlefieldUnitPlayTargets', [
+                'unit.ObjectId != origin.Unit.ObjectId', 'field.ObjectGeneration != context.SourceGeneration',
+                'EffectiveFieldControllerId(state.PlayerZones, unit.ObjectId, unit) == item.ControllerId',
+                'at.BattlefieldObjectId == context.BattlefieldId', 'TargetProtectionRules.IsLegalActivatedSkillTarget']),
+            (family, 'PrepareBattlefieldUnitPlayTarget', [
+                'DiscardUnconfirmedTrigger(result, item)', '0, 1, legal, legal', '"TRIGGER_CONFIRMATION"']),
+            (family, 'ResolveBattlefieldUnitPlay', [
+                'item.TargetGenerations?.GetValueOrDefault(target, -1) == unit.ObjectGeneration',
+                'BattlefieldUnitPlayTargets(state, item).Contains(target)',
+                'TryMoveFieldUnitByEffect(state, zones, cards, locations, pools, target, new(controller, "BASE")']),
+            (recovery, 'ValidateBattlefieldUnitPlayHistory', [
+                'CoreRuleEngine.BattlefieldUnitPlayTargetsHashKey', 'CoreRuleEngine.BattlefieldUnitPlayTargetHash(selected)',
+                'entry.Tick <= item.FrameTick', 'turn != frame.TurnNumber', 'uses.Clear()', '!uses.SetEquals(actual)']),
+        ]
+        checks.append((family, 'CaptureBattlefieldUnitPlay', ['token is null && ev.Kind != "UNIT_TOKEN_CREATED"']))
+    exact = exact and all(all(token in executable_member(sources, path, member) for token in tokens)
+                          for path, member, tokens in checks)
+    paths = sorted({'src/Riftbound.Engine/' + path for path, _, _ in checks})
+    return result('route', '真实打出观察、指定玩家控制、可选确认和响应、原对象代际及原始接受记录校验', paths) \
+        if exact else result('missing', '缺少精确战场打出规格、独立确认响应或原始首次事件与对象连续性校验')
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         matched = audit_armament_clause(card, clause, sources)
         if matched["status"] != "route" and (reviewed := reviewed_clause_route(card, clause, sources)):
             return reviewed
         return matched
+    if here_token := source_play_here_unit_token_route(card, clause, sources):
+        return here_token
+    if battlefield_play := battlefield_unit_play_route(card, clause, sources):
+        return battlefield_play
     if hand_exile := chosen_opponent_hand_exile_route(card, clause, sources):
         return hand_exile
     if attack_overkill := attack_conquest_overkill_route(card, clause, sources):

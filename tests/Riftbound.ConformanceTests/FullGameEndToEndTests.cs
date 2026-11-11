@@ -2553,10 +2553,8 @@ public sealed partial class FullGameEndToEndTests
             current,
             "P1",
             "b0-idol-valley-unit-play-boon");
-        var unitResolved = await ResolveStackPassPassAsync(
-            session,
-            unitPlayed,
-            "b0-idol-valley-unit-play-boon-resolve");
+        var unitResolved = await ConfirmBattlefieldUnitPlayAndResolveAsync(
+            session, unitPlayed, "b0-idol-valley-unit-play-boon-resolve", payBoon: true);
         AssertBattlefieldPlayUnitBoonResolved(current, unitResolved);
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -2591,10 +2589,8 @@ public sealed partial class FullGameEndToEndTests
             current,
             "P1",
             "b0-meteor-spring-first-unit-move-other");
-        var unitResolved = await ResolveStackPassPassAsync(
-            session,
-            unitPlayed,
-            "b0-meteor-spring-first-unit-move-other-resolve");
+        var unitResolved = await ConfirmBattlefieldUnitPlayAndResolveAsync(
+            session, unitPlayed, "b0-meteor-spring-first-unit-move-other-resolve", payBoon: false);
         AssertBattlefieldFirstUnitMoveOtherResolved(current, unitResolved);
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -8880,16 +8876,14 @@ public sealed partial class FullGameEndToEndTests
         Assert.Equal("P1", triggerEvent.Payload["playerId"]);
         Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
         Assert.Equal(IdolValleyBattlefieldPlayUnitBoonCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(sourceObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal(sourceObjectId, triggerEvent.Payload["targetObjectId"]);
-        Assert.Equal($"BATTLEFIELD:{battlefieldObjectId}", triggerEvent.Payload["destination"]);
-        Assert.Equal(1, triggerEvent.Payload["manaCost"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["sourceObjectId"]);
 
         var costEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldPlayUnitPayBoon, StringComparison.Ordinal));
+            && Equals(gameEvent.Payload.GetValueOrDefault("sourceObjectId"), battlefieldObjectId)
+            && Equals(gameEvent.Payload.GetValueOrDefault("totalManaCost"), 1));
         Assert.Equal("P1", costEvent.Payload["playerId"]);
-        Assert.Equal(1, costEvent.Payload["mana"]);
+        Assert.Equal(1, costEvent.Payload["totalManaCost"]);
 
         var boonEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
@@ -8925,27 +8919,29 @@ public sealed partial class FullGameEndToEndTests
         Assert.Equal("P1", triggerEvent.Payload["playerId"]);
         Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
         Assert.Equal(MeteorSpringBattlefieldFirstUnitMoveOtherCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal($"BATTLEFIELD:{battlefieldObjectId}", triggerEvent.Payload["destination"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["sourceObjectId"]);
 
-        var playedUnitObjectId = Assert.IsType<string>(triggerEvent.Payload["playedUnitObjectId"]);
-        var movedUnitObjectId = Assert.IsType<string>(triggerEvent.Payload["targetObjectId"]);
+        var playedUnitObjectId = FindHandCardObjectByCardNo(beforePlay.State, "P1", WildclawBeastmasterCardNo)!;
+        var moveEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "UNIT_MOVED_TO_BASE"
+            && Equals(gameEvent.Payload.GetValueOrDefault("sourceObjectId"), battlefieldObjectId));
+        var movedUnitObjectId = Assert.IsType<string>(moveEvent.Payload["targetObjectId"]);
         Assert.NotEqual(playedUnitObjectId, movedUnitObjectId);
         Assert.Contains(playedUnitObjectId, beforePlay.State.PlayerZones["P1"].Hand);
         Assert.Contains(movedUnitObjectId, beforePlay.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(battlefieldObjectId, beforePlay.State.ObjectLocations[movedUnitObjectId].BattlefieldObjectId);
 
-        var effectId = $"BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:P1:{battlefieldObjectId}";
-        Assert.Equal(effectId, triggerEvent.Payload["effectId"]);
+        var effectId = CoreRuleEngine.BattlefieldFirstEntryUse(new(battlefieldObjectId,
+            beforePlay.State.CardObjects[battlefieldObjectId].ObjectGeneration));
         Assert.Contains(effectId, result.State.UntilEndOfTurnEffects);
 
-        var moveEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase, StringComparison.Ordinal));
         Assert.Equal("P1", moveEvent.Payload["playerId"]);
         Assert.Equal(battlefieldObjectId, moveEvent.Payload["sourceObjectId"]);
         Assert.Equal(movedUnitObjectId, moveEvent.Payload["targetObjectId"]);
-        Assert.Equal("BATTLEFIELD", moveEvent.Payload["originZone"]);
-        Assert.Equal("BASE", moveEvent.Payload["destinationZone"]);
+        var origin = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(moveEvent.Payload["originLocation"]);
+        var destination = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(moveEvent.Payload["destinationLocation"]);
+        Assert.Equal("BATTLEFIELD", origin["zone"]);
+        Assert.Equal(battlefieldObjectId, origin["battlefieldObjectId"]);
+        Assert.Equal("BASE", destination["zone"]);
 
         Assert.Contains(playedUnitObjectId, result.State.PlayerZones["P1"].Battlefields);
         Assert.Contains(movedUnitObjectId, result.State.PlayerZones["P1"].Base);
@@ -18650,6 +18646,43 @@ public sealed partial class FullGameEndToEndTests
             WatchfulSentinelCardNo,
             battlefieldId)
             ?? throw new InvalidOperationException("B0 Lost Library driver could not find a Watchful Sentinel target at Lost Library.");
+    }
+
+    private static async ValueTask<ResolutionResult> ConfirmBattlefieldUnitPlayAndResolveAsync(
+        MatchSession session, ResolutionResult current, string intentPrefix, bool payBoon)
+    {
+        var result = current;
+        var events = current.Events.ToList();
+        if (result.State.TriggerQueue.Count > 1)
+        {
+            var order = new OrderTriggersCommand(OrderedTriggerIds: result.State.TriggerQueue
+                .OrderBy(trigger => trigger.FieldContext?.BattlefieldUnitPlay is null ? 1 : 0)
+                .Select(trigger => trigger.TriggerId).ToArray());
+            result = await session.SubmitAsync("P1", intentPrefix + "-order", order, RawCommand(order), CancellationToken.None);
+            AssertAccepted(result); AssertNoHiddenZoneLeak(result); events.AddRange(result.Events);
+        }
+        GameCommand command;
+        if (payBoon)
+        {
+            var payment = Assert.IsType<PendingPaymentState>(result.State.PendingPayment);
+            Assert.Equal(1, payment.ManaCost); Assert.Equal("P1", payment.PlayerId);
+            Assert.Empty(result.State.StackItems[^1].TargetObjectIds);
+            command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]);
+        }
+        else
+        {
+            var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+            Assert.Equal(0, choice.RequiredCount); Assert.Equal(1, choice.MaxCount);
+            var target = Assert.Single(choice.LegalObjectIds, id => result.State.CardObjects[id].CardNo == WildclawBeastmasterCardNo);
+            command = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]);
+        }
+        result = await session.SubmitAsync("P1", intentPrefix + "-confirm", command, RawCommand(command), CancellationToken.None);
+        AssertAccepted(result); AssertNoHiddenZoneLeak(result); events.AddRange(result.Events);
+        Assert.DoesNotContain(events, ev => ev.Kind == "BATTLEFIELD_TRIGGER_RESOLVED"
+            && ev.Payload.GetValueOrDefault("trigger") as string is TriggerKinds.BattlefieldPlayUnitPayBoon
+                or TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase);
+        var resolved = await ResolveStackPassPassAsync(session, result, intentPrefix + "-responses");
+        return resolved with { Events = events.Concat(resolved.Events.Skip(result.Events.Count)).ToArray() };
     }
 
     private static async ValueTask<ResolutionResult> SubmitBattlefieldPlayUnitBoonUnitAsync(

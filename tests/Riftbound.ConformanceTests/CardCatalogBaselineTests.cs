@@ -4625,7 +4625,7 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains(
             engineSources,
             source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
+                "BattlefieldTriggerSpecRules.TriggersForCard",
                 StringComparison.Ordinal)
                 && source.Contains(
                     "BattlefieldTriggerSpecRules.IsBattlefieldPlayUnitPayBoonTrigger",
@@ -4719,7 +4719,7 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains(
             engineSources,
             source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
+                "BattlefieldTriggerSpecRules.TriggersForCard",
                 StringComparison.Ordinal)
                 && source.Contains(
                     "BattlefieldTriggerSpecRules.IsBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger",
