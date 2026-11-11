@@ -5,9 +5,8 @@ using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 
 namespace Riftbound.ConformanceTests;
 
-// Draft only: compile against the actual merged predecessor before publication.
 // CN190.6.c, 355.10.d, 383.1.b/383.2, 383.3 and the three printed CN texts.
-public sealed class WorkshopBattlefieldUnitPlayTests
+public sealed partial class WorkshopBattlefieldUnitPlayTests
 {
     private const string Workshop = "OGN·211/298", Plain = "OGN·219/298";
     private const string Spring = "UNL-215/219", Valley = "UNL-218/219";

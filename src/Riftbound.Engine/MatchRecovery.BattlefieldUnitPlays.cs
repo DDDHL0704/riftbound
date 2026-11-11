@@ -2,8 +2,8 @@ namespace Riftbound.Engine;
 
 public static partial class MatchRecoveryValidator
 {
-    // Draft: the emitter and structural validators must be wired before this
-    // family is compiled. Original accepted events remain immutable.
+    // Original accepted events remain immutable. Malformed payloads are
+    // rejected by the frame validator before they can certify any capture.
     private static void ValidateBattlefieldUnitPlayHistory(MatchState state,
         IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events, List<string> errors)
     {
@@ -27,7 +27,7 @@ public static partial class MatchRecoveryValidator
         var current = frames.SelectMany(Scope).ToArray();
         var boundary = CurrentGameAcceptedEventBoundary(state, commands, events);
         var captures = events.Where(entry => entry.Sequence > boundary
-            && entry.Event.Payload.ContainsKey(CoreRuleEngine.BattlefieldUnitPlayCaptureHashKey)).ToArray();
+            && entry.Event.Payload?.ContainsKey(CoreRuleEngine.BattlefieldUnitPlayCaptureHashKey) == true).ToArray();
         if (captures.Length == 0 && current.Length == 0 && !frames.Any(frame => frame.UntilEndOfTurnEffects.Any(value =>
             value.StartsWith(CoreRuleEngine.BattlefieldFirstEntryUsePrefix, StringComparison.Ordinal)))) return;
         bool Accepted(RecoveredEvent entry) => commands.Any(command => command.Accepted && command.CompletedTick == entry.Tick
@@ -88,9 +88,9 @@ public static partial class MatchRecoveryValidator
                 .OrderBy(entry => entry.Sequence))
             {
                 if (entry.Event.Kind == "TURN_END_CLEANUP_STARTED") { uses.Clear(); continue; }
-                if (!entry.Event.Payload.ContainsKey(CoreRuleEngine.BattlefieldFirstEntryUseKey)) continue;
+                if (entry.Event.Payload?.ContainsKey(CoreRuleEngine.BattlefieldFirstEntryUseKey) != true) continue;
                 if (!Accepted(entry) || entry.Event.Kind != "TRIGGER_QUEUED"
-                    || !entry.Event.Payload.ContainsKey(CoreRuleEngine.BattlefieldUnitPlayCaptureHashKey)
+                    || entry.Event.Payload?.ContainsKey(CoreRuleEngine.BattlefieldUnitPlayCaptureHashKey) != true
                     || !TryReadObjectInt(entry.Event.Payload, CoreRuleEngine.BattlefieldUnitPlayTurnKey, out var turn))
                 {
                     errors.Add("battlefield first-entry use lacks its original accepted capture");
