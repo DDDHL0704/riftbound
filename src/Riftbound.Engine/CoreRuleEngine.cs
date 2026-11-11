@@ -4094,13 +4094,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out var targetSelectionMarkers, targetSelection: true);
         untilEndOfTurnEffects = targetSelectionMarkers;
         events.AddRange(targetSelectionTriggers.Select(BuildTriggerQueuedEvent));
-        ResolveSourceReadyOnEquipmentPlayedTriggers(
-            playerZones,
-            cardObjects,
-            intent.PlayerId,
-            behavior,
-            stackItem,
-            events);
         events.Add(
             new GameEvent(
                 "STACK_ITEM_ADDED",
@@ -22735,88 +22728,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal);
     }
-
-    private static void ResolveSourceReadyOnEquipmentPlayedTriggers(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        StackItemState stackItem,
-        List<GameEvent> events)
-    {
-        if (!behavior.PlaysSourceToBaseAsEquipment)
-        {
-            return;
-        }
-
-        foreach (var source in SourceReadyOnEquipmentPlayedTriggers(playerZones, cardObjects, playerId)
-            .OrderBy(source => source.ObjectId, StringComparer.Ordinal))
-        {
-            var sourceObjectId = source.ObjectId;
-            var sourceBehavior = source.Behavior;
-            var sourceState = cardObjects[sourceObjectId];
-            var effectKind = string.IsNullOrWhiteSpace(sourceBehavior.SourceReadyOnEquipmentPlayedEffectKind)
-                ? sourceBehavior.EffectKind
-                : sourceBehavior.SourceReadyOnEquipmentPlayedEffectKind;
-            var sourceDisplayName = string.IsNullOrWhiteSpace(sourceBehavior.DisplayName)
-                ? sourceObjectId
-                : sourceBehavior.DisplayName;
-            if (!ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, sourceState)) continue;
-            var wasExhausted = sourceState.IsExhausted;
-            AddReadiedObservation(playerZones, cardObjects, sourceState, events);
-            cardObjects[sourceObjectId] = sourceState with
-            {
-                IsExhausted = false
-            };
-            events.Add(new GameEvent(
-                "TRIGGER_RESOLVED",
-                $"{playerId} 的{sourceDisplayName}因装备打出变为活跃状态",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["trigger"] = effectKind,
-                    ["triggerSourceObjectId"] = sourceObjectId,
-                    ["playedCardNo"] = stackItem.CardNo,
-                    ["playedSourceObjectId"] = stackItem.SourceObjectId,
-                    ["wasExhausted"] = wasExhausted
-                }));
-            events.Add(CaptureSelfReady(new GameEvent(
-                "UNIT_READIED",
-                $"{sourceObjectId} 变为活跃状态",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["targetObjectId"] = sourceObjectId,
-                    ["wasExhausted"] = wasExhausted,
-                    ["isExhausted"] = false,
-                    ["reason"] = effectKind,
-                    ["playedCardNo"] = stackItem.CardNo,
-                    ["playedSourceObjectId"] = stackItem.SourceObjectId
-                }), sourceState, playerId, playerZones, cardObjects));
-        }
-    }
-
-    private static IEnumerable<(string ObjectId, CardBehaviorDefinition Behavior)> SourceReadyOnEquipmentPlayedTriggers(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId)
-    {
-        foreach (var objectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId))
-        {
-            if (!cardObjects.TryGetValue(objectId, out var sourceState)
-                || !IsFaceUpNonStandbyUnit(sourceState)
-                || !CardBehaviorRegistry.TryGetByCardNo(sourceState.CardNo ?? "", out var sourceBehavior)
-                || !sourceBehavior.SourceReadiesWhenControllerPlaysEquipment)
-            {
-                continue;
-            }
-
-            yield return (objectId, sourceBehavior);
-        }
-    }
-
-
 
     private static bool IsSpellPlayBehavior(CardBehaviorDefinition behavior)
     {

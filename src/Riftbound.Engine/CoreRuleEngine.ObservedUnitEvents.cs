@@ -8,7 +8,7 @@ public sealed partial class CoreRuleEngine
         => context?.Timing == AgilePlayTiming || HasArmamentPlayAttachment(context)
             || context?.Timing is UnitEventTimings.PrintedPowerCardPlayed or UnitEventTimings.BoonConsumed
                 or UnitEventTimings.PlayerDefend or UnitEventTimings.FriendlyUnitTargeted
-                or ArmamentLastBreathRules.Timing or FirstFriendlyStartPhaseDeathTiming or SpellInstructionReflexiveTiming or "FRIENDLY_UNIT_PLAYED" or "START" or OpponentScoringActionTiming
+                or ArmamentLastBreathRules.Timing or FirstFriendlyStartPhaseDeathTiming or SpellInstructionReflexiveTiming or "FRIENDLY_UNIT_PLAYED" or "FRIENDLY_EQUIPMENT_PLAYED" or "START" or OpponentScoringActionTiming
             || context?.Timing == "MOVE" && SelectedUnitEventSpec(context) is { RequiresMoveToBattlefield: true } or { PreservesMovementCapture: true }
             || context is not null && SelectedUnitEventSpec(context)?.PreservesMovementCapture == true
             || context is not null && SelectedUnitEventSpec(context)?.RequiredFriendlyUnitTagsAtTrigger is not null

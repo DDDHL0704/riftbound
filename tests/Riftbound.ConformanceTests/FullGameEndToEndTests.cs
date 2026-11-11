@@ -25782,6 +25782,13 @@ public sealed partial class FullGameEndToEndTests
                             Assert.NotEqual(item.SourceObjectId, item.TargetObjectIds[0]);
                             Assert.NotNull(item.TargetGenerations);
                         }
+                        if (unitEvent.CardNo == "OGN·091/298")
+                        {
+                            Assert.Equal(new UnitEventAbilitySpec("FRIENDLY_EQUIPMENT_PLAYED", "READY_SELF"), capturedAbility);
+                            Assert.Empty(item.TargetObjectIds); Assert.Null(item.TargetGenerations); Assert.Null(item.TriggerCost);
+                            Assert.NotNull(unitEvent.Other); Assert.Null(unitEvent.Here); Assert.Null(unitEvent.Mode);
+                            Assert.True(CoreRuleEngine.RequiresObservedUnitEventHistory(unitEvent));
+                        }
                         if (unitEvent.CardNo is "UNL-058/219" or "UNL-058a/219")
                         {
                             Assert.Equal(new UnitEventAbilitySpec("FRIENDLY_UNIT_PLAYED", "MIGHT_SELF", 1,

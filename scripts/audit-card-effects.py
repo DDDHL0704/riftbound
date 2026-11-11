@@ -4034,12 +4034,93 @@ def battlefield_unit_play_route(card: dict, clause: dict, sources: Sources) -> d
         if exact else result('missing', '缺少精确战场打出规格、独立确认响应或原始首次事件与对象连续性校验')
 
 
+def friendly_equipment_ready_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    if text != normalize("当你打出一件装备时，让我变为活跃状态。"):
+        return None
+    behaviors = card.get("behaviors", [])
+    expected = dict(timing="FRIENDLY_EQUIPMENT_PLAYED", effect="READY_SELF")
+    specs = [card.get("unitEventAbility")] + [b.get("unitEventAbility") for b in behaviors]
+    specs = [spec for spec in specs if spec is not None]
+    exact = clause["kind"] == "trigger" and normalize(unparenthesize(clause["scope"])) == text \
+        and card.get("cardCategory") in {"unit", "hero_unit"} and len(behaviors) == 1 \
+        and behaviors[0].get("playsSourceToBaseAsUnit") is True and bool(specs) \
+        and all(isinstance(spec, dict) and all(spec.get(key) == value for key, value in expected.items())
+            and not any(meaningful(value) for key, value in spec.items() if key not in expected) for spec in specs)
+    prefix = "src/Riftbound.Engine/"
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, "")
+        start = re.search(r"(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        return re.split(r"\n    (?:private|internal|public) (?:static )?", code[start.end():], maxsplit=1)[0] if start else ""
+
+    capture = member("CoreRuleEngine.UnitEvents.cs", "CaptureEquipmentPlayed")
+    exact = exact and bool(re.search(r"CaptureUnitEvents\(zones, cards, cards.Values.Where\(c =>\s*"
+        r"EffectiveFieldControllerId\(zones, c.ObjectId, c\) == player\).Select\(c => c.ObjectId\),\s*"
+        r'"FRIENDLY_EQUIPMENT_PLAYED"\)', capture))
+    exact = exact and bool(re.search(r'"FRIENDLY_EQUIPMENT_PLAYED"\)\.Select\(o => o with \{ Context = o.Context with \{ Other = new\(new\(entered.ObjectId, entered.ObjectGeneration\), entered.CardNo!,\s*'
+        r'entered.CopyFaceTransitions\?\.Count \?\? 0, entered.TokenFactoryCardNo\) \} \}\)', capture))
+    exact = exact and 'spec.Timing == "FRIENDLY_EQUIPMENT_PLAYED" ? c.Other is { } other' in member("CoreRuleEngine.UnitEvents.cs", "ValidUnitEvent")
+    companion = member("CoreRuleEngine.UnitPlayMight.cs", "CompanionPlayedUnit")
+    exact = exact and 'trigger.UnitEvent is { Timing: "FRIENDLY_EQUIPMENT_PLAYED" } equipment' in companion \
+        and 'equipment.Other?.Binding' in companion
+    companion_history = member("CoreRuleEngine.UnitPlayMight.cs", "ValidPermanentPlayCompanion")
+    exact = exact and all(value in companion_history for value in [
+        'companion.UnitEvent is { Timing: "FRIENDLY_EQUIPMENT_PLAYED" } equipment',
+        'equipment.CapturedTick == capturedTick', 'equipment.Other?.CardNo == item.CardNo',
+        'ValidUnitEvent(state, equipment, companion.EffectKind, companion.SourceObjectId,'])
+    ordering = member("CoreRuleEngine.UnitPlayMight.cs", "DeferCompanionPermanentPlayOrdering")
+    exact = exact and all(value in ordering for value in ['CompanionPlayedUnit(t)', 'queue.Add(trigger)']) \
+        and 'DeferCompanionPermanentPlayOrdering(state, collected)' in member("CoreRuleEngine.BattleResultContinuation.cs", "CollectResolutionEffects")
+    capture_sources = member("CoreRuleEngine.UnitEvents.cs", "CaptureUnitEvents")
+    exact = exact and all(marker in capture_sources for marker in [
+        "!card.IsFaceDown", "IsFaceUpNonStandbyUnit(card)", "IsObjectOnField(zones, id)",
+        "AttachedRuleTextRules.Instances(zones, cards, card)", "UnitEventTimingMatches(spec.Timing, timing)",
+        "card.ObjectGeneration", "EffectiveFieldControllerId(zones, card.ObjectId, card)"])
+    queue = member("CoreRuleEngine.UnitEvents.cs", "QueueUnitEvents")
+    exact = exact and all(marker in queue for marker in ["if (!result.Accepted)", "UnitEventCaptureKey",
+        "UnitEventTrigger(captured,", "queue.Add(trigger)", "TriggerQueue = queue"])
+    exact = exact and "ResolveUnitEventBoonInstruction(state, item, spec)" in member("CoreRuleEngine.UnitEvents.cs", "ResolveUnitEventInstruction")
+    ready = member("CoreRuleEngine.UnitEventBoonInstructions.cs", "ResolveUnitEventBoonInstruction")
+    exact = exact and all(marker in ready for marker in ["source.ObjectGeneration != context.SourceGeneration",
+        "!IsFaceUpNonStandbyUnit(source)", "!IsObjectOnField(state.PlayerZones, source.ObjectId)",
+        'spec.Effect == "READY_SELF"', "ApplyReadyState(source, behavior with { ReadiesTarget = true }",
+        "CardObjects = cards", "Events = events"])
+    exact = exact and all(marker in member("CoreRuleEngine.cs", "ApplyReadyState") for marker in [
+        "CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo)",
+        "ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, targetState)", "IsExhausted = false"])
+    history = member("CoreRuleEngine.ObservedUnitEvents.cs", "RequiresObservedUnitEventHistory")
+    audit = member("MatchRecovery.ObservedUnitEvents.cs", "ValidateObservedUnitEventHistory")
+    exact = exact and '"FRIENDLY_EQUIPMENT_PLAYED"' in history and all(marker in audit for marker in [
+        "CoreRuleEngine.RequiresObservedUnitEventHistory", "Scope(state.PendingRuleChoice?.Origin)",
+        "CoreRuleEngine.ObservedUnitEventCaptureHash",
+        "!expected.SetEquals(current.Select(item => item.Id))"])
+    exact = exact and all(marker in member("CoreRuleEngine.cs", "BuildTriggerQueuedEvent") for marker in [
+        "RequiresObservedUnitEventHistory(trigger.UnitEvent)", 'payload["observedUnitEventCaptureHash"]',
+        "ObservedUnitEventCaptureHash(trigger.UnitEvent!"])
+    exact = exact and "ValidateObservedUnitEventHistory(authoritativeState, commands, events, errors);" in sources.files.get(prefix + "MatchRecovery.cs", "")
+    equipment = member("CoreRuleEngine.cs", "PlaySourceEquipmentToBase")
+    entry = "playedEvent = CaptureEquipmentPlayed(playedEvent, playerZones, cardObjects, equipmentState, stackItem.ControllerId);" in equipment
+    token = bool(re.search(r'CaptureEquipmentPlayed\(new GameEvent\(\s*"EQUIPMENT_TOKEN_CREATED"',
+        member("CoreRuleEngine.cs", "CreateLegendEquipmentToken")))
+    old_immediate = sources.references("ResolveSourceReadyOnEquipmentPlayedTriggers(")
+    exact = exact and entry and token and not old_immediate
+    evidence = [prefix + name for name in ["CoreRuleEngine.UnitEvents.cs", "CoreRuleEngine.cs",
+        "CoreRuleEngine.UnitEventBoonInstructions.cs", "CoreRuleEngine.UnitPlayMight.cs",
+        "CoreRuleEngine.ObservedUnitEvents.cs", "MatchRecovery.ObservedUnitEvents.cs"]]
+    if exact:
+        return result("route", "实际己方装备和装备指示物打出捕获独立技能，原代际来源沿用活跃限制，恢复对照原始接受记录", evidence)
+    return result("missing", "缺少精确己方装备观察、独立响应、同代来源活跃或原始记录恢复校验")
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         matched = audit_armament_clause(card, clause, sources)
         if matched["status"] != "route" and (reviewed := reviewed_clause_route(card, clause, sources)):
             return reviewed
         return matched
+    if crew_ready := friendly_equipment_ready_route(card, clause, sources):
+        return crew_ready
     if here_token := source_play_here_unit_token_route(card, clause, sources):
         return here_token
     if battlefield_play := battlefield_unit_play_route(card, clause, sources):

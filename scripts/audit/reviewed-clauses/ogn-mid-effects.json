@@ -751,31 +751,78 @@
       ],
       "text": "当你打出一件装备时，让我变为活跃状态。",
       "scope": "当你打出一件装备时，让我变为活跃状态。",
-      "status": "missing",
-      "reason": "装备打出流程直接调用旧方法把勤务小队设为活跃并发出TRIGGER_RESOLVED，没有捕获独立触发与响应窗口",
-      "rules": "核心383.2–383.3、401.1／402.1；OGN·091 官方中文牌面",
+      "status": "route",
+      "reason": "实际己方装备和装备指示物打出捕获独立非目标技能，双方响应后仅让原代际场上来源活跃；恢复对照原始接受记录拒绝删除、重复与复活。；与印刷灵便打出技能同时触发时由控制者选择任一顺序，绑定原打出装备并沿用既有同伴技能排序及历史校验。",
+      "rules": "OGN·091官方中文牌面；中国区核心383.2—383.3触发和独立确认、383.4来源独立、401—402结算链，活跃动作沿用054／055／369.3／416限制。同时触发排序沿用383.3.d与确认次序337.1.b。",
       "runtime": {
         "behaviors": [
           {
-            "sourceReadiesWhenControllerPlaysEquipment": true
+            "playsSourceToBaseAsUnit": true,
+            "unitEventAbility": {
+              "timing": "FRIENDLY_EQUIPMENT_PLAYED",
+              "effect": "READY_SELF"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "member": "CaptureEquipmentPlayed",
           "contains": [
-            "private static void ResolveSourceReadyOnEquipmentPlayedTriggers(",
-            "cardObjects[sourceObjectId] = sourceState with",
-            "private static IEnumerable<(string ObjectId, CardBehaviorDefinition Behavior)> SourceReadyOnEquipmentPlayedTriggers("
+            "\"FRIENDLY_EQUIPMENT_PLAYED\"",
+            "EffectiveFieldControllerId(zones, c.ObjectId, c) == player"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventBoonInstructions.cs",
+          "member": "ResolveUnitEventBoonInstruction",
+          "contains": [
+            "source.ObjectGeneration != context.SourceGeneration",
+            "ApplyReadyState(source, behavior with { ReadiesTarget = true }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "member": "RequiresObservedUnitEventHistory",
+          "contains": [
+            "\"FRIENDLY_EQUIPMENT_PLAYED\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "member": "ValidateObservedUnitEventHistory",
+          "contains": [
+            "CoreRuleEngine.ObservedUnitEventCaptureHash",
+            "!expected.SetEquals(current.Select(item => item.Id))"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitPlayMight.cs",
+          "member": "CompanionPlayedUnit",
+          "contains": [
+            "Timing: \"FRIENDLY_EQUIPMENT_PLAYED\"",
+            "equipment.Other?.Binding"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitPlayMight.cs",
+          "member": "ValidPermanentPlayCompanion",
+          "contains": [
+            "equipment.CapturedTick == capturedTick",
+            "equipment.Other?.CardNo == item.CardNo"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.StaticAndPlayTriggers.cs",
+          "path": "tests/Riftbound.ConformanceTests/CrewEquipmentPlayObserverTests.cs",
           "methods": [
-            "P79ArenaServiceCrewReadiesWhenControllerPlaysEquipment"
+            "OrdinaryAndTokenEquipmentWaitForBothPlayersBeforeReadyingTheirObserver",
+            "ReturningTheCrewInResponseKeepsItsSkillWithoutReadyingAnObjectInHand",
+            "RecoveryChecksTheOriginalAcceptedCaptureAndRejectsErasureDuplicationAndRevival",
+            "AnActualImageOfTheCrewObservesSubsequentEquipmentWithItsCopiedText",
+            "PrintedAgileAndTheCrewLetTheirControllerChooseEitherSimultaneousOrder"
           ]
         }
       ]
