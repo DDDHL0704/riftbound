@@ -1122,6 +1122,80 @@ def native_unit_activation_binding(card: dict, clause: dict, sources: Sources) -
     return result("missing", "有色费用已实现；仍缺少完整来源代际、离场续接、隐私投影或恢复消费者")
 
 
+def level_and_graveyard_play_cost_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    """Two printed mana-only profiles, certified at the shared live price boundary."""
+    levels = ["{{等级6>}} 此牌的费用减少{{2}}。", "{{等级11>}} 改为此牌的费用减少{{4}}。"]
+    level_shapes = {normalize(text) for text in levels}
+    grave_shape = normalize("你的废牌堆中每有一张牌，我的费用便减少{{1}}。")
+    text = normalize(unparenthesize(clause['text']))
+    if text not in level_shapes and text != grave_shape:
+        return None
+    if clause.get('location', 'upper') != 'upper' or normalize(unparenthesize(clause['scope'])) != text:
+        return result('missing', '减费句子的适用范围或文本区域不匹配，不能忽略额外条件')
+    behaviors = card.get('behaviors', [])
+    if not isinstance(behaviors, list) or len(behaviors) != 1 or not isinstance(behaviors[0], dict):
+        return result('missing', '尚未逐一核对实际打出模式的费用规格')
+    behavior = behaviors[0]
+    if type(behavior.get('costReductionPower', 0)) is not int or behavior.get('costReductionPower', 0) != 0 \
+            or behavior.get('costReductionPowerTrait', ''):
+        return result('missing', '印刷效果只减少法力，不得额外减少符能或改变有色费用')
+    counter = executable_member(sources, 'CoreRuleEngine.ConditionalPlayCosts.cs', 'ConditionalPlayCostCount')
+    if text in level_shapes:
+        if not level_shapes.issubset({normalize(unparenthesize(row['text'])) for row in card_clauses(card)}):
+            return result('missing', '等级6与11的完整替换文本必须同时存在，不能授予未印刷档位')
+        steps = behavior.get('costReductionExperienceThresholds')
+        if card.get('cardCategory') != 'spell' \
+                or behavior.get('costReductionConditionKind') != 'CONTROLLER_EXPERIENCE_THRESHOLD_COUNT' \
+                or type(behavior.get('costReductionMana')) is not int or behavior.get('costReductionMana') != 2 \
+                or not isinstance(steps, list) or not all(type(step) is int for step in steps) or sorted(steps) != [6, 11]:
+            return result('missing', '缺少当前经验6／11最高档减2／4法力的准确规格')
+        branch_name = 'ControllerExperienceThresholdCount'
+        branch_tokens = ('behavior.CostReductionExperienceThresholds?.Count(threshold',
+                         'state.PlayerExperience.GetValueOrDefault(player) >= threshold')
+        reason = '当前操作者经验6／11分别减2／4法力；共享提示、报价与实际付款读取同一最高档，保持印刷符能及零下限'
+    else:
+        if card.get('cardCategory') not in {'unit', 'hero_unit'} or not behavior.get('playsSourceToBaseAsUnit') \
+                or behavior.get('costReductionConditionKind') != 'CONTROLLER_GRAVEYARD_CARD_COUNT' \
+                or type(behavior.get('costReductionMana')) is not int or behavior.get('costReductionMana') != 1:
+            return result('missing', '缺少当前自己废牌堆全部卡牌逐张减1法力的规格')
+        branch_name = 'ControllerGraveyardCardCount'
+        branch_tokens = ('state.PlayerZones.TryGetValue(player, out var graveyardZones)',
+                         'graveyardZones.Graveyard.Count(id => id != sourceObjectId)')
+        reason = '费用步骤读取当前自己废牌堆全部卡牌，排除已打出来源；共享提示、报价与实际付款减少法力并保留印刷符能'
+    branch = re.search(r'CardCostReductionConditionKinds\.' + branch_name + r'\s*=>\s*'
+        r'(.*?)(?=,\s*CardCostReductionConditionKinds\.|,\s*_\s*=>)', counter, re.S)
+    if not branch or not all(token in branch.group(1) for token in branch_tokens):
+        return result('missing', '实际条件分支没有读取当前操作者的准确计数，未调用的正确辅助方法不足以认证')
+    requirements = [
+        ('CoreRuleEngine.cs', 'ResolveCostReductionMana', (
+            '_ => behavior.CostReductionMana * ConditionalPlayCostCount(state, playerId, behavior, sourceObjectId)',)),
+        ('CoreRuleEngine.PlayManaCost.cs', 'CalculatePlayManaCost', (
+            'ResolveCostReductionMana(state, playerId, behavior, sourceObjectId)',
+            'Math.Max(0, total - Math.Max(0, reduction.Floor))', 'total -= amount;')),
+        ('CoreRuleEngine.PlayManaCost.cs', 'MinimumPlayManaCost', (
+            'var cost = CalculatePlayManaCost(state, playerId, behavior, additionalMana, optionalReduction,',
+            'sourceObjectId: sourceObjectId, destination: null)')),
+        ('CoreRuleEngine.cs', 'TryBuildPlayCardPlan', (
+            'var manaCost = CalculatePlayManaCost(state, intent.PlayerId, behavior, extraManaCost,',
+            'optionalCostManaReduction, optionalCosts, paymentTargets, command.SourceObjectId,',
+            'var costReductionMana = manaCost.CardReduction;', 'PaymentCostRules.AuthorizePayment(')),
+        ('CoreRuleEngine.cs', 'ResolvePlayCard', (
+            'TryBuildPlayCardPlan(state, intent, command, out var plan, out var rejection)',
+            'var paymentPlan = plan.Payment;', 'PaymentCostRules.TryCommitPayment(', 'debitPlan,')),
+        ('CoreRuleEngine.PlayCostPreview.cs', 'PreviewPlayCard', (
+            'TryBuildPlayCardPlan(state, new("COST_PREVIEW", playerId, CommandTypes.PlayCard),',
+            'plan.TotalManaCost', 'Adjust("卡牌减费", -plan.CostReductionMana)')),
+        ('MatchSession.cs', 'PromptMinimumManaCost', (
+            'CoreRuleEngine.MinimumPlayManaCost(state, playerId, behavior, sourceObjectId, additionalMana).Total',)),
+    ]
+    for filename, member, tokens in requirements:
+        body = executable_member(sources, filename, member)
+        if not body or not all(token in body for token in tokens):
+            return result('missing', '条件减费没有完整接通实际提示、报价、法力零下限和权威付款：' + member)
+    return result('route', reason, sorted({'src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs'}
+        | {'src/Riftbound.Engine/' + filename for filename, _, _ in requirements}))
+
+
 def experience_play_cost_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     texts = ["{{等级3>}} 我的费用减少{{2}}和{{绿色}}。",
              "{{等级6>}} 改为我的费用减少{{4}}和{{绿色}}{{绿色}}。",
@@ -4026,6 +4100,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         if colored["status"] == "route":
             return native_unit_activation_binding(card, clause, sources)
         return colored
+    if level_graveyard_cost := level_and_graveyard_play_cost_route(card, clause, sources):
+        return level_graveyard_cost
     if level_cost := experience_play_cost_route(card, clause, sources):
         return level_cost
     if experience := conditional_unit_experience_route(card, clause, sources):

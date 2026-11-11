@@ -688,9 +688,9 @@
       ],
       "text": "你的废牌堆中每有一张牌，我的费用便减少{{1}}。",
       "scope": "你的废牌堆中每有一张牌，我的费用便减少{{1}}。",
-      "status": "missing",
-      "reason": "只有10法力基础单位定义；没有按当前废牌堆卡牌数量逐张减1法力的规格或费用消费者",
-      "rules": "核心356.4 减费；OGN·195 官方中文牌面",
+      "status": "route",
+      "reason": "费用步骤逐张统计自己废牌堆全部卡牌，排除已打出来源；共享提示、报价和真实付款减法力至零，保留印刷紫色符能。",
+      "rules": "OGN·195官方中文牌面；中国区核心354来源先进入结算链、356.4.g喇煞计数示例与356.6零下限。",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -705,20 +705,47 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "costReductionConditionKind": "CONTROLLER_GRAVEYARD_CARD_COUNT",
+            "costReductionMana": 1
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs",
+          "member": "ConditionalPlayCostCount",
           "contains": [
-            "\"OGN·195/298\"",
-            "\"RHASA_FULL_COST_SPIRIT_PLAY_UNIT\""
+            "CardCostReductionConditionKinds.ControllerGraveyardCardCount",
+            "graveyardZones.Graveyard.Count(id => id != sourceObjectId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "member": "ResolveCostReductionMana",
+          "contains": [
+            "_ => behavior.CostReductionMana * ConditionalPlayCostCount(state, playerId, behavior, sourceObjectId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "member": "CalculatePlayManaCost",
+          "contains": [
+            "ResolveCostReductionMana(state, playerId, behavior, sourceObjectId)",
+            "Math.Max(0, total - Math.Max(0, reduction.Floor))"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LevelAndGraveyardPlayCostTests.cs",
+          "methods": [
+            "RhasaCountsAllOwnGraveyardCardsAndOnlyReducesMana",
+            "RhasaRequotesAfterAnActualSpellEntersAndLeavesItsGraveyard",
+            "PricingAPlayFromTheGraveyardExcludesItsOwnSourceBeforeCountingCards"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

@@ -2612,9 +2612,9 @@
       ],
       "text": "{{等级6>}} 此牌的费用减少{{2}}。（如果你拥有不少于6经验，则获得该效果。）",
       "scope": "{{等级6>}} 此牌的费用减少{{2}}。（如果你拥有不少于6经验，则获得该效果。）",
-      "status": "missing",
-      "reason": "只有固定5法力抽2张；缺少等级6／11减2／4法力的共享报价与付款调整",
-      "rules": "核心824 等级、356.4 减费；UNL-091 官方中文牌面",
+      "status": "route",
+      "reason": "按当前操作者经验6／11使用最高档减2／4法力；提示、报价和真实付款共享计算，印刷费用保持原值。",
+      "rules": "官方中文牌面；中国区核心824.1.b—d等级及最高档替换、356.4与356.6减费。",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -2627,20 +2627,50 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "costReductionConditionKind": "CONTROLLER_EXPERIENCE_THRESHOLD_COUNT",
+            "costReductionMana": 2,
+            "costReductionExperienceThresholds": [
+              6,
+              11
+            ]
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs",
+          "member": "ConditionalPlayCostCount",
           "contains": [
-            "\"UNL-091/219\"",
-            "\"CENTER_YOUR_MIND_DRAW_2\""
+            "CardCostReductionConditionKinds.ControllerExperienceThresholdCount",
+            "state.PlayerExperience.GetValueOrDefault(player) >= threshold"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "member": "ResolveCostReductionMana",
+          "contains": [
+            "_ => behavior.CostReductionMana * ConditionalPlayCostCount(state, playerId, behavior, sourceObjectId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "member": "CalculatePlayManaCost",
+          "contains": [
+            "ResolveCostReductionMana(state, playerId, behavior, sourceObjectId)",
+            "Math.Max(0, total - Math.Max(0, reduction.Floor))"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LevelAndGraveyardPlayCostTests.cs",
+          "methods": [
+            "CenterYourMindUsesItsCurrentHighestLevelToPayThenDrawsTwo",
+            "CenterYourMindRequotesTheActorsCurrentExperienceWithoutUsingTheOpponentsLevel"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2648,9 +2678,9 @@
       ],
       "text": "{{等级11>}} 改为此牌的费用减少{{4}}。",
       "scope": "{{等级11>}} 改为此牌的费用减少{{4}}。",
-      "status": "missing",
-      "reason": "只有固定5法力抽2张；缺少等级6／11减2／4法力的共享报价与付款调整",
-      "rules": "核心824 等级、356.4 减费；UNL-091 官方中文牌面",
+      "status": "route",
+      "reason": "按当前操作者经验6／11使用最高档减2／4法力；提示、报价和真实付款共享计算，印刷费用保持原值。",
+      "rules": "官方中文牌面；中国区核心824.1.b—d等级及最高档替换、356.4与356.6减费。",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -2663,20 +2693,50 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "costReductionConditionKind": "CONTROLLER_EXPERIENCE_THRESHOLD_COUNT",
+            "costReductionMana": 2,
+            "costReductionExperienceThresholds": [
+              6,
+              11
+            ]
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs",
+          "member": "ConditionalPlayCostCount",
           "contains": [
-            "\"UNL-091/219\"",
-            "\"CENTER_YOUR_MIND_DRAW_2\""
+            "CardCostReductionConditionKinds.ControllerExperienceThresholdCount",
+            "state.PlayerExperience.GetValueOrDefault(player) >= threshold"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "member": "ResolveCostReductionMana",
+          "contains": [
+            "_ => behavior.CostReductionMana * ConditionalPlayCostCount(state, playerId, behavior, sourceObjectId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "member": "CalculatePlayManaCost",
+          "contains": [
+            "ResolveCostReductionMana(state, playerId, behavior, sourceObjectId)",
+            "Math.Max(0, total - Math.Max(0, reduction.Floor))"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LevelAndGraveyardPlayCostTests.cs",
+          "methods": [
+            "CenterYourMindUsesItsCurrentHighestLevelToPayThenDrawsTwo",
+            "CenterYourMindRequotesTheActorsCurrentExperienceWithoutUsingTheOpponentsLevel"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

@@ -110,7 +110,9 @@ class YiLevelCostAuditTests(unittest.TestCase):
     def test_quote_and_actual_mana_payment_must_both_use_the_counter(self):
         for name, token in [
             ('CoreRuleEngine.cs', 'var manaCost = CalculatePlayManaCost(state, intent.PlayerId, behavior, extraManaCost,'),
-            ('CoreRuleEngine.cs', 'behavior.CostReductionMana * ConditionalPlayCostCount(state, playerId, behavior)'),
+            ('CoreRuleEngine.cs', re.search(
+                r'behavior\.CostReductionMana \* ConditionalPlayCostCount\(state, playerId, behavior(?:, sourceObjectId)?\)',
+                self.sources.files['src/Riftbound.Engine/CoreRuleEngine.cs']).group(0)),
             ('CoreRuleEngine.PlayManaCost.cs', 'ResolveCostReductionMana(state, playerId, behavior, sourceObjectId)'),
             ('CoreRuleEngine.PlayManaCost.cs', 'Math.Max(0, total - Math.Max(0, reduction.Floor))')]:
             with self.subTest(name=name, token=token):
