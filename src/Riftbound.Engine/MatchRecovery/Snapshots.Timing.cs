@@ -971,6 +971,12 @@ public static partial class MatchRecoveryValidator
         List<string> errors,
         MatchState? authoritativeState)
     {
+        if (authoritativeState is not null && (authoritativeState.UntilEndOfTurnEffects is null
+            || authoritativeState.UntilEndOfTurnEffects.Any(effect => effect is null)))
+        {
+            errors.Add($"snapshot for {view.PlayerId} timing continuous effects requires a valid authoritative effect list");
+            return;
+        }
         if (view.Snapshot.Timing is null
             || !TryReadObjectList(view.Snapshot.Timing, "continuousEffects", out var effectPayloads))
         {
