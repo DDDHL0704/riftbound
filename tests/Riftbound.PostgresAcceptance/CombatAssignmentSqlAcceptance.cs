@@ -37,7 +37,9 @@ internal static class CombatAssignmentSqlAcceptance
         foreach (var id in attackers.Concat(defenders))
         {
             var owner = id.StartsWith('A') ? "P1" : "P2";
-            cards[id] = new(id, cardNo: "SFD·125/221", ownerId: owner, controllerId: owner,
+            // Vanguard Sergeant has no printed abilities. Mighty Faerie now
+            // correctly earns its own optional skill before the battle prompt.
+            cards[id] = new(id, cardNo: "OGN·219/298", ownerId: owner, controllerId: owner,
                 power: multipleDefenders && id == "A1" ? 4 : 2, tags: [CardObjectTags.UnitCard]);
         }
         if (conquestContinuation)
