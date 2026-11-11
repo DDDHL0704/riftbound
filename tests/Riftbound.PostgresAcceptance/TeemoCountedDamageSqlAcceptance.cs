@@ -26,7 +26,9 @@ internal static class TeemoCountedDamageSqlAcceptance
             var room = "teemo-counted-defense-" + Guid.NewGuid().ToString("N");
             var deck = new[] { "TOP1", "TOP2", "TOP3", "TOP4", "TOP5", "LOWER" };
             var cards = new Dictionary<string, CardObjectState> {
-                ["ATTACKER"] = Unit("ATTACKER", "P1", "SFD·125/221", 7),
+                // Keep this fixture about Teemo's defense choice, without
+                // Mighty Faerie's independent movement confirmation first.
+                ["ATTACKER"] = Unit("ATTACKER", "P1", "OGN·219/298", 7),
                 ["DEFENDER"] = Unit("DEFENDER", "P2", printing, 2),
                 ["FIELD"] = new("FIELD", cardNo: "OGN·296/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P2", controllerId: "P2")
             };

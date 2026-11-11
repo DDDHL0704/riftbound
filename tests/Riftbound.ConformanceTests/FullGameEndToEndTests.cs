@@ -4516,12 +4516,14 @@ public sealed partial class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        current = await DriveSpecificUnitToOwnBaseAsync(
-            session,
-            current,
-            "P1",
-            BaronNashorOtherFriendlyStaticAuraCardNo,
+        current = await PlaySpecificUnitToBaseAsync(
+            session, "P1", current, BaronNashorOtherFriendlyStaticAuraCardNo,
             "b0-other-friendly-aura-stage-source");
+        var baron = FindBattlefieldUnitByCardNo(current.State, "P1", BaronNashorOtherFriendlyStaticAuraCardNo, readyOnly: false);
+        Assert.NotNull(baron);
+        var nest = current.State.ObjectLocations[baron].BattlefieldObjectId;
+        Assert.NotNull(nest);
+        Assert.Equal(P6TokenFactoryCatalog.BaronNestTokenCardNo, current.State.CardObjects[nest].TokenFactoryCardNo);
         current = await DriveSpecificUnitToOwnBattlefieldAsync(
             session,
             current,
@@ -20948,6 +20950,7 @@ public sealed partial class FullGameEndToEndTests
             current.State,
             playerId,
             BaronNashorOtherFriendlyStaticAuraCardNo)
+            ?? FindBattlefieldUnitByCardNo(current.State, playerId, BaronNashorOtherFriendlyStaticAuraCardNo, readyOnly: false)
             ?? throw new InvalidOperationException("B0 other-friendly static aura driver could not find Baron Nashor source.");
         var attackerObjectId = FindBattlefieldUnitByCardNo(
             current.State,
