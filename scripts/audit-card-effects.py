@@ -868,7 +868,7 @@ def native_activation_route(card: dict, clause: dict, sources: Sources) -> dict 
                       if signature(native) == signature(parsed)]
     if clause["text"] == clause["scope"] and owner:
         routes = [path for native in owner for path in sources.references('"' + native["kind"] + '"')
-                  if "CoreRuleEngine" in path]
+                  if Path(path).name.startswith("CoreRuleEngine.Borrowed")]
         if any(native["kind"] == "MIGHT_UNIT" for native in owner):
             # The shared resolver's ordinary else branch applies spec.Might;
             # it does not need another literal comparison with MIGHT_UNIT.

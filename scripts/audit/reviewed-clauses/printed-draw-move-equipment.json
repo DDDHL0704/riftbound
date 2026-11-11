@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "OGN·099/298"
+      ],
+      "text": "从废牌堆中回收三张牌，支付{{1}}，{{横置}}：抽一张牌。",
+      "scope": "从废牌堆中回收三张牌，支付{{1}}，{{横置}}：抽一张牌。",
+      "location": "upper",
+      "status": "route",
+      "runtime": {
+        "nativeActivations": [
+          {
+            "kind": "DRAW",
+            "mana": 1,
+            "recycledCardCostCount": 3,
+            "drawCount": 1
+          }
+        ]
+      },
+      "reason": "原生横置技能沿共享流程完整支付一法力、来源休眠和三张不同废牌；先随机回收到主牌堆底再建立独立抽牌技能，不能少付、重复选牌或选择非废牌堆物体",
+      "rules": "核心203.1–203.3、404.1.a、405.1 费用；415.4–415.5 横置费用；417.3及417.5 回收费用与随机牌堆底；407.4–407.5及414 抽牌技能的响应和结算；OGN·099官方中文牌面",
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/BorrowedExhaustRules.cs",
+          "contains": [
+            "NativeSourceSpecs",
+            "or \"DRAW\" or \"MOVE_TO_BASE\"",
+            "NativeSpecs(text.CardNo)",
+            "Native: true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BorrowedExhaust.cs",
+          "contains": [
+            "PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state)",
+            "if (!payment.Accepted) return RejectWithCorePrompts",
+            "BuildCorePrompts(next)"
+          ],
+          "member": "ResolveBorrowedExhaust"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BorrowedExhaust.cs",
+          "contains": [
+            "recycled.Length != ability.Spec.RecycledCardCostCount",
+            "recycled.Distinct(StringComparer.Ordinal).Count() != recycled.Length",
+            "RecycleGraveyardCards(paidState, zones, cards, intent.PlayerId",
+            "rngCursor = recycling.RngCursor;"
+          ],
+          "member": "ResolveBorrowedExhaust"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "RandomizeForMainDeckBottom(",
+            "MainDeck = zones.MainDeck.Concat(randomizedCardIds).ToArray()"
+          ],
+          "member": "RecycleGraveyardCards"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BorrowedExhaust.cs",
+          "contains": [
+            "if (spec.Kind == \"DRAW\" && spec.DrawCount > 0)",
+            "ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId,"
+          ],
+          "member": "ResolveBorrowedExhaustStack"
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PrintedDrawMoveEquipmentTests.cs",
+          "methods": [
+            "WhizRecyclesThreeDifferentGraveyardCardsAndPaysManaBeforeDrawing",
+            "WhizCannotRecycleTheSameCardTwiceOrUseAnOffGraveyardCard",
+            "WhizCannotExhaustOrRecycleTheGraveyardWithoutItsManaPayment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·184/298"
+      ],
+      "text": "支付{{1}}，{{横置}}：将战场上的一名友方单位移动到其所属的基地。",
+      "scope": "支付{{1}}，{{横置}}：将战场上的一名友方单位移动到其所属的基地。",
+      "location": "upper",
+      "status": "route",
+      "runtime": {
+        "nativeActivations": [
+          {
+            "kind": "MOVE_TO_BASE",
+            "mana": 1,
+            "targets": 1,
+            "targetScope": "FRIENDLY_BATTLEFIELD_UNIT"
+          }
+        ]
+      },
+      "reason": "原生横置技能支付一法力并休眠来源后，独立在结算链等待响应；仅允许战场上的友方单位，按捕获的目标代际调用共享移动，保留休眠且不能追踪返手后的新物体",
+      "rules": "核心404–407 技能费用及响应；355.6目标选取、359.3.e.2及186.1 非场地区域与新物体；107.1.c、448–451移动；OGN·184官方中文牌面",
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/BorrowedExhaustRules.cs",
+          "contains": [
+            "NativeSourceSpecs",
+            "or \"DRAW\" or \"MOVE_TO_BASE\"",
+            "NativeSpecs(text.CardNo)",
+            "Native: true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BorrowedExhaust.cs",
+          "contains": [
+            "PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state)",
+            "if (!payment.Accepted) return RejectWithCorePrompts",
+            "BuildCorePrompts(next)"
+          ],
+          "member": "ResolveBorrowedExhaust"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BorrowedMovement.cs",
+          "contains": [
+            "StackObjectRules.ReferencesCurrentObject(state, item, id)",
+            "IsBorrowedExhaustTarget(state, item.ControllerId, id, spec, item.SourceObjectId)",
+            "TryMoveFieldUnitByEffect(state, zones, cards, locations, pools, id, destination,"
+          ],
+          "member": "ResolveBorrowedMovement"
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PrintedDrawMoveEquipmentTests.cs",
+          "methods": [
+            "SirenMovesAFriendlyExhaustedBattlefieldUnitToBaseAfterPayingManaAndExhaustingEquipment",
+            "SirenDoesNotAllowAnEnemyOrAnAlreadyBasedFriendlyUnit",
+            "SirenCannotMoveANewHandObjectAfterItsDeclaredTargetReturnsInResponse"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·046/221"
+      ],
+      "text": "支付{{1}}和{{绿色}}，{{横置}}，摧毁此牌：抽一张牌。",
+      "scope": "支付{{1}}和{{绿色}}，{{横置}}，摧毁此牌：抽一张牌。",
+      "location": "upper",
+      "status": "route",
+      "runtime": {
+        "nativeActivations": [
+          {
+            "kind": "DRAW",
+            "mana": 1,
+            "typedPower": {
+              "green": 1
+            },
+            "destroysSourceAsCost": true,
+            "drawCount": 1
+          }
+        ]
+      },
+      "reason": "保留装备打出时抽一张牌；独立原生横置技能须支付一法力、一绿色符能、休眠并摧毁来源后才建立抽牌技能，使用共享已消失来源文本校验、恢复和重放，任何资源不足均不修改状态",
+      "rules": "核心203.1–203.3、404.1.a及405.1 完整费用；415.4 横置费用；359.3.f.2及407.4–407.5 技能独立与响应；414 抽牌；SFD·046官方中文牌面",
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/BorrowedExhaustRules.cs",
+          "contains": [
+            "NativeSourceSpecs",
+            "or \"DRAW\" or \"MOVE_TO_BASE\"",
+            "NativeSpecs(text.CardNo)",
+            "Native: true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BorrowedExhaust.cs",
+          "contains": [
+            "PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state)",
+            "if (!payment.Accepted) return RejectWithCorePrompts",
+            "BuildCorePrompts(next)"
+          ],
+          "member": "ResolveBorrowedExhaust"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BorrowedExhaust.cs",
+          "contains": [
+            "if (ability.Spec.DestroysSourceAsCost)",
+            "source = ExhaustForInstruction(zones, cards, source);",
+            "explicitDestroyObjectIds: new HashSet<string> { source.ObjectId }"
+          ],
+          "member": "ResolveBorrowedExhaust"
+        },
+        {
+          "path": "src/Riftbound.Engine/BorrowedExhaustRules.cs",
+          "contains": [
+            "c.Native && spec.DestroysSourceAsCost",
+            "spec.DestroysSourceAsCost || spec.DestroyedFriendlyCardTypeAsCost.Length > 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BorrowedExhaust.cs",
+          "contains": [
+            "if (spec.Kind == \"DRAW\" && spec.DrawCount > 0)",
+            "ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId,"
+          ],
+          "member": "ResolveBorrowedExhaustStack"
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PrintedDrawMoveEquipmentTests.cs",
+          "methods": [
+            "PoroSnaxDrawsOnceWhenPlayedAndPaysDestructionBeforeItsSeparateDrawSkill",
+            "PoroSnaxCannotDestroyItselfWithoutItsFullPrintedPayment"
+          ]
+        }
+      ]
+    }
+  ]
+}
