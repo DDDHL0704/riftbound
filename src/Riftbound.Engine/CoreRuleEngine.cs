@@ -128,7 +128,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
     private const string BattlefieldFriendlySpellDrawUsedEffectPrefix = "BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:";
-    private const string BattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectPrefix = "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldHeldNextSpellEchoEffectPrefix = "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:";
     private const string FriendlyUnitDestroyedEquipmentRecallEffectId =
@@ -4889,12 +4888,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return $"{BattlefieldFriendlySpellDrawUsedEffectPrefix}{playerId}:{sourceObjectId}";
     }
 
-    private static string BuildBattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectId(
-        string playerId,
-        string battlefieldObjectId)
-    {
-        return $"{BattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectPrefix}{playerId}:{battlefieldObjectId}";
-    }
 
     private static string BuildBattlefieldHeldUnitCostIncreaseEffectId(string playerId, int manaDelta)
     {
@@ -5350,6 +5343,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["observerKind"] = trigger.HandDiscardObserver?.Kind ?? trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
+        AddBattlefieldUnitPlayReceipt(trigger, payload);
         if (trigger.UnitEvent is { FirstConquestTurn: { } firstTurn } firstConquest)
         {
             payload["firstConquestUse"] = FirstConquestUse(trigger.SourceObjectId, firstConquest);
@@ -22822,205 +22816,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
     }
 
-    private static bool TryResolveBattlefieldPlayUnitPayOneBoonTrigger(MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, RunePool> runePools,
-        string playerId,
-        StackItemState stackItem,
-        out IReadOnlyDictionary<string, RunePool> nextRunePools,
-        List<GameEvent> events)
-    {
-        nextRunePools = runePools;
-        if (!IsStackItemBattlefieldDestination(stackItem)
-            || !playerZones.TryGetValue(playerId, out var zones)
-            || !zones.Battlefields.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
-            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitState)
-            || !sourceUnitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceUnitState, playerId)
-            || !BoonRules.CanGrant(sourceUnitState, playerZones, cardObjects)
-            || !runePools.TryGetValue(playerId, out var currentPool))
-        {
-            return false;
-        }
 
-        var battlefieldObjectId = string.Empty;
-        var triggerKind = string.Empty;
-        var manaCost = 0;
-        foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
-        {
-            if (!cardObjects.TryGetValue(objectId, out var cardObject)
-                || !BattlefieldTriggerSpecRules.TryGetTrigger(
-                    cardObject.CardNo,
-                    BattlefieldTriggerSpecRules.IsBattlefieldPlayUnitPayBoonTrigger,
-                    out var trigger)
-                || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
-            {
-                continue;
-            }
-
-            var triggerManaCost = trigger.ManaCost.GetValueOrDefault();
-            if (triggerManaCost <= 0)
-            {
-                continue;
-            }
-
-            battlefieldObjectId = objectId;
-            triggerKind = trigger.Kind;
-            manaCost = triggerManaCost;
-            break;
-        }
-
-        if (string.IsNullOrWhiteSpace(battlefieldObjectId)
-            || manaCost <= 0
-            || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
-            || PaymentCostRules.AvailableMana(currentPool, ManaPaymentPurpose.Other, state) < manaCost)
-        {
-            return false;
-        }
-
-        var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        mutableRunePools[playerId] = PaymentCostRules.SpendMana(currentPool, manaCost, state: state);
-        nextRunePools = mutableRunePools;
-
-        events.Add(new GameEvent(
-            "BATTLEFIELD_TRIGGER_RESOLVED",
-            $"{playerId} 在偶像谷打出单位并支付 {manaCost} 给予增益",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["battlefieldObjectId"] = battlefieldObjectId,
-                ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = triggerKind,
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["targetObjectId"] = stackItem.SourceObjectId,
-                ["destination"] = stackItem.Destination,
-                ["manaCost"] = manaCost
-            }));
-        events.Add(new GameEvent(
-            "COST_PAID",
-            $"{playerId} 支付偶像谷单位增益触发费用",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["mana"] = manaCost,
-                ["power"] = 0,
-                ["reason"] = triggerKind
-            }));
-        GrantLegendBoon(
-            cardObjects,
-            stackItem.SourceObjectId,
-            playerId,
-            battlefieldObjectId,
-            triggerKind,
-            events, playerZones);
-        return true;
-    }
-
-    private static bool TryResolveBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(
-        MatchState state,
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        StackItemState stackItem,
-        List<string> untilEndOfTurnEffects,
-        List<GameEvent> events)
-    {
-        if (!IsStackItemBattlefieldDestination(stackItem)
-            || !playerZones.TryGetValue(playerId, out var zones)
-            || !zones.Battlefields.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
-            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitState)
-            || !sourceUnitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceUnitState, playerId))
-        {
-            return false;
-        }
-
-        var battlefieldObjectId = string.Empty;
-        var triggerKind = string.Empty;
-        foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
-        {
-            if (!cardObjects.TryGetValue(objectId, out var cardObject)
-                || !BattlefieldTriggerSpecRules.TryGetTrigger(
-                    cardObject.CardNo,
-                    BattlefieldTriggerSpecRules.IsBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger,
-                    out var trigger)
-                || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                || (trigger.ExcludesTokens == true && P6TokenFactoryCatalog.TryGetByCardNo(stackItem.CardNo, out _)))
-            {
-                continue;
-            }
-
-            battlefieldObjectId = objectId;
-            triggerKind = trigger.Kind;
-            break;
-        }
-
-        if (string.IsNullOrWhiteSpace(battlefieldObjectId)
-            || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState))
-        {
-            return false;
-        }
-
-        var effectId = BuildBattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectId(playerId, battlefieldObjectId);
-        if (untilEndOfTurnEffects.Contains(effectId, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        var targetObjectId = zones.Battlefields
-            .Where(objectId => !string.Equals(objectId, stackItem.SourceObjectId, StringComparison.Ordinal)
-                && !string.Equals(objectId, battlefieldObjectId, StringComparison.Ordinal)
-                && cardObjects.TryGetValue(objectId, out var cardObject)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(targetObjectId)
-            || !TryMoveTargetToOwnerBase(state, playerZones, cardObjects, playerId, targetObjectId, out var targetPlayerId, events)
-            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
-        {
-            return false;
-        }
-
-        var movementObservation = CaptureMovementObservers(state, cardObjects, targetObjectId, playerId, "BASE");
-        targetState = cardObjects[targetObjectId];
-        cardObjects[targetObjectId] = targetState with
-        {
-            IsAttacking = false,
-            IsDefending = false
-        };
-        untilEndOfTurnEffects.Add(effectId);
-        events.Add(new GameEvent(
-            "BATTLEFIELD_TRIGGER_RESOLVED",
-            $"{playerId} 在流星疗泉打出本回合首个单位并移动另一名单位",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["battlefieldObjectId"] = battlefieldObjectId,
-                ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = triggerKind,
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["playedUnitObjectId"] = stackItem.SourceObjectId,
-                ["targetObjectId"] = targetObjectId,
-                ["destination"] = stackItem.Destination,
-                ["effectId"] = effectId
-            }));
-        events.Add(new GameEvent(
-            "UNIT_MOVED_TO_BASE",
-            $"{targetObjectId} 因流星疗泉移动到基地",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = targetPlayerId,
-                ["sourceObjectId"] = battlefieldObjectId,
-                ["targetObjectId"] = targetObjectId,
-                ["originZone"] = MoveUnitBattlefieldZone,
-                ["destinationZone"] = MoveUnitBaseZone,
-                ["reason"] = triggerKind
-            }));
-        events.Add(movementObservation);
-        return true;
-    }
 
     private static bool IsSpellPlayBehavior(CardBehaviorDefinition behavior)
     {
@@ -23994,27 +23790,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (TryResolveSourceStealEnemyEquipment(
                 state, playerZones, cardObjects, runePools, behavior, stackItem, events, out var stolenLocations))
                 resolvedObjectLocations = stolenLocations;
-
-            if (TryResolveBattlefieldPlayUnitPayOneBoonTrigger(state,
-                    playerZones,
-                    cardObjects,
-                    runePools,
-                    stackItem.ControllerId,
-                    stackItem,
-                    out var battlefieldBoonRunePools,
-                    events))
-            {
-                runePools = battlefieldBoonRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-            }
-
-            TryResolveBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(
-                state,
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                stackItem,
-                untilEndOfTurnEffects,
-                events);
 
             if (behavior.SourceNextSpellCostReductionMana > 0
                 && !string.IsNullOrWhiteSpace(behavior.SourceNextSpellCostReductionEffectKind))

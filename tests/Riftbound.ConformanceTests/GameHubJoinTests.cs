@@ -11657,6 +11657,37 @@ public sealed partial class GameHubJoinTests
         Assert.Equal(4, target["damage"]);
     }
 
+    private static async Task<(RecordingHubClients Clients, IReadOnlyList<GameEvent> Events)> ConfirmSeedBattlefieldUnitPlayAsync(
+        string roomId, InMemoryMatchSessionRegistry registry, RecordingHubClients played, string? moveTarget)
+    {
+        var events = EventsFor(played).ToList();
+        var current = played;
+        async Task Submit(GameCommand command, string player, string suffix)
+        {
+            var prompt = PromptFor(current, player);
+            var raw = JsonSerializer.SerializeToNode(command, command.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web))!.AsObject();
+            raw["promptId"] = prompt.PromptId; raw["snapshotTick"] = prompt.SnapshotTick;
+            var clients = new RecordingHubClients();
+            await CreateHub(clients, new RecordingGroupManager(), player == "P1" ? "connection-1" : "connection-2", registry, authenticatedHandle: player)
+                .SubmitIntent(roomId, player, roomId + "-" + suffix, JsonSerializer.SerializeToElement(raw));
+            Assert.Empty(clients.CallerClient.Errors); events.AddRange(EventsFor(clients)); current = clients;
+        }
+        var ordering = Assert.Single(PromptFor(current, "P1").Candidates!, candidate => candidate.Action == CommandTypes.OrderTriggers);
+        var ids = JsonSerializer.SerializeToElement(ordering.Metadata).GetProperty("orderedTriggerIds").EnumerateArray()
+            .Select(value => value.GetString()!).OrderBy(id => id.Contains("battlefield-unit-play-", StringComparison.Ordinal) ? 0 : 1).ToArray();
+        await Submit(new OrderTriggersCommand(OrderedTriggerIds: ids), "P1", "order-independent-skills");
+        var candidate = Assert.Single(PromptFor(current, "P1").Candidates!, c => c.Action == (moveTarget is null ? CommandTypes.PayCost : CommandTypes.ChooseCards));
+        var metadata = JsonSerializer.SerializeToElement(candidate.Metadata);
+        GameCommand confirmation = moveTarget is null
+            ? new PayCostCommand(metadata.GetProperty("paymentId").GetString()!, metadata.GetProperty("paymentWindow").GetString()!, ["PAY"])
+            : new ChooseCardsCommand(metadata.GetProperty("choiceId").GetString()!, metadata.GetProperty("choiceWindow").GetString()!, [moveTarget]);
+        await Submit(confirmation, "P1", "confirm-independent-skill");
+        Assert.DoesNotContain(events, ev => ev.Kind is "BOON_GRANTED" or "UNIT_MOVED_TO_BASE");
+        await Submit(new PassPriorityCommand(), "P1", "skill-p1-pass");
+        await Submit(new PassPriorityCommand(), "P2", "skill-p2-pass");
+        return (current, events);
+    }
+
     [Fact]
     public async Task P79BattlefieldPlayUnitBoonSeedPaysOneAndGrantsBoonOnResolution()
     {
@@ -11688,23 +11719,15 @@ public sealed partial class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-play-unit-boon-play", unitPlay);
         Assert.Empty(playClients.CallerClient.Errors);
 
-        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
-            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-play-unit-boon-p1-pass", passPriority);
-        var resolveClients = new RecordingHubClients();
-        var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
-            .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-play-unit-boon-p2-pass", passPriorityAgain);
-
-        Assert.Empty(resolveClients.CallerClient.Errors);
-        var events = EventsFor(resolveClients);
+        var (resolveClients, events) = await ConfirmSeedBattlefieldUnitPlayAsync(
+            roomId, registry, playClients, null);
         Assert.Contains(events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON", StringComparison.Ordinal));
         Assert.Contains(events, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON", StringComparison.Ordinal)
-            && Equals(gameEvent.Payload["mana"], 1));
+            && Equals(gameEvent.Payload.GetValueOrDefault("sourceObjectId"), "P1-BATTLEFIELD-IDOL-VALLEY")
+            && Equals(gameEvent.Payload.GetValueOrDefault("totalManaCost"), 1));
         Assert.Contains(events, gameEvent =>
             string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-CRAFTSMAN", StringComparison.Ordinal));
@@ -11748,22 +11771,14 @@ public sealed partial class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-first-unit-move-other-play", unitPlay);
         Assert.Empty(playClients.CallerClient.Errors);
 
-        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
-            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-first-unit-move-other-p1-pass", passPriority);
-        var resolveClients = new RecordingHubClients();
-        var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
-            .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-first-unit-move-other-p2-pass", passPriorityAgain);
-
-        Assert.Empty(resolveClients.CallerClient.Errors);
-        var events = EventsFor(resolveClients);
+        var (resolveClients, events) = await ConfirmSeedBattlefieldUnitPlayAsync(
+            roomId, registry, playClients, "P1-BATTLEFIELD-ALLY");
         Assert.Contains(events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE", StringComparison.Ordinal));
         Assert.Contains(events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload.GetValueOrDefault("sourceObjectId"), "P1-BATTLEFIELD-METEOR-SPRING")
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-ALLY", StringComparison.Ordinal));
 
         var p1Snapshot = SnapshotFor(resolveClients, "P1");

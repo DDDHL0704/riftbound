@@ -656,7 +656,7 @@ public sealed partial class MatchSession
 
     private static MatchState BuildBattlefieldFirstUnitMoveOtherScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303071,
@@ -702,6 +702,12 @@ public sealed partial class MatchSession
                     controllerId: seed.P1,
                     power: 2)
             });
+        return state with { ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations, StringComparer.Ordinal)
+        {
+            ["P1-UNIT-CRAFTSMAN"] = new(seed.P1, "HAND"),
+            ["P1-BATTLEFIELD-METEOR-SPRING"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-METEOR-SPRING"),
+            ["P1-BATTLEFIELD-ALLY"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-METEOR-SPRING")
+        } };
     }
 
     private static MatchState BuildBattlefieldStaticPreventMoveBaseScenario(MatchState current, DevScenarioSeed seed)

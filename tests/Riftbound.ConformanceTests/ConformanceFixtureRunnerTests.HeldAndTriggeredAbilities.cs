@@ -361,256 +361,159 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal(1, costEvent.Payload["battlefieldHeldUnitCostIncreaseMana"]);
     }
 
+    // CN383.3: these are independent skills. The original unit enters before
+    // ordering/confirmation, and both players receive responses after that decision.
+    private static async Task OrderLegacyBattlefieldSkillFirst(VenBasicFlowSpellTests.Driver game)
+    {
+        if (game.State.TriggerQueue.Count < 2) return;
+        Assert.All(game.State.TriggerQueue, trigger => Assert.Equal("P1", trigger.ControllerId));
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue
+            .OrderBy(trigger => trigger.FieldContext?.BattlefieldUnitPlay is null ? 1 : 0)
+            .Select(trigger => trigger.TriggerId).ToArray()));
+    }
+
+    private static async Task FinishLegacyWorkshopSkills(VenBasicFlowSpellTests.Driver game)
+    {
+        for (var guard = 0; game.State.StackItems.Count > 0; guard++)
+        {
+            Assert.True(guard < 8);
+            if (game.State.PendingPayment is { } payment)
+                await game.Act(payment.PlayerId, new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]));
+            else await game.Top();
+        }
+        await game.ColdCheckpoint();
+    }
+
     [Fact]
     public async Task P79BattlefieldPlayUnitBoonPaysOneAndGrantsBoon()
     {
-        var state = BattlefieldPlayUnitBoonState(mana: 4);
-        var engine = new CoreRuleEngine();
-
-        var play = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-play", "P1", "PLAY_CARD"),
-            new PlayCardCommand(
-                "P1-UNIT-CRAFTSMAN",
-                "OGN·211/298",
-                [],
-                Destination: "BATTLEFIELD:P1-BATTLEFIELD-IDOL-VALLEY"),
-            CancellationToken.None);
-        var p1Pass = await engine.ResolveAsync(
-            play.State,
-            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-p1-pass", "P1", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-p2-pass", "P2", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(play.Accepted);
-        Assert.True(p1Pass.Accepted);
-        Assert.True(p2Pass.Accepted);
-        Assert.Equal(1, play.State.RunePools["P1"].Mana);
-        Assert.Equal(0, p2Pass.State.RunePools["P1"].Mana);
-        Assert.Contains("P1-UNIT-CRAFTSMAN", p2Pass.State.PlayerZones["P1"].Battlefields);
-        var unit = p2Pass.State.CardObjects["P1-UNIT-CRAFTSMAN"];
-        Assert.Equal(3, unit.Power);
-        Assert.Contains(CardObjectTags.Boon, unit.Tags);
-        Assert.Contains(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-CRAFTSMAN", StringComparison.Ordinal));
-        Assert.Contains(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON", StringComparison.Ordinal)
-            && Equals(gameEvent.Payload["mana"], 1));
-        Assert.Contains(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-CRAFTSMAN", StringComparison.Ordinal));
+        var game = new VenBasicFlowSpellTests.Driver(BattlefieldPlayUnitBoonState(mana: 4));
+        await game.Act("P1", new PlayCardCommand("P1-UNIT-CRAFTSMAN", "OGN·211/298", [],
+            Destination: "BATTLEFIELD:P1-BATTLEFIELD-IDOL-VALLEY"));
+        Assert.Equal(1, game.State.RunePools["P1"].Mana);
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["P1-UNIT-CRAFTSMAN"].Tags);
+        await OrderLegacyBattlefieldSkillFirst(game);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        Assert.Equal(1, payment.ManaCost);
+        Assert.Empty(game.State.StackItems[^1].TargetObjectIds);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["P1-UNIT-CRAFTSMAN"].Tags);
+        await game.Top();
+        Assert.Contains("P1-UNIT-CRAFTSMAN", game.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(3, game.State.CardObjects["P1-UNIT-CRAFTSMAN"].Power);
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["P1-UNIT-CRAFTSMAN"].Tags);
+        var events = game.Events().Select(entry => entry.Event).ToArray();
+        Assert.Contains(events, ev => ev.Kind == "BATTLEFIELD_TRIGGER_RESOLVED"
+            && Equals(ev.Payload.GetValueOrDefault("trigger"), TriggerKinds.BattlefieldPlayUnitPayBoon)
+            && Equals(ev.Payload.GetValueOrDefault("sourceObjectId"), "P1-BATTLEFIELD-IDOL-VALLEY"));
+        Assert.Contains(events, ev => ev.Kind == "COST_PAID" && Equals(ev.Payload.GetValueOrDefault("totalManaCost"), 1)
+            && Equals(ev.Payload.GetValueOrDefault("sourceObjectId"), "P1-BATTLEFIELD-IDOL-VALLEY"));
+        Assert.Contains(events, ev => ev.Kind == "BOON_GRANTED"
+            && Equals(ev.Payload.GetValueOrDefault("targetObjectId"), "P1-UNIT-CRAFTSMAN"));
+        await FinishLegacyWorkshopSkills(game);
     }
 
     [Fact]
     public async Task P79BattlefieldPlayUnitBoonSkipsWhenManaUnavailable()
     {
-        var state = BattlefieldPlayUnitBoonState(mana: 3);
-        var engine = new CoreRuleEngine();
-
-        var play = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-no-mana-play", "P1", "PLAY_CARD"),
-            new PlayCardCommand(
-                "P1-UNIT-CRAFTSMAN",
-                "OGN·211/298",
-                [],
-                Destination: "BATTLEFIELD:P1-BATTLEFIELD-IDOL-VALLEY"),
-            CancellationToken.None);
-        var p1Pass = await engine.ResolveAsync(
-            play.State,
-            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-no-mana-p1-pass", "P1", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-no-mana-p2-pass", "P2", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(play.Accepted);
-        Assert.True(p1Pass.Accepted);
-        Assert.True(p2Pass.Accepted);
-        Assert.Equal(0, p2Pass.State.RunePools["P1"].Mana);
-        var unit = p2Pass.State.CardObjects["P1-UNIT-CRAFTSMAN"];
-        Assert.Equal(2, unit.Power);
-        Assert.DoesNotContain(CardObjectTags.Boon, unit.Tags);
-        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON", StringComparison.Ordinal));
+        var game = new VenBasicFlowSpellTests.Driver(BattlefieldPlayUnitBoonState(mana: 3));
+        await game.Act("P1", new PlayCardCommand("P1-UNIT-CRAFTSMAN", "OGN·211/298", [],
+            Destination: "BATTLEFIELD:P1-BATTLEFIELD-IDOL-VALLEY"));
+        await OrderLegacyBattlefieldSkillFirst(game);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        Assert.Equal(1, payment.ManaCost); Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        await RadGearTestPosition.Reject(game.State, "P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]));
+        await FinishLegacyWorkshopSkills(game);
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        Assert.Equal(2, game.State.CardObjects["P1-UNIT-CRAFTSMAN"].Power);
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["P1-UNIT-CRAFTSMAN"].Tags);
+        Assert.DoesNotContain(game.Events(), entry => entry.Event.Kind == "BATTLEFIELD_TRIGGER_RESOLVED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("trigger"), TriggerKinds.BattlefieldPlayUnitPayBoon));
     }
 
     [Fact]
-    public async Task P79BattlefieldPlayUnitBoonSkipsOpponentControlledBattlefieldSource()
+    public async Task P79BattlefieldPlayUnitBoonSkipsBaseEntryAtOpponentControlledSource()
     {
         var state = BattlefieldPlayUnitBoonState(mana: 4);
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects["P1-BATTLEFIELD-IDOL-VALLEY"] = cardObjects["P1-BATTLEFIELD-IDOL-VALLEY"] with
-        {
-            ControllerId = "P2"
-        };
-        state = state with
-        {
-            CardObjects = cardObjects,
-            PriorityPlayerId = null,
-            StackItems = []
-        };
-        var engine = new CoreRuleEngine();
-
-        var play = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-dirty-source-play", "P1", "PLAY_CARD"),
-            new PlayCardCommand(
-                "P1-UNIT-CRAFTSMAN",
-                "OGN·211/298",
-                [],
-                Destination: "BASE"),
-            CancellationToken.None);
-        Assert.True(play.Accepted);
-        Assert.Equal(1, play.State.RunePools["P1"].Mana);
-        var unit = play.State.CardObjects["P1-UNIT-CRAFTSMAN"];
-        Assert.Equal(2, unit.Power);
-        Assert.DoesNotContain(CardObjectTags.Boon, unit.Tags);
-        Assert.DoesNotContain(play.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON", StringComparison.Ordinal));
-        Assert.DoesNotContain(play.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-CRAFTSMAN", StringComparison.Ordinal));
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["P1-BATTLEFIELD-IDOL-VALLEY"] = state.CardObjects["P1-BATTLEFIELD-IDOL-VALLEY"] with { ControllerId = "P2" } } };
+        var game = new VenBasicFlowSpellTests.Driver(state);
+        await game.Act("P1", new PlayCardCommand("P1-UNIT-CRAFTSMAN", "OGN·211/298", [], Destination: "BASE"));
+        Assert.Null(game.State.PendingPayment);
+        await FinishLegacyWorkshopSkills(game);
+        Assert.Equal(1, game.State.RunePools["P1"].Mana);
+        Assert.Equal(2, game.State.CardObjects["P1-UNIT-CRAFTSMAN"].Power);
+        Assert.DoesNotContain(game.Events(), entry => entry.Event.Kind == "TRIGGER_QUEUED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("sourceCardNo"), "UNL-218/219"));
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["P1-UNIT-CRAFTSMAN"].Tags);
     }
 
     [Fact]
     public async Task P79BattlefieldFirstUnitPlayedMovesOtherUnitToBase()
     {
-        var state = BattlefieldFirstUnitMoveOtherState();
-        var engine = new CoreRuleEngine();
-
-        var play = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-play", "P1", "PLAY_CARD"),
-            new PlayCardCommand(
-                "P1-UNIT-CRAFTSMAN",
-                "OGN·211/298",
-                [],
-                Destination: "BATTLEFIELD:P1-BATTLEFIELD-METEOR-SPRING"),
-            CancellationToken.None);
-        var p1Pass = await engine.ResolveAsync(
-            play.State,
-            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-p1-pass", "P1", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-p2-pass", "P2", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(play.Accepted);
-        Assert.True(p1Pass.Accepted);
-        Assert.True(p2Pass.Accepted);
-        Assert.Contains("P1-UNIT-CRAFTSMAN", p2Pass.State.PlayerZones["P1"].Battlefields);
-        Assert.Contains("P1-BATTLEFIELD-ALLY", p2Pass.State.PlayerZones["P1"].Base);
-        Assert.DoesNotContain("P1-BATTLEFIELD-ALLY", p2Pass.State.PlayerZones["P1"].Battlefields);
-        Assert.Contains(
-            "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:P1:P1-BATTLEFIELD-METEOR-SPRING",
-            p2Pass.State.UntilEndOfTurnEffects);
-        Assert.Contains(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-ALLY", StringComparison.Ordinal));
-        Assert.Contains(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-ALLY", StringComparison.Ordinal));
+        var game = new VenBasicFlowSpellTests.Driver(BattlefieldFirstUnitMoveOtherState());
+        await game.Act("P1", new PlayCardCommand("P1-UNIT-CRAFTSMAN", "OGN·211/298", [],
+            Destination: "BATTLEFIELD:P1-BATTLEFIELD-METEOR-SPRING"));
+        await OrderLegacyBattlefieldSkillFirst(game);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal(0, choice.RequiredCount); Assert.Equal(1, choice.MaxCount);
+        Assert.Contains("P1-BATTLEFIELD-ALLY", choice.LegalObjectIds);
+        Assert.DoesNotContain("P1-UNIT-CRAFTSMAN", choice.LegalObjectIds);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-BATTLEFIELD-ALLY"]));
+        Assert.Null(game.State.PendingPayment);
+        Assert.Contains("P1-BATTLEFIELD-ALLY", game.State.PlayerZones["P1"].Battlefields);
+        await game.Top();
+        Assert.Contains("P1-UNIT-CRAFTSMAN", game.State.PlayerZones["P1"].Battlefields);
+        Assert.Contains("P1-BATTLEFIELD-ALLY", game.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain("P1-BATTLEFIELD-ALLY", game.State.PlayerZones["P1"].Battlefields);
+        var field = game.State.CardObjects["P1-BATTLEFIELD-METEOR-SPRING"];
+        Assert.Contains(CoreRuleEngine.BattlefieldFirstEntryUse(new(field.ObjectId, field.ObjectGeneration)), game.State.UntilEndOfTurnEffects);
+        Assert.Contains(game.Events(), entry => entry.Event.Kind == "UNIT_MOVED_TO_BASE"
+            && Equals(entry.Event.Payload.GetValueOrDefault("targetObjectId"), "P1-BATTLEFIELD-ALLY"));
+        await FinishLegacyWorkshopSkills(game);
     }
 
     [Fact]
     public async Task P79BattlefieldFirstUnitPlayedMoveOtherSkipsAfterFirstUse()
     {
-        var state = BattlefieldFirstUnitMoveOtherState() with
-        {
-            UntilEndOfTurnEffects =
-            [
-                "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:P1:P1-BATTLEFIELD-METEOR-SPRING"
-            ]
-        };
-        var engine = new CoreRuleEngine();
-
-        var play = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-used-play", "P1", "PLAY_CARD"),
-            new PlayCardCommand(
-                "P1-UNIT-CRAFTSMAN",
-                "OGN·211/298",
-                [],
-                Destination: "BATTLEFIELD:P1-BATTLEFIELD-METEOR-SPRING"),
-            CancellationToken.None);
-        var p1Pass = await engine.ResolveAsync(
-            play.State,
-            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-used-p1-pass", "P1", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-used-p2-pass", "P2", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(play.Accepted);
-        Assert.True(p1Pass.Accepted);
-        Assert.True(p2Pass.Accepted);
-        Assert.Contains("P1-BATTLEFIELD-ALLY", p2Pass.State.PlayerZones["P1"].Battlefields);
-        Assert.DoesNotContain("P1-BATTLEFIELD-ALLY", p2Pass.State.PlayerZones["P1"].Base);
-        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE", StringComparison.Ordinal));
+        var state = BattlefieldFirstUnitMoveOtherState();
+        state = RadGearTestPosition.Put(state, "NEXT-UNIT", "OGN·219/298", "P1", "HAND") with {
+            RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(10, 10) } };
+        var game = new VenBasicFlowSpellTests.Driver(state);
+        await game.Act("P1", new PlayCardCommand("P1-UNIT-CRAFTSMAN", "OGN·211/298", [],
+            Destination: "BATTLEFIELD:P1-BATTLEFIELD-METEOR-SPRING"));
+        await OrderLegacyBattlefieldSkillFirst(game);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
+        await FinishLegacyWorkshopSkills(game);
+        var before = game.Events().Length;
+        await game.Act("P1", new PlayCardCommand("NEXT-UNIT", "OGN·219/298", [],
+            Destination: "BATTLEFIELD:P1-BATTLEFIELD-METEOR-SPRING"));
+        await FinishLegacyWorkshopSkills(game);
+        Assert.Contains("P1-BATTLEFIELD-ALLY", game.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("P1-BATTLEFIELD-ALLY", game.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(game.Events().Skip(before), entry => entry.Event.Kind == "TRIGGER_QUEUED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("sourceCardNo"), "UNL-215/219"));
+        Assert.Null(game.State.PendingCardChoice);
     }
 
     [Fact]
-    public async Task P79BattlefieldFirstUnitPlayedMoveOtherSkipsOpponentControlledBattlefieldSource()
+    public async Task P79BattlefieldFirstUnitPlayedMoveOtherSkipsBaseEntryAtOpponentControlledSource()
     {
         var state = BattlefieldFirstUnitMoveOtherState();
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects["P1-BATTLEFIELD-METEOR-SPRING"] = cardObjects["P1-BATTLEFIELD-METEOR-SPRING"] with
-        {
-            ControllerId = "P2"
-        };
-        state = state with
-        {
-            CardObjects = cardObjects,
-            PriorityPlayerId = null,
-            StackItems = []
-        };
-        var engine = new CoreRuleEngine();
-
-        var play = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-dirty-source-play", "P1", "PLAY_CARD"),
-            new PlayCardCommand(
-                "P1-UNIT-CRAFTSMAN",
-                "OGN·211/298",
-                [],
-                Destination: "BASE"),
-            CancellationToken.None);
-        Assert.True(play.Accepted);
-        Assert.Contains("P1-BATTLEFIELD-ALLY", play.State.PlayerZones["P1"].Battlefields);
-        Assert.DoesNotContain("P1-BATTLEFIELD-ALLY", play.State.PlayerZones["P1"].Base);
-        Assert.DoesNotContain(
-            "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:P1:P1-BATTLEFIELD-METEOR-SPRING",
-            play.State.UntilEndOfTurnEffects);
-        Assert.DoesNotContain(play.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE", StringComparison.Ordinal));
-        Assert.DoesNotContain(play.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-ALLY", StringComparison.Ordinal));
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["P1-BATTLEFIELD-METEOR-SPRING"] = state.CardObjects["P1-BATTLEFIELD-METEOR-SPRING"] with { ControllerId = "P2" } } };
+        state = RadUnitEffectTestFixture.Place(state, "P1-BATTLEFIELD-ALLY", "P2", "BATTLEFIELD", "P1-BATTLEFIELD-METEOR-SPRING");
+        var game = new VenBasicFlowSpellTests.Driver(state);
+        await game.Act("P1", new PlayCardCommand("P1-UNIT-CRAFTSMAN", "OGN·211/298", [], Destination: "BASE"));
+        await FinishLegacyWorkshopSkills(game);
+        Assert.Contains("P1-BATTLEFIELD-ALLY", game.State.PlayerZones["P2"].Battlefields);
+        Assert.DoesNotContain("P1-BATTLEFIELD-ALLY", game.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, effect => effect.StartsWith(CoreRuleEngine.BattlefieldFirstEntryUsePrefix, StringComparison.Ordinal));
+        Assert.DoesNotContain(game.Events(), entry => entry.Event.Kind == "TRIGGER_QUEUED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("sourceCardNo"), "UNL-215/219"));
     }
 
     [Fact]

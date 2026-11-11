@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "OGN·211/298"
+      ],
+      "text": "当你打出我时，在此处额外打出一名1{{S}}的“随从”。",
+      "scope": "当你打出我时，在此处额外打出一名1{{S}}的“随从”。",
+      "location": "upper",
+      "status": "route",
+      "runtime": {
+        "triggers": [
+          {
+            "node": {
+              "kind": "SOURCE_UNIT_PLAYED_OR_SCORED_CREATE_UNIT",
+              "timing": "SOURCE_UNIT_PLAYED",
+              "createdTokenDestination": "SOURCE_LOCATION",
+              "createdTokenCount": 1,
+              "createdTokenPower": 1,
+              "createdTokenName": "随从"
+            }
+          }
+        ]
+      },
+      "reason": "工坊主使用共享打出技能，按原来源结算时的此处在基地或真实战场打出随从；仅新增额外的语法解析，不重复执行旧基地生成字段。独立排序、响应和真实指示物入场观察保留。",
+      "rules": "OGN·211官方中文上栏；中国区核心359.3.f.2、383.3、143.4和指示物打出规则。",
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SourceUnitTokens.cs",
+          "member": "ResolveSourceUnitTokens",
+          "contains": [
+            "ValidSourceUnitTokens(",
+            "if (!TrySourceUnitTokenDestination(state, item, out var battlefield)) return NoopStackResolutionResult(state)",
+            "battlefieldId: battlefield"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SourceUnitTokens.cs",
+          "member": "TrySourceUnitTokenDestination",
+          "contains": [
+            "source.ObjectGeneration != context.Source.Generation",
+            "BattlefieldLocalRules.PreventsUnitPlay(",
+            "battlefield = at.BattlefieldObjectId"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/WorkshopBattlefieldUnitPlayTests.cs",
+          "methods": [
+            "WorkshopCreatesItsPrintedMinionAtItsBaseOnlyAfterItsOwnSkillGetsResponses",
+            "WorkshopUsesItsActualBattlefieldAndDoesNotCreateAnExtraBaseMinion",
+            "WorkshopAndTheBattlefieldEarnIndependentSkillsInThePlayersChosenOrder"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-218/219"
+      ],
+      "text": "当一名玩家在此处打出一名单位时，该玩家可以选择支付{{1}}，以此给予该单位{{增益}}。",
+      "scope": "当一名玩家在此处打出一名单位时，该玩家可以选择支付{{1}}，以此给予该单位{{增益}}。",
+      "location": "upper",
+      "status": "route",
+      "runtime": {
+        "triggers": [
+          {
+            "node": {
+              "kind": "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON",
+              "timing": "BATTLEFIELD_UNIT_PLAYED",
+              "targetScope": "PLAYED_UNIT_AT_THIS_BATTLEFIELD",
+              "manaCost": 1,
+              "boonCount": 1
+            }
+          }
+        ]
+      },
+      "reason": "偶像谷由实际打出单位的玩家控制可选技能；先真实付款一法力再响应，无需选择该单位为目标，按捕获的原单位代际给予增益。可追踪同代际移动或改变控制者，不能追踪返回手牌后的新物体。队列、链和真实替代选择中的Origin均对照原始接受记录。",
+      "rules": "UNL-218官方中文；中国区核心190.6.c指定玩家控制、355.10.d固定引用不构成目标、383.3确认和响应及区域物体连续性条款。",
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldUnitPlayTriggers.cs",
+          "member": "CaptureBattlefieldUnitPlay",
+          "contains": [
+            "TryGetBattlefieldCardObject(zones, cards, field, out var id, out var source)",
+            "player, new(entered.ObjectId, entered.ObjectGeneration)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldUnitPlayTriggers.cs",
+          "member": "ResolveBattlefieldUnitPlay",
+          "contains": [
+            "item.TriggerCost is null || !ValidTriggerCostReceipt(state, item)",
+            "unit.ObjectGeneration == origin.Unit.Generation",
+            "GrantLegendBoon(cards, unit.ObjectId, item.ControllerId, item.SourceObjectId, context.Kind, events, zones)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.BattlefieldUnitPlays.cs",
+          "member": "ValidateBattlefieldUnitPlayHistory",
+          "contains": [
+            "state.PendingRuleChoice?.Origin",
+            "command.Accepted && command.CompletedTick == entry.Tick",
+            "CoreRuleEngine.BattlefieldUnitPlayCaptureHash(item.Context, item.Source, item.Controller)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/WorkshopBattlefieldUnitPlayTests.cs",
+          "methods": [
+            "ValleyPaysItsRealOptionalManaBeforeResponsesAndThenBoonsOnlyThePlayedUnit",
+            "DecliningValleyLeavesTheUnitWithoutBoonAndDoesNotSpendThePrintedMana",
+            "NamedPlayingPlayerControlsValleyEvenOnAnEnemyFieldAndDoesNotPayWardForItsFixedReference",
+            "ReturningThePlayedUnitDuringResponsesCannotBoonItsPrivateOrLaterIncarnation",
+            "ValleysFixedReferenceSurvivesARealControlTransferAndRecallInTheSameIncarnation",
+            "ValleyCannotBorrowATargetOrLoseItsOriginalAcceptedPaymentAndCapture",
+            "RecoveryChecksTheSkillInsideTheOriginOfAnActualTokenLocationChoice"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-215/219"
+      ],
+      "text": "每回合首次，当玩家在此处打出一名非指示物单位时，该玩家可以选择将自己在此处控制的另一名单位移动到其基地。",
+      "scope": "每回合首次，当玩家在此处打出一名非指示物单位时，该玩家可以选择将自己在此处控制的另一名单位移动到其基地。",
+      "location": "upper",
+      "status": "route",
+      "runtime": {
+        "triggers": [
+          {
+            "node": {
+              "kind": "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE",
+              "timing": "BATTLEFIELD_UNIT_PLAYED",
+              "targetScope": "OTHER_CONTROLLED_UNIT_AT_THIS_BATTLEFIELD",
+              "moveCount": 1,
+              "moveDestination": "OWNER_BASE",
+              "oncePerTurn": true,
+              "excludesTokens": true
+            }
+          }
+        ]
+      },
+      "reason": "首次非指示物打出按真实战场物体代际和回合由所有玩家共享；放弃或没有其他单位仍耗用该次首次事件。仅一轮0/1可选目标确认，不制造零费用付款；确认后响应，按原目标代际并遵守移动限制移回其基地。首次记录和目标对照未修改的原始接受历史，真实回合清理后重新计数。",
+      "rules": "UNL-215官方中文；中国区核心190.6.c、383.1.b/383.2首次事件独立于选择、383.3及移动和对象连续性规则。",
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldUnitPlayTriggers.cs",
+          "member": "QueueBattlefieldUnitPlays",
+          "contains": [
+            "if (!used.Add(marker)) continue",
+            "used.Clear()",
+            "turn == result.State.TurnNumber"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldUnitPlayTriggers.cs",
+          "member": "PrepareBattlefieldUnitPlayTarget",
+          "contains": [
+            "0, 1, legal, legal",
+            "\"TRIGGER_CONFIRMATION\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldUnitPlayTriggers.cs",
+          "member": "ResolveBattlefieldUnitPlay",
+          "contains": [
+            "item.TargetGenerations?.GetValueOrDefault(target, -1) == unit.ObjectGeneration",
+            "TryMoveFieldUnitByEffect(state, zones, cards, locations, pools, target, new(controller, \"BASE\")"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.BattlefieldUnitPlays.cs",
+          "member": "ValidateBattlefieldUnitPlayHistory",
+          "contains": [
+            "state.PendingRuleChoice?.Origin",
+            "CoreRuleEngine.BattlefieldUnitPlayTargetHash(selected)",
+            "turn != frame.TurnNumber",
+            "uses.Clear()",
+            "!uses.SetEquals(actual)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/WorkshopBattlefieldUnitPlayTests.cs",
+          "methods": [
+            "SpringUsesOneOptionalTargetChoiceWithoutInventingAZeroCostPayment",
+            "DeclineOrHavingNoOtherUnitStillConsumesSpringsFirstNonTokenPlay",
+            "BothPlayersShareTheFirstNonTokenEventAtOneBattlefieldInTheSameTurn",
+            "AnActualTokenPlayDoesNotConsumeSpringsFirstNonTokenEvent",
+            "ARealTurnChangeExpiresSpringsFirstEventAndTheNextTurnCanEarnItAgain",
+            "ReturningTheSelectedUnitDuringResponsesCannotMoveADifferentUnitInstead",
+            "ConfirmedSpringTargetsRemainBoundToTheOriginalAcceptedConfirmation",
+            "CapturesAndFirstUsesCannotBeForgedAgainstTheUnmodifiedOriginalJournal",
+            "SpringRespectsARealMovementRestrictionWithoutRestoringItsAlreadyUsedFirstEvent"
+          ]
+        }
+      ]
+    }
+  ]
+}

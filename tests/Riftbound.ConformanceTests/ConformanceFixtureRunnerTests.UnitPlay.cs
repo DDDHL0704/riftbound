@@ -813,7 +813,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var differences = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(differences.Count == 0, string.Join(Environment.NewLine, differences));
         Assert.Equal(
             ["P1-UNIT-FAITHFUL-CRAFTSMAN", "P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001"],
             result.FinalState.PlayerZones["P1"].Base);

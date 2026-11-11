@@ -1246,6 +1246,7 @@ public static partial class MatchRecoveryValidator
             ValidateActivationBanishHistory(authoritativeState, commands, events, errors);
             ValidateEquipmentSkillObservationHistory(authoritativeState, commands, events, errors);
             ValidateObservedUnitEventHistory(authoritativeState, commands, events, errors);
+            ValidateBattlefieldUnitPlayHistory(authoritativeState, commands, events, errors);
             ValidateUnitEventOpponentHistory(authoritativeState, commands, events, errors);
             ValidatePlayAttributeDeclarationHistory(authoritativeState, commands, events, errors);
             ValidateOptionalExperiencePlayHistory(authoritativeState, commands, events, errors);
@@ -4622,6 +4623,8 @@ public static partial class MatchRecoveryValidator
                     || !CoreRuleEngine.ValidAttackMightDamageTrigger(trigger)
                     || !CoreRuleEngine.ValidDisarmTrigger(trigger)
                     || !CoreRuleEngine.ValidBombDestructionTrigger(trigger)
+                    || CoreRuleEngine.IsBattlefieldUnitPlayKind(field.Kind) && (trigger.SourceCardNo != field.CardNo
+                        || trigger.TriggeredByEventKind is not ("UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED"))
                     || field.Kind == CoreRuleEngine.BombDestructionKind && (trigger.TriggeredByEventKind is not ("EQUIPMENT_DESTROYED" or "OBJECT_DESTROYED" or "UNIT_DESTROYED") || trigger.SourceCardNo != field.CardNo)
                     || field.Kind == CoreRuleEngine.EquipmentDeathReturnKind && (trigger.TriggeredByEventKind is not ("EQUIPMENT_DESTROYED" or "OBJECT_DESTROYED" or "UNIT_DESTROYED") || trigger.SourceCardNo != field.CardNo)
                     || field.Kind == "RECYCLE_BOON" && trigger.TriggeredByEventKind != "CARDS_RECYCLED"
@@ -4651,6 +4654,7 @@ public static partial class MatchRecoveryValidator
                 || !CoreRuleEngine.ValidBombDestructionStack(item)
                 || !CoreRuleEngine.ValidEquipmentDeathStack(item)
                 || !CoreRuleEngine.ValidStunSourceMovementStack(item)
+                || !CoreRuleEngine.ValidBattlefieldUnitPlayStack(state, item)
                 || !CoreRuleEngine.ValidDiscardDestroyStack(state, item)
                 || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
                     || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]) || item.TargetGenerations.Values.Any(g => g < 0))
