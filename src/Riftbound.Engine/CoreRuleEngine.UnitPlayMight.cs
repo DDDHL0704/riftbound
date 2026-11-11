@@ -71,6 +71,8 @@ public sealed partial class CoreRuleEngine
                 ? new ObjectBinding(trigger.SourceObjectId, agile.SourceGeneration) : null)
             ?? (HasArmamentPlayAttachment(trigger.UnitEvent) && trigger.UnitEvent!.ReflexiveTick is not null
                 ? trigger.UnitEvent.Other?.Binding : null)
+            ?? (trigger.UnitEvent is { Timing: "FRIENDLY_EQUIPMENT_PLAYED" } equipment
+                ? equipment.Other?.Binding : null)
             ?? trigger.UnitEvent?.SpellInstruction?.PlayedUnit?.Binding
             ?? trigger.FieldContext?.BattlefieldUnitPlay?.Unit;
 
@@ -115,6 +117,10 @@ public sealed partial class CoreRuleEngine
         if (HasArmamentPlayAttachment(companion.UnitEvent))
             return companion.UnitEvent!.ReflexiveTick == capturedTick && companion.UnitEvent.Other?.CardNo == item.CardNo
                 && ValidArmamentPlayAttachmentContext(state, companion.UnitEvent, companion.ControllerId);
+        if (companion.UnitEvent is { Timing: "FRIENDLY_EQUIPMENT_PLAYED" } equipment)
+            return equipment.CapturedTick == capturedTick && equipment.Other?.CardNo == item.CardNo
+                && ValidUnitEvent(state, equipment, companion.EffectKind, companion.SourceObjectId,
+                    companion.SourceCardNo, companion.ControllerId);
         if (companion.UnitEvent is { Timing: AgilePlayTiming } agile)
             return agile.CapturedTick == capturedTick && ValidAgilePlayGrant(state, agile,
                 companion.SourceObjectId, companion.ControllerId);

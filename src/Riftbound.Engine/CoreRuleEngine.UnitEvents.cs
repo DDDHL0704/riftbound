@@ -185,6 +185,10 @@ public sealed partial class CoreRuleEngine
             EffectiveFieldControllerId(zones, c.ObjectId, c) != player).Select(c => c.ObjectId), "OPPONENT_EQUIPMENT_PLAYED")
             .Select(o => o with { Context = o.Context with { Other = new(new(entered.ObjectId, entered.ObjectGeneration), entered.CardNo!,
                 entered.CopyFaceTransitions?.Count ?? 0, entered.TokenFactoryCardNo) } }).Concat(
+                    CaptureUnitEvents(zones, cards, cards.Values.Where(c =>
+                        EffectiveFieldControllerId(zones, c.ObjectId, c) == player).Select(c => c.ObjectId),
+                        "FRIENDLY_EQUIPMENT_PLAYED").Select(o => o with { Context = o.Context with { Other = new(new(entered.ObjectId, entered.ObjectGeneration), entered.CardNo!,
+                            entered.CopyFaceTransitions?.Count ?? 0, entered.TokenFactoryCardNo) } })).Concat(
                     CaptureUnitEvents(zones, cards, [entered.ObjectId], "PLAY").Select(o =>
                         o.Context.Timing == "PLAY_OR_MOVE" ? o with { Context = o.Context with {
                             Here = new(player, (string)ev.Payload["destinationZone"]!, ev.Payload.GetValueOrDefault("battlefieldObjectId") as string) } } : o))
@@ -461,7 +465,9 @@ public sealed partial class CoreRuleEngine
             && ValidExhaustionBatchContext(state, c, spec)
             && ValidPlayedUnitRuneObservation(state, c, source, controller)
             && (spec.Effect == DeploymentPlayMoveEffect ? ValidDeploymentPlayBattlefield(state, c) : c.DeploymentBattlefield is null)
-            && (spec.Effect is "BANISH_ENTERED_EQUIPMENT" or DeploymentPlayMoveEffect ? c.Other is { } other
+            && (spec.Effect is "BANISH_ENTERED_EQUIPMENT" or DeploymentPlayMoveEffect
+                    || spec.Timing == "FRIENDLY_EQUIPMENT_PLAYED" ? c.Other is { } other
+                && other.Binding is not null
                 && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision, c.CapturedTick, other.TokenFactoryCardNo)
                 && (CardBehaviorRegistry.TryGetByCardNo(other.CardNo, out var gear) && gear.PlaysSourceToBaseAsEquipment
                     || P6TokenFactoryCatalog.TryGetByCardNo(other.CardNo, out var token) && token.Tags.Contains(CardObjectTags.EquipmentCard))

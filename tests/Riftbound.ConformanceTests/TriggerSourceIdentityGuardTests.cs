@@ -88,7 +88,9 @@ public sealed class TriggerSourceIdentityGuardTests
         Assert.Contains("SourceReadiesWhenControllerStunsEnemyUnit", source, StringComparison.Ordinal);
         Assert.Contains("SourcePowerOnControllerStunsEnemyUnitAmount", source, StringComparison.Ordinal);
         Assert.Contains("SourceStunEnemyUnitTriggerEffectKind", source, StringComparison.Ordinal);
-        Assert.Contains("SourceReadiesWhenControllerPlaysEquipment", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("ResolveSourceReadyOnEquipmentPlayedTriggers", source, StringComparison.Ordinal);
+        Assert.Contains("CaptureEquipmentPlayed(", source, StringComparison.Ordinal);
+        Assert.Contains("ResolveUnitEventBoonInstruction(state, item, spec)", source, StringComparison.Ordinal);
         Assert.Contains("SourcePowerOnControllerStandbyHiddenAmount", source, StringComparison.Ordinal);
         Assert.DoesNotContain("ResolveSourceAttackDamageToFirstDefenderTriggers", source, StringComparison.Ordinal);
         Assert.Contains("CaptureCombatMightTriggers(", source, StringComparison.Ordinal);

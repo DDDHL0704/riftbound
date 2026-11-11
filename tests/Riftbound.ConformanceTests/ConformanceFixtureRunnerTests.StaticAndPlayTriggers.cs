@@ -2997,23 +2997,18 @@ public sealed partial class ConformanceFixtureRunnerTests
         var state = ArenaServiceCrewEquipmentReadyState();
         state = PrintedCostFixture.Add(state, "P1", "SFD·022/221");
 
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-arena-service-crew-equipment-ready", "P1", "PLAY_CARD"),
-            new PlayCardCommand(
-                "P1-EQUIPMENT-LONG-SWORD",
-                "SFD·022/221",
-                ["P1-UNIT-ARENA-SERVICE-CREW"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted);
-        Assert.False(result.State.CardObjects["P1-UNIT-ARENA-SERVICE-CREW"].IsExhausted);
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-ARENA-SERVICE-CREW", StringComparison.Ordinal));
+        var game = new VenBasicFlowSpellTests.Driver(state);
+        await game.Act("P1", new PlayCardCommand("P1-EQUIPMENT-LONG-SWORD", "SFD·022/221",
+            ["P1-UNIT-ARENA-SERVICE-CREW"]));
+        Assert.True(game.State.CardObjects["P1-UNIT-ARENA-SERVICE-CREW"].IsExhausted);
+        Assert.Contains(game.State.TriggerQueue.Select(t => t.UnitEvent).Concat(game.State.StackItems.Select(i => i.UnitEvent)),
+            context => context?.Timing == "FRIENDLY_EQUIPMENT_PLAYED");
+        await CrewEquipmentPlayObserverTests.Drain(game);
+        Assert.False(game.State.CardObjects["P1-UNIT-ARENA-SERVICE-CREW"].IsExhausted);
+        Assert.Equal("P1-UNIT-ARENA-SERVICE-CREW", game.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Contains(game.Events(), entry => entry.Event.Kind == "UNIT_READIED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("targetObjectId"), "P1-UNIT-ARENA-SERVICE-CREW"));
+        await game.Replay();
     }
 
     [Fact]
@@ -3033,12 +3028,10 @@ public sealed partial class ConformanceFixtureRunnerTests
 
         Assert.True(result.Accepted);
         Assert.True(result.State.CardObjects["P1-UNIT-ARENA-SERVICE-CREW"].IsExhausted);
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.State.StackItems, item => item.SourceObjectId == "P1-UNIT-ARENA-SERVICE-CREW" && item.UnitEvent is not null);
+        Assert.DoesNotContain(result.State.TriggerQueue, item => item.SourceObjectId == "P1-UNIT-ARENA-SERVICE-CREW" && item.UnitEvent is not null);
+        Assert.DoesNotContain(result.Events, ev => ev.Kind == "UNIT_READIED"
+            && Equals(ev.Payload.GetValueOrDefault("targetObjectId"), "P1-UNIT-ARENA-SERVICE-CREW"));
     }
 
     [Fact]
@@ -3059,12 +3052,10 @@ public sealed partial class ConformanceFixtureRunnerTests
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.True(result.State.CardObjects["P1-UNIT-ARENA-SERVICE-CREW"].IsExhausted);
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.State.StackItems, item => item.SourceObjectId == "P1-UNIT-ARENA-SERVICE-CREW" && item.UnitEvent is not null);
+        Assert.DoesNotContain(result.State.TriggerQueue, item => item.SourceObjectId == "P1-UNIT-ARENA-SERVICE-CREW" && item.UnitEvent is not null);
+        Assert.DoesNotContain(result.Events, ev => ev.Kind == "UNIT_READIED"
+            && Equals(ev.Payload.GetValueOrDefault("targetObjectId"), "P1-UNIT-ARENA-SERVICE-CREW"));
     }
 
     [Fact]

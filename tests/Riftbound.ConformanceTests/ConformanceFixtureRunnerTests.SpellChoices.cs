@@ -364,16 +364,16 @@ public sealed partial class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(mismatches.Count == 0, string.Join("\n", mismatches)
+            + "\nActual events: " + System.Text.Json.JsonSerializer.Serialize(result.Events));
         Assert.False(result.FinalState.CardObjects["P1-UNIT-ARENA-SERVICE-CREW"].IsExhausted);
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
-        Assert.Equal("P1-UNIT-ARENA-SERVICE-CREW", triggerEvent.Payload["triggerSourceObjectId"]);
-        var readyEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
-        Assert.Equal("P1-UNIT-ARENA-SERVICE-CREW", readyEvent.Payload["targetObjectId"]);
+        var triggerEvent = Assert.Single(result.Events, ev => ev.Kind == "TRIGGER_QUEUED"
+            && Equals(ev.Payload.GetValueOrDefault("sourceObjectId"), "P1-UNIT-ARENA-SERVICE-CREW"));
+        Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", triggerEvent.Payload["effectKind"]);
+        var readyEvent = Assert.Single(result.Events, ev => ev.Kind == "UNIT_READIED"
+            && Equals(ev.Payload.GetValueOrDefault("targetObjectId"), "P1-UNIT-ARENA-SERVICE-CREW"));
+        Assert.Equal("P1-UNIT-ARENA-SERVICE-CREW", readyEvent.Payload["sourceObjectId"]);
     }
 
     [Fact]
