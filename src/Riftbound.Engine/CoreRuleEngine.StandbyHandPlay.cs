@@ -24,7 +24,7 @@ public sealed partial class CoreRuleEngine
             || parent.TriggerCost is null || !ValidTriggerCostReceipt(state, parent)
             || parent.EffectPlayCompleted || parent.TargetObjectIds.Count != 0
             || pending.PlayerId != parent.ControllerId || !state.PlayerZones.TryGetValue(pending.PlayerId, out var zones)
-            || pending.SourceZone != "HAND" || !pending.IgnoreAllCosts || !pending.IgnoreBaseMana || !pending.IgnoreBasePower
+            || pending.SourceZone != "HAND" || pending.IgnoreAllCosts || !pending.IgnoreBaseMana || !pending.IgnoreBasePower
             || pending.ManaReduction != 0 || pending.Optional || pending.DestinationPolicy != "SOURCE_HERE_IF_UNIT"
             || pending.SourcePlayerId is not null || pending.SourceReplay is not null || pending.RevealedHand is not null
             || pending.OriginalLocation is not null || pending.OriginalBattlefield is not null

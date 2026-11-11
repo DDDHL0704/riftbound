@@ -4348,6 +4348,68 @@ def printed_alternative_echo_route(card: dict, clause: dict, sources: Sources) -
     return result("missing", "三项独立回响价格、四个未重复模式或实际报价／付款／逐次执行／恢复消费者不完整")
 
 
+def standby_hand_base_cost_waiver_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    printed = "当我进攻时，你可以选择支付{{蓝色}}，以此从你的手牌中正面朝上打出一张带有{{待命}}技能的卡牌，无视费用。"
+    if text != normalize(printed): return None
+    specs = [card.get("unitEventAbility")] + [b.get("unitEventAbility") for b in card.get("behaviors", [])]
+    specs = [spec for spec in specs if spec is not None]
+    expected = dict(timing="ATTACK", effect="PLAY_HAND_STANDBY_HERE", leadingPowerCost=1, leadingPowerTrait="blue")
+    exact = clause["kind"] == "trigger" and normalize(unparenthesize(clause["scope"])) == text \
+        and card.get("cardCategory") in {"unit", "hero_unit"} and bool(specs) \
+        and any(b.get("playsSourceToBaseAsUnit") is True for b in card.get("behaviors", [])) \
+        and all(isinstance(spec, dict) and type(spec.get("leadingPowerCost")) is int
+            and all(spec.get(key) == value for key, value in expected.items())
+            and not any(meaningful(value) for key, value in spec.items() if key not in expected) for spec in specs)
+    prefix = "src/Riftbound.Engine/"
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, "")
+        start = re.search(r"(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        return re.split(r"\n    (?:private|internal|public) (?:static )?", code[start.end():], maxsplit=1)[0] if start else ""
+
+    definitions = member("CoreRuleEngine.EffectPlay.cs", "TryGetEffectPlayDefinition")
+    start = definitions.find("if (IsStandbyHandPlayHere(parent))")
+    block = ""
+    if start >= 0:
+        opening = definitions.find("{", start); depth = 0
+        for index in range(opening, len(definitions)):
+            depth += (definitions[index] == "{") - (definitions[index] == "}")
+            if depth == 0:
+                block = definitions[opening:index+1]; break
+    exact = exact and all(marker in block for marker in ['EffectPlaySourceZone: "HAND"',
+        "EffectPlayIgnoreBaseMana: true", "EffectPlayIgnoreBasePower: true", "EffectPlayIgnoreAllCosts: false",
+        "EffectPlayAllowsAnyCard: true", "EffectPlayRequiresStandby: true", 'EffectPlayDestination: "SOURCE_HERE_IF_UNIT"'])
+    validity = member("CoreRuleEngine.StandbyHandPlay.cs", "ValidStandbyHandPlayHere")
+    exact = exact and all(marker in validity for marker in ["ValidTriggerCostReceipt(state, parent)",
+        'pending.SourceZone != "HAND" || pending.IgnoreAllCosts || !pending.IgnoreBaseMana || !pending.IgnoreBasePower',
+        "state.CardObjects[id].ObjectGeneration", "pending.Sources.Count"])
+    exact = exact and "CombatMightSourceLocation(state, parent.SourceObjectId, parent.UnitEvent!.SourceGeneration)" \
+        in member("CoreRuleEngine.StandbyHandPlay.cs", "StandbyHandPlayHere")
+    instruction = member("CoreRuleEngine.UnitEvents.cs", "ResolveUnitEventInstruction")
+    exact = exact and "spec.Effect is StandbyHandPlayHereEffect or PlayHandArmamentThenAttachEffect" in instruction \
+        and "BeginEffectPlay(state, item, definition)" in instruction
+    behavior = member("CoreRuleEngine.EffectPlay.cs", "EffectPlayBehavior")
+    exact = exact and "pending.IgnoreAllCosts ? behavior with" in behavior \
+        and "behavior with { IgnorePrintedPowerCost = pending.IgnoreBasePower }" in behavior
+    mana = member("CoreRuleEngine.PlayManaCost.cs", "CalculatePlayManaCost")
+    exact = exact and all(marker in mana for marker in ["effect?.IgnoreBaseMana == true", "additionalMana", "+ increase + spellIncrease"])
+    prompts = member("CoreRuleEngine.EffectPlay.cs", "BuildEffectPlayPrompts")
+    command = member("CoreRuleEngine.EffectPlay.cs", "ResolveEffectPlayCommand")
+    exact = exact and all(marker in prompts for marker in ["!p.IgnoreAllCosts", "CommandTypes.RefusePlayPayment",
+        "CommandTypes.TapRune", "CommandTypes.RecycleRune"])
+    exact = exact and all(marker in command for marker in ["ResolveRefusePlayPayment(state, intent, pending, refusal)",
+        "ResolvePlayCard(playState, intent, play)", "ResolveTapRune(state, intent, tap)", "ResolveRecycleRune(state, intent, recycle)"])
+    refused = member("CoreRuleEngine.RefusedPlayPayment.cs", "ResolveRefusePlayPayment")
+    exact = exact and "plan.TotalManaCost == 0 && plan.TotalPowerCost == 0" in refused
+    exact = exact and "CoreRuleEngine.ValidStandbyHandPlayHere(state, standbyHandPlay)" in sources.files.get(prefix + "MatchRecovery.cs", "")
+    paths = [prefix + filename for filename in ["CoreRuleEngine.EffectPlay.cs", "CoreRuleEngine.StandbyHandPlay.cs",
+        "CoreRuleEngine.UnitEvents.cs", "CoreRuleEngine.PlayManaCost.cs", "CoreRuleEngine.RefusedPlayPayment.cs", "MatchRecovery.cs"]]
+    if exact:
+        return result("route", "进攻先独立确认并支付蓝色；手牌待命正面朝上按来源当前此处打出，仅免基础法力符能，真实额外费用／增费和拒付及恢复校验保留", paths)
+    return result("missing", "待命手牌打出缺少精确蓝色确认、仅免基础费用、真实额外付款／拒付或原来源恢复校验")
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if base_cost := base_cost_effect_play_route(card, clause, sources):
         return base_cost
@@ -4360,6 +4422,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return crew_ready
     if alternative_echo := printed_alternative_echo_route(card, clause, sources):
         return alternative_echo
+    if standby_base_cost := standby_hand_base_cost_waiver_route(card, clause, sources):
+        return standby_base_cost
     if here_token := source_play_here_unit_token_route(card, clause, sources):
         return here_token
     if battlefield_play := battlefield_unit_play_route(card, clause, sources):

@@ -41,7 +41,7 @@ public sealed partial class CoreRuleEngine
         {
             definition = new(parent.CardNo, "进攻后从手牌打出待命牌", 0, parent.EffectKind, 0, 0,
                 EffectPlaySourceZone: "HAND", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true,
-                EffectPlayIgnoreAllCosts: true, EffectPlayAllowsAnyCard: true, EffectPlayRequiresStandby: true,
+                EffectPlayIgnoreAllCosts: false, EffectPlayAllowsAnyCard: true, EffectPlayRequiresStandby: true,
                 EffectPlayDestination: "SOURCE_HERE_IF_UNIT");
             return true;
         }
@@ -360,9 +360,10 @@ public sealed partial class CoreRuleEngine
     {
         var name = TryGetEffectPlayDefinition(pending.Parent, out var card) || CardBehaviorRegistry.TryGetByCardNo(pending.Parent.CardNo, out card) ? card.DisplayName : "卡牌效果";
         var cost = pending.SourceReplay is not null || pending.Parent.ObservedPlayPermission is not null ? "以 1 通用符能替换基础费用，额外费用仍需支付" : pending.IgnoreAllCosts ? pending.Parent.DeckPlaySequence is not null
-            ? "忽略一切费用，按正常步骤选择并打出" : pending.DestinationPolicy == "SOURCE_HERE_IF_UNIT"
-                ? "从手牌正面朝上打出带有待命技能的卡牌，无视费用；单位须打到技能来源当前所在的位置"
+            ? "忽略一切费用，按正常步骤选择并打出"
                 : pending.DestinationPolicy == "ANY" ? "忽略一切费用；按正常步骤选择合法位置打出" : "忽略一切费用；不能支付额外费用；必须打到指定战场"
+            : pending.DestinationPolicy == "SOURCE_HERE_IF_UNIT" && pending.IgnoreBasePower
+                ? "从手牌正面朝上打出待命牌，忽略基础法力与符能，额外费用仍需支付；单位须打到技能来源当前所在的位置"
             : pending.IgnoreBasePower ? "忽略基础法力与符能，额外费用仍需支付"
             : pending.IgnoreBaseMana ? "忽略基础法力，仍需支付符能与额外费用" : pending.ManaReduction > 0 ? $"费用减少 {pending.ManaReduction}，仍需支付符能" : "正常支付法力、符能及额外费用";
         return $"《{name}》要求再次打出 · {cost}";
