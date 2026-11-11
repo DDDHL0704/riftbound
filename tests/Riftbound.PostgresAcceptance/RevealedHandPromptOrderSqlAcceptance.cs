@@ -65,7 +65,14 @@ internal static class RevealedHandPromptOrderSqlAcceptance
                 await Reject("P2",new PlayCardCommand("ALTERNATE_UNIT","OGN·096/298",[],Destination:"BATTLEFIELD:BF"));
                 await Reject("P2",new PlayCardCommand("U","OGN·208/298",[],Destination:"BATTLEFIELD:BF",OptionalCosts:["DESTROY_FRIENDLY_UNIT:ALLY"]));
                 await Submit("P2",new PlayCardCommand("U","OGN·208/298",[],Destination:"BATTLEFIELD:BF"));
-                Check(state.PlayerZones["P2"].Battlefields.Contains("U")&&state.ObjectLocations["U"].BattlefieldObjectId=="BF"&&state.CardObjects["U"].UntilEndOfTurnEffects.Contains("STUNNED"),"Original selected unit actually plays to the fixed field and is stunned.");
+                Check(state.PlayerZones["P2"].Battlefields.Contains("U")&&state.ObjectLocations["U"].BattlefieldObjectId=="BF"&&!state.CardObjects["U"].UntilEndOfTurnEffects.Contains("STUNNED"),"Original selected unit actually plays to the fixed field before the independent stun resolves.");
+                var stun=state.StackItems.Single();
+                Check(stun.ControllerId=="P1"&&stun.CardNo=="UNL-139/219","Successful owner play earns the original caster's independent stun skill.");
+                var unresolved=await Save("unresolved-independent-stun");
+                Check(unresolved.Events.All(e=>e.Event.Kind!="STATUS_EFFECT_APPLIED"),"The original owner play and cold SQL frame cannot apply stun inline.");
+                await Submit(state.PriorityPlayerId!,new PassPriorityCommand());
+                await Submit(state.PriorityPlayerId!,new PassPriorityCommand());
+                Check(state.CardObjects["U"].UntilEndOfTurnEffects.Contains("STUNNED")&&state.StackItems.Count==0,"Only the independently confirmed skill applies stun after both players respond.");
             }
             Check(state.PendingEffectPlay is null&&state.PlayerZones["P2"].Hand.SequenceEqual(branch=="owner-play"?new[]{"ALTERNATE_UNIT","SPELL"}:new[]{"U","ALTERNATE_UNIT","SPELL"})&&state.PlayerZones["P2"].Base.SequenceEqual(new[]{"ALLY"})&&state.RunePools["P2"]==RunePool.Empty,"Unselected original hand, additional-sacrifice unit and all owner's resources remain exact.");
             var other=JsonSerializer.Serialize(session.SnapshotFor("P1"),json)+JsonSerializer.Serialize(session.PromptFor("P1"),json);

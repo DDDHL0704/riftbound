@@ -141,6 +141,18 @@ class WorkflowCandidateTests(unittest.TestCase):
         self.assertNotIn('NativeNetworkSmoke', job)
         self.assertNotIn('continue-on-error', job)
 
+    def test_manual_sql_payment_reconnect_is_explicit_and_keeps_one_case(self):
+        text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
+        inputs = text[text.index('      payment_reconnect_case:'):text.index('\npermissions:')]
+        self.assertIn('default: none', inputs)
+        self.assertIn("options: ['none', 'optional-additional-cost-reductions']", inputs)
+        job = text[text.index('  postgres_scoped:'):]
+        self.assertIn("if: ${{ inputs.payment_reconnect_case == 'optional-additional-cost-reductions' }}", job)
+        self.assertIn('scripts/run-payment-reconnect-ci.py --expected "$RIFTBOUND_FIXED_COMMIT"', job)
+        self.assertIn('--case optional-additional-cost-reductions --output var/qa/ci-payment-diagnostic', job)
+        self.assertIn('name: payment-scoped-${{ inputs.postgres_partition }}', job)
+        self.assertNotIn('payment_reconnect_case', text[text.index('  scope:'):text.index('  postgres_scoped:')])
+
     def test_workflow_action_inputs_cannot_repeat_yaml_keys(self):
         def check(text):
             for block in re.finditer(r'(?m)^( +)with:\s*\n', text):
