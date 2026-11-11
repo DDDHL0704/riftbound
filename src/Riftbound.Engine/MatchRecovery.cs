@@ -3860,6 +3860,13 @@ public static partial class MatchRecoveryValidator
         ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
 
+        // Shape and continuation validation above already reject these frames.
+        // Do not render prompts or derived views from a malformed effect list;
+        // independent journal and spectator checks still run in ValidateFrame.
+        if (new[] { authoritativeState, authoritativeState.PendingRuleChoice?.Origin }.OfType<MatchState>()
+            .Any(frame => frame.UntilEndOfTurnEffects is null || frame.UntilEndOfTurnEffects.Any(effect => effect is null)))
+            return;
+
         // Private checkpoint and decision transcript are validated above. Public
         // snapshots render the deterministic intermediate replacement preview.
         var paymentPromptState = authoritativeState;
