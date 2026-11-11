@@ -619,6 +619,7 @@ public static class CardCostReductionConditionKinds
     public const string SameNameInControllerGraveyard = "SAME_NAME_IN_CONTROLLER_GRAVEYARD";
     public const string ControlledBattlefieldUnitCount = "CONTROLLED_BATTLEFIELD_UNIT_COUNT";
     public const string ControllerExperienceThresholdCount = "CONTROLLER_EXPERIENCE_THRESHOLD_COUNT";
+    public const string ControllerGraveyardCardCount = "CONTROLLER_GRAVEYARD_CARD_COUNT";
     public const string OpponentControlsStunnedUnit = "OPPONENT_CONTROLS_STUNNED_UNIT";
     public const string ControllerHeldBattlefieldCountThisTurn = "CONTROLLER_HELD_BATTLEFIELD_COUNT_THIS_TURN";
 }
@@ -1882,7 +1883,9 @@ public static class CardBehaviorRegistry
             "CENTER_YOUR_MIND_DRAW_2",
             0,
             0,
-            DrawCount: 2),
+            DrawCount: 2,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerExperienceThresholdCount,
+            CostReductionMana: 2, CostReductionExperienceThresholds: [6, 11]),
         new(
             "UNL-173/219",
             "牺牲",
@@ -5022,7 +5025,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "灵体"),
+            SourceUnitTags: "灵体",
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerGraveyardCardCount,
+            CostReductionMana: 1),
         new(
             "SFD·110/221",
             "菲奥娜",

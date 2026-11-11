@@ -27,7 +27,10 @@ public sealed partial class CoreRuleEngine
 
     // Re-evaluate the current controller's condition on every quote and payment.
     // In-play object counts exclude face-down cards, which have no unit or equipment type.
-    private static int ConditionalPlayCostCount(MatchState state, string player, CardBehaviorDefinition behavior)
+    // CN354 puts the played source onto the chain before CN356.4 counts the
+    // remaining graveyard. Quotes receive the original state, so exclude it here.
+    private static int ConditionalPlayCostCount(MatchState state, string player, CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
         => behavior.CostReductionConditionKind switch
         {
             CardCostReductionConditionKinds.ControllerHeldBattlefieldCountThisTurn
@@ -40,11 +43,14 @@ public sealed partial class CoreRuleEngine
                 => OpponentControlsStunnedUnit(state.PlayerZones, state.CardObjects, player) ? 1 : 0,
             CardCostReductionConditionKinds.ControlledDistinctUnitTagCount
                 => CountControlledFriendlyUnitTags(state, player, behavior.CostReductionUnitTags ?? []),
+            CardCostReductionConditionKinds.ControllerGraveyardCardCount
+                => state.PlayerZones.TryGetValue(player, out var graveyardZones)
+                    ? graveyardZones.Graveyard.Count(id => id != sourceObjectId) : 0,
             CardCostReductionConditionKinds.ControlledFieldEquipmentCount
                 => CountControlledPublicFieldEquipmentObjects(state.PlayerZones, state.CardObjects, player),
             CardCostReductionConditionKinds.SameNameInControllerGraveyard
                 => state.PlayerZones.TryGetValue(player, out var zones)
-                    ? zones.Graveyard.Count(id => state.CardObjects.TryGetValue(id, out var card)
+                    ? zones.Graveyard.Count(id => id != sourceObjectId && state.CardObjects.TryGetValue(id, out var card)
                         && OfficialCardSourceIdentityGroups.SameKnownName(behavior.CardNo, card.CardNo)) : 0,
             CardCostReductionConditionKinds.ControlledBattlefieldUnitCount
                 => BattlefieldLocalRules.ControlledBy(state, player).Any(field =>

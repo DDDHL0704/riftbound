@@ -22582,7 +22582,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 => sourceObjectId is not null && state.CardObjects.TryGetValue(sourceObjectId, out var source)
                     && source.CardNo == behavior.CardNo && state.PlayerZones.TryGetValue(playerId, out var own)
                     && !own.Hand.Contains(sourceObjectId, StringComparer.Ordinal) ? behavior.CostReductionMana : 0,
-            _ => behavior.CostReductionMana * ConditionalPlayCostCount(state, playerId, behavior)
+            _ => behavior.CostReductionMana * ConditionalPlayCostCount(state, playerId, behavior, sourceObjectId)
         });
     }
 
