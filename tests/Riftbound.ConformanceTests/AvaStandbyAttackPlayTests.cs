@@ -30,7 +30,7 @@ public sealed class AvaStandbyAttackPlayTests
         await game.Top();
         var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
         Assert.Equal(new[] { "STANDBY" }, pending.Sources.Keys);
-        Assert.True(pending.IgnoreAllCosts);
+        Assert.False(pending.IgnoreAllCosts);
         Assert.False(pending.Optional);
         await Reject(game.State, "P2", new PlayCardCommand("STANDBY", card, []));
         await Reject(game.State, "P1", new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []));
@@ -188,7 +188,7 @@ public sealed class AvaStandbyAttackPlayTests
         var p = game.State.PendingEffectPlay!;
         var parent = p.Parent;
         var mutations = new[] {
-            p with { IgnoreAllCosts = false }, p with { IgnoreBasePower = false }, p with { ManaReduction = 1 },
+            p with { IgnoreAllCosts = true }, p with { IgnoreBasePower = false }, p with { ManaReduction = 1 },
             p with { Optional = true }, p with { SourceZone = "GRAVEYARD" }, p with { DestinationPolicy = "ANY" },
             p with { PlayerId = "P2" }, p with { Sources = new Dictionary<string, long>() },
             p with { Sources = new Dictionary<string, long> { ["STANDBY"] = p.Sources["STANDBY"] + 1 } },
@@ -274,14 +274,14 @@ public sealed class AvaStandbyAttackPlayTests
         await game.Replay();
     }
 
-    private static MatchState Position(string card = Cub)
+    internal static MatchState Position(string card = Cub)
     {
         var s = HandDiscardObserverTests.Put(AttackDeckPlayTests.Position(Ava), "STANDBY", card, "P1", "HAND");
         return s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { ["HOST"] = s.CardObjects["HOST"] with { Power = 4 } },
             RunePools = new Dictionary<string, RunePool>(s.RunePools) { ["P1"] = new(0, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 1 }) } };
     }
 
-    private static async Task Attack(Driver game)
+    internal static async Task Attack(Driver game)
     {
         await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         for (var i = 0; i < 4 && game.State.FocusPlayerId is not null && game.State.StackItems.Count == 0; i++)
@@ -292,7 +292,7 @@ public sealed class AvaStandbyAttackPlayTests
         Assert.NotNull(game.State.PendingPayment);
     }
 
-    private static Task Pay(Driver game, bool pay = true)
+    internal static Task Pay(Driver game, bool pay = true)
     {
         var p = game.State.PendingPayment!;
         return game.Act("P1", new PayCostCommand(p.PaymentId, p.PaymentWindow, [pay ? "PAY" : "DECLINE"]));
