@@ -7187,7 +7187,7 @@ public sealed class CardCatalogBaselineTests
             new { CardNo = "OGN·156/298", TemplateId = BehaviorTemplateIds.Recycle, EffectKind = "COVERT_SABOTAGE_RECYCLE_OPPONENT_NON_UNIT_HAND_CARD" },
             new { CardNo = "OGN·102/298", TemplateId = BehaviorTemplateIds.Banish, EffectKind = "PORTALPAL_RESCUE_BANISH_FRIENDLY_UNIT_PLAY_TO_BASE" },
             new { CardNo = "OGN·050/298", TemplateId = BehaviorTemplateIds.Stun, EffectKind = "RUNE_PRISON_STUN_UNIT" },
-            new { CardNo = "OGN·004/298", TemplateId = BehaviorTemplateIds.TempMight, EffectKind = "CLEAVE_OVERWHELM_3" },
+            new { CardNo = "OGN·154/298", TemplateId = BehaviorTemplateIds.TempMight, EffectKind = "TREMENDOUS_STRENGTH_POWER_PLUS_7" },
             new { CardNo = "OGN·053/298", TemplateId = BehaviorTemplateIds.Boon, EffectKind = "SECRET_ART_MERCY_GRANT_BOON_AMPLIFY_THIS_TURN" },
             new { CardNo = "SFD·202/221", TemplateId = BehaviorTemplateIds.Control, EffectKind = "HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT" }
         };
@@ -7232,9 +7232,9 @@ public sealed class CardCatalogBaselineTests
                     Assert.Equal("STUNNED", delegation.DelegatedBehavior.StatusEffectId);
                     break;
                 case BehaviorTemplateIds.TempMight:
-                    Assert.Equal(3, delegation.DelegatedBehavior.PowerModifierAmount);
+                    Assert.Equal(7, delegation.DelegatedBehavior.PowerModifierAmount);
                     Assert.Equal(
-                        CardPowerModifierConditionKinds.TargetIsAttacking,
+                        CardPowerModifierConditionKinds.None,
                         delegation.DelegatedBehavior.PowerModifierConditionKind);
                     break;
                 case BehaviorTemplateIds.Boon:
@@ -9272,7 +9272,7 @@ public sealed class CardCatalogBaselineTests
         Cover("basic:摧毁", destroy.PrimitiveActions.Contains(CardBasicActionNames.Destroy, StringComparer.Ordinal));
         var stun = BuildBasicActionProfile(specs, "OGN·050/298");
         Cover("basic:眩晕", stun.PrimitiveActions.Contains(CardBasicActionNames.Stun, StringComparer.Ordinal));
-        var tempMight = BuildBasicActionProfile(specs, "OGN·004/298");
+        var tempMight = BuildBasicActionProfile(specs, "OGN·154/298");
         Cover("basic:临时战力", tempMight.PrimitiveActions.Contains(CardBasicActionNames.TempMight, StringComparer.Ordinal));
         var move = BuildBasicActionProfile(specs, "OGN·043/298");
         Cover("basic:移动", move.DelegatedP2Actions.Contains(CardBasicActionNames.Move, StringComparer.Ordinal));

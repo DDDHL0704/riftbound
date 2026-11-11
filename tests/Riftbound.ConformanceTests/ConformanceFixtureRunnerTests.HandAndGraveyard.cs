@@ -1439,9 +1439,10 @@ public sealed partial class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(["OVERWHELM_3"], result.FinalState.CardObjects["P2-UNIT-CLEAVE-001"].UntilEndOfTurnEffects);
-        Assert.Equal(5, result.FinalState.CardObjects["P2-UNIT-CLEAVE-001"].Power);
-        Assert.Equal(3, result.FinalState.CardObjects["P2-UNIT-CLEAVE-001"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(["COMBAT_KEYWORD:强攻3:1"], result.FinalState.CardObjects["P2-UNIT-CLEAVE-001"].UntilEndOfTurnEffects);
+        Assert.Equal(5, ThreeBattlefieldTimingProbe.EffectivePower(result.FinalState, "P2", "P2-UNIT-CLEAVE-001"));
+        Assert.Equal(2, result.FinalState.CardObjects["P2-UNIT-CLEAVE-001"].Power);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-CLEAVE-001"].UntilEndOfTurnPowerModifier);
     }
 
     [Fact]
@@ -1495,7 +1496,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.True(p2PassResult.Accepted);
         Assert.Contains(p2PassResult.Events, gameEvent => gameEvent.Kind == "STATUS_EFFECT_APPLIED");
         Assert.DoesNotContain(p2PassResult.Events, gameEvent => gameEvent.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN");
-        Assert.Equal(["OVERWHELM_3"], p2PassResult.State.CardObjects["P2-UNIT-CLEAVE-001"].UntilEndOfTurnEffects);
+        Assert.Equal(["COMBAT_KEYWORD:强攻3:1"], p2PassResult.State.CardObjects["P2-UNIT-CLEAVE-001"].UntilEndOfTurnEffects);
         Assert.Equal(2, p2PassResult.State.CardObjects["P2-UNIT-CLEAVE-001"].Power);
         Assert.Equal(0, p2PassResult.State.CardObjects["P2-UNIT-CLEAVE-001"].UntilEndOfTurnPowerModifier);
     }
@@ -1513,9 +1514,10 @@ public sealed partial class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(["OVERWHELM_2"], result.FinalState.CardObjects["P2-UNIT-BLOOD-RUSH-001"].UntilEndOfTurnEffects);
-        Assert.Equal(6, result.FinalState.CardObjects["P2-UNIT-BLOOD-RUSH-001"].Power);
-        Assert.Equal(4, result.FinalState.CardObjects["P2-UNIT-BLOOD-RUSH-001"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(["COMBAT_KEYWORD:强攻2:1", "COMBAT_KEYWORD:强攻2:2"], result.FinalState.CardObjects["P2-UNIT-BLOOD-RUSH-001"].UntilEndOfTurnEffects);
+        Assert.Equal(6, ThreeBattlefieldTimingProbe.EffectivePower(result.FinalState, "P2", "P2-UNIT-BLOOD-RUSH-001"));
+        Assert.Equal(2, result.FinalState.CardObjects["P2-UNIT-BLOOD-RUSH-001"].Power);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-BLOOD-RUSH-001"].UntilEndOfTurnPowerModifier);
     }
 
     [Fact]
@@ -1531,9 +1533,10 @@ public sealed partial class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(["OVERWHELM_2", "ROAM"], result.FinalState.CardObjects["P2-UNIT-POWER-PUNCH-001"].UntilEndOfTurnEffects);
-        Assert.Equal(4, result.FinalState.CardObjects["P2-UNIT-POWER-PUNCH-001"].Power);
-        Assert.Equal(2, result.FinalState.CardObjects["P2-UNIT-POWER-PUNCH-001"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(["COMBAT_KEYWORD:强攻2:1", "ROAM"], result.FinalState.CardObjects["P2-UNIT-POWER-PUNCH-001"].UntilEndOfTurnEffects);
+        Assert.Equal(4, ThreeBattlefieldTimingProbe.EffectivePower(result.FinalState, "P2", "P2-UNIT-POWER-PUNCH-001"));
+        Assert.Equal(2, result.FinalState.CardObjects["P2-UNIT-POWER-PUNCH-001"].Power);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-POWER-PUNCH-001"].UntilEndOfTurnPowerModifier);
     }
 
     [Fact]
@@ -1587,7 +1590,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.True(p2PassResult.Accepted);
         Assert.Equal(2, p2PassResult.Events.Count(gameEvent => gameEvent.Kind == "STATUS_EFFECT_APPLIED"));
         Assert.DoesNotContain(p2PassResult.Events, gameEvent => gameEvent.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN");
-        Assert.Equal(["OVERWHELM_2", "ROAM"], p2PassResult.State.CardObjects["P2-UNIT-POWER-PUNCH-001"].UntilEndOfTurnEffects);
+        Assert.Equal(["COMBAT_KEYWORD:强攻2:1", "ROAM"], p2PassResult.State.CardObjects["P2-UNIT-POWER-PUNCH-001"].UntilEndOfTurnEffects);
         Assert.Equal(2, p2PassResult.State.CardObjects["P2-UNIT-POWER-PUNCH-001"].Power);
         Assert.Equal(0, p2PassResult.State.CardObjects["P2-UNIT-POWER-PUNCH-001"].UntilEndOfTurnPowerModifier);
     }
@@ -1678,9 +1681,10 @@ public sealed partial class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(["OVERWHELM_4"], result.FinalState.CardObjects["P2-UNIT-ROARING-RECKONING-001"].UntilEndOfTurnEffects);
-        Assert.Equal(10, result.FinalState.CardObjects["P2-UNIT-ROARING-RECKONING-001"].Power);
-        Assert.Equal(8, result.FinalState.CardObjects["P2-UNIT-ROARING-RECKONING-001"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(["COMBAT_KEYWORD:强攻4:1", "COMBAT_KEYWORD:强攻4:2"], result.FinalState.CardObjects["P2-UNIT-ROARING-RECKONING-001"].UntilEndOfTurnEffects);
+        Assert.Equal(10, ThreeBattlefieldTimingProbe.EffectivePower(result.FinalState, "P2", "P2-UNIT-ROARING-RECKONING-001"));
+        Assert.Equal(2, result.FinalState.CardObjects["P2-UNIT-ROARING-RECKONING-001"].Power);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-ROARING-RECKONING-001"].UntilEndOfTurnPowerModifier);
         Assert.Equal(["P1-DISCARD-001", "P1-SPELL-ROARING-RECKONING"], result.FinalState.PlayerZones["P1"].Graveyard);
     }
 
