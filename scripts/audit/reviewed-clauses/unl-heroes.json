@@ -1519,7 +1519,7 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
           "contains": [
-            "HasSourcePlayCondition(UnitEventSpec(context.CardNo))",
+            "HasSourcePlayCondition(UnitEventSpecForContext(context))",
             "context.SourcePlayCondition"
           ]
         },
@@ -1749,9 +1749,9 @@
       ],
       "text": "当你打出我时，选择一名对手。",
       "scope": "当你打出我时，选择一名对手。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少指定对手后的公开手牌选择／放逐，以及该对手下次据守时独立存续的关联返手技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享打出技能先确认对手，响应后展示其当前手牌并真实放逐一张；独立延迟记录在该对手实际据守时取回原放逐代际，来源离场仍有效，离开关联区域即结束，并校验原始接受的展示、选择及延迟凭据",
+      "rules": "核心355.7–355.10.a、383.3／403.2、391.5／392／393、425.1.a.3／425.3.a；UNL-169官方中文牌面",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -1765,20 +1765,73 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "BANISH_CHOSEN_OPPONENT_HAND_UNTIL_HOLD",
+              "requiresChosenOpponent": true,
+              "nextOpponentHoldEffect": "RETURN_CAPTURED_HAND_EXILE"
+            }
           }
-        ]
+        ],
+        "unitEventAbility": {
+          "timing": "PLAY",
+          "effect": "BANISH_CHOSEN_OPPONENT_HAND_UNTIL_HOLD",
+          "requiresChosenOpponent": true,
+          "nextOpponentHoldEffect": "RETURN_CAPTURED_HAND_EXILE"
+        }
       },
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
             "\"UNL-169/219\"",
-            "\"ASHE_HAND_BANISH_STATIC\""
+            "RequiresChosenOpponent = true, NextOpponentHoldEffect = CoreRuleEngine.ReturnCapturedHandExileEffect"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.HandExileReturn.cs",
+          "contains": [
+            "return context.ChosenOpponentId",
+            "CaptureScheduledUnitEvent(state, item, context)",
+            "card.ObjectGeneration != exile.Card.Generation",
+            "ResetCardOutsidePlay(zones, cards, card.ObjectId, card, exile.OwnerId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ScheduledUnitEvents.cs",
+          "contains": [
+            "schedule.Context.ChosenOpponentId == state.TurnPlayerId",
+            "QueueScheduledUnitEvents(state, due, \"BATTLEFIELD_HELD\", events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventHandChoices.cs",
+          "contains": [
+            "originalHash != MatchStateHasher.HashValue(actual.HandContext)",
+            "executions.Length != item.CompletedHandExecutions"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AsheHandExileReturnTests.cs",
+          "methods": [
+            "ActualPlayConfirmsTheOpponentThenBanishesOneRevealedCardAndReturnsItOnlyAfterTheNextRealHold",
+            "ReturningAsheBeforeOrAfterTheHandChoiceKeepsTheEarnedIndependentReturnAndPrivateSource",
+            "AnEmptyHandStillRevealsAndCompletesWithoutCreatingAnExileOrReturn",
+            "AnActualDrawResponseChangesTheHandBeforeTheMandatoryReveal",
+            "ACounterRestrictedToFriendlyPermanentTargetsCannotCounterThisPlayerTargetedSkill",
+            "TheRuleComponentUsesTheChosenThirdOpponentsHandAndKeepsTheOtherOpponentsCardsPrivate",
+            "ARealImageCopiedAfterEntryDoesNotRetroactivelyTriggerTheCopiedOnPlaySkill",
+            "InvalidRevealedHandChoicesRejectAtomicallyAndLeaveTheRealChoiceUsable",
+            "RecoveryAuthenticatesTheOriginalRevealedHandAndItsUnfinishedExecution",
+            "RecoveryBindsThePendingReturnToTheOriginalAcceptedScheduleWithoutRewritingHistory",
+            "NeitherAMainTransitionNorTheCreatorsOwnActualHoldFiresTheNamedOpponentsDelay",
+            "TheFiredReturnAndItsRetirementRemainBoundToTheOriginalAcceptedBirth"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1786,9 +1839,9 @@
       ],
       "text": "让该对手展示自己的手牌。",
       "scope": "当你打出我时，选择一名对手。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少指定对手后的公开手牌选择／放逐，以及该对手下次据守时独立存续的关联返手技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享打出技能先确认对手，响应后展示其当前手牌并真实放逐一张；独立延迟记录在该对手实际据守时取回原放逐代际，来源离场仍有效，离开关联区域即结束，并校验原始接受的展示、选择及延迟凭据",
+      "rules": "核心355.7–355.10.a、383.3／403.2、391.5／392／393、425.1.a.3／425.3.a；UNL-169官方中文牌面",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -1802,20 +1855,73 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "BANISH_CHOSEN_OPPONENT_HAND_UNTIL_HOLD",
+              "requiresChosenOpponent": true,
+              "nextOpponentHoldEffect": "RETURN_CAPTURED_HAND_EXILE"
+            }
           }
-        ]
+        ],
+        "unitEventAbility": {
+          "timing": "PLAY",
+          "effect": "BANISH_CHOSEN_OPPONENT_HAND_UNTIL_HOLD",
+          "requiresChosenOpponent": true,
+          "nextOpponentHoldEffect": "RETURN_CAPTURED_HAND_EXILE"
+        }
       },
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
             "\"UNL-169/219\"",
-            "\"ASHE_HAND_BANISH_STATIC\""
+            "RequiresChosenOpponent = true, NextOpponentHoldEffect = CoreRuleEngine.ReturnCapturedHandExileEffect"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.HandExileReturn.cs",
+          "contains": [
+            "return context.ChosenOpponentId",
+            "CaptureScheduledUnitEvent(state, item, context)",
+            "card.ObjectGeneration != exile.Card.Generation",
+            "ResetCardOutsidePlay(zones, cards, card.ObjectId, card, exile.OwnerId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ScheduledUnitEvents.cs",
+          "contains": [
+            "schedule.Context.ChosenOpponentId == state.TurnPlayerId",
+            "QueueScheduledUnitEvents(state, due, \"BATTLEFIELD_HELD\", events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventHandChoices.cs",
+          "contains": [
+            "originalHash != MatchStateHasher.HashValue(actual.HandContext)",
+            "executions.Length != item.CompletedHandExecutions"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AsheHandExileReturnTests.cs",
+          "methods": [
+            "ActualPlayConfirmsTheOpponentThenBanishesOneRevealedCardAndReturnsItOnlyAfterTheNextRealHold",
+            "ReturningAsheBeforeOrAfterTheHandChoiceKeepsTheEarnedIndependentReturnAndPrivateSource",
+            "AnEmptyHandStillRevealsAndCompletesWithoutCreatingAnExileOrReturn",
+            "AnActualDrawResponseChangesTheHandBeforeTheMandatoryReveal",
+            "ACounterRestrictedToFriendlyPermanentTargetsCannotCounterThisPlayerTargetedSkill",
+            "TheRuleComponentUsesTheChosenThirdOpponentsHandAndKeepsTheOtherOpponentsCardsPrivate",
+            "ARealImageCopiedAfterEntryDoesNotRetroactivelyTriggerTheCopiedOnPlaySkill",
+            "InvalidRevealedHandChoicesRejectAtomicallyAndLeaveTheRealChoiceUsable",
+            "RecoveryAuthenticatesTheOriginalRevealedHandAndItsUnfinishedExecution",
+            "RecoveryBindsThePendingReturnToTheOriginalAcceptedScheduleWithoutRewritingHistory",
+            "NeitherAMainTransitionNorTheCreatorsOwnActualHoldFiresTheNamedOpponentsDelay",
+            "TheFiredReturnAndItsRetirementRemainBoundToTheOriginalAcceptedBirth"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1823,9 +1929,9 @@
       ],
       "text": "选择一张对手以此方式展示的卡牌，将其放逐。",
       "scope": "当你打出我时，选择一名对手。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少指定对手后的公开手牌选择／放逐，以及该对手下次据守时独立存续的关联返手技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享打出技能先确认对手，响应后展示其当前手牌并真实放逐一张；独立延迟记录在该对手实际据守时取回原放逐代际，来源离场仍有效，离开关联区域即结束，并校验原始接受的展示、选择及延迟凭据",
+      "rules": "核心355.7–355.10.a、383.3／403.2、391.5／392／393、425.1.a.3／425.3.a；UNL-169官方中文牌面",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -1839,20 +1945,73 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "BANISH_CHOSEN_OPPONENT_HAND_UNTIL_HOLD",
+              "requiresChosenOpponent": true,
+              "nextOpponentHoldEffect": "RETURN_CAPTURED_HAND_EXILE"
+            }
           }
-        ]
+        ],
+        "unitEventAbility": {
+          "timing": "PLAY",
+          "effect": "BANISH_CHOSEN_OPPONENT_HAND_UNTIL_HOLD",
+          "requiresChosenOpponent": true,
+          "nextOpponentHoldEffect": "RETURN_CAPTURED_HAND_EXILE"
+        }
       },
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
             "\"UNL-169/219\"",
-            "\"ASHE_HAND_BANISH_STATIC\""
+            "RequiresChosenOpponent = true, NextOpponentHoldEffect = CoreRuleEngine.ReturnCapturedHandExileEffect"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.HandExileReturn.cs",
+          "contains": [
+            "return context.ChosenOpponentId",
+            "CaptureScheduledUnitEvent(state, item, context)",
+            "card.ObjectGeneration != exile.Card.Generation",
+            "ResetCardOutsidePlay(zones, cards, card.ObjectId, card, exile.OwnerId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ScheduledUnitEvents.cs",
+          "contains": [
+            "schedule.Context.ChosenOpponentId == state.TurnPlayerId",
+            "QueueScheduledUnitEvents(state, due, \"BATTLEFIELD_HELD\", events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventHandChoices.cs",
+          "contains": [
+            "originalHash != MatchStateHasher.HashValue(actual.HandContext)",
+            "executions.Length != item.CompletedHandExecutions"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AsheHandExileReturnTests.cs",
+          "methods": [
+            "ActualPlayConfirmsTheOpponentThenBanishesOneRevealedCardAndReturnsItOnlyAfterTheNextRealHold",
+            "ReturningAsheBeforeOrAfterTheHandChoiceKeepsTheEarnedIndependentReturnAndPrivateSource",
+            "AnEmptyHandStillRevealsAndCompletesWithoutCreatingAnExileOrReturn",
+            "AnActualDrawResponseChangesTheHandBeforeTheMandatoryReveal",
+            "ACounterRestrictedToFriendlyPermanentTargetsCannotCounterThisPlayerTargetedSkill",
+            "TheRuleComponentUsesTheChosenThirdOpponentsHandAndKeepsTheOtherOpponentsCardsPrivate",
+            "ARealImageCopiedAfterEntryDoesNotRetroactivelyTriggerTheCopiedOnPlaySkill",
+            "InvalidRevealedHandChoicesRejectAtomicallyAndLeaveTheRealChoiceUsable",
+            "RecoveryAuthenticatesTheOriginalRevealedHandAndItsUnfinishedExecution",
+            "RecoveryBindsThePendingReturnToTheOriginalAcceptedScheduleWithoutRewritingHistory",
+            "NeitherAMainTransitionNorTheCreatorsOwnActualHoldFiresTheNamedOpponentsDelay",
+            "TheFiredReturnAndItsRetirementRemainBoundToTheOriginalAcceptedBirth"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1860,9 +2019,9 @@
       ],
       "text": "当该对手据守一处战场时，让这张被放逐的牌返回其手牌（即使我已经不在场上）。",
       "scope": "当该对手据守一处战场时，让这张被放逐的牌返回其手牌（即使我已经不在场上）。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少指定对手后的公开手牌选择／放逐，以及该对手下次据守时独立存续的关联返手技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享打出技能先确认对手，响应后展示其当前手牌并真实放逐一张；独立延迟记录在该对手实际据守时取回原放逐代际，来源离场仍有效，离开关联区域即结束，并校验原始接受的展示、选择及延迟凭据",
+      "rules": "核心355.7–355.10.a、383.3／403.2、391.5／392／393、425.1.a.3／425.3.a；UNL-169官方中文牌面",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -1876,20 +2035,73 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "BANISH_CHOSEN_OPPONENT_HAND_UNTIL_HOLD",
+              "requiresChosenOpponent": true,
+              "nextOpponentHoldEffect": "RETURN_CAPTURED_HAND_EXILE"
+            }
           }
-        ]
+        ],
+        "unitEventAbility": {
+          "timing": "PLAY",
+          "effect": "BANISH_CHOSEN_OPPONENT_HAND_UNTIL_HOLD",
+          "requiresChosenOpponent": true,
+          "nextOpponentHoldEffect": "RETURN_CAPTURED_HAND_EXILE"
+        }
       },
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
             "\"UNL-169/219\"",
-            "\"ASHE_HAND_BANISH_STATIC\""
+            "RequiresChosenOpponent = true, NextOpponentHoldEffect = CoreRuleEngine.ReturnCapturedHandExileEffect"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.HandExileReturn.cs",
+          "contains": [
+            "return context.ChosenOpponentId",
+            "CaptureScheduledUnitEvent(state, item, context)",
+            "card.ObjectGeneration != exile.Card.Generation",
+            "ResetCardOutsidePlay(zones, cards, card.ObjectId, card, exile.OwnerId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ScheduledUnitEvents.cs",
+          "contains": [
+            "schedule.Context.ChosenOpponentId == state.TurnPlayerId",
+            "QueueScheduledUnitEvents(state, due, \"BATTLEFIELD_HELD\", events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventHandChoices.cs",
+          "contains": [
+            "originalHash != MatchStateHasher.HashValue(actual.HandContext)",
+            "executions.Length != item.CompletedHandExecutions"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AsheHandExileReturnTests.cs",
+          "methods": [
+            "ActualPlayConfirmsTheOpponentThenBanishesOneRevealedCardAndReturnsItOnlyAfterTheNextRealHold",
+            "ReturningAsheBeforeOrAfterTheHandChoiceKeepsTheEarnedIndependentReturnAndPrivateSource",
+            "AnEmptyHandStillRevealsAndCompletesWithoutCreatingAnExileOrReturn",
+            "AnActualDrawResponseChangesTheHandBeforeTheMandatoryReveal",
+            "ACounterRestrictedToFriendlyPermanentTargetsCannotCounterThisPlayerTargetedSkill",
+            "TheRuleComponentUsesTheChosenThirdOpponentsHandAndKeepsTheOtherOpponentsCardsPrivate",
+            "ARealImageCopiedAfterEntryDoesNotRetroactivelyTriggerTheCopiedOnPlaySkill",
+            "InvalidRevealedHandChoicesRejectAtomicallyAndLeaveTheRealChoiceUsable",
+            "RecoveryAuthenticatesTheOriginalRevealedHandAndItsUnfinishedExecution",
+            "RecoveryBindsThePendingReturnToTheOriginalAcceptedScheduleWithoutRewritingHistory",
+            "NeitherAMainTransitionNorTheCreatorsOwnActualHoldFiresTheNamedOpponentsDelay",
+            "TheFiredReturnAndItsRetirementRemainBoundToTheOriginalAcceptedBirth"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

@@ -171,6 +171,15 @@ public sealed partial class ConformanceFixtureRunnerTests
 
         var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
         Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
+        if (CardBehaviorRegistry.TryGetByCardNo(result.FinalState.CardObjects[sourceObjectId].CardNo!, out var behavior)
+            && behavior.UnitEventAbility?.RequiresChosenOpponent == true)
+        {
+            var choice = Assert.IsType<PendingCardChoiceState>(result.FinalState.PendingCardChoice);
+            Assert.Equal("UNIT_EVENT_CHOSEN_OPPONENT", choice.ChoiceWindow);
+            Assert.Equal("P1", choice.PlayerId); Assert.Equal(new[] { "P2" }, choice.LegalObjectIds);
+            Assert.Null(choice.HandContext); Assert.Null(result.FinalState.PriorityPlayerId);
+            Assert.Null(Assert.Single(result.FinalState.StackItems).UnitEvent!.ChosenOpponentId);
+        }
         Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(expectedPower, result.FinalState.CardObjects[sourceObjectId].Power);

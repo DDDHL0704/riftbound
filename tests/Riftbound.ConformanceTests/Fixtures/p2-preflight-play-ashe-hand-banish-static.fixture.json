@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ashe-hand-banish-static",
-  "description": "Ashe enters as a unit while opponent-hand reveal and delayed banish-return text is deferred.",
+  "description": "Ashe pays and enters exhausted, then pauses at the independent play skill's mandatory opponent confirmation. Full revealed-hand exile and the earned Hold return have actual-command coverage in AsheHandExileReturnTests.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-169/219 艾希",
-      "note": "官方卡面：费用 5；英雄单位；战力 4；打出时选择一名对手，展示其手牌，选择展示的一张牌放逐，并在该对手据守战场时将被放逐牌返回其手牌。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场；对手选择、手牌展示、展示牌选择、放逐和延迟返回路径暂缓。"
+      "note": "官方卡面：费用5、英雄单位、战力4。打出时先确认一名对手；响应后展示其当前手牌并选择放逐，独立关联返手等待该对手实际据守。本夹具检查真实付款、休眠入场和确认对手前的窗口；完整效果、来源离场及恢复由AsheHandExileReturnTests验证。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -28,10 +28,18 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "《符文战场》中国区核心规则（2026-10-10）",
+      "locator": "355.9、383.3／403.2、425.1／425.3",
+      "note": "玩家目标在触发确认时选择，手牌在技能结算时展示；本夹具在确认前停下，不在尚未确认时让过。"
     }
   ],
   "roomId": "p2-preflight-unl-169-ashe-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302771,
     "turnNumber": 771,
@@ -39,7 +47,10 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
       "P1": {
         "mana": 5,
@@ -55,26 +66,46 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-ASHE-HAND-BANISH"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-ASHE-HAND-BANISH"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {}
@@ -89,54 +120,90 @@
         "cardNo": "UNL-169/219",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-169-ashe-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-169-ashe-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "TRIGGERS_MOVED_TO_STACK"
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": {
+      "P1": [
+        "CHOOSE_CARDS"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
     "finalState": {
       "turnNumber": 771,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
-      "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
+      "timingState": "NEUTRAL_CLOSED",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
+          "mainDeck": [
+            "P1-MAIN-001"
+          ],
           "hand": [],
-          "base": ["P1-UNIT-ASHE-HAND-BANISH"],
+          "base": [
+            "P1-UNIT-ASHE-HAND-BANISH"
+          ],
           "graveyard": []
         }
       },
-      "stackItems": [],
+      "stackItems": [
+        {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-ASHE-HAND-BANISH",
+          "cardNo": "UNL-169/219",
+          "effectKind": "CAPTURED_UNIT_EVENT_ABILITY",
+          "targetObjectIds": []
+        }
+      ],
       "cardObjects": {
         "P1-UNIT-ASHE-HAND-BANISH": {
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "isExhausted": true
         }
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "CHOOSE_CARDS"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

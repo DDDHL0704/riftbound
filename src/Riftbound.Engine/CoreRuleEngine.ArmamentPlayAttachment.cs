@@ -15,7 +15,7 @@ public sealed partial class CoreRuleEngine
     internal const string PlayedArmamentAttachmentCreatedEvent = "PLAYED_ARMAMENT_ATTACHMENT_CREATED";
 
     internal static bool HasArmamentPlayAttachment(UnitEventContext? context)
-        => context is not null && UnitEventSpec(context.CardNo)?.Effect == PlayHandArmamentThenAttachEffect;
+        => context is not null && UnitEventSpecForContext(context)?.Effect == PlayHandArmamentThenAttachEffect;
 
     private static bool IsArmamentPlayAttachmentPermission(StackItemState parent)
         => parent.EffectKind == UnitEventEffect && HasArmamentPlayAttachment(parent.UnitEvent)
@@ -69,7 +69,7 @@ public sealed partial class CoreRuleEngine
         if (context.Other is not { TokenFactoryCardNo: null } gear || context.Mode is not null
             || context.ReflexiveTick <= context.CapturedTick || context.ReflexiveTick > state.Tick
             || !CardBehaviorRegistry.TryGetByCardNo(gear.CardNo, out var definition) || !definition.PlaysSourceToBaseAsEquipment
-            || OfficialArmamentCatalog.Find(gear.CardNo) is null || definition.ManaCost > UnitEventSpec(context.CardNo)!.Amount
+            || OfficialArmamentCatalog.Find(gear.CardNo) is null || definition.ManaCost > UnitEventSpecForContext(context)!.Amount
             || !PredictBindingMatches(state, gear.Binding, gear.CardNo, gear.FaceRevision, context.ReflexiveTick.Value, null)) return false;
         // CN420.4 / CN389: only a successfully played armament earns this
         // separate skill. Its original resolved play remains the authority.

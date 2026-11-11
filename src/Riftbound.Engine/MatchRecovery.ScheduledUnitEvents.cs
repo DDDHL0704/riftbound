@@ -9,13 +9,13 @@ public static partial class MatchRecoveryValidator
         var boundary = CurrentGameAcceptedEventBoundary(state, commands, events);
         foreach (var record in events.Where(record => record.Sequence > boundary))
         {
-            if (record.Event.Kind is not ("DELAYED_UNIT_EVENT_CREATED" or "DELAYED_UNIT_EVENT_TRIGGERED")) continue;
+            if (record.Event.Kind is not ("DELAYED_UNIT_EVENT_CREATED" or "DELAYED_UNIT_EVENT_TRIGGERED" or "DELAYED_UNIT_EVENT_RETIRED")) continue;
             if (!commands.Any(command => command.Accepted && command.CompletedTick == record.Tick
                     && command.StartedEventSequence < record.Sequence && command.CompletedEventSequence >= record.Sequence))
             { errors.Add("scheduled unit event lacks original accepted creation or occurrence"); continue; }
             if (!TryReadObjectString(record.Event.Payload, "scheduleId", out var id) || string.IsNullOrWhiteSpace(id))
             { errors.Add("missing original scheduled unit-event identity"); continue; }
-            if (record.Event.Kind == "DELAYED_UNIT_EVENT_TRIGGERED")
+            if (record.Event.Kind is "DELAYED_UNIT_EVENT_TRIGGERED" or "DELAYED_UNIT_EVENT_RETIRED")
             {
                 if (!pending.Remove(id)) errors.Add("scheduled unit event fired without its original creation");
                 continue;

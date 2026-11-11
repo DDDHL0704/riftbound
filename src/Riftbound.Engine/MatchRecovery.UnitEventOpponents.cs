@@ -26,7 +26,9 @@ public static partial class MatchRecoveryValidator
             foreach (var entry in events.Where(entry => entry.Sequence > boundary && entry.Tick <= frame.Tick
                 && entry.Event.Kind is "STACK_ITEM_RESOLVED" or "STACK_ITEM_COUNTERED"))
                 if (TryReadObjectString(entry.Event.Payload, "stackItemId", out var id) && id is not null) pending.Remove(id);
-            var items = frame.StackItems.Where(item => item.UnitEvent?.ChosenOpponentId is not null).ToArray();
+            // An earned delayed skill inherits the opponent from its original
+            // scheduled-unit-event receipt, rather than choosing a new player.
+            var items = frame.StackItems.Where(item => item.UnitEvent is { ChosenOpponentId: not null, DelayedReceipt: null }).ToArray();
             foreach (var item in items)
                 if (!pending.TryGetValue(item.StackItemId, out var original)
                     || original.Tick != item.UnitEvent!.OpponentConfirmedAtTick

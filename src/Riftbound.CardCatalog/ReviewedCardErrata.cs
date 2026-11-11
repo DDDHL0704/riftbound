@@ -21,6 +21,10 @@ internal static class ReviewedCardErrata
         // SHA256 d0b1e139a35e5bced809bf5656789b019692e07880d0265e99f9bd11d8179f01.
         : id == 33198 && cardNo == "SFD·112/221"
             ? printedText.Replace("让一名友方单位在本回合内获得我的关键词", "让另一名友方单位在本回合内获得我的关键词", StringComparison.Ordinal)
+        // CN SFD errata 260114, PDF p5 (same SHA256 as SFD003 above).
+        // All places, armaments only; preserve the acquired API snapshot.
+        : (id == 33131 && cardNo == "SFD·054/221" || id == 33132 && cardNo == "SFD·054a/221")
+            ? printedText.Replace("你手牌中的每一件武装都获得{{灵便}}。", "你各处的武装都获得{{灵便}}。", StringComparison.Ordinal)
         // CN official 2026-10-16 catalog, exact record 31240 / OGN·032.
         // The errata limits the delayed passive to this turn (core 392).
         : id == 31240 && cardNo == "OGN·032/298"

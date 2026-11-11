@@ -5,7 +5,7 @@ public sealed partial class CoreRuleEngine
     // The original capture also determines which skills must still exist.
     // Checking only the surviving objects cannot detect an erased grant.
     internal static bool RequiresObservedUnitEventHistory(UnitEventContext? context)
-        => HasArmamentPlayAttachment(context)
+        => context?.Timing == AgilePlayTiming || HasArmamentPlayAttachment(context)
             || context?.Timing is UnitEventTimings.PrintedPowerCardPlayed or UnitEventTimings.BoonConsumed
                 or UnitEventTimings.PlayerDefend or UnitEventTimings.FriendlyUnitTargeted
                 or ArmamentLastBreathRules.Timing or FirstFriendlyStartPhaseDeathTiming or SpellInstructionReflexiveTiming or "FRIENDLY_UNIT_PLAYED" or "START" or OpponentScoringActionTiming
@@ -14,9 +14,10 @@ public sealed partial class CoreRuleEngine
             || context is not null && SelectedUnitEventSpec(context)?.RequiredFriendlyUnitTagsAtTrigger is not null
             || context?.AssignedOverkill is not null || context?.RequiredUnitDestruction is not null
             || context?.Origin?.ArmamentGranted == true
-            || context is not null && HasSourcePlayCondition(UnitEventSpec(context.CardNo))
-            || context?.Timing == "PLAY" && SelectedUnitEventSpec(context) is { UnitTokenPlayedByChosenOpponent: true } or { ReturnAllUnitsMaximumMight: not null }
-                or { ExemptsControllerIfExperiencePaid: true } or { GraveyardReturnAnyTags: not null }
+            || context is not null && HasSourcePlayCondition(UnitEventSpecForContext(context))
+            || context?.Timing == "PLAY" && (UnitEventRequiresOpponent(SelectedUnitEventSpec(context))
+                || SelectedUnitEventSpec(context) is { ReturnAllUnitsMaximumMight: not null }
+                    or { ExemptsControllerIfExperiencePaid: true } or { GraveyardReturnAnyTags: not null })
             || context is not null && UnitEventSpecForContext(context) is { Effect: UnitEventLookUnitEffect, DeckSelection: not null }
             || context?.TriggeringBattlefield is not null || context?.DelayedReceipt is not null;
 
@@ -44,8 +45,12 @@ public sealed partial class CoreRuleEngine
             capture = MatchStateHasher.HashValue(new { capture, context.PaidLegendPlayCost });
         if (context.RevealedDeckSelection is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.RevealedDeckSelection });
+        if (context.AgilePlayGrant is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.AgilePlayGrant });
         if (context.TriggeringBattlefield is not null || context.DelayedReceipt is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.TriggeringBattlefield, context.DelayedReceipt });
+        if (context.HandExile is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.HandExile });
         return HasArmamentPlayAttachment(context)
             ? MatchStateHasher.HashValue(new { hash = capture, context.ReflexiveTick }) : capture;
     }

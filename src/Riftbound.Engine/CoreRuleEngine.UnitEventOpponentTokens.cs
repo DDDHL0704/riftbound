@@ -7,6 +7,8 @@ public sealed partial record UnitEventAbilitySpec
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool UnitTokenPlayedByChosenOpponent { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool RequiresChosenOpponent { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ReturnAllUnitsMaximumMight { get; init; }
 }
@@ -24,9 +26,12 @@ public sealed partial class CoreRuleEngine
     internal const string UnitEventOpponentWindow = "UNIT_EVENT_CHOSEN_OPPONENT";
     internal const string ReturnLowMightUnitsEffect = "RETURN_ALL_LOW_MIGHT_UNITS";
 
+    private static bool UnitEventRequiresOpponent(UnitEventAbilitySpec? spec)
+        => spec is { RequiresChosenOpponent: true } or { UnitTokenPlayedByChosenOpponent: true };
+
     private static bool NeedsUnitEventOpponent(StackItemState item)
         => item.UnitEvent is { ChosenOpponentId: null } context
-            && SelectedUnitEventSpec(context)?.UnitTokenPlayedByChosenOpponent == true;
+            && UnitEventRequiresOpponent(SelectedUnitEventSpec(context));
 
     internal static bool ValidUnitEventOpponentChoice(MatchState state, PendingCardChoiceState choice)
     {
@@ -42,7 +47,7 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool ValidUnitEventOpponent(MatchState state, UnitEventContext context, UnitEventAbilitySpec spec, string? controller)
-        => !spec.UnitTokenPlayedByChosenOpponent ? context.ChosenOpponentId is null && context.OpponentConfirmedAtTick is null
+        => !UnitEventRequiresOpponent(spec) ? context.ChosenOpponentId is null && context.OpponentConfirmedAtTick is null
             : context.ChosenOpponentId is null ? context.OpponentConfirmedAtTick is null
             : state.Seats.ContainsKey(context.ChosenOpponentId) && context.ChosenOpponentId != controller
                 && context.OpponentConfirmedAtTick is { } tick && tick >= context.CapturedTick && tick <= state.Tick;

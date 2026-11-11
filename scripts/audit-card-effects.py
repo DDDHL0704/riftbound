@@ -720,6 +720,19 @@ def reviewed_clause_route(card: dict, clause: dict, sources: Sources) -> dict | 
         for entry in record["evidence"]:
             path = sources.root / entry["path"]
             code = re.sub(r"/\*.*?\*/|//[^\n]*", "", path.read_text(), flags=re.S) if path.exists() else ""
+            # Opt-in member evidence cannot borrow a matching fragment from
+            # another method or an unused lookalike elsewhere in the file.
+            if "member" in entry:
+                member = entry["member"]
+                declarations = list(re.finditer(
+                    r"(?m)^    (?:private|internal|public) (?:static )?[^()\n=;{}]+?\b"
+                    + re.escape(member) + r"\s*\(", code)) if isinstance(member, str) and member.strip() else []
+                if len(declarations) == 1:
+                    start = declarations[0]
+                    end = re.search(r"(?m)^    (?:private|internal|public)\b", code[start.end():])
+                    code = code[start.start():start.end() + end.start()] if end else code[start.start():]
+                else:
+                    code = ""
             if not entry.get("contains") or not all(fragment in code for fragment in entry["contains"]):
                 stale.append(entry["path"])
             evidence.append(entry["path"])
@@ -1640,8 +1653,8 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
             'CaptureFirstBattleRoles(', 'CaptureAttackUnitEvents(state, firstAttackers,', '.Select(BuildTriggerQueuedEvent)']),
         ('CoreRuleEngine.UnitEvents.cs', 'NeedsUnitEventTarget', ['FriendlyUnitTokensMoveHere']),
         ('CoreRuleEngine.UnitEvents.cs', 'UnitEventChoice', [
-            'UnitEventSpec(item.UnitEvent.CardNo)!.Optional ? 0 : 1',
-            'UnitEventSpec(item.UnitEvent.CardNo)!.AnyNumberOfTargets ? legal.Length : 1']),
+            'UnitEventSpecForContext(item.UnitEvent)!.Optional ? 0 : 1',
+            'UnitEventSpecForContext(item.UnitEvent)!.AnyNumberOfTargets ? legal.Length : 1']),
         ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEventTargets', [
             'AnyNumberOfTargets || item.TargetObjectIds.Count == 1',
             'item.TargetObjectIds.Distinct(StringComparer.Ordinal).Count() == item.TargetObjectIds.Count',
@@ -2428,7 +2441,7 @@ def provided_armament_keyword_route(card: dict, clause: dict, sources: Sources) 
             '.Concat(provided.GetValueOrDefault(',
         ],
         'CoreRuleEngine.RuleDerivedKeywords.cs': [
-            'var armamentKeywords = AttachedArmamentKeywordGrants(state);',
+            'var armamentKeywords = AttachedArmamentKeywordGrants(state)',
             '.Concat(armamentKeywords.GetValueOrDefault(id) ?? [])',
             'var amount = keywords.Sum(k => CombatKeywordAmount([k], counted));',
             'RuleDerivedTags = derived.Length == 0 ? null : derived',
@@ -2443,7 +2456,16 @@ def provided_armament_keyword_route(card: dict, clause: dict, sources: Sources) 
         ],
     }
     evidence = ['src/Riftbound.Engine/' + name for name in requirements]
-    if not all(all(token in sources.files.get('src/Riftbound.Engine/' + name, '') for token in tokens)
+    # The provider can be composed with another shared keyword layer. Bind
+    # its assignment and consumption to the real recompute member rather
+    # than requiring a terminating semicolon or accepting an unused decoy.
+    layer = re.search(r'(?ms)^    private static MatchState RecomputeConditionalRuleDerivedKeywords\(.*?'
+                      r'(?=^    (?:private|internal|public) |\Z)',
+                      sources.files.get('src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs', ''))
+    def code(name):
+        return (layer[0] if layer else '') if name == 'CoreRuleEngine.RuleDerivedKeywords.cs' \
+            else sources.files.get('src/Riftbound.Engine/' + name, '')
+    if not all(all(token in code(name) for token in tokens)
                for name, tokens in requirements.items()):
         return result('missing', '缺少按武装控制者持续提供宿主关键词及共享当前关键词读取的完整执行路径', evidence)
     if 'CountLucianLegendEquipmentAssaultBonus(' in sources.files.get('src/Riftbound.Engine/CoreRuleEngine.cs', ''):
@@ -3379,6 +3401,86 @@ def source_play_condition_movement_route(card: dict, clause: dict, sources: Sour
         'missing', '缺少背面／己方回合的原始打出条件、独立敌方单位移动，或来源代际及原始捕获校验')
 
 
+def attack_conquest_overkill_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause['text']))
+    expected_text = normalize('当我通过进攻征服一处战场时，如果你给敌方单位造成了不低于5点的过量伤害，则你可以选择对一名敌方单位造成等同于该过量伤害的伤害。')
+    if text != expected_text:
+        return None
+    expected = dict(timing='CONQUEST', effect='DAMAGE_ENEMY_UNIT',
+                    optional=True, minimumAssignedOverkill=5,
+                    requiresAttackingConquest=True, damageUsesAssignedOverkill=True)
+    spec = card.get('unitEventAbility') or {}
+    exact = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == text \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} \
+        and any(b.get('playsSourceToBaseAsUnit') is True for b in card.get('behaviors', [])) \
+        and all(type(spec.get(k)) is type(v) and spec.get(k) == v for k, v in expected.items()) \
+        and not any(meaningful(v) for k, v in spec.items() if k not in expected)
+    prefix = 'src/Riftbound.Engine/'
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        declarations = list(re.finditer(
+            r'(?m)^    (?:private|internal|public) (?:static )?[^()\n=;{}]+?\b'
+            + re.escape(name) + r'\s*\(', code))
+        if len(declarations) != 1:
+            return ''
+        start = declarations[0]
+        end = re.search(r'(?m)^    (?:private|internal|public)\b', code[start.end():])
+        return code[start.start():start.end() + end.start()] if end else code[start.start():]
+
+    checks = [
+        ('CoreRuleEngine.Conquest.cs', 'ResolveConquestTriggerEffects', [
+            'CaptureConquestUnitEvents(', 'battlefieldId, assignedOverkillDamageToEnemyUnits)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureConquestUnitEvents', [
+            'CaptureConquestEventObservations(state, conquerors, assignedOverkill)',
+            '.Select(o => CaptureUnitEventFacts(state, o))']),
+        ('CoreRuleEngine.ConquestUnitEvents.cs', 'CaptureConquestEventObservations', [
+            'UnitEventSpecForContext(o.Context)?.RequiresAttackingConquest != true',
+            'state.CardObjects.TryGetValue(o.Source, out var source) && source.IsAttacking',
+            'MinimumAssignedOverkill is not { } minimum', 'assignedOverkill >= minimum',
+            'AssignedOverkill = UnitEventSpecForContext(o.Context)?.MinimumAssignedOverkill is not null ? assignedOverkill : null']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEvent', [
+            'spec.MinimumAssignedOverkill is { } minimum',
+            'c.AssignedOverkill is { } assigned && assigned >= minimum : c.AssignedOverkill is null']),
+        ('CoreRuleEngine.UnitEventModes.cs', 'SelectedUnitEventSpec', [
+            'spec?.DamageUsesAssignedOverkill == true', 'context.AssignedOverkill is { } assigned',
+            'Amount = assigned']),
+        ('CoreRuleEngine.UnitEvents.cs', 'NeedsUnitEventTarget', ['UnitEventEnemyDamageEffect']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventTargets', [
+            'UnitEventEnemyDamageEffect or "STUN_ENEMY" => IsFaceUpNonStandbyUnit(c)',
+            'EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId',
+            'TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventChoice', [
+            '"TRIGGER_CONFIRMATION"', 'UnitEventSpecForContext(item.UnitEvent)!.Optional ? 0 : 1']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', [
+            'if (spec.Effect is UnitEventEnemyDamageEffect or RuneDomainDamageEffect or ArmamentUnitEventRules.FixedDamageEffect)', 'return ResolveRuneDomainDamage(state, item, spec)']),
+        ('CoreRuleEngine.RuneDomainReveal.cs', 'ResolveRuneDomainDamage', [
+            'StackObjectRules.ReferencesCurrentObject(state, item, target)',
+            'UnitEventTargets(state, item).Contains(target)',
+            'target, spec.Amount,', 'onlyPrimary: spec.Effect != RuneDomainDamageEffect']),
+        ('CoreRuleEngine.DeployedEquipment.cs', 'ResolveUnitEventAreaDamage', [
+            'onlyPrimary ? primary is null ? [] : new[] { primary } : UnitEventEnemiesHere(state, item)',
+            'ApplySpellSkillDamageBonuses(', 'ApplyDamageToCardObject(', 'RunStateBasedCleanupLoop(']),
+        ('CoreRuleEngine.ObservedUnitEvents.cs', 'RequiresObservedUnitEventHistory', [
+            'context?.AssignedOverkill is not null']),
+        ('CoreRuleEngine.ObservedUnitEvents.cs', 'ObservedUnitEventCaptureHash', [
+            'HashValue(new { capture, context.AssignedOverkill })']),
+        ('MatchRecovery.ObservedUnitEvents.cs', 'ValidateObservedUnitEventHistory', [
+            'CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)',
+            'command.Accepted', '!expected.SetEquals(current.Select(item => item.Id))']),
+        ('MatchRecovery.UnitEventTargets.cs', 'ValidateUnitEventTargetHistory', [
+            'targets.SequenceEqual(item.TargetObjectIds)', 'MatchStateHasher.HashValue(item.TargetGenerations)',
+            'command.Accepted']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens)
+                         for filename, name, tokens in checks)
+    evidence = sorted({prefix + filename for filename, _, _ in checks})
+    return result('route' if exact else 'missing',
+        '共享征服流程捕获实际进攻的原始过量伤害；确认可选敌方目标及法盾费用，响应后按原数值独立伤害，核对原始捕获、目标和退场历史' if exact else
+        '缺少进攻征服条件、至少5点过量伤害的不可变捕获、任意位置敌方目标或独立伤害／历史校验', evidence)
+
+
+
 def attack_armament_play_attachment_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause['text']))
     expected_text = normalize('当我进攻时，你可以选择打出一件法力费用不高于{{2}}的武装，无视其费用，然后将其贴附到我身上。')
@@ -3476,6 +3578,97 @@ def attack_armament_play_attachment_route(card: dict, clause: dict, sources: Sou
     evidence = sorted({prefix + filename for filename, _, _ in checks})
     return result('route', '进攻时先确认可选发动，结算时真实打出手牌中法力至多2的武装，仅免基础费用；成功打出后创建独立贴附技能，绑定原武装与来源代际，并与灵便共用触发排序及原始历史校验', evidence) if exact else result(
         'missing', '缺少限定武装的真实效果打出、独立内嵌贴附、共同排序，或原始对象／付款／捕获历史校验')
+
+
+def chosen_opponent_hand_exile_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentences = [normalize(unparenthesize(text)) for text in [
+        '当你打出我时，选择一名对手。', '让该对手展示自己的手牌。',
+        '选择一张对手以此方式展示的卡牌，将其放逐。',
+        '当该对手据守一处战场时，让这张被放逐的牌返回其手牌（即使我已经不在场上）。']]
+    text = normalize(unparenthesize(clause['text']))
+    if text not in sentences or not all(sentence in normalize(unparenthesize(card.get('cardEffect', '')))
+                                       for sentence in sentences):
+        return None
+    index = sentences.index(text)
+    expected = dict(timing='PLAY', effect='BANISH_CHOSEN_OPPONENT_HAND_UNTIL_HOLD',
+                    requiresChosenOpponent=True, nextOpponentHoldEffect='RETURN_CAPTURED_HAND_EXILE')
+    profiles = card.get('behaviors', [])
+    exact = clause['kind'] == 'trigger' and card.get('cardCategory') in {'unit', 'hero_unit'} \
+        and normalize(unparenthesize(clause['scope'])) == sentences[0 if index < 3 else 3] \
+        and all(sentence in normalize(unparenthesize(card.get('cardEffect', ''))) for sentence in sentences) \
+        and inventory_contains(card.get('unitEventAbility'), expected) and len(profiles) == 1 \
+        and inventory_contains(profiles[0], dict(playsSourceToBaseAsUnit=True, unitEventAbility=expected))
+    prefix = 'src/Riftbound.Engine/'
+
+    def member(filename, name):
+        code = re.sub(r'/\*.*?\*/|//[^\n]*', '', sources.files.get(prefix + filename, ''), flags=re.S)
+        declarations = list(re.finditer(
+            r'(?m)^    (?:private|internal|public) (?:static )?[^()\n=;{}]+?\b'
+            + re.escape(name) + r'\s*\(', code))
+        if len(declarations) != 1:
+            return ''
+        start = declarations[0]
+        end = re.search(r'(?m)^    (?:private|internal|public)\b', code[start.end():])
+        return code[start.start():start.end() + end.start()] if end else code[start.start():]
+
+    checks = [
+        ('CoreRuleEngine.cs', 'ResolveStackItemEffectCore', ['if (stackItem.UnitEvent is not null) return ResolveUnitEvent(state, stackItem)']),
+        ('CoreRuleEngine.cs', 'ResolveChooseCardsRuntime', ['pendingChoice.ChoiceWindow == "REVEALED_HAND_EFFECT"', 'ResolveRevealedHandChoice(']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEvent', ['ResolveUnitEventInstruction(state, item)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEvent', ['ValidCapturedHandExile(state, c, spec)']),
+        ('CoreRuleEngine.InformationPermissions.cs', 'TryGetRevealedHandChoiceSpec', ['SelectedUnitEventSpec(unit)?.Effect == BanishChosenOpponentHandEffect', 'RevealedHandAction.Banish']),
+        ('CoreRuleEngine.UnitEventOpponentTokens.cs', 'UnitEventRequiresOpponent', ['RequiresChosenOpponent: true']),
+        ('CoreRuleEngine.UnitEventOpponentTokens.cs', 'NeedsUnitEventOpponent', ['UnitEventRequiresOpponent(SelectedUnitEventSpec(context))']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'PrepareTriggerConfirmation', ['NeedsUnitEventOpponent(item)', 'PrepareCapturedOpponentChoice(']),
+        ('CoreRuleEngine.UnitEventOpponentTokens.cs', 'ResolveUnitEventOpponentChoice', [
+            'ChosenOpponentId = selected[0]', 'OpponentConfirmedAtTick = state.Tick + 1', 'UnitEventOpponentConfirmationHash(confirmed)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', ['BanishChosenOpponentHandEffect',
+            'item.CompletedHandExecutions > 0', 'BeginRevealedHandChoice(', 'ReturnCapturedHandExile(state, item)']),
+        ('CoreRuleEngine.RevealedHandChoices.cs', 'BeginRevealedHandChoice', ['RevealedHandOwner(state, item)',
+            'state.PlayerZones[owner].Hand', 'HAND_REVEALED', 'MatchStateHasher.HashValue(choice.HandContext)']),
+        ('CoreRuleEngine.RevealedHandChoices.cs', 'ResolveRevealedHandChoice', ['BanishRevealedHandCard(',
+            'CompletedHandExecutions = item.CompletedHandExecutions + 1', 'ScheduledUnitEvents = schedule is null',
+            'RedactUnitEventSourceEvents(state, item, events)']),
+        ('CoreRuleEngine.RevealedHandChoices.cs', 'ValidRevealedHandChoice', ['context.OwnerId != RevealedHandOwner(state, top)',
+            'context.Cards.Any(', 'context.StackItemId != top.StackItemId']),
+        ('CoreRuleEngine.UnitEvents.cs', 'RedactUnitEventSourceEvents', ['if (item.UnitEvent is null)',
+            'VisibleObjectIdForViewer(', 'ProjectionViewers.Spectator', 'GetValueOrDefault("sourceObjectId")']),
+        ('CoreRuleEngine.HandExileReturn.cs', 'RevealedHandOwner', ['UnitEventRequiresOpponent(UnitEventSpecForContext(context))', 'return context.ChosenOpponentId']),
+        ('CoreRuleEngine.HandExileReturn.cs', 'BanishRevealedHandCard', ['RemoveFromZone(zones[owner].Hand, id)',
+            'Banished = zones[owner].Banished.Append(id)', 'ResetCardOutsidePlay(', 'CaptureOwnedBanishObservers(',
+            'new(id, banished.ObjectGeneration)', 'CaptureScheduledUnitEvent(state, item, context)']),
+        ('CoreRuleEngine.ScheduledUnitEvents.cs', 'ValidPendingScheduledUnitEvent', ['ScheduledUnitEventLinkIsCurrent(state, schedule)',
+            'receipt.Id == ScheduledUnitEventId(', 'ValidUnitEvent(state, context']),
+        ('CoreRuleEngine.ScheduledUnitEvents.cs', 'QueueNextMainUnitEvents', ['NextMainEffect is not null']),
+        ('CoreRuleEngine.ScheduledUnitEvents.cs', 'QueueOpponentHoldUnitEvents', ['fields.Count == 0',
+            'schedule.Context.ChosenOpponentId == state.TurnPlayerId', 'NextOpponentHoldEffect is not null',
+            'QueueScheduledUnitEvents(state, due, "BATTLEFIELD_HELD", events)']),
+        ('CoreRuleEngine.TurnSequence.cs', 'AdvanceTurnStartSequence', ['QueueHeldAbilities(state, heldFields, events)',
+            'QueueOpponentHoldUnitEvents(state, heldFields, events)']),
+        ('CoreRuleEngine.ScheduledUnitEvents.cs', 'QueueScheduledUnitEvents', ['FiredTick = RuleChoices.Value?.CompletionTick',
+            'DelayedReceipt = receipt', 'UnitEventTrigger(', 'timingSourceHash', '.Except(due)']),
+        ('CoreRuleEngine.UnitEventModes.cs', 'SelectedUnitEventSpec', ['context.DelayedReceipt is not null',
+            'spec?.NextOpponentHoldEffect', 'Effect = holdEffect, Optional = false']),
+        ('CoreRuleEngine.HandExileReturn.cs', 'ReturnCapturedHandExile', ['own.Banished.Contains(exile.Card.ObjectId)',
+            'card.ObjectGeneration != exile.Card.Generation', 'ResetCardOutsidePlay(', 'Hand = own.Hand.Append(card.ObjectId)']),
+        ('CoreRuleEngine.HandExileReturn.cs', 'ValidCapturedHandExile', ['exile.OwnerId == context.ChosenOpponentId',
+            'PredictBindingMatches(state, exile.Card', 'exile.BanishedTick <= state.Tick']),
+        ('CoreRuleEngine.HandExileReturn.cs', 'RetireDepartedScheduledUnitEvents', ['!ScheduledUnitEventLinkIsCurrent(',
+            'DELAYED_UNIT_EVENT_RETIRED', '.Except(retired)']),
+        ('CoreRuleEngine.ObjectContinuity.cs', 'ApplyObjectContinuity', ['RetireDepartedScheduledUnitEvents(']),
+        ('MatchRecovery.ScheduledUnitEvents.cs', 'ValidateScheduledUnitEventHistory', ['command.Accepted',
+            'DELAYED_UNIT_EVENT_RETIRED', 'pending.Remove(id)', 'MatchStateHasher.HashValue(schedule) != original.Hash']),
+        ('MatchRecovery.UnitEventHandChoices.cs', 'ValidateUnitEventHandChoiceHistory', ['command.Accepted',
+            'originalHash != MatchStateHasher.HashValue(actual.HandContext)', 'executions.Length != item.CompletedHandExecutions',
+            'SetEquals(actual is null']),
+        ('MatchRecovery.ObservedUnitEvents.cs', 'ValidateObservedUnitEventHistory', ['ValidateUnitEventHandChoiceHistory(',
+            'CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens)
+                          for filename, name, tokens in checks)
+    return result('route', '先确认对手，响应后展示其当前手牌并真实放逐；独立延迟技能仅在该对手实际据守时取回原放逐代际，离开关联区域即退休，恢复校验原始观察、选择及延迟记录',
+                  sorted({prefix + filename for filename, _, _ in checks})) if exact else result(
+        'missing', '缺少指定对手的展示／真实放逐、据守关联返手消费者，或对象代际与原始接受记录校验')
 
 
 def revealed_unit_deck_selection_route(card: dict, clause: dict, sources: Sources) -> dict | None:
@@ -3589,6 +3782,10 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         if matched["status"] != "route" and (reviewed := reviewed_clause_route(card, clause, sources)):
             return reviewed
         return matched
+    if hand_exile := chosen_opponent_hand_exile_route(card, clause, sources):
+        return hand_exile
+    if attack_overkill := attack_conquest_overkill_route(card, clause, sources):
+        return attack_overkill
     if armament_play := attack_armament_play_attachment_route(card, clause, sources):
         return armament_play
     if deck_selection := revealed_unit_deck_selection_route(card, clause, sources):

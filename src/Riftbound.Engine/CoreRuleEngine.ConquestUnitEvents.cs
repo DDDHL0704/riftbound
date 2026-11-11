@@ -9,6 +9,10 @@ public sealed partial record UnitEventAbilitySpec
     [JsonIgnore] public bool FirstConquestOfTurn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? MinimumAssignedOverkill { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool RequiresAttackingConquest { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool DamageUsesAssignedOverkill { get; init; }
 }
 
 public sealed partial record UnitEventContext
@@ -56,12 +60,16 @@ public sealed partial class CoreRuleEngine
 
     private static IEnumerable<UnitEventObservation> CaptureConquestEventObservations(MatchState state, IEnumerable<string> units, int assignedOverkill = 0)
         => CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, "CONQUEST")
+            // CN383.2.a.1 / 468.5–468.7: test attack status at the actual
+            // conquest, before it is cleared. Responses cannot revoke it.
+            .Where(o => UnitEventSpecForContext(o.Context)?.RequiresAttackingConquest != true
+                || state.CardObjects.TryGetValue(o.Source, out var source) && source.IsAttacking)
             .Where(o => UnitEventSpecForContext(o.Context)?.MinimumAssignedOverkill is not { } minimum
                 || assignedOverkill >= minimum)
-            .Where(o => UnitEventSpec(o.Context.CardNo)?.FirstConquestOfTurn != true
+            .Where(o => UnitEventSpecForContext(o.Context)?.FirstConquestOfTurn != true
                 || !state.UntilEndOfTurnEffects.Contains(FirstConquestUse(o.Source, o.Context), StringComparer.Ordinal))
             .Select(o => o with { Context = o.Context with {
-                FirstConquestTurn = UnitEventSpec(o.Context.CardNo)?.FirstConquestOfTurn == true ? state.TurnNumber : null,
+                FirstConquestTurn = UnitEventSpecForContext(o.Context)?.FirstConquestOfTurn == true ? state.TurnNumber : null,
                 AssignedOverkill = UnitEventSpecForContext(o.Context)?.MinimumAssignedOverkill is not null ? assignedOverkill : null } });
 
     private static ResolutionResult RecordFirstConquestUses(ResolutionResult result)

@@ -218,7 +218,7 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.FirstOrDefault(NeedsTriggerConfirmation);
         if (item is null) return result;
         if (NeedsUnitEventOpponent(item)) return PrepareCapturedOpponentChoice(result, item,
-            UnitEventOpponentWindow, "UNIT-OPPONENT:", "选择一名对手；双方响应后，由其打出单位指示物。");
+            UnitEventOpponentWindow, "UNIT-OPPONENT:", "选择一名对手；确认后双方可以响应。");
         if (item.EffectKind == StandbyPlayedEnemyDamageEffect && item.StandbyObserver?.Unit is not null)
             return PrepareStandbyUnitDamage(result, item);
         if (NeedsLastBreathHereTarget(item)) return PrepareLastBreathHereTarget(result, item);
@@ -351,7 +351,7 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "所选目标组合不满足技能条件。", ErrorCodes.InvalidTarget);
         var next = state with { Tick = state.Tick + (advanceTick ? 1 : 0), PendingCardChoice = null };
         if (selected.Count == 0 && item.CreatedTokenReady is null && item.HighCostPlayObserver is null
-            && !(item.UnitEvent is { } unitEvent && UnitEventSpec(unitEvent.CardNo)!.Effect == PlayedUnitReadyRunes)) return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
+            && !(item.UnitEvent is { } unitEvent && UnitEventSpecForContext(unitEvent)!.Effect == PlayedUnitReadyRunes)) return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
         var tax = ResolveSpellshieldTargetTaxPower(state, item.ControllerId, selected, out _);
         var bound = item with { TargetObjectIds = selected.ToArray(), TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
         if (item.BattlefieldConquestReadyEquipment is { } equipmentContext)

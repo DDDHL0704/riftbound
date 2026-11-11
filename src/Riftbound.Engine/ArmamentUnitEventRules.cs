@@ -74,8 +74,8 @@ internal static class ArmamentUnitEventRules
             return (definition.CardNo, Spec: spec is null ? null : spec with { GrantedByArmament = true });
         }).Where(row => row.Spec is not null).ToDictionary(row => row.CardNo, row => row.Spec!, StringComparer.Ordinal));
 
-    internal static UnitEventAbilitySpec? Spec(string no)
-        => Specs.Value.GetValueOrDefault(no) ?? ArmamentLastBreathRules.Spec(no);
+    internal static UnitEventAbilitySpec? Spec(string? no)
+        => string.IsNullOrWhiteSpace(no) ? null : Specs.Value.GetValueOrDefault(no) ?? ArmamentLastBreathRules.Spec(no);
 
     internal static IEnumerable<RuleTextInstance> Instances(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState host)

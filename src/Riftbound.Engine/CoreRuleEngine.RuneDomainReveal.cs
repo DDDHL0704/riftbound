@@ -12,13 +12,13 @@ public sealed partial class CoreRuleEngine
     internal const string RuneDomainReflexiveCreatedEvent = "RUNE_DOMAIN_REFLEXIVE_CREATED";
 
     private static bool RuneDomainModeApplies(UnitEventContext context, UnitEventModeSpec mode)
-        => UnitEventSpec(context.CardNo)?.Effect != RuneDomainRevealEffect
+        => UnitEventSpecForContext(context)?.Effect != RuneDomainRevealEffect
             || context.RevealedRune is { } rune && mode.RequiredRevealedRuneTrait is { } trait
                 && rune.Traits.Contains(trait, StringComparer.Ordinal);
 
     private static bool ValidRevealedRuneContext(MatchState state, UnitEventContext context, string? controller)
     {
-        if (UnitEventSpec(context.CardNo)?.Effect != RuneDomainRevealEffect) return context.RevealedRune is null;
+        if (UnitEventSpecForContext(context)?.Effect != RuneDomainRevealEffect) return context.RevealedRune is null;
         if (context.RevealedRune is not { } revealed) return context.Mode is null && context.ReflexiveTick is null;
         if (revealed.Rune is not { Generation: >= 0 } || string.IsNullOrWhiteSpace(revealed.Rune.ObjectId)
             || revealed.FaceRevision < 0 || revealed.RevealedTick < context.CapturedTick || revealed.RevealedTick > state.Tick
@@ -30,7 +30,7 @@ public sealed partial class CoreRuleEngine
             || !PredictBindingMatches(state, revealed.Rune, revealed.CardNo, revealed.FaceRevision, revealed.RevealedTick, null)
             || !state.CardObjects.TryGetValue(revealed.Rune.ObjectId, out var card)
             || controller is not null && card.OwnerId != controller) return false;
-        var eligible = (UnitEventSpec(context.CardNo)!.Modes ?? []).Where(mode => RuneDomainModeApplies(context, mode)).ToArray();
+        var eligible = (UnitEventSpecForContext(context)!.Modes ?? []).Where(mode => RuneDomainModeApplies(context, mode)).ToArray();
         return context.Mode is null ? eligible.Length > 1 : eligible.Any(mode => mode.Id == context.Mode);
     }
 
@@ -56,7 +56,7 @@ public sealed partial class CoreRuleEngine
             RevealedRune = new(new(top, rune.ObjectGeneration), rune.CardNo!, rune.CopyFaceTransitions?.Count ?? 0,
                 state.Tick + 1, rune.Tags.Where(t => t.StartsWith("COLOR:", StringComparison.Ordinal))
                     .Select(t => t[6..]).Order(StringComparer.Ordinal).ToArray()) };
-        var modes = UnitEventSpec(context.CardNo)!.Modes!.Where(m => RuneDomainModeApplies(context, m)).ToArray();
+        var modes = UnitEventSpecForContext(context)!.Modes!.Where(m => RuneDomainModeApplies(context, m)).ToArray();
         if (modes.Length > 0)
         {
             if (modes.Length == 1) context = context with { Mode = modes[0].Id };

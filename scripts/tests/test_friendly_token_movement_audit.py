@@ -56,8 +56,8 @@ class FriendlyTokenMovementAuditTests(unittest.TestCase):
         self.assertEqual('missing', self.status())
 
     def test_optional_choice_and_any_number_limits_must_be_live(self):
-        for token in ['UnitEventSpec(item.UnitEvent.CardNo)!.Optional ? 0 : 1',
-                'UnitEventSpec(item.UnitEvent.CardNo)!.AnyNumberOfTargets ? legal.Length : 1']:
+        for token in ['UnitEventSpecForContext(item.UnitEvent)!.Optional ? 0 : 1',
+                'UnitEventSpecForContext(item.UnitEvent)!.AnyNumberOfTargets ? legal.Length : 1']:
             with self.subTest(token=token):
                 self.missing_consumer('CoreRuleEngine.UnitEvents.cs', token)
 

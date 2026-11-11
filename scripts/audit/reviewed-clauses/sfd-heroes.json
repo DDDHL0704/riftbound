@@ -515,23 +515,126 @@
         "SFD·054/221",
         "SFD·054a/221"
       ],
-      "text": "你手牌中的每一件武装都获得{{灵便}}。（此牌获得{{反应}}。当你打出此牌时，将它贴附到你控制的一名单位上。）",
-      "scope": "你手牌中的每一件武装都获得{{灵便}}。（此牌获得{{反应}}。当你打出此牌时，将它贴附到你控制的一名单位上。）",
-      "status": "missing",
-      "reason": "按中国区铸魂淬炼勘误260114第5页，范围为各处武装；缺少为其授予灵便的持续规格，现有特定装备的迅捷授予不能替代反应权限及打出后贴附",
+      "text": "你各处的武装都获得{{灵便}}。（此牌获得{{反应}}。当你打出此牌时，将它贴附到你控制的一名单位上。）",
+      "scope": "你各处的武装都获得{{灵便}}。（此牌获得{{反应}}。当你打出此牌时，将它贴附到你控制的一名单位上。）",
+      "status": "route",
+      "reason": "按官方勘误260114授予各处武装灵便；共享关键词层按场外所有者／场上控制者计算，反应权限在声明时判断，成功打出后独立确认贴附目标并排序，来源离场及重新进场不改写原始技能",
       "runtime": {
-        "staticAuras": []
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 5,
+            "sourceUnitTags": "法盾"
+          }
+        ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentKeywordGrants.cs",
           "contains": [
-            "\"SFD_JAX_PLAY_KEYWORD_UNIT\""
+            "EquipmentKeywordGrantParser.Parse(card.CardEffect)",
+            "AllPlacesEquipmentGrantOrigins(state.PlayerZones, state.CardObjects, equipment, CardEquipmentKeywordNames.Agile).Any()",
+            "CanPlayDuringPriority = true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "contains": [
+            "AllPlacesEquipmentKeywords(state)",
+            "everywhereKeywords.ContainsKey(id)",
+            "PrintedObjectKeywords(card)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.AgilePlay.cs",
+          "contains": [
+            "EffectiveFieldControllerId(zones, equipment.ObjectId, equipment) : equipment.OwnerId",
+            "AttachedRuleTextRules.Instances(zones, cards, source)",
+            "g.AllPlaces && g.GrantedKeyword == keyword",
+            "CaptureGrantedAgilePlay(",
+            "ValidAgilePlayGrant(",
+            "state.CardPlays.Resolved.Any(",
+            "gear.ObjectGeneration != item.UnitEvent!.SourceGeneration",
+            "TryAttachEquipment(state, zones, cards"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            ".Concat(CaptureGrantedAgilePlay(zones, cards, entered, player))",
+            "ValidAgilePlayGrant(state, c, source, controller)",
+            "AgilePlayAttachEffect => IsFaceUpNonStandbyUnit(c)",
+            "ResolveAgilePlayAttachment(state, item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "context?.Timing == AgilePlayTiming",
+            "context.AgilePlayGrant"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitPlayMight.cs",
+          "contains": [
+            "trigger.UnitEvent is { Timing: AgilePlayTiming } agile",
+            "ValidAgilePlayGrant(state, agile"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)",
+            "expected.ExceptWith(retired)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "member": "UnitEventSpecForContext",
+          "contains": [
+            "context.Timing == AgilePlayTiming ? AgilePlaySpec",
+            "UnitEventSpecs(context.CardNo).SingleOrDefault(spec => spec.Timing == context.Timing)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "member": "ValidUnitEvent",
+          "contains": [
+            "UnitEventSpecForContext(c) is { } spec",
+            "ValidAgilePlayGrant(state, c, source, controller)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventModes.cs",
+          "member": "SelectedUnitEventSpec",
+          "contains": [
+            "var spec = UnitEventSpecForContext(context)"
           ]
         }
       ],
-      "tests": [],
-      "rules": "中国区铸魂淬炼勘误260114第5页贾克斯新文本；核心364–365、819 灵便、435／718–719"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/JaxEverywhereAgileTests.cs",
+          "methods": [
+            "BothPrintingsGrantReactionAndAnIndependentPostEntryAttachment",
+            "TheEffectiveKeywordAppliesInEveryPlaceButOnlyToYourArmaments",
+            "FieldControlAndOffFieldOwnershipSelectDifferentGrantControllers",
+            "ReactionCanInterruptARealResponseWindowAndDoesNotResolveTheOlderSpell",
+            "AnEnemyGrantOrNonArmamentCannotBorrowTheReactionPermission",
+            "RemovingTheGrantorEndsTheAuraButKeepsTheAlreadyEarnedSkill",
+            "ReturningThePlayedEquipmentCannotAttachItsNewIncarnation",
+            "PrintedAgileAndSeveralGrantorsStillEarnOnlyOneAttachment",
+            "AnIntrinsicArmamentPlaySkillAndGrantedAgileHaveIndependentChosenOrder",
+            "OriginalAcceptedBirthAndEntitlementCannotBeForgedOrErased",
+            "NoFriendlyHostDiscardsOnlyTheSkillAndItCannotBeResurrectedLater",
+            "TheRuntimeCatalogUsesTheReviewedAllPlacesErratumAndKeepsWard",
+            "ARealCopiedImageGrantsAgileAndItsDepartureDoesNotCancelTheEarnedSkill",
+            "RetainedAttachedPrintedTextRemainsActiveWhenItsHostLosesTheUnitType",
+            "InactiveOrPrivatePrintedSourcesCannotGrantAnAllPlacesKeyword"
+          ]
+        }
+      ],
+      "rules": "中国区铸魂淬炼勘误260114第5页、启明FAQ关于失去单位类型后保留武装效果文本；核心135.4、191.4–191.5、383.2–383.3、388–389、435、819.2"
     },
     {
       "cardNos": [
@@ -1197,21 +1300,115 @@
       ],
       "text": "当我通过进攻征服一处战场时，如果你给敌方单位造成了不低于5点的过量伤害，则你可以选择对一名敌方单位造成等同于该过量伤害的伤害。",
       "scope": "当我通过进攻征服一处战场时，如果你给敌方单位造成了不低于5点的过量伤害，则你可以选择对一名敌方单位造成等同于该过量伤害的伤害。",
-      "status": "missing",
-      "reason": "只有法盾2单位登记；缺少进攻征服且过量伤害至少5的条件捕获，以及按该次过量伤害数值伤害敌方单位的独立技能",
+      "status": "route",
+      "reason": "共享征服流程仅在来源实际进攻且分配的过量伤害至少5时捕获AssignedOverkill；确认可选敌方目标及法盾费用后响应，独立技能按原数值结算，复用原始观察与目标历史校验",
       "runtime": {
-        "staticAuras": []
+        "unitEventAbility": {
+          "timing": "CONQUEST",
+          "effect": "DAMAGE_ENEMY_UNIT",
+          "optional": true,
+          "minimumAssignedOverkill": 5,
+          "requiresAttackingConquest": true,
+          "damageUsesAssignedOverkill": true
+        },
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true
+          }
+        ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConquestUnitEvents.cs",
+          "member": "CaptureConquestEventObservations",
           "contains": [
-            "\"SFD_SIVIR_SPELLSHIELD2_PLAY_KEYWORD_UNIT\""
+            "UnitEventSpecForContext(o.Context)?.RequiresAttackingConquest != true",
+            "source.IsAttacking",
+            "assignedOverkill >= minimum",
+            "AssignedOverkill = UnitEventSpecForContext(o.Context)?.MinimumAssignedOverkill is not null ? assignedOverkill : null"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "member": "CaptureConquestUnitEvents",
+          "contains": [
+            "CaptureConquestEventObservations(state, conquerors, assignedOverkill)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "member": "ValidUnitEvent",
+          "contains": [
+            "c.AssignedOverkill is { } assigned && assigned >= minimum : c.AssignedOverkill is null"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "contains": [
+            "CaptureConquestUnitEvents(",
+            "battlefieldId, assignedOverkillDamageToEnemyUnits)"
+          ],
+          "member": "ResolveConquestTriggerEffects"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventModes.cs",
+          "contains": [
+            "spec?.DamageUsesAssignedOverkill == true && context.AssignedOverkill is { } assigned",
+            "Amount = assigned"
+          ],
+          "member": "SelectedUnitEventSpec"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuneDomainReveal.cs",
+          "contains": [
+            "StackObjectRules.ReferencesCurrentObject(state, item, target)",
+            "onlyPrimary: spec.Effect != RuneDomainDamageEffect"
+          ],
+          "member": "ResolveRuneDomainDamage"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeployedEquipment.cs",
+          "contains": [
+            "onlyPrimary ? primary is null ? [] : new[] { primary } : UnitEventEnemiesHere(state, item)",
+            "ApplySpellSkillDamageBonuses("
+          ],
+          "member": "ResolveUnitEventAreaDamage"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "context?.AssignedOverkill is not null",
+            "HashValue(new { capture, context.AssignedOverkill })"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)",
+            "!expected.SetEquals(current.Select(item => item.Id))"
           ]
         }
       ],
-      "tests": [],
-      "rules": "核心383.2–383.3；该卡官方中文牌面"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SivirAttackConquestOverkillTests.cs",
+          "methods": [
+            "AnActualAttackCapturesFiveExcessDamageBeforeConfirmingTheIndependentSkill",
+            "FourExcessDamageDoesNotEarnTheSkill",
+            "TheWholeAttackAssignmentIsCapturedAndTheEnemyTargetMayBeAtAnotherBattlefield",
+            "TheOptionalSkillCanBeDeclinedBeforeEitherPlayerReceivesPriority",
+            "ReturningTheConqueringSourceCannotEraseOrRecalculateItsEarnedDamage",
+            "ATargetReturnedDuringResponsesIsNotDamagedInItsOwnersHand",
+            "WardMustBePaidForTheConfirmedEnemyBeforeResponsesAndDamage",
+            "AUnitInBaseDoesNotBorrowAnAlliedUnitsAttackConquest",
+            "CapturedDamageAndConquestCannotBeRewrittenAgainstOriginalAcceptedHistory",
+            "AResolvedDamageSkillCannotBeResurrectedWithItsOriginalAmountAndTargets",
+            "AnUnopposedConquestCannotInventAnAttackDamageAssignment",
+            "ThePrintedDamageAndAnArmamentDrawKeepSeparateSkillsWithTheSameCapturedAssignment"
+          ]
+        }
+      ],
+      "rules": "官方中文 SFD·120／120a 牌面；核心355.9–355.10、383.2.a.1、383.3、403–407、467.2、468.5–468.7、809。条件与过量伤害在真实征服捕获；来源后来离场不取消已赚取的独立技能。"
     },
     {
       "cardNos": [
