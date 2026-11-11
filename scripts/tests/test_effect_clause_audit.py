@@ -278,6 +278,22 @@ class EffectClauseAuditTests(unittest.TestCase):
         c["nativeActivations"] = [dict(parsed, index=7, mana=0, swift=False, typedPower={})]
         self.assertEqual("route", audit.audit_clause(c, row, sources)["status"])
 
+    def test_native_activation_needs_its_shared_executor_not_an_unrelated_draw_handler(self):
+        text = "{{横置}}：抽一张牌。"
+        parsed = dict(kind="DRAW", drawCount=1)
+        probe = dict(text=text, method="BorrowedExhaustParser.Parse", value=[parsed])
+        c = card(text, nativeActivations=[parsed])
+        row = audit.split_clauses(text)[0]
+        (self.engine / "CoreRuleEngine.UnitEvents.cs").write_text(
+            'if (spec.Effect == "DRAW") ApplyDrawToPlayer();')
+        self.assertEqual("missing", audit.audit_clause(c, row, audit.Sources(self.root, [], [probe]))["status"])
+        executor = self.engine / "CoreRuleEngine.BorrowedExhaust.cs"
+        executor.write_text('if (spec.Kind == "DRAW") ApplyDrawToPlayer();')
+        answer = audit.audit_clause(c, row, audit.Sources(self.root, [], [probe]))
+        self.assertEqual("route", answer["status"])
+        self.assertEqual(["src/Riftbound.Engine/CoreRuleEngine.BorrowedExhaust.cs"], answer["evidence"])
+
+
     def test_battlefield_limitation_requires_a_matching_executable_skill(self):
         (self.engine / "CoreRuleEngine.cs").write_text("if (ability.RequiresBattlefieldSource) CheckSource();")
         sources = audit.Sources(self.root, [])
