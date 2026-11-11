@@ -71,7 +71,8 @@ public sealed partial class CoreRuleEngine
                 ? new ObjectBinding(trigger.SourceObjectId, agile.SourceGeneration) : null)
             ?? (HasArmamentPlayAttachment(trigger.UnitEvent) && trigger.UnitEvent!.ReflexiveTick is not null
                 ? trigger.UnitEvent.Other?.Binding : null)
-            ?? trigger.UnitEvent?.SpellInstruction?.PlayedUnit?.Binding;
+            ?? trigger.UnitEvent?.SpellInstruction?.PlayedUnit?.Binding
+            ?? trigger.FieldContext?.BattlefieldUnitPlay?.Unit;
 
     private static bool CompanionPlayControllerMatches(TriggerQueueItemState companion, StackItemState item)
         => companion.ControllerId == item.ControllerId || companion.UnitEvent?.SpellInstruction?.PlayedUnit is not null;
@@ -117,6 +118,10 @@ public sealed partial class CoreRuleEngine
         if (companion.UnitEvent is { Timing: AgilePlayTiming } agile)
             return agile.CapturedTick == capturedTick && ValidAgilePlayGrant(state, agile,
                 companion.SourceObjectId, companion.ControllerId);
+        if (companion.FieldContext is { BattlefieldUnitPlay: { } battlefieldPlay } battlefield)
+            return battlefieldPlay.CapturedTick == capturedTick && battlefieldPlay.UnitCardNo == item.CardNo
+                && ValidFieldContextState(state, battlefield, companion.SourceObjectId, companion.ControllerId,
+                    companion.EffectKind, companion.SourceCardNo);
         if (companion.UnitPlayMight is { } might)
             return might.CapturedTick == capturedTick
                 && RengarPlayRecoveryRules.Valid(state, might, companion.EffectKind, companion.SourceObjectId, companion.ControllerId);

@@ -1246,6 +1246,7 @@ public static partial class MatchRecoveryValidator
             ValidateActivationBanishHistory(authoritativeState, commands, events, errors);
             ValidateEquipmentSkillObservationHistory(authoritativeState, commands, events, errors);
             ValidateObservedUnitEventHistory(authoritativeState, commands, events, errors);
+            ValidateBattlefieldUnitPlayHistory(authoritativeState, commands, events, errors);
             ValidateUnitEventOpponentHistory(authoritativeState, commands, events, errors);
             ValidatePlayAttributeDeclarationHistory(authoritativeState, commands, events, errors);
             ValidateOptionalExperiencePlayHistory(authoritativeState, commands, events, errors);
@@ -3859,6 +3860,13 @@ public static partial class MatchRecoveryValidator
         ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
 
+        // Shape and continuation validation above already reject these frames.
+        // Do not render prompts or derived views from a malformed effect list;
+        // independent journal and spectator checks still run in ValidateFrame.
+        if (new[] { authoritativeState, authoritativeState.PendingRuleChoice?.Origin }.OfType<MatchState>()
+            .Any(frame => frame.UntilEndOfTurnEffects is null || frame.UntilEndOfTurnEffects.Any(effect => effect is null)))
+            return;
+
         // Private checkpoint and decision transcript are validated above. Public
         // snapshots render the deterministic intermediate replacement preview.
         var paymentPromptState = authoritativeState;
@@ -4007,6 +4015,11 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateDynamicPowerAuraViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
     {
+        if (state.UntilEndOfTurnEffects is null || state.UntilEndOfTurnEffects.Any(effect => effect is null))
+        {
+            errors.Add($"{label} dynamic power auras require a valid authoritative effect list");
+            return;
+        }
         var expected = state.ContinuousEffects.Where(e => IsValidatedDynamicPowerAura(e.EffectKind, e.SourceCardNo))
             .ToDictionary(e => e.EffectId, StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -4622,6 +4635,8 @@ public static partial class MatchRecoveryValidator
                     || !CoreRuleEngine.ValidAttackMightDamageTrigger(trigger)
                     || !CoreRuleEngine.ValidDisarmTrigger(trigger)
                     || !CoreRuleEngine.ValidBombDestructionTrigger(trigger)
+                    || CoreRuleEngine.IsBattlefieldUnitPlayKind(field.Kind) && (trigger.SourceCardNo != field.CardNo
+                        || trigger.TriggeredByEventKind is not ("UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED"))
                     || field.Kind == CoreRuleEngine.BombDestructionKind && (trigger.TriggeredByEventKind is not ("EQUIPMENT_DESTROYED" or "OBJECT_DESTROYED" or "UNIT_DESTROYED") || trigger.SourceCardNo != field.CardNo)
                     || field.Kind == CoreRuleEngine.EquipmentDeathReturnKind && (trigger.TriggeredByEventKind is not ("EQUIPMENT_DESTROYED" or "OBJECT_DESTROYED" or "UNIT_DESTROYED") || trigger.SourceCardNo != field.CardNo)
                     || field.Kind == "RECYCLE_BOON" && trigger.TriggeredByEventKind != "CARDS_RECYCLED"
@@ -4651,6 +4666,7 @@ public static partial class MatchRecoveryValidator
                 || !CoreRuleEngine.ValidBombDestructionStack(item)
                 || !CoreRuleEngine.ValidEquipmentDeathStack(item)
                 || !CoreRuleEngine.ValidStunSourceMovementStack(item)
+                || !CoreRuleEngine.ValidBattlefieldUnitPlayStack(state, item)
                 || !CoreRuleEngine.ValidDiscardDestroyStack(state, item)
                 || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
                     || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]) || item.TargetGenerations.Values.Any(g => g < 0))

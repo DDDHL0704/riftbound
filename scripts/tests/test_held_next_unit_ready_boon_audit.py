@@ -164,7 +164,11 @@ class HeldNextUnitReadyBoonAuditTests(unittest.TestCase):
         original = self.sources.files[path]
         first = 'collected = QueueTurnUnitPlayBoons(state, collected);'
         second = 'collected = DeferCompanionPermanentPlayOrdering(state, collected);'
-        sequence = first + '\n            ' + second
-        self.assertIn(sequence, original)
-        self.sources.files[path] = original.replace(sequence, second + '\n            ' + first)
+        self.assertEqual(1, original.count(first))
+        self.assertEqual(1, original.count(second))
+        before, after = original.index(first), original.index(second)
+        self.assertLess(before, after)
+        self.assertEqual('route', self.status())
+        self.sources.files[path] = (original[:before] + second
+            + original[before + len(first):after] + first + original[after + len(second):])
         self.assertEqual('missing', self.status())

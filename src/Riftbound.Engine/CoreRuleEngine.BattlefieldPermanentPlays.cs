@@ -15,7 +15,7 @@ public sealed partial class CoreRuleEngine
         player = battlefield = "";
         if (ev.Kind is not ("UNIT_PLAYED_TO_BATTLEFIELD" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD"
             or "UNIT_TOKEN_CREATED" or "EQUIPMENT_TOKEN_CREATED")) return false;
-        static string Text(GameEvent entry, string key) => entry.Payload.GetValueOrDefault(key) switch {
+        static string Text(GameEvent entry, string key) => entry.Payload?.GetValueOrDefault(key) switch {
             string text => text,
             JsonElement { ValueKind: JsonValueKind.String } json => json.GetString() ?? "",
             _ => ""
