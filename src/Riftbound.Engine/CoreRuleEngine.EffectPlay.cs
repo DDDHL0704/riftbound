@@ -54,7 +54,7 @@ public sealed partial class CoreRuleEngine
         if (parent.HeldContext?.Kind == LinkedExileHeldKind) {
             definition = new(parent.CardNo, "据守打出关联放逐卡牌", 0, parent.EffectKind, 0, 0,
                 EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true,
-                EffectPlayIgnoreAllCosts: true, EffectPlayAllowsAnyCard: true, EffectPlayDestination: "ANY");
+                EffectPlayAllowsAnyCard: true, EffectPlayDestination: "ANY");
             return true;
         }
         if (P4ActivatedAbilityCatalog.TryGetByEffectKind(parent.EffectKind, out var activation)

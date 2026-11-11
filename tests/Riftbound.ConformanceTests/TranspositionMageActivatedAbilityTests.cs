@@ -11,7 +11,7 @@ public sealed class TranspositionMageActivatedAbilityTests
     private const string CardNo = "RAD·115/167";
     private const string AbilityId = P4ActivatedAbilityCatalog.TranspositionMageAbilityId;
 
-    private static MatchState Position(bool eligibleHandUnit = true, bool targetOwnedByOpponent = false,
+    internal static MatchState Position(bool eligibleHandUnit = true, bool targetOwnedByOpponent = false,
         int targetPower = 5)
     {
         var targetOwnerId = targetOwnedByOpponent ? "P2" : "P1";

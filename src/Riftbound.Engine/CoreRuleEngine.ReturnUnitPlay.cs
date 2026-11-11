@@ -93,7 +93,7 @@ public sealed partial class CoreRuleEngine
             $"EFFECT-PLAY:{state.Tick + 1}:{item.StackItemId}", item.ControllerId, item, "HAND",
             eligible.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal),
             IgnoreBaseMana: true, IgnoreBasePower: true, ManaReduction: 0,
-            DestinationPolicy: "", Optional: true, IgnoreAllCosts: true,
+            DestinationPolicy: "", Optional: true,
             MaximumUnitPower: capturedPower - 1);
         return result with { PlayerZones = zones, CardObjects = cards,
             ObjectLocations = ReconcileObjectLocations(locations, zones), PendingEffectPlay = pending,

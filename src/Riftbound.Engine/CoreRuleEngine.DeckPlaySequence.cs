@@ -67,7 +67,7 @@ public sealed partial class CoreRuleEngine
             c.Kind is "OPPONENT_REVEAL_PLAY" or "EACH_PLAYER_LOOK_PLAY" || definition.EffectPlayIgnoreBaseMana,
             c.Kind == "OPPONENT_REVEAL_PLAY" || definition.EffectPlayIgnoreBasePower,
             definition.EffectPlayManaReduction, definition.EffectPlayDestination, false,
-            IgnoreAllCosts: c.Kind == "OPPONENT_REVEAL_PLAY" || definition.EffectPlayIgnoreAllCosts) {
+            IgnoreAllCosts: definition.EffectPlayIgnoreAllCosts) {
                 OriginalLocation = chosen.OriginalLocation, OriginalBattlefield = chosen.OriginalBattlefield };
     }
 

@@ -128,7 +128,7 @@ public sealed partial class RadDocksideCageTests
         var game = await Capture("P2"); await Hold(game); await Choose(game, ["CARD"]); await game.Top();
         var pending = game.State.PendingEffectPlay!;
         var forged = branch switch {
-            "all-costs" => pending with { IgnoreAllCosts = false },
+            "all-costs" => pending with { IgnoreAllCosts = true },
             "owner" => pending with { SourcePlayerId = "P1" },
             "source-generation" => pending with { Sources = new Dictionary<string, long> { ["PRISONER"] = 99 } },
             _ => pending with { Parent = pending.Parent with { TriggerCost = null } }
@@ -347,7 +347,7 @@ public sealed partial class RadDocksideCageTests
     private static Task Animate(Driver game, string id)
         => OriannaEquipmentConsumerFixture.AnimateAtNextOwnMain(game, id);
 
-    private static MatchState Position(string owner = "P1")
+    internal static MatchState Position(string owner = "P1")
     {
         var state = Put(Create(), "CARD", Cage, "P1", "HAND");
         state = RadUnitEffectTestFixture.Place(state, "ALLY", "P1", "BATTLEFIELD", "BF");
@@ -366,7 +366,7 @@ public sealed partial class RadDocksideCageTests
         return game;
     }
 
-    private static async Task Hold(Driver game)
+    internal static async Task Hold(Driver game)
     {
         await game.Act("P1", new EndTurnCommand());
         await game.Act("P2", new EndTurnCommand());

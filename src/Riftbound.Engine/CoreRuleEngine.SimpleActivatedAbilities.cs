@@ -462,7 +462,7 @@ public sealed partial class CoreRuleEngine
             || pending.DestinationPolicy != "" || pending.SourcePlayerId is not null
             || pending.SourceReplay is not null || pending.OriginalLocation is not null || pending.OriginalBattlefield is not null
             || pending.ViewedCardIds is not null || pending.Sources.Count == 0
-            || !pending.Optional || !pending.IgnoreAllCosts || !pending.IgnoreBaseMana || !pending.IgnoreBasePower
+            || !pending.Optional || pending.IgnoreAllCosts || !pending.IgnoreBaseMana || !pending.IgnoreBasePower
             || pending.ManaReduction != 0 || pending.MaximumUnitPower is not >= 0
             || !(borrowed ? BorrowedExhaustRules.Valid(state, pending.Parent)
                 : ValidSimpleActivation(state, pending.Parent, allowMissingReturnTarget: true))
