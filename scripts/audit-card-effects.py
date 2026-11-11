@@ -4152,6 +4152,92 @@ def friendly_equipment_ready_route(card: dict, clause: dict, sources: Sources) -
     return result("missing", "缺少精确己方装备观察、独立响应、同代来源活跃或原始记录恢复校验")
 
 
+def printed_alternative_echo_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    keyword = "{{回响}}"
+    fees = "— 支付{{1}}/支付{{A}}/支付{{1}}和{{A}}"
+    choice = "从以下中选择一个未选过的效果 —"
+    effects = ["- 抽一张牌。", "- 对战场上的一名单位造成2点伤害。",
+        "- 对基地中的一名单位造成3点伤害。", "- 让战场上的一名单位在本回合内{{S}}-4。"]
+    text = normalize(unparenthesize(clause["text"]))
+    if text not in {normalize(keyword), normalize(fees), normalize(choice)}:
+        return None
+    lines = card.get("cardEffect", "").replace("\\n", "\n").splitlines()
+    expected_text = [keyword + " " + fees, choice, *effects]
+    if [normalize(unparenthesize(line)) for line in lines] != [normalize(line) for line in expected_text]:
+        return None
+    exact = normalize(unparenthesize(clause["scope"])) == text \
+        and clause["kind"] == ("keyword" if text == normalize(keyword) else "effect") \
+        and card.get("cardCategory") in {"spell", "exclusive_spell"} and card.get("supportsEchoRepeat") is True
+    prices = card.get("printedEchoCosts", [])
+    expected_prices = [("ECHO", 1, 0), ("ECHO:PRINTED:2", 0, 1), ("ECHO:PRINTED:3", 1, 1)]
+    exact = exact and isinstance(prices, list) and len(prices) == 3 and all(
+        isinstance(cost, dict) and cost.get("id") == identifier and type(cost.get("mana", 0)) is int
+        and cost.get("mana", 0) == mana and type(cost.get("genericPower", 0)) is int
+        and cost.get("genericPower", 0) == generic and cost.get("typedPower", {}) == {}
+        and not cost.get("printedCardNo") for cost, (identifier, mana, generic) in zip(prices, expected_prices))
+    profiles = card.get("behaviors", [])
+    expected_modes = {
+        "DRAW_1": dict(effectKind="PERFECT_FINALE_DRAW_1", drawCount=1, damageAmount=0, powerModifierAmount=0, requiredTargetCount=0),
+        "BATTLEFIELD_UNIT_DAMAGE_2": dict(effectKind="PERFECT_FINALE_BATTLEFIELD_DAMAGE_2", drawCount=0, damageAmount=2, powerModifierAmount=0, requiredTargetCount=1, targetScope="BATTLEFIELD_UNIT"),
+        "BASE_UNIT_DAMAGE_3": dict(effectKind="PERFECT_FINALE_BASE_DAMAGE_3", drawCount=0, damageAmount=3, powerModifierAmount=0, requiredTargetCount=1, targetScope="BASE_UNIT"),
+        "BATTLEFIELD_UNIT_POWER_MINUS_4": dict(effectKind="PERFECT_FINALE_BATTLEFIELD_POWER_MINUS_4", drawCount=0, damageAmount=0, powerModifierAmount=-4, requiredTargetCount=1, targetScope="BATTLEFIELD_UNIT")}
+    exact = exact and len(profiles) == 4 and {b.get("mode") for b in profiles} == set(expected_modes)
+    # The shared registry serializes its ordinary counter destination even for
+    # these four spells, which do not counter anything. It is metadata only
+    # while the counter instruction is disabled.
+    operation_fields = {field for _, _, fields in OPERATIONS for field in fields} - {"counteredStackItemDestination"}
+    for profile in profiles:
+        expected = expected_modes.get(profile.get("mode"), {})
+        exact = exact and profile.get("requiresDistinctRepeatModes") is True and type(profile.get("manaCost")) is int \
+            and profile.get("manaCost") == 4 and not profile.get("countersTargetStackSpell") \
+            and not profile.get("spellModes") and not profile.get("playsSourceToBaseAsUnit") \
+            and not profile.get("playsSourceToBaseAsEquipment") \
+            and profile.get("counteredStackItemDestination", "GRAVEYARD") == "GRAVEYARD" \
+            and all(profile.get(key, 0) == value for key, value in expected.items()) \
+            and not any(meaningful(profile.get(field)) for field in operation_fields - set(expected))
+    prefix = "src/Riftbound.Engine/"
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, "")
+        start = re.search(r"(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        return re.split(r"\n    (?:private|internal|public) (?:static )?", code[start.end():], maxsplit=1)[0] if start else ""
+
+    parse = member("EchoCostRules.cs", "ParsePrintedCosts")
+    exact = exact and all(marker in parse for marker in ["Regex.Matches(", "declarations", ".Split('/')",
+        'costs.Count == 0 ? EchoOptionalCostNames.Echo : $"ECHO:PRINTED:{costs.Count + 1}"', "return costs;"])
+    exact = exact and "costs.AddRange(PrintedCostsFor(behavior.CardNo));" in member("EchoCostRules.cs", "Available") \
+        and "Available(state, player, behavior).Where(cost => choices.Contains(cost.Id, StringComparer.Ordinal))" in member("EchoCostRules.cs", "Selected")
+    payment = member("CoreRuleEngine.cs", "TryBuildOptionalCostPlan")
+    exact = exact and all(marker in payment for marker in ["EchoCostRules.Selected(state, playerId, behavior, normalizedOptionalCosts)",
+        "echoCosts.Sum(cost => cost.Mana)", "echoCosts.Sum(cost => cost.GenericPower)",
+        "PrintedPowerCostRules.Combine(typed, cost.TypedPower)"])
+    exact = exact and bool(re.search(r"effectRepeatCount\s*(?:=\s*1\s*\+|\+=)\s*echoCosts\.Count", payment))
+    plan = member("CoreRuleEngine.cs", "TryBuildPlayCardPlan")
+    exact = exact and "TryBuildOptionalCostPlan(" in plan and "TryBuildRepeatExecutions(state, intent, command, behavior, targetObjectIds," in plan \
+        and "TryBuildPlayCardPlan(state, intent, command" in member("CoreRuleEngine.cs", "ResolvePlayCard") \
+        and "TryBuildPlayCardPlan(state," in member("CoreRuleEngine.PlayCostPreview.cs", "PreviewPlayCard")
+    prompts = member("MatchSession.cs", "PlayCardOptionalCostChoicesForBehavior")
+    exact = exact and "EchoCostRules.Available(state, playerId, behavior)" in prompts and "echo.Id" in prompts \
+        and "Math.Max(0, echo.Mana - echoReduction)" in prompts and "echo.TypedPower" in prompts
+    repeats = member("CoreRuleEngine.Repeats.cs", "TryBuildRepeatExecutions")
+    exact = exact and all(marker in repeats for marker in ["behavior.RequiresDistinctRepeatModes",
+        "result.Any(execution => execution.EffectKind == repeatPlan.Behavior.EffectKind)",
+        "result.Add(Capture(repeatPlan.Behavior", "choices.Count != count - 1"])
+    validity = member("CoreRuleEngine.Repeats.cs", "ValidDistinctRepeatModes")
+    exact = exact and all(marker in validity for marker in ["definition.RequiresDistinctRepeatModes",
+        "executions.Select(execution => execution.EffectKind).Distinct(StringComparer.Ordinal).Count() == executions.Count",
+        "item.EffectRepeatCount == 1"])
+    exact = exact and "CoreRuleEngine.ValidDistinctRepeatModes(item)" in member("MatchRecovery.cs", "ValidateSpellContinuations")
+    resolve = member("CoreRuleEngine.Repeats.cs", "ResolveSeparateSpellExecutions")
+    exact = exact and all(marker in resolve for marker in ["index < executions.Count", "ResolveStackItemEffect(current, item",
+        "EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null", "SPELL_EXECUTION_COMPLETED"])
+    paths = [prefix + path for path in ["EchoCostRules.cs", "CoreRuleEngine.cs", "CoreRuleEngine.Repeats.cs",
+        "CoreRuleEngine.PlayCostPreview.cs", "MatchSession.cs", "MatchRecovery.cs"]]
+    if exact:
+        return result("route", "三项印刷回响各自选择并仅支付一次，完整法力／任意符能报价与付款，四个模式逐次且不重复执行并校验恢复", paths)
+    return result("missing", "三项独立回响价格、四个未重复模式或实际报价／付款／逐次执行／恢复消费者不完整")
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         matched = audit_armament_clause(card, clause, sources)
@@ -4160,6 +4246,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return matched
     if crew_ready := friendly_equipment_ready_route(card, clause, sources):
         return crew_ready
+    if alternative_echo := printed_alternative_echo_route(card, clause, sources):
+        return alternative_echo
     if here_token := source_play_here_unit_token_route(card, clause, sources):
         return here_token
     if battlefield_play := battlefield_unit_play_route(card, clause, sources):

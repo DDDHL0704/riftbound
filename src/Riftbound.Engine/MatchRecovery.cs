@@ -4774,6 +4774,7 @@ public static partial class MatchRecoveryValidator
                 errors.Add("invalid deck resolution continuation count");
             if (!CoreRuleEngine.ValidSequentialMovementPlan(state, item.EffectKind, item.TargetObjectIds.Count, item.MovementDestinations))
                 errors.Add("invalid sequential movement plan");
+            if (!CoreRuleEngine.ValidDistinctRepeatModes(item)) errors.Add("duplicate modes in spell repeat execution plan");
             if (item.RepeatExecutions is { } executions && (executions.Count != item.EffectRepeatCount
                 || executions.Count > 0 && (executions[0] is null || executions[0].Destination != item.Destination)
                 || executions.Any(execution => execution is null || execution.TargetObjectIds is null || execution.TargetGenerations is null

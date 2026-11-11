@@ -2462,9 +2462,9 @@
       ],
       "text": "— 支付{{1}}/支付{{A}}/支付{{1}}和{{A}}（你可以选择支付各额外费用一次，以重复多次此法术效果。）",
       "scope": "— 支付{{1}}/支付{{A}}/支付{{1}}和{{A}}（你可以选择支付各额外费用一次，以重复多次此法术效果。）",
-      "status": "missing",
-      "reason": "现有四个单模式可执行，但没有牌面三项各一次的可选回响费用，也没有多次执行必须选择未选过模式的联合校验",
-      "rules": "核心355.3、356–357、820 回响；UNL-182 官方中文牌面",
+      "status": "route",
+      "reason": "按印刷顺序提供1法力、1任意符能及1法力加1任意符能三项独立回响费用，每项只支付一次；四个模式在同一次法术的各次效果中不得重复。报价、付款、逐次效果与恢复走共享真实消费者。",
+      "rules": "UNL-182官方中文完整牌面；核心820.1.c.2各回响费用独立选择、820.1.c.3每项仅一次、820.1.d.1额外执行；355—357一次打出及原始费用。",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -2478,7 +2478,8 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "requiresDistinctRepeatModes": true
           },
           {
             "manaCost": 4,
@@ -2491,7 +2492,8 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "requiresDistinctRepeatModes": true
           },
           {
             "manaCost": 4,
@@ -2504,7 +2506,8 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "requiresDistinctRepeatModes": true
           },
           {
             "manaCost": 4,
@@ -2517,20 +2520,55 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "requiresDistinctRepeatModes": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/EchoCostRules.cs",
+          "member": "ParsePrintedCosts",
           "contains": [
-            "\"UNL-182/219\"",
-            "\"PERFECT_FINALE_DRAW_1\""
+            ".Split('/')",
+            "ECHO:PRINTED:",
+            "return costs;"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/EchoCostRules.cs",
+          "member": "Available",
+          "contains": [
+            "costs.AddRange(PrintedCostsFor(behavior.CardNo));"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+          "member": "TryBuildRepeatExecutions",
+          "contains": [
+            "behavior.RequiresDistinctRepeatModes",
+            "result.Any(execution => execution.EffectKind == repeatPlan.Behavior.EffectKind)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "member": "ValidateSpellContinuations",
+          "contains": [
+            "CoreRuleEngine.ValidDistinctRepeatModes(item)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PrintedAlternativeEchoTests.cs",
+          "methods": [
+            "EverySubsetOfTheThreePrintedFeesPaysOnceAndExecutesDifferentModes",
+            "DuplicateFeesRepeatedModesAndIncompletePaymentsRejectAtomically",
+            "RecoveryRejectsARepeatedModeInTheCapturedExecutionPlan",
+            "ASeparateBaseCostEchoGrantCanBeChosenWithoutPayingAllPrintedFees"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2538,9 +2576,9 @@
       ],
       "text": "从以下中选择一个未选过的效果 —",
       "scope": "从以下中选择一个未选过的效果 —",
-      "status": "missing",
-      "reason": "现有四个单模式可执行，但没有牌面三项各一次的可选回响费用，也没有多次执行必须选择未选过模式的联合校验",
-      "rules": "核心355.3、356–357、820 回响；UNL-182 官方中文牌面",
+      "status": "route",
+      "reason": "按印刷顺序提供1法力、1任意符能及1法力加1任意符能三项独立回响费用，每项只支付一次；四个模式在同一次法术的各次效果中不得重复。报价、付款、逐次效果与恢复走共享真实消费者。",
+      "rules": "UNL-182官方中文完整牌面；核心820.1.c.2各回响费用独立选择、820.1.c.3每项仅一次、820.1.d.1额外执行；355—357一次打出及原始费用。",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -2554,7 +2592,8 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "requiresDistinctRepeatModes": true
           },
           {
             "manaCost": 4,
@@ -2567,7 +2606,8 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "requiresDistinctRepeatModes": true
           },
           {
             "manaCost": 4,
@@ -2580,7 +2620,8 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "requiresDistinctRepeatModes": true
           },
           {
             "manaCost": 4,
@@ -2593,20 +2634,55 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "requiresDistinctRepeatModes": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/EchoCostRules.cs",
+          "member": "ParsePrintedCosts",
           "contains": [
-            "\"UNL-182/219\"",
-            "\"PERFECT_FINALE_DRAW_1\""
+            ".Split('/')",
+            "ECHO:PRINTED:",
+            "return costs;"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/EchoCostRules.cs",
+          "member": "Available",
+          "contains": [
+            "costs.AddRange(PrintedCostsFor(behavior.CardNo));"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+          "member": "TryBuildRepeatExecutions",
+          "contains": [
+            "behavior.RequiresDistinctRepeatModes",
+            "result.Any(execution => execution.EffectKind == repeatPlan.Behavior.EffectKind)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "member": "ValidateSpellContinuations",
+          "contains": [
+            "CoreRuleEngine.ValidDistinctRepeatModes(item)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PrintedAlternativeEchoTests.cs",
+          "methods": [
+            "EverySubsetOfTheThreePrintedFeesPaysOnceAndExecutesDifferentModes",
+            "DuplicateFeesRepeatedModesAndIncompletePaymentsRejectAtomically",
+            "RecoveryRejectsARepeatedModeInTheCapturedExecutionPlan",
+            "ASeparateBaseCostEchoGrantCanBeChosenWithoutPayingAllPrintedFees"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

@@ -742,6 +742,10 @@ public sealed class CardCatalogBaselineTests
             profileDeferredEntries: 53,
             profileImplementedFunctionalUnits: 0,
             profileDeferredFunctionalUnits: 43);
+        var finale = BuildInteractionProfile(specs, "UNL-182/219", CardInteractionKeywordNames.Echo);
+        Assert.True(finale.HasEcho);
+        Assert.Equal(InteractionKeywordProfileStatuses.Implemented, finale.Status);
+        Assert.Equal(3, EchoCostRules.PrintedCostsFor("UNL-182/219").Count);
         AssertInteractionKeywordCoverage(
             rows,
             CardInteractionKeywordNames.Echo,
@@ -749,10 +753,10 @@ public sealed class CardCatalogBaselineTests
             specImplementedEntries: 24,
             functionalUnits: 24,
             specImplementedFunctionalUnits: 24,
-            profileImplementedEntries: 17,
-            profileDeferredEntries: 7,
-            profileImplementedFunctionalUnits: 17,
-            profileDeferredFunctionalUnits: 7);
+            profileImplementedEntries: 18,
+            profileDeferredEntries: 6,
+            profileImplementedFunctionalUnits: 18,
+            profileDeferredFunctionalUnits: 6);
         AssertInteractionKeywordCoverage(
             rows,
             CardInteractionKeywordNames.Ambush,
