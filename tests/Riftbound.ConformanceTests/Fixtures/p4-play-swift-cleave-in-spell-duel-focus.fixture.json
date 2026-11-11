@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p4-play-swift-cleave-in-spell-duel-focus",
-  "description": "Cleave can be played by the focus player during an open spell duel because it has Swift, then resolves through the existing P2 stack path.",
+  "description": "Cleave can be played by the focus player during an open spell duel because it has Swift, then grants temporary Assault 3 without changing ordinary Power.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p35-p36 rules 341-348; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "法术对决是开环机会窗口；迅捷牌可在你的回合或法术对决中打出；打出法术需要支付费用、选择合法目标并加入结算链。"
+    },
+    {
+      "source": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "locator": "807.1-807.3",
+      "note": "授予强攻3是独立的临时数值关键词；仅当前进攻角色读取其战力加成，不修改单位的普通战力或普通回合战力修正。迅捷打出使用相同的授予流程。"
     }
   ],
   "roomId": "p4-swift-cleave-spell-duel-room",
@@ -110,8 +115,7 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "STATUS_EFFECT_APPLIED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+      "STATUS_EFFECT_APPLIED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -147,20 +151,7 @@
         "payload": {
           "sourceObjectId": "P1-SPELL-CLEAVE",
           "targetObjectId": "P2-UNIT-CLEAVE-001",
-          "effectId": "OVERWHELM_3"
-        }
-      },
-      {
-        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
-        "tick": 3,
-        "sequence": 8,
-        "payload": {
-          "sourceObjectId": "P1-SPELL-CLEAVE",
-          "targetObjectId": "P2-UNIT-CLEAVE-001",
-          "powerDelta": 3,
-          "appliedPowerDelta": 3,
-          "minimumPower": 0,
-          "resultingPower": 5
+          "effectId": "COMBAT_KEYWORD:强攻3"
         }
       }
     ],
@@ -196,9 +187,9 @@
       "cardObjects": {
         "P2-UNIT-CLEAVE-001": {
           "damage": 0,
-          "power": 5,
-          "untilEndOfTurnEffects": ["OVERWHELM_3"],
-          "untilEndOfTurnPowerModifier": 3,
+          "power": 2,
+          "untilEndOfTurnEffects": ["COMBAT_KEYWORD:强攻3:1"],
+          "untilEndOfTurnPowerModifier": 0,
           "isAttacking": true,
           "isExhausted": false,
           "tags": ["CARD_TYPE:UNIT"]
