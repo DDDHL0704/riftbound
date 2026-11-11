@@ -209,7 +209,7 @@ public sealed partial class CoreRuleEngine
         var plan = new PaymentCostRules.PaymentPlan(paymentId, window, intent.PlayerId,
             baseManaCost: ability.ManaCost, totalManaCost: ability.ManaCost,
             genericPowerCost: ability.PowerCost + tax, totalPowerCost: ability.PowerCost + tax + typed.Values.Sum(),
-            powerCostByTrait: typed, optionalCostIds: extras, paymentResourceActionIds: resources, reason: ability.EffectKind,
+            powerCostByTrait: typed, experienceCost: ability.ExperienceCost, optionalCostIds: extras, paymentResourceActionIds: resources, reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId, abilityId: ability.AbilityId,
             powerPurpose: PowerPurposeForActivatedAbility(ability), manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             manaSourceSelection: command.ServerManaSourceSelection);
@@ -633,6 +633,15 @@ public sealed partial class CoreRuleEngine
                 out var granted, zones, cards);
             events.AddRange(granted);
         }
+        if (spec.GrantsFriendlyHereRoam && cards.TryGetValue(item.SourceObjectId, out var hereSource)
+            && hereSource.ObjectGeneration == item.SimpleActivation!.Source.Generation && !hereSource.IsFaceDown
+            && IsObjectOnField(zones, hereSource.ObjectId))
+            foreach (var unit in cards.Values.Where(card => IsFaceUpNonStandbyUnit(card)
+                && IsObjectOnField(zones, card.ObjectId)
+                && EffectiveFieldControllerId(zones, card.ObjectId, card) == item.ControllerId
+                && IsSameFieldLocation(zones, locations, hereSource.ObjectId, card.ObjectId))
+                .OrderBy(card => card.ObjectId, StringComparer.Ordinal).ToArray())
+                GrantLegendRoam(cards, unit.ObjectId, item.ControllerId, item.SourceObjectId, ability.AbilityId, events);
         if (spec.ReadiesSource && cards.TryGetValue(item.SourceObjectId, out var source)
             && source.ObjectGeneration == item.SimpleActivation!.Source.Generation && IsObjectOnField(zones, source.ObjectId)) {
             var behavior = new CardBehaviorDefinition(item.CardNo!, ability.DisplayName, 0, ability.EffectKind, 0, 0, PowerModifierAmount: spec.SourcePowerBonus);

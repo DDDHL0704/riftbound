@@ -46,6 +46,7 @@ public static class ActivatedAbilityKinds
     public const string StunEnemyUnit = "STUN_ENEMY_UNIT";
     public const string GrantUnitBoonOrTemporaryPower = "GRANT_UNIT_BOON_OR_TEMPORARY_POWER";
     public const string GrantSelfBoon = "GRANT_SELF_BOON";
+    public const string GrantFriendlyHereRoam = "GRANT_FRIENDLY_HERE_ROAM";
     public const string DestroySourceRecycleGraveyard = "DESTROY_SOURCE_RECYCLE_GRAVEYARD";
     public const string TypedResourceSkill = "TYPED_RESOURCE_SKILL";
     public const string DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest =
@@ -879,7 +880,9 @@ public sealed record ActivatedAbilitySpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     bool? DestroysSourceAsCost = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? MaximumTargetCount = null);
+    int? MaximumTargetCount = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? ExperienceCost = null);
 
 public sealed record StaticAbilitySpec(
     string Kind,

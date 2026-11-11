@@ -3344,16 +3344,30 @@ public static class ActivatedAbilityParser
     private static bool TryParseTargetedExhaustEffect(string cost, string effect, out ActivatedAbilitySpec ability)
     {
         ability = default!;
-        if (cost is not ("{{T}}" or "{{横置}}")) return false;
+        var exhaustsSource = cost is "{{T}}" or "{{横置}}";
+        var experienceCost = Regex.Match(cost, @"^消耗(?<amount>[1-9][0-9]*)经验$", RegexOptions.CultureInvariant);
+        if (!exhaustsSource && !experienceCost.Success) return false;
         var functionalEffect = Regex.Replace(effect, @"（[^）]*）|\([^)]*\)", "", RegexOptions.CultureInvariant).Trim().TrimEnd('。', '.');
         if (functionalEffect is "给予我增益" or "给予我{{增益}}")
         {
             ability = new(cost, effect, [BehaviorTemplateIds.Boon], BehaviorImplementationStatuses.Implemented,
-                "Exhaust the source to grant itself a boon at ordinary timing, without choosing a target.",
-                Kind: ActivatedAbilityKinds.GrantSelfBoon, ExhaustsSourceAsCost: true,
-                ManaCost: 0, PowerCost: 0, RequiredTargetCount: 0);
+                exhaustsSource ? "Exhaust the source to grant itself a boon at ordinary timing, without choosing a target."
+                    : "Pay the printed cost to grant the source a boon at ordinary timing, without choosing a target.",
+                Kind: ActivatedAbilityKinds.GrantSelfBoon, ExhaustsSourceAsCost: exhaustsSource,
+                ManaCost: 0, PowerCost: 0, RequiredTargetCount: 0,
+                ExperienceCost: experienceCost.Success ? int.Parse(experienceCost.Groups["amount"].Value) : null);
             return true;
         }
+        if (functionalEffect == "你在此处的单位在本回合内获得{{游走}}")
+        {
+            ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect), BehaviorImplementationStatuses.Implemented,
+                "Pay the printed cost, then grant current friendly units here Roam until end of turn without targeting them.",
+                Kind: ActivatedAbilityKinds.GrantFriendlyHereRoam, ExhaustsSourceAsCost: exhaustsSource,
+                ManaCost: 0, PowerCost: 0, RequiredTargetCount: 0,
+                ExperienceCost: experienceCost.Success ? int.Parse(experienceCost.Groups["amount"].Value) : null);
+            return true;
+        }
+        if (!exhaustsSource) return false;
         if (Regex.IsMatch(functionalEffect, @"^\{\{眩晕\}\}一名敌方单位$", RegexOptions.CultureInvariant))
         {
             ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect),

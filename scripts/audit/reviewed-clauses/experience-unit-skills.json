@@ -1,0 +1,309 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "UNL-102/219"
+      ],
+      "text": "消耗2经验：给予我{{增益}}。（如果我未拥有增益，则获得一个{{S}}+1增益。）",
+      "scope": "消耗2经验：给予我{{增益}}。（如果我未拥有增益，则获得一个{{S}}+1增益。）",
+      "status": "route",
+      "reason": "按印刷数字先支付经验，不横置、不指定目标；增益遵循普通增益上限，此处游走在结算时检查原物体、当前区域及技能控制者的友军",
+      "rules": "中国区核心202–203、359.3.f.2、729及三张官方中文牌面；复制技能使用已捕获的独立技能来源",
+      "runtime": {
+        "activations": [
+          {
+            "kind": "GRANT_SELF_BOON",
+            "experienceCost": 2,
+            "sourceRequiredTag": "CARD_TYPE:UNIT",
+            "simpleEffect": {
+              "grantsSourceBoon": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs",
+          "member": "IsOrdinaryUntargetedUnitAbility",
+          "contains": [
+            "ActivatedAbilityKinds.GrantSelfBoon or ActivatedAbilityKinds.GrantFriendlyHereRoam",
+            "ability.ExhaustsSourceAsCost == false && ability.ExperienceCost is > 0",
+            "ability.RequiredTargetCount == 0 && ability.ManaCost == 0 && ability.PowerCost == 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs",
+          "member": "UntargetedUnitDefinition",
+          "contains": [
+            "ability.ExhaustsSourceAsCost == true",
+            "ExperienceCost: ability.ExperienceCost.GetValueOrDefault()",
+            "SourceRequiredTag: CardObjectTags.UnitCard",
+            "GrantsSourceBoon: ability.Kind == ActivatedAbilityKinds.GrantSelfBoon",
+            "GrantsFriendlyHereRoam: ability.Kind == ActivatedAbilityKinds.GrantFriendlyHereRoam"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "member": "ResolveSimpleActivation",
+          "contains": [
+            "CanActivateOrdinaryPowerAbility(state, intent.PlayerId)",
+            "SimpleActivationTargetCountValid(ability, targets.Count)",
+            "experienceCost: ability.ExperienceCost",
+            "PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state)",
+            "new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration)",
+            "PlayerExperience = paid.PlayerExperience, StackItems = [..state.StackItems, item]"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "member": "ValidSimpleActivationSource",
+          "contains": [
+            "AttachedRuleTextRules.ValidCaptured(state, origin, context.Source.ObjectId, context.Source.Generation, cardNo)",
+            "context.RuleTextInstanceId != $\"PRINTED:{context.Source.ObjectId}:{context.Source.Generation}\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PaymentCostRules.cs",
+          "member": "AuthorizePayment",
+          "contains": [
+            "currentExperience < plan.ExperienceCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PaymentCostRules.cs",
+          "member": "TryCommitPayment",
+          "contains": [
+            "currentExperience - plan.ExperienceCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "member": "ResolveSimpleActivationEffect",
+          "contains": [
+            "spec.GrantsSourceBoon",
+            "boonSource.ObjectGeneration == item.SimpleActivation!.Source.Generation",
+            "IsFaceUpNonStandbyUnit(boonSource) && IsObjectOnField(zones, boonSource.ObjectId)",
+            "ApplyBoon(boonSource"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ExperienceSelfBoonTests.cs",
+          "methods": [
+            "AnExhaustedSourcePaysTwoExperienceBeforeEachBoonAndOrdinaryBoonsDoNotStack",
+            "ThePromptShowsTwoExperienceAndOnlyOffersPayableActivations",
+            "InsufficientExperienceAndUnexpectedTargetsCannotChangeState",
+            "AClosedResponseWindowDoesNotPermitOrdinaryExperienceActivation",
+            "ReturningTheSourceInResponseKeepsTheExperienceSpentAndPreventsAnOffFieldBoon"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-126/219"
+      ],
+      "text": "消耗3经验：你在此处的单位在本回合内获得{{游走}}。（我们可以向其他战场进行移动。）",
+      "scope": "消耗3经验：你在此处的单位在本回合内获得{{游走}}。（我们可以向其他战场进行移动。）",
+      "status": "route",
+      "reason": "按印刷数字先支付经验，不横置、不指定目标；增益遵循普通增益上限，此处游走在结算时检查原物体、当前区域及技能控制者的友军",
+      "rules": "中国区核心202–203、359.3.f.2、729及三张官方中文牌面；复制技能使用已捕获的独立技能来源",
+      "runtime": {
+        "activations": [
+          {
+            "kind": "GRANT_FRIENDLY_HERE_ROAM",
+            "experienceCost": 3,
+            "sourceRequiredTag": "CARD_TYPE:UNIT",
+            "simpleEffect": {
+              "grantsFriendlyHereRoam": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs",
+          "member": "IsOrdinaryUntargetedUnitAbility",
+          "contains": [
+            "ActivatedAbilityKinds.GrantSelfBoon or ActivatedAbilityKinds.GrantFriendlyHereRoam",
+            "ability.ExhaustsSourceAsCost == false && ability.ExperienceCost is > 0",
+            "ability.RequiredTargetCount == 0 && ability.ManaCost == 0 && ability.PowerCost == 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs",
+          "member": "UntargetedUnitDefinition",
+          "contains": [
+            "ability.ExhaustsSourceAsCost == true",
+            "ExperienceCost: ability.ExperienceCost.GetValueOrDefault()",
+            "SourceRequiredTag: CardObjectTags.UnitCard",
+            "GrantsSourceBoon: ability.Kind == ActivatedAbilityKinds.GrantSelfBoon",
+            "GrantsFriendlyHereRoam: ability.Kind == ActivatedAbilityKinds.GrantFriendlyHereRoam"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "member": "ResolveSimpleActivation",
+          "contains": [
+            "CanActivateOrdinaryPowerAbility(state, intent.PlayerId)",
+            "SimpleActivationTargetCountValid(ability, targets.Count)",
+            "experienceCost: ability.ExperienceCost",
+            "PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state)",
+            "new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration)",
+            "PlayerExperience = paid.PlayerExperience, StackItems = [..state.StackItems, item]"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "member": "ValidSimpleActivationSource",
+          "contains": [
+            "AttachedRuleTextRules.ValidCaptured(state, origin, context.Source.ObjectId, context.Source.Generation, cardNo)",
+            "context.RuleTextInstanceId != $\"PRINTED:{context.Source.ObjectId}:{context.Source.Generation}\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PaymentCostRules.cs",
+          "member": "AuthorizePayment",
+          "contains": [
+            "currentExperience < plan.ExperienceCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PaymentCostRules.cs",
+          "member": "TryCommitPayment",
+          "contains": [
+            "currentExperience - plan.ExperienceCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "member": "ResolveSimpleActivationEffect",
+          "contains": [
+            "spec.GrantsFriendlyHereRoam",
+            "hereSource.ObjectGeneration == item.SimpleActivation!.Source.Generation",
+            "!hereSource.IsFaceDown",
+            "IsObjectOnField(zones, hereSource.ObjectId)",
+            "EffectiveFieldControllerId(zones, card.ObjectId, card) == item.ControllerId",
+            "IsSameFieldLocation(zones, locations, hereSource.ObjectId, card.ObjectId)",
+            "GrantLegendRoam(cards, unit.ObjectId, item.ControllerId, item.SourceObjectId, ability.AbilityId, events)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ExperienceHereRoamTests.cs",
+          "methods": [
+            "ThreeExperienceGrantsRoamToCurrentFriendlyUnitsHereWithoutExhaustingOrTargeting",
+            "AnActuallyPlayedDormantUnitCanPayThePrintedExperienceCost",
+            "InsufficientExperienceExtraTargetsAndIllegalSourcesRejectAtomically",
+            "ResponsesUseTheSourcesCurrentHereAndCannotReadTheDepartedGeneration",
+            "TurnCleanupRemovesTheGrantAndPreservesAnIndependentPrintedRoamKeyword",
+            "ARealSongCopyPaysExperienceAndKeepsItsQueuedSkillAfterDetachment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-162/219"
+      ],
+      "text": "消耗2经验：给予我{{增益}}。（如果我未拥有增益，则获得一个{{S}}+1增益。）",
+      "scope": "消耗2经验：给予我{{增益}}。（如果我未拥有增益，则获得一个{{S}}+1增益。）",
+      "status": "route",
+      "reason": "按印刷数字先支付经验，不横置、不指定目标；增益遵循普通增益上限，此处游走在结算时检查原物体、当前区域及技能控制者的友军",
+      "rules": "中国区核心202–203、359.3.f.2、729及三张官方中文牌面；复制技能使用已捕获的独立技能来源",
+      "runtime": {
+        "activations": [
+          {
+            "kind": "GRANT_SELF_BOON",
+            "experienceCost": 2,
+            "sourceRequiredTag": "CARD_TYPE:UNIT",
+            "simpleEffect": {
+              "grantsSourceBoon": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs",
+          "member": "IsOrdinaryUntargetedUnitAbility",
+          "contains": [
+            "ActivatedAbilityKinds.GrantSelfBoon or ActivatedAbilityKinds.GrantFriendlyHereRoam",
+            "ability.ExhaustsSourceAsCost == false && ability.ExperienceCost is > 0",
+            "ability.RequiredTargetCount == 0 && ability.ManaCost == 0 && ability.PowerCost == 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs",
+          "member": "UntargetedUnitDefinition",
+          "contains": [
+            "ability.ExhaustsSourceAsCost == true",
+            "ExperienceCost: ability.ExperienceCost.GetValueOrDefault()",
+            "SourceRequiredTag: CardObjectTags.UnitCard",
+            "GrantsSourceBoon: ability.Kind == ActivatedAbilityKinds.GrantSelfBoon",
+            "GrantsFriendlyHereRoam: ability.Kind == ActivatedAbilityKinds.GrantFriendlyHereRoam"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "member": "ResolveSimpleActivation",
+          "contains": [
+            "CanActivateOrdinaryPowerAbility(state, intent.PlayerId)",
+            "SimpleActivationTargetCountValid(ability, targets.Count)",
+            "experienceCost: ability.ExperienceCost",
+            "PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state)",
+            "new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration)",
+            "PlayerExperience = paid.PlayerExperience, StackItems = [..state.StackItems, item]"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "member": "ValidSimpleActivationSource",
+          "contains": [
+            "AttachedRuleTextRules.ValidCaptured(state, origin, context.Source.ObjectId, context.Source.Generation, cardNo)",
+            "context.RuleTextInstanceId != $\"PRINTED:{context.Source.ObjectId}:{context.Source.Generation}\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PaymentCostRules.cs",
+          "member": "AuthorizePayment",
+          "contains": [
+            "currentExperience < plan.ExperienceCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PaymentCostRules.cs",
+          "member": "TryCommitPayment",
+          "contains": [
+            "currentExperience - plan.ExperienceCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "member": "ResolveSimpleActivationEffect",
+          "contains": [
+            "spec.GrantsSourceBoon",
+            "boonSource.ObjectGeneration == item.SimpleActivation!.Source.Generation",
+            "IsFaceUpNonStandbyUnit(boonSource) && IsObjectOnField(zones, boonSource.ObjectId)",
+            "ApplyBoon(boonSource"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ExperienceSelfBoonTests.cs",
+          "methods": [
+            "AnExhaustedSourcePaysTwoExperienceBeforeEachBoonAndOrdinaryBoonsDoNotStack",
+            "ThePromptShowsTwoExperienceAndOnlyOffersPayableActivations",
+            "InsufficientExperienceAndUnexpectedTargetsCannotChangeState",
+            "AClosedResponseWindowDoesNotPermitOrdinaryExperienceActivation",
+            "ReturningTheSourceInResponseKeepsTheExperienceSpentAndPreventsAnOffFieldBoon"
+          ]
+        }
+      ]
+    }
+  ]
+}
