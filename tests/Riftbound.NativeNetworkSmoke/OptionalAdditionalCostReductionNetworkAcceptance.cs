@@ -16,9 +16,11 @@ internal static class OptionalAdditionalCostReductionNetworkAcceptance
 
     private static async Task RunCaseAsync(string url, string output, bool recover)
     {
-        // A copied-case recovery replays the complete journal before the live payment step;
-        // on the shared SQL runner that replay can legitimately exceed the old 90-second limit.
-        using var deadline = new CancellationTokenSource(TimeSpan.FromMinutes(3));
+        // Both ordinary openings replay their complete original journal at the
+        // first Reconnect and again after the API restart. The shared runner's
+        // three-minute whole-case limit can expire before the first view arrives;
+        // retain every replay/view check and give the bounded case ten minutes.
+        using var deadline = new CancellationTokenSource(TimeSpan.FromMinutes(10));
         var token = deadline.Token;
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
         json.Converters.Add(new JsonStringEnumConverter());
