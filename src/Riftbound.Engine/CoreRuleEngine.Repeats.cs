@@ -32,12 +32,21 @@ public sealed partial class CoreRuleEngine
             if (!TryBuildPlayCardPlan(state, intent, repeatCommand, out var repeatPlan, out var rejection,
                     includeRejectionProjections: false, validateRepeats: false)
                 && (repeatPlan is null || rejection.ErrorCode != ErrorCodes.InsufficientCost)) return false;
-            if (!SupportsSeparateExecution(repeatPlan.Behavior)) return false;
+            if (!SupportsSeparateExecution(repeatPlan.Behavior)
+                || behavior.RequiresDistinctRepeatModes && result.Any(execution => execution.EffectKind == repeatPlan.Behavior.EffectKind)) return false;
             result.Add(Capture(repeatPlan.Behavior, repeatPlan.TargetObjectIds, repeatCommand.MovementDestinations, repeatCommand.Destination));
         }
         executions = result;
         return true;
     }
+
+    internal static bool ValidDistinctRepeatModes(StackItemState item)
+        => !CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var definition)
+            || !definition.RequiresDistinctRepeatModes
+            || (item.RepeatExecutions is { } executions
+                ? executions.All(execution => execution is not null)
+                    && executions.Select(execution => execution.EffectKind).Distinct(StringComparer.Ordinal).Count() == executions.Count
+                : item.EffectRepeatCount == 1);
 
     private static string NormalizeRepeatDestination(string? destination)
         => destination?.Trim() is { Length: > 0 } value && value != "BASE" ? value : string.Empty;

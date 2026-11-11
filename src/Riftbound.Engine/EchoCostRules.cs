@@ -12,36 +12,45 @@ public static class EchoCostRules
         IReadOnlyDictionary<string, int> TypedPower, string? PrintedCardNo = null);
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> SourceFamilies = new(() =>
         OfficialCardSourceIdentityGroups.BuildByRepresentativeCardNo(["UNL-146/219"]));
-    private static readonly Lazy<IReadOnlyDictionary<string, Cost>> Printed = new(() =>
+    private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<Cost>>> Printed = new(() =>
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
-            .Select(card => (card.CardNo, Cost: Parse(card.CardEffect)))
-            .Where(entry => entry.Cost is not null)
-            .ToDictionary(entry => entry.CardNo, entry => entry.Cost!, StringComparer.Ordinal));
+            .Select(card => (card.CardNo, Costs: ParsePrintedCosts(card.CardEffect)))
+            .Where(entry => entry.Costs.Count > 0)
+            .ToDictionary(entry => entry.CardNo, entry => entry.Costs, StringComparer.Ordinal));
 
-    private static Cost? Parse(string text)
+    private static IReadOnlyList<Cost> ParsePrintedCosts(string text)
     {
-        var match = Regex.Match(text, @"(?:^|\n)\{\{回响([^}]*)\}\}((?:\{\{[^}]+\}\})*)");
-        if (!match.Success) return null;
-        var tokens = Regex.Replace(match.Groups[1].Value + match.Groups[2].Value, @"[{}\s]", "");
-        // Non-resource costs (discard, mode-dependent alternatives) require their
-        // own cost/choice model. Do not silently interpret them as free Echo.
-        if (!Regex.IsMatch(tokens, @"^(\d+)?(红色|绿色|蓝色|黄色|橙色|紫色|A)*$") || tokens.Length == 0)
-            return null;
-        var number = Regex.Match(tokens, @"^\d+");
-        var mana = number.Success ? int.Parse(number.Value) : 0;
-        var typed = new Dictionary<string, int>(StringComparer.Ordinal);
-        var generic = 0;
-        foreach (Match symbol in Regex.Matches(tokens[number.Length..], @"红色|绿色|蓝色|黄色|橙色|紫色|A"))
+        var costs = new List<Cost>();
+        foreach (Match match in Regex.Matches(text.Replace("\\n", "\n"), @"(?:^|\n)\{\{回响([^}]*)\}\}([^\n]*)"))
         {
-            var trait = symbol.Value switch
+            var suffix = Regex.Match(match.Groups[2].Value, @"^[^（(]*").Value.Trim();
+            string[] declarations;
+            if (match.Groups[1].Value.Length == 0 && suffix.StartsWith('—'))
+                declarations = suffix[1..].Trim().Split('/');
+            else declarations = [match.Groups[1].Value + suffix];
+            foreach (var declaration in declarations)
             {
-                "红色" => "red", "绿色" => "green", "蓝色" => "blue",
-                "黄色" => "yellow", "橙色" => "orange", "紫色" => "purple", _ => ""
-            };
-            if (trait.Length == 0) generic++;
-            else typed[trait] = typed.GetValueOrDefault(trait) + 1;
+                var symbols = Regex.Replace(declaration, @"[{}\s]|支付|和", "");
+                // Non-resource costs keep their existing authoritative cost path.
+                // Never silently interpret an unsupported declaration as free Echo.
+                if (!Regex.IsMatch(symbols, @"^(\d+)?(红色|绿色|蓝色|黄色|橙色|紫色|A)*$") || symbols.Length == 0)
+                    return [];
+                var number = Regex.Match(symbols, @"^\d+");
+                var mana = number.Success ? int.Parse(number.Value) : 0;
+                var typed = new Dictionary<string, int>(StringComparer.Ordinal);
+                var generic = 0;
+                foreach (Match symbol in Regex.Matches(symbols[number.Length..], @"红色|绿色|蓝色|黄色|橙色|紫色|A"))
+                {
+                    var trait = symbol.Value switch {
+                        "红色" => "red", "绿色" => "green", "蓝色" => "blue",
+                        "黄色" => "yellow", "橙色" => "orange", "紫色" => "purple", _ => "" };
+                    if (trait.Length == 0) generic++;
+                    else typed[trait] = typed.GetValueOrDefault(trait) + 1;
+                }
+                costs.Add(new(costs.Count == 0 ? EchoOptionalCostNames.Echo : $"ECHO:PRINTED:{costs.Count + 1}", mana, generic, typed));
+            }
         }
-        return new(EchoOptionalCostNames.Echo, mana, generic, typed);
+        return costs;
     }
 
     // Deck effects need a resumable private selection; do not route placeholder
@@ -50,7 +59,8 @@ public static class EchoCostRules
         => behavior.DeckPlayKind.Length > 0 || CoreRuleEngine.SupportsSeparateExecution(behavior)
             || CoreRuleEngine.IsDeferredDeckChoice(behavior) || CoreRuleEngine.SupportsInsightRepeat(behavior);
 
-    public static Cost? PrintedFor(string cardNo) => Printed.Value.GetValueOrDefault(cardNo);
+    public static IReadOnlyList<Cost> PrintedCostsFor(string cardNo) => Printed.Value.GetValueOrDefault(cardNo) ?? [];
+    public static Cost? PrintedFor(string cardNo) => PrintedCostsFor(cardNo).FirstOrDefault();
     public static bool IsEcho(string id) => id == "ECHO" || id.StartsWith("ECHO:", StringComparison.Ordinal);
     public static bool IsGrant(string effect, string player)
         => effect == GrantPrefix + player || effect.StartsWith(GrantPrefix + player + ":", StringComparison.Ordinal);
@@ -59,7 +69,7 @@ public static class EchoCostRules
     {
         if (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment) return [];
         var costs = new List<Cost>();
-        if (PrintedFor(behavior.CardNo) is { } printed) costs.Add(printed);
+        costs.AddRange(PrintedCostsFor(behavior.CardNo));
         var grants = state.UntilEndOfTurnEffects.Count(effect => IsGrant(effect, player));
         for (var index = 0; index < grants; index++)
             costs.Add(new(costs.Count == 0 ? "ECHO" : $"ECHO:GRANTED:{index + 1}",

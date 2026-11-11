@@ -129,6 +129,8 @@ var cards = catalog.Cards.OrderBy(c => c.CardNo, StringComparer.Ordinal).Select(
         card.CardColorList, spec.FunctionalUnitId,
         armament = OfficialArmamentCatalog.Find(card.CardNo),
         behaviors = ActiveBehaviors(card.CardNo),
+        printedEchoCosts = EchoCostRules.PrintedCostsFor(card.CardNo),
+        supportsEchoRepeat = ActiveBehaviors(card.CardNo).Any(EchoCostRules.SupportsRepeatResolution),
         tokenTags = P6TokenFactoryCatalog.TryGetByCardNo(card.CardNo, out var factory)
             ? factory.CreateObject("audit-token", "audit-player", "audit-player").Tags.ToArray() : [],
         activations = activations.Where(a => P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(a, card.CardNo)).ToArray(),

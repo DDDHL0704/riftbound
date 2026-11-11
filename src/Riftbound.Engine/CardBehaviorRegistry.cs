@@ -466,6 +466,7 @@ public sealed partial record CardBehaviorDefinition(
     public bool EntersReadyAfterFriendlyStartPhaseUnitDestroyed { get; init; }
     public bool PerformsInsight => InsightCount > 0;
     public bool MayPayAnyAdditionalPower { get; init; }
+    public bool RequiresDistinctRepeatModes { get; init; }
     public CombatSpellCostAdjustmentSpec? CombatSpellCostAdjustment { get; init; }
     public bool FirstTargetRequiresArmament { get; init; }
     public bool DetachesArmamentFromFirstTarget { get; init; }
@@ -1813,7 +1814,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             Mode: "DRAW_1",
-            DrawCount: 1),
+            DrawCount: 1) { RequiresDistinctRepeatModes = true },
         new(
             "UNL-182/219",
             "完美谢幕",
@@ -1821,7 +1822,7 @@ public static class CardBehaviorRegistry
             "PERFECT_FINALE_BATTLEFIELD_DAMAGE_2",
             2,
             1,
-            Mode: "BATTLEFIELD_UNIT_DAMAGE_2"),
+            Mode: "BATTLEFIELD_UNIT_DAMAGE_2") { RequiresDistinctRepeatModes = true },
         new(
             "UNL-182/219",
             "完美谢幕",
@@ -1830,7 +1831,7 @@ public static class CardBehaviorRegistry
             3,
             1,
             TargetScope: CardTargetScopes.BaseUnit,
-            Mode: "BASE_UNIT_DAMAGE_3"),
+            Mode: "BASE_UNIT_DAMAGE_3") { RequiresDistinctRepeatModes = true },
         new(
             "UNL-182/219",
             "完美谢幕",
@@ -1839,7 +1840,7 @@ public static class CardBehaviorRegistry
             0,
             1,
             Mode: "BATTLEFIELD_UNIT_POWER_MINUS_4",
-            PowerModifierAmount: -4),
+            PowerModifierAmount: -4) { RequiresDistinctRepeatModes = true },
         new(
             "SFD·147/221",
             "坠渊之流",
