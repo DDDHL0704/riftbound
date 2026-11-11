@@ -225,6 +225,7 @@ public sealed class CrewEquipmentPlayObserverTests
             skill.UnitEvent! with { Timing = "PLAY" },
             skill.UnitEvent! with { FaceRevision = skill.UnitEvent!.FaceRevision + 1 },
             skill.UnitEvent! with { Other = null },
+            skill.UnitEvent! with { Other = skill.UnitEvent!.Other! with { Binding = null! } },
             skill.UnitEvent! with { Other = skill.UnitEvent!.Other! with {
                 Binding = skill.UnitEvent!.Other!.Binding with { Generation = skill.UnitEvent!.Other!.Binding.Generation + 1 } } } })
             Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game,

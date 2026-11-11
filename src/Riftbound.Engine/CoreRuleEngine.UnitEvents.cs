@@ -467,6 +467,7 @@ public sealed partial class CoreRuleEngine
             && (spec.Effect == DeploymentPlayMoveEffect ? ValidDeploymentPlayBattlefield(state, c) : c.DeploymentBattlefield is null)
             && (spec.Effect is "BANISH_ENTERED_EQUIPMENT" or DeploymentPlayMoveEffect
                     || spec.Timing == "FRIENDLY_EQUIPMENT_PLAYED" ? c.Other is { } other
+                && other.Binding is not null
                 && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision, c.CapturedTick, other.TokenFactoryCardNo)
                 && (CardBehaviorRegistry.TryGetByCardNo(other.CardNo, out var gear) && gear.PlaysSourceToBaseAsEquipment
                     || P6TokenFactoryCatalog.TryGetByCardNo(other.CardNo, out var token) && token.Tags.Contains(CardObjectTags.EquipmentCard))
