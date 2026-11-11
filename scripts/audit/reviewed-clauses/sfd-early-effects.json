@@ -41,15 +41,17 @@
       ],
       "text": "让一名单位本回合内获得{{强攻2}}。（如果它是进攻方，则{{S}}+2。）",
       "scope": "让一名单位本回合内获得{{强攻2}}。（如果它是进攻方，则{{S}}+2。）",
-      "status": "missing",
-      "reason": "旧实现只加OVERWHELM_2普通状态并在当前为进攻方时直接加战力；没有授予数值强攻2，不能在随后的真实战斗或读取关键词数值时生效",
-      "rules": "核心807 数值强攻、479 当前战力；SFD·003 官方中文牌面",
+      "status": "route",
+      "reason": "以独立临时关键词授予强攻2；共享数值消费者相加全部授予，只在当前进攻角色提供战力，角色结束立即停止加成，回合结束及离场重构清除",
+      "rules": "核心807.1–807.3 数值强攻及相加、466.2 战斗角色、186.1 新物体；本卡官方中文牌面",
       "runtime": {
         "behaviors": [
           {
-            "statusEffectId": "OVERWHELM_2",
-            "powerModifierAmount": 2,
-            "powerModifierConditionKind": "TARGET_IS_ATTACKING"
+            "statusEffectId": "COMBAT_KEYWORD:强攻2",
+            "requiredTargetCount": 1,
+            "targetScope": "ANY_UNIT",
+            "powerModifierAmount": 0,
+            "powerModifierConditionKind": "NONE"
           }
         ]
       },
@@ -57,16 +59,32 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "CardPowerModifierConditionKinds.TargetIsAttacking => targetState.IsAttacking",
-            "var status = behavior.StatusEffectId;"
+            "TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId)",
+            "isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CountedCombatKeywords.cs",
+          "member": "ResolveCountedCombatKeywordFromLayer",
+          "contains": [
+            "TemporaryCombatKeywordRules.Amount(unit, keyword)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/TemporaryCombatKeywordRules.cs",
+          "contains": [
+            "definition + \":\"",
+            "Keywords(card).Sum(tag => CardCombatKeywordRules.KeywordAmount([tag], keyword))"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
+          "path": "tests/Riftbound.ConformanceTests/PrintedAssaultGrantTests.cs",
           "methods": [
-            "CoreRuleEnginePlaysBloodRushEchoOverwhelmAttackingPower"
+            "AGrantCastInBaseAppliesOnALaterRealAttackAndEndsWithTheAttackRole",
+            "ARecalledTargetDoesNotGiveItsNewPrivateIncarnationTheOldAssault",
+            "ARealSwiftPlayDuringTheDuelDoesNotLeaveAnUnconditionalPowerBonusAfterBattle"
           ]
         }
       ]

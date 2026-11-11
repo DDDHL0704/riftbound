@@ -47,34 +47,53 @@
       ],
       "text": "让一名单位本回合内获得{{强攻3}}。（如果它是进攻方，则{{S}}+3。）",
       "scope": "让一名单位本回合内获得{{强攻3}}。（如果它是进攻方，则{{S}}+3。）",
-      "status": "missing",
-      "reason": "错误地使用无消费者的OVERWHELM_3标记并仅在结算时已进攻才加普通战力；基地施放后再进攻没有强攻，角色结束也不按强攻移除",
-      "rules": "核心807 强攻、466.2 战斗角色；OGN·004 官方中文牌面；O线已有同类漏报条目",
+      "status": "route",
+      "reason": "以独立临时关键词授予强攻3；共享数值消费者相加全部授予，只在当前进攻角色提供战力，角色结束立即停止加成，回合结束及离场重构清除",
+      "rules": "核心807.1–807.3 数值强攻及相加、466.2 战斗角色、186.1 新物体；本卡官方中文牌面",
       "runtime": {
         "behaviors": [
           {
-            "statusEffectId": "OVERWHELM_3",
-            "powerModifierAmount": 3,
-            "powerModifierConditionKind": "TARGET_IS_ATTACKING"
+            "statusEffectId": "COMBAT_KEYWORD:强攻3",
+            "requiredTargetCount": 1,
+            "targetScope": "ANY_UNIT",
+            "powerModifierAmount": 0,
+            "powerModifierConditionKind": "NONE"
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "\"CLEAVE_OVERWHELM_3\"",
-            "StatusEffectId: \"OVERWHELM_3\""
+            "TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId)",
+            "isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast"
           ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CountedCombatKeywords.cs",
+          "member": "ResolveCountedCombatKeywordFromLayer",
           "contains": [
-            "CardPowerModifierConditionKinds.TargetIsAttacking"
+            "TemporaryCombatKeywordRules.Amount(unit, keyword)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/TemporaryCombatKeywordRules.cs",
+          "contains": [
+            "definition + \":\"",
+            "Keywords(card).Sum(tag => CardCombatKeywordRules.KeywordAmount([tag], keyword))"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PrintedAssaultGrantTests.cs",
+          "methods": [
+            "AGrantCastInBaseAppliesOnALaterRealAttackAndEndsWithTheAttackRole",
+            "ARecalledTargetDoesNotGiveItsNewPrivateIncarnationTheOldAssault",
+            "ARealSwiftPlayDuringTheDuelDoesNotLeaveAnUnconditionalPowerBonusAfterBattle"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

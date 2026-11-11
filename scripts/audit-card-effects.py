@@ -3850,6 +3850,45 @@ def revealed_unit_deck_selection_route(card: dict, clause: dict, sources: Source
         'missing', '本句缺少精确打出／据守规格、关联选择或实际执行与原始观察校验')
 
 
+def temporary_assault_grant_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    if card.get("cardCategory") not in ("spell", "exclusive_spell"):
+        return None
+    bare = re.sub(r"\s+", "", unparenthesize(clause["text"]))
+    match = re.fullmatch(r"让一名单位(?:在)?本回合内获得\{\{强攻([0-9]*)\}\}(和\{\{游走\}\})?[。]?", bare)
+    if not match:
+        return None
+    amount = int(match[1] or "1")
+    expected = {"COMBAT_KEYWORD:强攻" + str(amount)}
+    if amount == 1:
+        expected.add("COMBAT_KEYWORD:强攻")
+    required = [
+        ("TemporaryCombatKeywordRules.AppliedEffectId(", "CoreRuleEngine.cs"),
+        ("TemporaryCombatKeywordRules.Amount(", "CoreRuleEngine.CountedCombatKeywords.cs"),
+        ("isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast", "CoreRuleEngine.cs"),
+    ]
+    if match[2]:
+        required.append(("UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost", "CoreRuleEngine.cs"))
+    consumers = [[p for p in sources.references(token) if Path(p).name == filename]
+                 for token, filename in required]
+    for behavior in card.get("behaviors", []):
+        statuses = {behavior.get("statusEffectId"), behavior.get("secondaryStatusEffectId")}
+        if behavior.get("requiredTargetCount") != 1 or behavior.get("minTargetCount", -1) not in (-1, 1) \
+                or behavior.get("anyNumberOfTargets") or behavior.get("targetScope") != "ANY_UNIT":
+            continue
+        if not statuses & expected or behavior.get("powerModifierAmount", 0) \
+                or behavior.get("secondaryPowerModifierAmount", 0) \
+                or behavior.get("powerModifierConditionKind", "NONE") != "NONE" \
+                or behavior.get("statusEffectUsesTargetCurrentPower") \
+                or behavior.get("statusEffectTargetIndex", -1) not in (-1, 0):
+            continue
+        if match[2] and "ROAM" not in statuses:
+            continue
+        if amount > 0 and all(consumers):
+            return result("route", "本回合临时强攻的独立实例、相加数值与当前进攻角色的共享消费者",
+                          [p for paths in consumers for p in paths])
+    return result("missing", "本句未授予正确数量的持续强攻；结算当下条件加战力不能代替临时关键词")
+
+
 def executable_member(sources: Sources, filename: str, name: str, *, field=False) -> str:
     """Bound evidence to one actual declaration; ambiguous overloads stay open."""
     code = sources.files.get('src/Riftbound.Engine/' + filename, '')
@@ -4205,6 +4244,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return result("review", "须独立核对各玩家私有保留选择与符文／主牌分类回收，普通回收字段不足以认证")
     if rune := rune_domain_reveal_route(card, clause, sources):
         return rune
+    if assault := temporary_assault_grant_route(card, clause, sources):
+        return assault
     if counted := counted_behavior_route(card, clause, sources):
         return counted
     if legacy := legacy_route(card, clause, sources):
