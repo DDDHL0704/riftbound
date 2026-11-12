@@ -250,26 +250,28 @@ public sealed class PendingLegendResourceTests
     [Fact]
     public async Task ActualIgnoreAllCostsPlayKeepsItsResourceActionExclusion()
     {
-        var profile = new Profile("Ornn", "SFD·189/221", "LEGEND", LegendActionAbilityCatalog.OrnnLegendAbilityId, "power", "ignore-all-negative");
-        var initial = WithLegend(HookDeckPlayTests.Position("SFD·148/221"), profile, new(1, 1));
-        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
-            ["GEAR"] = Printed("GEAR", "OGN·242/298"), ["HOST"] = Printed("HOST", "SFD·148/221"),
-            ["HOOK_TOP"] = Printed("HOOK_TOP", "OGN·096/298"), ["HOOK_OTHER"] = Printed("HOOK_OTHER", "SFD·042/221") } };
+        var profile = new Profile("Ornn", "SFD·189/221", "P2-LEGEND-ORNN", LegendActionAbilityCatalog.OrnnLegendAbilityId, "power", "ignore-all-negative");
+        // UNL-139 explicitly ignores every cost; Hook only waives base costs.
+        var initial = OfficialRevealedHandPlayTests.Position("OGN·096/298");
+        initial = initial with { Tick = 0,
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                [profile.SourceObjectId] = OfficialGarenConquestBattlefieldCountTests.Printed(profile.SourceObjectId, profile.CardNo, "P2") },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { [profile.SourceObjectId] = new("P2", "LEGEND") },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P2"] = initial.PlayerZones["P2"] with { LegendZone = [profile.SourceObjectId] } } };
         var game = new Driver(initial); var probe = new Dictionary<string, object?>();
         try
         {
-            var ability = Assert.Single(P4ActivatedAbilityCatalog.GetAll(), a => a.SourceCardNo == "OGN·242/298"
-                && a.Kind == ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest);
-            await game.Act("P1", new ActivateAbilityCommand("GEAR", ability.AbilityId, ["HOST"])); await game.Top();
-            var c = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
-            await game.Act("P1", new ChooseCardsCommand(c.ChoiceId, c.ChoiceWindow, ["HOOK_TOP"]));
+            await game.Act("P1", new PlayCardCommand("C", "UNL-139/219", ["BF"])); await game.Top();
+            var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+            await game.Act("P1", new ChooseCardsCommand(pending.ChoiceId, "REVEALED_HAND_PLAY", ["U"]));
             Assert.True(game.State.PendingEffectPlay!.IgnoreAllCosts);
-            Assert.DoesNotContain(CommandTypes.LegendAct, ResolutionResult.BuildPrompts(game.State)["P1"].Actions);
-            await Retained(game, "P1", new LegendActCommand("LEGEND", profile.AbilityId, [], []), false);
-            Assert.False(game.State.CardObjects["LEGEND"].IsExhausted); Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]);
-            await game.Act("P1", new PlayCardCommand("HOOK_TOP", "OGN·096/298", []));
-            Assert.Null(game.State.PendingEffectPlay); Assert.Contains("HOOK_TOP", game.State.PlayerZones["P1"].Base);
-            Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]); await game.Replay();
+            Assert.DoesNotContain(CommandTypes.LegendAct, ResolutionResult.BuildPrompts(game.State)["P2"].Actions);
+            await Retained(game, "P2", new LegendActCommand(profile.SourceObjectId, profile.AbilityId, [], []), false);
+            Assert.False(game.State.CardObjects[profile.SourceObjectId].IsExhausted); Assert.Equal(RunePool.Empty, game.State.RunePools["P2"]);
+            await game.Act("P2", new PlayCardCommand("U", "OGN·096/298", [], Destination: "BATTLEFIELD:BF"));
+            Assert.Null(game.State.PendingEffectPlay); Assert.Contains("U", game.State.PlayerZones["P2"].Battlefields);
+            Assert.Equal(RunePool.Empty, game.State.RunePools["P2"]); await game.Top(); await game.Replay();
         }
         finally { await Export("ignore-all", profile, initial, game, probe); }
     }

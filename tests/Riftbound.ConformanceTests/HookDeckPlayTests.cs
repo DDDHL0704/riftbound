@@ -16,7 +16,7 @@ public sealed class HookDeckPlayTests
         var choice=Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);Assert.Equal("DECK_PLAY_SELECTION",choice.ChoiceWindow);
         Assert.Equal(["HOOK_TOP"],choice.LegalObjectIds);Assert.Equal(0,choice.RequiredCount);
         await DeckPlaySequenceTests.Select(driver,"HOOK_TOP");
-        Assert.Equal("STACK",driver.State.ObjectLocations["HOOK_TOP"].Zone);Assert.True(driver.State.PendingEffectPlay!.IgnoreAllCosts);
+        Assert.Equal("STACK",driver.State.ObjectLocations["HOOK_TOP"].Zone);Assert.False(driver.State.PendingEffectPlay!.IgnoreAllCosts);
         var mana=driver.State.RunePools["P1"].Mana;await driver.Act("P1",new PlayCardCommand("HOOK_TOP","OGN·096/298",[]));
         Assert.Equal(mana,driver.State.RunePools["P1"].Mana);Assert.Contains("HOOK_TOP",driver.State.PlayerZones["P1"].Base);
         await RideTheWindCurrentMovementTests.Replay(initial,driver);
@@ -39,13 +39,21 @@ public sealed class HookDeckPlayTests
     [InlineData("UNL-166/219")]
     [InlineData("RAD·061/167")]
     [InlineData("RAD·061a/167")]
-    public async Task FreePendingPlayIgnoresPrintedManaPowerAndMandatoryAdditionalCosts(string card)
+    public async Task FreePendingPlayWaivesPrintedManaPowerAndPaysMandatoryAdditionalCosts(string card)
     {
         var initial=DeckPlaySequenceTests.TopCard(Position("SFD·148/221"),"HOOK_TOP",card);
+        initial=HandDiscardObserverTests.Put(initial,"EXTRA","UNL-166/219","P1","BASE");
         initial=initial with {RunePools=new Dictionary<string,RunePool>(initial.RunePools){["P1"]=new(1,0,new Dictionary<string,int>{[RuneTrait.Yellow]=1})}};
         var driver=Driver(initial,"free-"+card.Replace('·','-').Replace('/','-'));await Activate(driver);await driver.Top();await DeckPlaySequenceTests.Select(driver,"HOOK_TOP");
-        Assert.Equal(RunePool.Empty,driver.State.RunePools["P1"]);Assert.True(driver.State.PendingEffectPlay!.IgnoreAllCosts);
-        await driver.Act("P1",new PlayCardCommand("HOOK_TOP",card,[]));Assert.Equal(RunePool.Empty,driver.State.RunePools["P1"]);
+        Assert.Equal(RunePool.Empty,driver.State.RunePools["P1"]);Assert.False(driver.State.PendingEffectPlay!.IgnoreAllCosts);
+        var play=new PlayCardCommand("HOOK_TOP",card,[]);
+        await RadGearTestPosition.Reject(driver.State,"P1",play);
+        var fee=card=="SFD·044/221"?"RETURN_FRIENDLY_EQUIPMENT:GEAR":card.StartsWith("RAD·061",StringComparison.Ordinal)
+            ?"RETURN_FRIENDLY_UNIT:EXTRA":card=="UNL-166/219"?"DESTROY_FRIENDLY_TRAIT_UNIT:EXTRA":"DESTROY_FRIENDLY_UNIT:EXTRA";
+        await driver.Act("P1",play with {OptionalCosts=[fee]});Assert.Equal(RunePool.Empty,driver.State.RunePools["P1"]);
+        if(card=="SFD·044/221")Assert.Contains("GEAR",driver.State.PlayerZones["P1"].Hand);
+        else if(card.StartsWith("RAD·061",StringComparison.Ordinal))Assert.Contains("EXTRA",driver.State.PlayerZones["P1"].Hand);
+        else Assert.Contains("EXTRA",driver.State.PlayerZones["P1"].Graveyard);
         Assert.Contains("HOOK_TOP",driver.State.PlayerZones["P1"].Base);await RideTheWindCurrentMovementTests.Replay(initial,driver);
     }
 
@@ -66,10 +74,12 @@ public sealed class HookDeckPlayTests
     public async Task ActualAssembledMightIsCapturedBeforeTheTargetAndItsEquipmentLeaveTheField()
     {
         var initial=DeckPlaySequenceTests.TopCard(AttachedRuleTextTests.AddSong(Position("SFD·125/221"),"BOOST"),"HOOK_TOP","OGN·208/298");
+        initial=HandDiscardObserverTests.Put(initial,"EXTRA","OGN·096/298","P1","BASE");
         initial=initial with {CardObjects=new Dictionary<string,CardObjectState>(initial.CardObjects){["BOOST"]=initial.CardObjects["BOOST"] with {CardNo="SFD·033/221"}}};
         var driver=Driver(initial,"real-assembled-might");await driver.Act("P1",new AssembleEquipmentCommand("BOOST","HOST",["ASSEMBLE_GREEN"]));await driver.Top();
         await Activate(driver);await driver.Top();Assert.Equal(5,driver.State.StackItems.Last().DestroyDeckPlay!.KilledMight);
-        await DeckPlaySequenceTests.Select(driver,"HOOK_TOP");await driver.Act("P1",new PlayCardCommand("HOOK_TOP","OGN·208/298",[]));
+        await DeckPlaySequenceTests.Select(driver,"HOOK_TOP");await driver.Act("P1",new PlayCardCommand("HOOK_TOP","OGN·208/298",[],OptionalCosts:["DESTROY_FRIENDLY_UNIT:EXTRA"]));
+        Assert.Contains("EXTRA",driver.State.PlayerZones["P1"].Graveyard);
         Assert.Contains("HOOK_TOP",driver.State.PlayerZones["P1"].Base);await RideTheWindCurrentMovementTests.Replay(initial,driver);
     }
 
@@ -165,7 +175,7 @@ public sealed class HookDeckPlayTests
         if(mutation=="token-factory")bad=context with {DeclaredFrame=context.DeclaredFrame with {
             CardObjects=new Dictionary<string,CardObjectState>(context.DeclaredFrame.CardObjects){["HOST"]=context.DeclaredFrame.CardObjects["HOST"] with {TokenFactoryCardNo="FORGED-TOKEN"}}}};
         var parent=p.Parent with {DestroyDeckPlay=bad};
-        var forged=p with {Parent=parent,IgnoreAllCosts=mutation=="cost"?false:p.IgnoreAllCosts};
+        var forged=p with {Parent=parent,IgnoreAllCosts=mutation=="cost"?true:p.IgnoreAllCosts};
         if(mutation=="kind")forged=forged with {Parent=parent with {DeckPlaySequence=parent.DeckPlaySequence! with {Kind="SINGLE_PUBLIC_PLAY"}}};
         if(mutation=="repeat")forged=forged with {Parent=parent with {EffectRepeatCount=2}};
         Assert.Contains(OfficialInsightAndSpellLockTests.Errors(driver.State with {PendingEffectPlay=forged}),e=>e.Contains("deck"));

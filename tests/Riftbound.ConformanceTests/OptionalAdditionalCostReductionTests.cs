@@ -529,33 +529,28 @@ public sealed class OptionalAdditionalCostReductionTests
     [InlineData(false)] [InlineData(true)]
     public async Task AnActualIgnoreAllCostsPermissionKeepsOptionalChoicesAndWaivesTheirFinalPrice(bool haste)
     {
-        var initial = AddReducer(HookDeckPlayTests.Position("SFD·029/221"));
-        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
-            ["HOOK_TOP"] = OfficialGarenConquestBattlefieldCountTests.Printed("HOOK_TOP", "SFD·029/221", "P1") } };
-        var driver = HookDeckPlayTests.Driver(initial, "optional-reductions-ignore-all-costs");
-        await HookDeckPlayTests.Activate(driver);
-        await driver.Top();
-        await DeckPlaySequenceTests.Select(driver, "HOOK_TOP");
+        var (initial, driver) = await OpenExplicitAllCostsPlay("SFD·029/221", reducer: true);
         Assert.True(driver.State.PendingEffectPlay!.IgnoreAllCosts);
-        var play = Assert.Single(ResolutionResult.BuildPrompts(driver.State)["P1"].Candidates!, c => c.Action == CommandTypes.PlayCard);
+        var play = Assert.Single(ResolutionResult.BuildPrompts(driver.State)["P2"].Candidates!, c => c.Action == CommandTypes.PlayCard);
         var requirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(play.Metadata!["sourceRequirements"]));
         var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["optionalCostChoices"]);
         Assert.Contains(choices, choice => choice.Id == HasteOptionalCostNames.HasteReady);
         Assert.Contains(choices, choice => choice.Id == "OPTIONAL_COST_REDUCTION:EZREAL:0:ADDITIONAL:POWER-red");
         Assert.True(requirement.ContainsKey("optionalCostReductionGroups"));
-        var command = new PlayCardCommand("HOOK_TOP", "SFD·029/221", [], OptionalCosts: [HasteOptionalCostNames.HasteReady,
+        var command = new PlayCardCommand("U", "SFD·029/221", [], Destination: "BATTLEFIELD:BF", OptionalCosts: [HasteOptionalCostNames.HasteReady,
             "OPTIONAL_COST_REDUCTION:EZREAL:0:ADDITIONAL:POWER-red"]);
         var before = MatchStateHasher.Hash(driver.State);
-        var rejected = await new CoreRuleEngine().ResolveAsync(driver.State, new("missing-free-play-reduction", "P1", command.CmdType),
+        var rejected = await new CoreRuleEngine().ResolveAsync(driver.State, new("missing-free-play-reduction", "P2", command.CmdType),
             command with { OptionalCosts = [HasteOptionalCostNames.HasteReady] }, default);
         Assert.False(rejected.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode);
         Assert.Empty(rejected.Events);
         Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
-        var pool = driver.State.RunePools["P1"];
-        await driver.Act("P1", command with { OptionalCosts = haste ? command.OptionalCosts : [] });
-        Assert.Equal(pool, driver.State.RunePools["P1"]);
-        Assert.Equal(!haste, driver.State.CardObjects["HOOK_TOP"].IsExhausted);
+        var pool = driver.State.RunePools["P2"];
+        await driver.Act("P2", command with { OptionalCosts = haste ? command.OptionalCosts : [] });
+        Assert.Equal(pool, driver.State.RunePools["P2"]);
+        Assert.Equal(!haste, driver.State.CardObjects["U"].IsExhausted);
+        await driver.Top();
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
     }
 
@@ -563,22 +558,35 @@ public sealed class OptionalAdditionalCostReductionTests
     public async Task AnIgnoredOptionalNonstandardCostDoesNotDiscardTheChosenCard()
     {
         const string no = "OGN·002/298";
-        var initial = DeckPlaySequenceTests.TopCard(HookDeckPlayTests.Position("SFD·148/221"), "HOOK_TOP", no);
-        initial = HandDiscardObserverTests.Put(initial, "COST_CARD", "OGN·219/298", "P1", "HAND");
-        var driver = HookDeckPlayTests.Driver(initial, "ignored-discard-additional-cost");
-        await HookDeckPlayTests.Activate(driver); await driver.Top();
-        await DeckPlaySequenceTests.Select(driver, "HOOK_TOP");
-        var pool = driver.State.RunePools["P1"];
-        var command = new PlayCardCommand("HOOK_TOP", no, [], OptionalCosts: ["DISCARD_HAND_CARD:COST_CARD"]);
-        var rejected = await new CoreRuleEngine().ResolveAsync(driver.State, new("unknown-waived-discard", "P1", command.CmdType),
+        var (initial, driver) = await OpenExplicitAllCostsPlay(no, discard: true);
+        Assert.True(driver.State.PendingEffectPlay!.IgnoreAllCosts);
+        var pool = driver.State.RunePools["P2"];
+        var command = new PlayCardCommand("U", no, [], Destination: "BATTLEFIELD:BF", OptionalCosts: ["DISCARD_HAND_CARD:COST_CARD"]);
+        var rejected = await new CoreRuleEngine().ResolveAsync(driver.State, new("unknown-waived-discard", "P2", command.CmdType),
             command with { OptionalCosts = ["DISCARD_HAND_CARD:MISSING"] }, default);
         Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
         Assert.Equal(MatchStateHasher.Hash(driver.State), MatchStateHasher.Hash(rejected.State));
-        await driver.Act("P1", command);
-        Assert.Equal(pool, driver.State.RunePools["P1"]);
-        Assert.Contains("COST_CARD", driver.State.PlayerZones["P1"].Hand);
+        await driver.Act("P2", command);
+        Assert.Equal(pool, driver.State.RunePools["P2"]);
+        Assert.Contains("COST_CARD", driver.State.PlayerZones["P2"].Hand);
         Assert.DoesNotContain(driver.Events(), e => e.Event.Kind == "HAND_CARD_DISCARDED");
+        await driver.Top();
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
+    }
+
+    private static async Task<(MatchState Initial, StandbyDefendObserverTests.Driver Driver)> OpenExplicitAllCostsPlay(
+        string card, bool reducer = false, bool discard = false)
+    {
+        // UNL-139 explicitly waives all costs; Hook only waives base costs.
+        var initial = OfficialRevealedHandPlayTests.Position(card) with { Tick = 0 };
+        if (reducer) initial = HandDiscardObserverTests.Put(initial, "EZREAL", "SFD·149/221", "P2", "BASE");
+        if (discard) initial = HandDiscardObserverTests.Put(initial, "COST_CARD", "OGN·219/298", "P2", "HAND");
+        var driver = new StandbyDefendObserverTests.Driver(initial);
+        await driver.Act("P1", new PlayCardCommand("C", "UNL-139/219", ["BF"])); await driver.Top();
+        var pending = Assert.IsType<PendingEffectPlayState>(driver.State.PendingEffectPlay);
+        await driver.Act("P1", new ChooseCardsCommand(pending.ChoiceId, "REVEALED_HAND_PLAY", ["U"]));
+        Assert.True(driver.State.PendingEffectPlay!.IgnoreAllCosts);
+        return (initial, driver);
     }
 
     [Theory]

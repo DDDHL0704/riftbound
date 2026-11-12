@@ -89,6 +89,9 @@ jobs:
           retention-days: 30
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         if: steps.scope.outputs.tier != 'DOCS' && steps.reuse.outputs.reused != 'true'
+        env:
+          # Isolate requested SDKs from versions preinstalled on the runner image.
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/riftbound-l2-dotnet
         with:
           dotnet-version: |
             8.0.x
@@ -146,6 +149,8 @@ jobs:
         with:
           ref: ${{ github.sha }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/riftbound-l2-dotnet
         with:
           dotnet-version: |
             8.0.x
