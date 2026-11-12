@@ -327,6 +327,8 @@ public sealed partial class CoreRuleEngine
         var payload = new Dictionary<string, object?> { ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) };
         if (IsBattlefieldUnitPlayKind(item.FieldContext?.Kind))
             payload["discardedBattlefieldUnitPlayHash"] = MatchStateHasher.HashValue(item.StackItemId);
+        if (RequiresArmamentDamageHistory(item.DamageDistribution))
+            payload[DiscardedArmamentDamageHashKey] = MatchStateHasher.HashValue(item.StackItemId);
         if (RequiresObservedUnitEventHistory(item.UnitEvent))
             payload["discardedObservedUnitEventHash"] = MatchStateHasher.HashValue(item.StackItemId);
         var discarded = result with { State = state, Events = result.Events.Append(new GameEvent("TRIGGER_NOT_CONFIRMED", "未确认触发技能", payload)).ToArray(),

@@ -1,3 +1,4 @@
+using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using System.Text.Json.Serialization;
 
@@ -30,6 +31,7 @@ public sealed partial class CoreRuleEngine
                 if (CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
                     a => a.Kind == StaticAbilityKinds.ControllerSpellSkillDamageBonus && a.Amount > 0, out var bonus))
                     bonuses.Add(new(instance.CardNo, bonus.Kind, bonus.Amount, new(source.ObjectId, source.ObjectGeneration), instance.Origin));
+        bonuses.AddRange(AttachedArmamentSpellSkillDamageBonuses(state, controller));
         if (location?.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, location.BattlefieldObjectId) is { } field
             && BattlefieldStaticAbilitySpecRules.TryGetAbility(field.CardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldTargetSpellSkillDamageBonusAbility, out var fieldBonus))
@@ -142,14 +144,25 @@ public sealed partial class CoreRuleEngine
             || context.InitialBonuses is null || !AttachedRuleTextRules.ValidCaptured(state, context.Origin, sourceId, context.Source.Generation, context.CardNo)
             || context.Assignments is not null || context.ResolutionDamage is <= 0) return false;
         if (context.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(context.ReturnFocusPlayerId)) return false;
+        // These are historical initial contributions, not live permissions.
+        // A copied equipment token can cease; its mandatory original queue
+        // receipt authenticates the captured face and binding after departure.
+        bool ArmamentBinding(ObjectBinding? binding) => binding is { Generation: >= 0 }
+            && !string.IsNullOrWhiteSpace(binding.ObjectId)
+            && (!state.CardObjects.TryGetValue(binding.ObjectId, out var current) || binding.Generation <= current.ObjectGeneration);
         foreach (var bonus in context.InitialBonuses)
         {
-            if (bonus is null || !Binding(bonus.Source) || bonus.Amount <= 0
-                || state.CardObjects[bonus.Source.ObjectId] is { } bonusSource && bonusSource.ObjectGeneration == bonus.Source.Generation
+            if (bonus is null || !(bonus.Kind == ArmamentSpellSkillDamageBonusKind
+                    ? ArmamentBinding(bonus.Source) : Binding(bonus.Source)) || bonus.Amount <= 0
+                || bonus.Kind != ArmamentSpellSkillDamageBonusKind
+                    && state.CardObjects[bonus.Source.ObjectId] is { } bonusSource && bonusSource.ObjectGeneration == bonus.Source.Generation
                     && bonusSource.CardNo != bonus.CardNo
                 || !AttachedRuleTextRules.ValidCaptured(state, bonus.Origin, bonus.Source.ObjectId, bonus.Source.Generation, bonus.CardNo)) return false;
             var valid = bonus.Kind == StaticAbilityKinds.ControllerSpellSkillDamageBonus
                 ? CardStaticAbilitySpecRules.TryGetStaticAbility(bonus.CardNo, a => a.Kind == bonus.Kind && a.Amount == bonus.Amount, out _)
+                : bonus.Kind == ArmamentSpellSkillDamageBonusKind
+                    ? bonus.Origin is null && !string.IsNullOrWhiteSpace(bonus.CardNo)
+                        && OfficialArmamentCatalog.Find(bonus.CardNo)?.SpellSkillDamageBonus == bonus.Amount
                 : bonus.Kind == StaticAbilityKinds.BattlefieldTargetSpellSkillDamageBonus && bonus.Origin is null
                     && BattlefieldStaticAbilitySpecRules.TryGetAbility(bonus.CardNo, a => a.Kind == bonus.Kind && a.Amount == bonus.Amount, out _);
             if (!valid) return false;

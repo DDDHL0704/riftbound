@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·191/221"
+      ],
+      "text": "你的法术和技能造成的伤害+3（如果已贴附此牌）。",
+      "scope": "你的法术和技能造成的伤害+3（如果已贴附此牌）。",
+      "location": "armament",
+      "status": "route",
+      "reason": "已贴附下栏按当前宿主的控制者增加法术和技能伤害，逐个装备叠加；实际伤害和分配池沿用共享入口，原始捕获凭据约束历史恢复。",
+      "rules": "SFD·191/221官方中文下栏；核心136.2、718.5.e—g、719、418、713及715的伤害来源与实际伤害指令。",
+      "runtime": {
+        "armament": {
+          "effectText": "你的法术和技能造成的伤害+3（如果已贴附此牌）。",
+          "spellSkillDamageBonus": 3
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentSpellDamage.cs",
+          "member": "AttachedArmamentSpellSkillDamageBonuses",
+          "contains": [
+            "gear.AttachedToObjectId is not { } hostId",
+            "!IsObjectOnField(state.PlayerZones, gear.ObjectId)",
+            "!IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, hostId)",
+            "EffectiveFieldControllerId(state.PlayerZones, hostId, host) != controller",
+            "yield return new(face!, ArmamentSpellSkillDamageBonusKind, amount,"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DamageDistribution.cs",
+          "member": "DistributionBonuses",
+          "contains": [
+            "bonuses.AddRange(AttachedArmamentSpellSkillDamageBonuses(state, controller))"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ArmamentDamageBonuses.cs",
+          "member": "ValidateArmamentDamageBonusHistory",
+          "contains": [
+            "entry.Event.Payload?.ContainsKey(CoreRuleEngine.ArmamentDamageCaptureHashKey) == true",
+            "state.PendingRuleChoice?.Origin",
+            "CoreRuleEngine.ArmamentDamageCaptureHash(item.Context, item.Source, item.Controller)",
+            "!expected.SetEquals(current.Select(item => item.Id))"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentSpellDamageTests.cs",
+          "methods": [
+            "OfficialPlayAndAssemblyGrantThreeDamageOnlyWhileAttached",
+            "ResponseDetachmentOrHostReturnRemovesTheLiveDamageBonus",
+            "GrantedTextUsesTheHostsControllerInsteadOfTheEquipmentsOwner",
+            "OfficialCountedDamageExampleDoesNotCreateADamageActionWhenTheCountIsZero",
+            "DistributedAttackAddsThreeToThePoolOnceAndReevaluatesAttachmentAtResolution"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentSpellDamageTests.Additional.cs",
+          "methods": [
+            "TwoSeparateAttachedCapesAddOnceEachToTheSameRealSpellDamageAction",
+            "AnActualActivatedUnitSkillUsesTheSameCurrentAttachedBonus",
+            "AlphaStrikesChosenUnitDamageDoesNotAcquireASpellOrSkillBonus",
+            "OriginalFramesRejectCoordinatedBonusForgeriesWithoutRewritingAcceptedCommandsOrEvents",
+            "AnOriginalNullPayloadRejectsCapturedBonusRecoveryWithoutChangingTheAcceptedJournal",
+            "AnActualResponseMovesTheSkillSourceWithoutChangingItsImmutableBonusCapture",
+            "ADeclaredEquipmentImageCanCeaseDuringAnActualResponseWhileItsOriginalBonusRemainsHistorical"
+          ]
+        }
+      ]
+    }
+  ]
+}

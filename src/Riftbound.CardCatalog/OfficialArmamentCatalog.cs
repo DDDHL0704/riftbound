@@ -9,6 +9,7 @@ public sealed record OfficialArmamentDefinition(string CardNo, string SourceCard
     // While attached: destroy this equipment instead, then heal, exhaust and recall the host.
     public bool ReplacesHostDestruction { get; init; }
     public IReadOnlyList<string>? GrantedKeywords { get; init; }
+    public int SpellSkillDamageBonus { get; init; }
     public IReadOnlyList<string>? GrantedTraits { get; init; }
     public IReadOnlyList<string>? FriendlyUnitsHereKeywords { get; init; }
 }
@@ -25,7 +26,8 @@ public static class OfficialArmamentCatalog
         return document.Records.Select(record => record with {
             GrantedKeywords = record.GrantedKeywords ?? StandaloneKeywords(record.EffectText),
             GrantedTraits = record.GrantedTraits ?? HostTraits(record.EffectText),
-            FriendlyUnitsHereKeywords = record.FriendlyUnitsHereKeywords ?? FriendlyHereKeywords(record.EffectText)
+            FriendlyUnitsHereKeywords = record.FriendlyUnitsHereKeywords ?? FriendlyHereKeywords(record.EffectText),
+            SpellSkillDamageBonus = SpellSkillBonus(record.EffectText)
         }).ToDictionary(record => Normalize(record.CardNo), StringComparer.Ordinal);
     });
     // Only a complete keyword line is unconditional. Keywords mentioned by
@@ -46,6 +48,12 @@ public static class OfficialArmamentCatalog
             .SelectMany(match => KeywordParser.Parse("{{" + match.Groups["keyword"].Value + "}}", "")
                 .Where(keyword => keyword.RawText == match.Groups["keyword"].Value))
             .Select(keyword => keyword.RawText).Distinct(StringComparer.Ordinal).ToArray();
+
+    private static int SpellSkillBonus(string text)
+    {
+        var match = Regex.Match(text, @"^你的法术和技能造成的伤害\+(?<amount>[1-9][0-9]*)（如果已贴附此牌）[。]?$" );
+        return match.Success && int.TryParse(match.Groups["amount"].Value, out var amount) ? amount : 0;
+    }
 
     public static IReadOnlyList<OfficialArmamentDefinition> All => Definitions.Value.Values.OrderBy(r => r.CardNo, StringComparer.Ordinal).ToArray();
     public static OfficialArmamentDefinition? Find(string? cardNo) => Definitions.Value.GetValueOrDefault(Normalize(cardNo));
