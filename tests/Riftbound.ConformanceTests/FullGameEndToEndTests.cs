@@ -2159,9 +2159,35 @@ public sealed partial class FullGameEndToEndTests
             "b0-ornn-forge-equipment-cost-reduction");
         AssertBattlefieldEquipmentCostReductionEquipmentPlayed(current, equipmentPlayed);
 
+        var equipmentObjectId = FindHandCardObjectByCardNo(current.State, "P1", LongSwordEquipmentCardNo)!;
+        var targetObjectId = FindBaseUnitByCardNo(current.State, "P1", AggressiveDragonhoundCardNo)!;
+        var attachChoice = Assert.IsType<PendingCardChoiceState>(equipmentPlayed.State.PendingCardChoice);
+        Assert.Equal("TRIGGER_CONFIRMATION", attachChoice.ChoiceWindow);
+        Assert.Equal("P1", attachChoice.PlayerId);
+        Assert.Equal(equipmentObjectId, attachChoice.SourceObjectId);
+        Assert.Equal(1, attachChoice.RequiredCount);
+        Assert.Equal(1, attachChoice.MaxCount);
+        Assert.Contains(targetObjectId, attachChoice.LegalObjectIds);
+        var attachCommand = new ChooseCardsCommand(
+            attachChoice.ChoiceId,
+            attachChoice.ChoiceWindow,
+            [targetObjectId]);
+        var attachmentConfirmed = await session.SubmitAsync(
+            "P1",
+            "b0-ornn-forge-equipment-cost-reduction-confirm-agile",
+            attachCommand,
+            RawCommand(attachCommand),
+            CancellationToken.None);
+        AssertAccepted(attachmentConfirmed);
+        AssertNoHiddenZoneLeak(attachmentConfirmed);
+        Assert.Null(attachmentConfirmed.State.PendingCardChoice);
+        Assert.Equal(equipmentPlayed.State.RunePools["P1"], attachmentConfirmed.State.RunePools["P1"]);
+        Assert.Equal([targetObjectId], Assert.Single(attachmentConfirmed.State.StackItems).TargetObjectIds);
+        Assert.Null(attachmentConfirmed.State.CardObjects[equipmentObjectId].AttachedToObjectId);
+
         var equipmentResolved = await ResolveStackPassPassAsync(
             session,
-            equipmentPlayed,
+            attachmentConfirmed,
             "b0-ornn-forge-equipment-cost-reduction-resolve");
         AssertBattlefieldEquipmentCostReductionEquipmentResolved(current, equipmentResolved);
         var result = await DriveBattleCloseToScoreVictoryAsync(
@@ -2171,6 +2197,7 @@ public sealed partial class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ChooseCards, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -8343,9 +8370,16 @@ public sealed partial class FullGameEndToEndTests
         Assert.Equal(new RunePool(mana: 0, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)), result.State.RunePools["P1"]);
         Assert.DoesNotContain(equipmentObjectId, result.State.PlayerZones["P1"].Hand);
         Assert.Contains("PLAYED_EQUIPMENT_THIS_TURN:P1", result.State.UntilEndOfTurnEffects);
-        Assert.Single(result.State.StackItems, item =>
+        var skill = Assert.Single(result.State.StackItems, item =>
             string.Equals(item.ControllerId, "P1", StringComparison.Ordinal)
             && string.Equals(item.CardNo, LongSwordEquipmentCardNo, StringComparison.Ordinal));
+        Assert.True(skill.SourceConfirmed);
+        Assert.True(skill.PermanentPlayTargetsPending);
+        Assert.Empty(skill.TargetObjectIds);
+        Assert.Contains(equipmentObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Contains(targetObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Null(result.State.CardObjects[equipmentObjectId].AttachedToObjectId);
+        Assert.DoesNotContain(result.Events, gameEvent => gameEvent.Kind == "EQUIPMENT_ATTACHED");
 
         var costPaid = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
@@ -8363,7 +8397,7 @@ public sealed partial class FullGameEndToEndTests
             string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, equipmentObjectId, StringComparison.Ordinal));
         Assert.Equal(LongSwordEquipmentCardNo, stackEvent.Payload["cardNo"]);
-        Assert.Equal([targetObjectId], Assert.IsType<string[]>(stackEvent.Payload["targetObjectIds"]));
+        Assert.Empty(Assert.IsType<string[]>(stackEvent.Payload["targetObjectIds"]));
         Assert.Equal(battlefieldObjectId, BattlefieldObjectIdForCardNo(result.State, "P1", OrnnForgeBattlefieldEquipmentCostReductionCardNo));
         AssertNoHiddenZoneLeak(result);
     }
@@ -18156,18 +18190,11 @@ public sealed partial class FullGameEndToEndTests
             playerId,
             LongSwordEquipmentCardNo)
             ?? throw new InvalidOperationException("B0 Ornn's Forge driver could not find Long Sword in P1 hand.");
-        var targetObjectId = FindBaseUnitByCardNo(
-            current.State,
-            playerId,
-            AggressiveDragonhoundCardNo)
-            ?? throw new InvalidOperationException("B0 Ornn's Forge driver could not find Aggressive Dragonhound in P1 base.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
-        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
-            ?? [];
         Assert.Contains(equipmentObjectId, legalSourceIds);
-        Assert.Contains(targetObjectId, legalTargetIds);
+        Assert.Empty(candidate.Targets ?? []);
 
         var metadata = Assert.IsType<Dictionary<string, object?>>(candidate.Metadata);
         var sourceRequirement = Assert.Single(
@@ -18176,11 +18203,14 @@ public sealed partial class FullGameEndToEndTests
         Assert.Equal(2, Assert.IsType<int>(sourceRequirement["manaCost"]));
         Assert.Equal(1, Assert.IsType<int>(sourceRequirement["minimumManaCost"]));
         Assert.Equal(1, Assert.IsType<int>(sourceRequirement["battlefieldEquipmentCostReductionMana"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(sourceRequirement["targetChoicesByIndex"]));
 
         var command = new PlayCardCommand(
             equipmentObjectId,
             LongSwordEquipmentCardNo,
-            [targetObjectId]);
+            []);
         var result = await session.SubmitAsync(
             playerId,
             intentId,

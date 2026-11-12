@@ -48,8 +48,33 @@ def save(path, value):
 
 
 def checked(command, root, env, log):
-    with log.open("xb") as stream:
-        subprocess.run(command, cwd=root, env=env, stdout=stream, stderr=subprocess.STDOUT, check=True)
+    started = time.monotonic()
+    stage = log.with_name(log.name + ".stage.json")
+    record = {"status": "RUNNING", "command": command, "logPath": str(log),
+              "startedAtUtc": datetime.datetime.now(datetime.timezone.utc).isoformat()}
+
+    def checkpoint():
+        temporary = stage.with_name(stage.name + ".tmp")
+        temporary.write_text(json.dumps(record, indent=2) + "\n")
+        temporary.replace(stage)
+
+    checkpoint()
+    print(json.dumps({"event": "PAYMENT_STAGE_STARTED", "log": str(log),
+                      "at": record["startedAtUtc"]}), flush=True)
+    try:
+        with log.open("xb") as stream:
+            subprocess.run(command, cwd=root, env=env, stdout=stream, stderr=subprocess.STDOUT, check=True)
+    except BaseException as error:
+        record.update(status="FAILED", error=repr(error), exitCode=getattr(error, "returncode", None))
+        raise
+    else:
+        record.update(status="PASSED", exitCode=0)
+    finally:
+        record.update(finishedAtUtc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                      elapsedSeconds=time.monotonic() - started)
+        checkpoint()
+        print(json.dumps({"event": "PAYMENT_STAGE_FINISHED", "log": str(log),
+                          "status": record["status"], "elapsedSeconds": record["elapsedSeconds"]}), flush=True)
 
 
 def stop_api(process):

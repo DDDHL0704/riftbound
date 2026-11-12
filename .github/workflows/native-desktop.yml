@@ -17,7 +17,7 @@ on:
         type: choice
         required: false
         default: none
-        options: ['none', 'optional-additional-cost-reductions']
+        options: ['none', 'optional-additional-cost-reductions', 'imposed-movement']
 
 permissions:
   contents: read
@@ -75,6 +75,8 @@ jobs:
       - name: Verify fixed nightly build checkout
         run: python3 scripts/ci-candidate.py --expected "$RIFTBOUND_FIXED_COMMIT" --event-sha "$RIFTBOUND_FIXED_COMMIT" --output var/qa/nightly-prepared/checkout.json
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/riftbound-rule-dotnet
         with:
           dotnet-version: |
             8.0.x
@@ -137,6 +139,8 @@ jobs:
         with:
           ref: ${{ needs.scope.outputs.commit }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/riftbound-rule-dotnet
         with:
           dotnet-version: |
             8.0.x
@@ -383,7 +387,8 @@ jobs:
     name: SQL SignalR process restart
     needs: scope
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    # Restart plus five serial payment SQL/replay cases exceeded the old 120-minute job budget.
+    timeout-minutes: 360
     services:
       postgres:
         image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
@@ -492,7 +497,7 @@ jobs:
           python3 - <<'PY'
           import os
           assert os.environ['RIFTBOUND_POSTGRES_PARTITION'] in {'0', '1', '2', '3'}
-          assert os.environ['RIFTBOUND_PAYMENT_RECONNECT_CASE'] in {'none', 'optional-additional-cost-reductions'}
+          assert os.environ['RIFTBOUND_PAYMENT_RECONNECT_CASE'] in {'none', 'optional-additional-cost-reductions', 'imposed-movement'}
           PY
           python3 scripts/ci-candidate.py --expected "$RIFTBOUND_FIXED_COMMIT" --event-sha "$RIFTBOUND_FIXED_COMMIT" --output var/qa/ci-postgres-runtime/checkout.json
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
@@ -513,15 +518,15 @@ jobs:
             var/qa/ci-postgres-runtime/
           retention-days: 90
 
-      - name: Optional reduction SQL and authenticated reconnect diagnostic
-        if: ${{ inputs.payment_reconnect_case == 'optional-additional-cost-reductions' }}
+      - name: Selected payment SQL and authenticated reconnect diagnostic
+        if: ${{ inputs.payment_reconnect_case != 'none' }}
         env:
           PGPASSWORD: riftbound_ci
         run: >-
           python3 scripts/run-payment-reconnect-ci.py --expected "$RIFTBOUND_FIXED_COMMIT"
-          --case optional-additional-cost-reductions --output var/qa/ci-payment-diagnostic
+          --case "$RIFTBOUND_PAYMENT_RECONNECT_CASE" --output var/qa/ci-payment-diagnostic
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: ${{ always() && inputs.payment_reconnect_case == 'optional-additional-cost-reductions' }}
+        if: ${{ always() && inputs.payment_reconnect_case != 'none' }}
         with:
           name: payment-scoped-${{ inputs.postgres_partition }}
           path: var/qa/ci-payment-diagnostic/
