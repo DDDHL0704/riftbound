@@ -25,6 +25,35 @@ public sealed partial class CoreRuleEngine
                 .ToArray(), StringComparer.Ordinal);
     }
 
+    // CN 136.2/718.5.e-g/719: lower text belongs to the current host;
+    // its "you" and "here" follow that host, independently of gear control.
+    private static IReadOnlyDictionary<string, string[]> AttachedArmamentTraitAndHereGrants(MatchState state)
+    {
+        var grants = new List<(string Target, string Tag)>();
+        foreach (var gear in state.CardObjects.Values.OrderBy(card => card.ObjectId, StringComparer.Ordinal))
+        {
+            if (gear.AttachedToObjectId is not { } hostId || gear.IsFaceDown
+                || !gear.Tags.Contains(CardObjectTags.EquipmentCard)
+                || !IsObjectOnField(state.PlayerZones, gear.ObjectId)
+                || !state.CardObjects.TryGetValue(hostId, out var host) || host.IsFaceDown
+                || !(host.Tags.Contains(CardObjectTags.UnitCard) || host.Tags.Contains(CardObjectTags.EquipmentCard))
+                || !IsObjectOnField(state.PlayerZones, hostId)
+                || !IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, hostId)
+                || OfficialArmamentCatalog.Find(AttachedRuleTextRules.Face(gear)) is not { } definition) continue;
+            grants.AddRange((definition.GrantedTraits ?? []).Select(trait => (hostId, trait)));
+            if (definition.FriendlyUnitsHereKeywords is not { Count: > 0 } aura) continue;
+            var controller = EffectiveFieldControllerId(state.PlayerZones, hostId, host);
+            foreach (var target in state.CardObjects.Values.Where(target => IsFaceUpNonStandbyUnit(target)
+                && IsObjectOnField(state.PlayerZones, target.ObjectId)
+                && EffectiveFieldControllerId(state.PlayerZones, target.ObjectId, target) == controller
+                && IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, hostId, target.ObjectId))
+                .OrderBy(target => target.ObjectId, StringComparer.Ordinal))
+                grants.AddRange(aura.Select(keyword => (target.ObjectId, keyword)));
+        }
+        return grants.GroupBy(grant => grant.Target, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.Select(grant => grant.Tag).ToArray(), StringComparer.Ordinal);
+    }
+
     private static bool IsArmamentKeywordProvider(CardObjectState gear)
         => OfficialArmamentCatalog.Find(AttachedRuleTextRules.Face(gear)) is not null
             || gear.Tags.Contains(CardEquipmentKeywordNames.Weapon, StringComparer.Ordinal);

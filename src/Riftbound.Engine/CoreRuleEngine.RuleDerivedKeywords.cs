@@ -16,13 +16,15 @@ public sealed partial class CoreRuleEngine
 
     private static string[] PrintedObjectKeywords(CardObjectState card)
         => AttachedRuleTextRules.PrintedKeywords(AttachedRuleTextRules.Face(card) ?? "")
+            .Concat(PrintedCardFactory.PrintedTags(AttachedRuleTextRules.Face(card)))
             .Concat(CardBehaviorRegistry.TryGetByCardNo(AttachedRuleTextRules.Face(card) ?? "", out var printed)
                 ? ParseDelimitedValues(printed.SourceEquipmentTags) : []).Distinct(StringComparer.Ordinal).ToArray();
 
     private static MatchState RecomputeConditionalRuleDerivedKeywords(MatchState state)
     {
         var everywhereKeywords = AllPlacesEquipmentKeywords(state);
-        var armamentKeywords = AttachedArmamentKeywordGrants(state).Concat(everywhereKeywords)
+        var armamentKeywords = AttachedArmamentKeywordGrants(state)
+            .Concat(AttachedArmamentTraitAndHereGrants(state)).Concat(everywhereKeywords)
             .GroupBy(pair => pair.Key, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.SelectMany(pair => pair.Value).ToArray(), StringComparer.Ordinal);
         var field = state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct(StringComparer.Ordinal);
