@@ -11,6 +11,50 @@ RUNNER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(RUNNER)
 
 
+class StageCheckpointTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.log = self.root / 'driver-prepare.log'
+        self.stage = self.root / 'driver-prepare.log.stage.json'
+
+    def test_running_checkpoint_precedes_the_child_and_success_keeps_its_log(self):
+        def execute(command, **kwargs):
+            observed = json.loads(self.stage.read_text())
+            self.assertEqual('RUNNING', observed['status'])
+            self.assertNotIn('finishedAtUtc', observed)
+            self.assertEqual(['synthetic-driver', 'prepare'], observed['command'])
+            kwargs['stdout'].write(b'synthetic child output\n')
+        with mock.patch.object(RUNNER.subprocess, 'run', side_effect=execute):
+            RUNNER.checked(['synthetic-driver', 'prepare'], self.root, {}, self.log)
+        receipt = json.loads(self.stage.read_text())
+        self.assertEqual('PASSED', receipt['status'])
+        self.assertEqual(0, receipt['exitCode'])
+        self.assertGreaterEqual(receipt['elapsedSeconds'], 0)
+        self.assertEqual(b'synthetic child output\n', self.log.read_bytes())
+
+    def test_failed_child_remains_failed_with_its_original_return_code(self):
+        error = RUNNER.subprocess.CalledProcessError(17, ['synthetic-driver'])
+        with mock.patch.object(RUNNER.subprocess, 'run', side_effect=error):
+            with self.assertRaises(RUNNER.subprocess.CalledProcessError) as caught:
+                RUNNER.checked(['synthetic-driver'], self.root, {}, self.log)
+        self.assertIs(error, caught.exception)
+        receipt = json.loads(self.stage.read_text())
+        self.assertEqual('FAILED', receipt['status'])
+        self.assertEqual(17, receipt['exitCode'])
+        self.assertIn('finishedAtUtc', receipt)
+
+    def test_interrupted_stage_cannot_produce_a_passed_checkpoint(self):
+        with mock.patch.object(RUNNER.subprocess, 'run', side_effect=KeyboardInterrupt('synthetic cancel')):
+            with self.assertRaises(KeyboardInterrupt):
+                RUNNER.checked(['synthetic-driver'], self.root, {}, self.log)
+        receipt = json.loads(self.stage.read_text())
+        self.assertEqual('FAILED', receipt['status'])
+        self.assertIn('synthetic cancel', receipt['error'])
+        self.assertIsNone(receipt['exitCode'])
+
+
 class RestartSequenceTests(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory()

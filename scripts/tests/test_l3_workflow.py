@@ -145,13 +145,25 @@ class WorkflowCandidateTests(unittest.TestCase):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
         inputs = text[text.index('      payment_reconnect_case:'):text.index('\npermissions:')]
         self.assertIn('default: none', inputs)
-        self.assertIn("options: ['none', 'optional-additional-cost-reductions']", inputs)
+        self.assertIn("options: ['none', 'optional-additional-cost-reductions', 'imposed-movement']", inputs)
         job = text[text.index('  postgres_scoped:'):]
-        self.assertIn("if: ${{ inputs.payment_reconnect_case == 'optional-additional-cost-reductions' }}", job)
+        self.assertIn("if: ${{ inputs.payment_reconnect_case != 'none' }}", job)
         self.assertIn('scripts/run-payment-reconnect-ci.py --expected "$RIFTBOUND_FIXED_COMMIT"', job)
-        self.assertIn('--case optional-additional-cost-reductions --output var/qa/ci-payment-diagnostic', job)
+        self.assertIn('--case "$RIFTBOUND_PAYMENT_RECONNECT_CASE" --output var/qa/ci-payment-diagnostic', job)
+        self.assertIn("assert os.environ['RIFTBOUND_PAYMENT_RECONNECT_CASE'] in {'none', 'optional-additional-cost-reductions', 'imposed-movement'}", job)
         self.assertIn('name: payment-scoped-${{ inputs.postgres_partition }}', job)
         self.assertNotIn('payment_reconnect_case', text[text.index('  scope:'):text.index('  postgres_scoped:')])
+
+    def test_complete_payment_matrix_keeps_its_cases_and_has_the_sql_job_budget(self):
+        text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
+        jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
+        restart = jobs['related_network']
+        self.assertIn('timeout-minutes: 360', restart)
+        self.assertIn('scripts/run-process-restart-ci.py', restart)
+        self.assertIn('scripts/run-payment-reconnect-ci.py', restart)
+        self.assertNotIn('--case', restart)
+        self.assertNotIn('continue-on-error', restart)
+        self.assertIn('if: always()', restart)
 
     def test_workflow_action_inputs_cannot_repeat_yaml_keys(self):
         def check(text):
