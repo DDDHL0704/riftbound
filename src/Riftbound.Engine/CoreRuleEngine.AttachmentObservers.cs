@@ -92,13 +92,18 @@ public sealed partial class CoreRuleEngine
                     : gearZones with { Battlefields = [..gearZones.Battlefields, gearId] };
             }
             nextLocations[gearId] = new(controller, target.Zone, target.BattlefieldObjectId);
-            cards[gearId] = gear with { AttachedToObjectId = unitId };
+            cards[gearId] = gear with { AttachedToObjectId = unitId,
+                UntilEndOfTurnEffects = OfficialArmamentCatalog.Find(gear.CardNo)?.ConditionalMight?.Condition == "ATTACHED_THIS_TURN"
+                    ? gear.UntilEndOfTurnEffects.Append(ArmamentAttachedThisTurn).Distinct(StringComparer.Ordinal).ToArray()
+                    : gear.UntilEndOfTurnEffects };
             var payload = new Dictionary<string, object?> {
                 ["sourceObjectId"] = sourceId, ["equipmentObjectId"] = gearId, ["unitObjectId"] = unitId,
                 ["controllerId"] = controller, ["ownerId"] = gear.OwnerId, ["attachedToObjectId"] = unitId,
                 ["previousAttachedToObjectId"] = gear.AttachedToObjectId,
                 ["equipmentCardNo"] = gear.CardNo, ["reason"] = reason, ["attachingPlayerId"] = actor };
             if (metadata is not null) foreach (var pair in metadata) payload[pair.Key] = pair.Value;
+            if (cards[gearId].UntilEndOfTurnEffects.Contains(ArmamentAttachedThisTurn))
+                payload[PrivateArmamentAttachmentTurn] = new ObjectBinding(gearId, gear.ObjectGeneration);
             events.Add(new("EQUIPMENT_ATTACHED", "武装贴附至单位", payload));
             CaptureAttachmentObservers(zones, cards, unitId, gearId, actor, events);
         }

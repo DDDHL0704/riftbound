@@ -9,6 +9,7 @@ public sealed record OfficialArmamentDefinition(string CardNo, string SourceCard
     // While attached: destroy this equipment instead, then heal, exhaust and recall the host.
     public bool ReplacesHostDestruction { get; init; }
     public IReadOnlyList<string>? GrantedKeywords { get; init; }
+    public OfficialArmamentConditionalMight? ConditionalMight { get; init; }
     public int SpellSkillDamageBonus { get; init; }
     public IReadOnlyList<string>? GrantedTraits { get; init; }
     public IReadOnlyList<string>? FriendlyUnitsHereKeywords { get; init; }
@@ -24,6 +25,7 @@ public static class OfficialArmamentCatalog
         var document = JsonSerializer.Deserialize<Document>(File.ReadAllText(path), new JsonSerializerOptions(JsonSerializerDefaults.Web))
             ?? throw new InvalidDataException("Official armament source data is missing.");
         return document.Records.Select(record => record with {
+            ConditionalMight = ArmamentConditionalMightParser.Parse(record.EffectText),
             GrantedKeywords = record.GrantedKeywords ?? StandaloneKeywords(record.EffectText),
             GrantedTraits = record.GrantedTraits ?? HostTraits(record.EffectText),
             FriendlyUnitsHereKeywords = record.FriendlyUnitsHereKeywords ?? FriendlyHereKeywords(record.EffectText),

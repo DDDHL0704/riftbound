@@ -86,8 +86,8 @@ public sealed partial class CoreRuleEngine
             // Checked target intents may become confirmed while earned skills
             // are published. Observe those selections before opening responses.
             completed = QueueSelfActionObservers(collected.State, completed);
-            return NormalizeTurnEffectMarkers(StampNewTriggerQueueTimes(state,
-                RecordUnitEventSourceFacts(state, RecordEnemyUnitTargets(state, RecordBattlefieldScoringActions(PrepareTriggerConfirmation(PublishPendingTriggers(completed)))))));
+            return RecordArmamentAttachmentTurnHistory(state, NormalizeTurnEffectMarkers(StampNewTriggerQueueTimes(state,
+                RecordUnitEventSourceFacts(state, RecordEnemyUnitTargets(state, RecordBattlefieldScoringActions(PrepareTriggerConfirmation(PublishPendingTriggers(completed))))))));
     }
 
     // MatchState uses a sorted set of turn markers when deserializing. Publish

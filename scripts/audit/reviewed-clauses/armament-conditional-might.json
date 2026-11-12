@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·042/221"
+      ],
+      "text": "如果此牌是在本回合贴附到我身上的，则我额外获得{{S}}+2。",
+      "scope": "如果此牌是在本回合贴附到我身上的，则我额外获得{{S}}+2。",
+      "location": "armament",
+      "status": "route",
+      "runtime": {
+        "armament": {
+          "conditionalMight": {
+            "amount": 2,
+            "condition": "ATTACHED_THIS_TURN"
+          }
+        }
+      },
+      "reason": "真实贴附后的本回合额外+2战力与基础+1分别叠加；共用普通与灵便贴附入口。卸除、离场及真实回合清理后相应加成失效。贴附代际的原始接受事件用于恢复校验，拒绝添加、擦除、移植或过期复活该事实，不改写已接受记录。",
+      "rules": "官方SFD·042中文下栏；中国区核心136.2.b–d、137.3、435.1.g/i及435.4；铸魂淬炼官方裁判FAQ第17、18、21页（卸除、械扇只翻倍基础加成、旧回合已贴附武器不重获+2）",
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "+ ArmamentConditionalMightContributions(state, zones, card).Sum(c => c.Amount)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.AttachmentObservers.cs",
+          "contains": [
+            "if (gear.AttachedToObjectId == unitId) return false",
+            "gear.UntilEndOfTurnEffects.Append(ArmamentAttachedThisTurn)",
+            "payload[PrivateArmamentAttachmentTurn] = new ObjectBinding(gearId, gear.ObjectGeneration)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ArmamentConditionalMight.cs",
+          "contains": [
+            "entry.Sequence > boundary && entry.Tick <= frame.Tick",
+            "attached.Contains(CoreRuleEngine.ArmamentAttachmentTurnObject(card))",
+            "if (actual != expected)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentConditionalMightTests.cs",
+          "methods": [
+            "ActualPlayAndAttachmentApplyOnlyTheMatchingConditionalBonusAndDetachRemovesIt",
+            "AttachmentTurnBonusExpiresAtTheRealEndOfTurn",
+            "MechFanDoublesTheBaseBonusAndDoesNotDoubleTheConditionalTwo",
+            "TheRealAgileAttachmentEarnedFromPlayedJaxAlsoStartsTheConditionalTurnBonus",
+            "AttachmentTurnStateMustMatchItsOriginalAcceptedAttachmentHistory"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-039/219"
+      ],
+      "text": "{{等级3}}我额外获得{{S}}+1。（如果你拥有不少于3经验，则获得该效果。）",
+      "scope": "{{等级3}}我额外获得{{S}}+1。（如果你拥有不少于3经验，则获得该效果。）",
+      "location": "armament",
+      "status": "route",
+      "runtime": {
+        "armament": {
+          "conditionalMight": {
+            "amount": 1,
+            "condition": "CONTROLLER_EXPERIENCE_AT_LEAST",
+            "threshold": 3
+          }
+        }
+      },
+      "reason": "武装下栏向宿主提供独立于基础战力的等级3额外+1；经验达到或低于阈值时立即重算，真实控制权转移后按新控制者经验计算。",
+      "rules": "官方UNL-039中文下栏；中国区核心136.2.b–d、137.3、824.1.b–d（等级随当前控制者经验持续生效）",
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentConditionalMight.cs",
+          "contains": [
+            "EffectiveFieldControllerId(zones, host.ObjectId, host)",
+            "\"CONTROLLER_EXPERIENCE_AT_LEAST\" => state.PlayerExperience.GetValueOrDefault(controller) >= bonus.Threshold"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "+ ArmamentConditionalMightContributions(state, zones, card).Sum(c => c.Amount)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentConditionalMightTests.cs",
+          "methods": [
+            "LevelThreeUsesTheHostsActualExperience",
+            "SpendingRealExperienceImmediatelyDisablesTheLevelBonus",
+            "RealExperienceGainActivatesTheLevelBonusAfterTheBaseBonusCrossesMighty",
+            "ARealControlTransferUsesTheCurrentControllersExperienceInsteadOfItsOwners"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·027"
+      ],
+      "text": "如果我所在的战场上受你控制的其他单位有且仅有一个，则我获得{{S}}+2。",
+      "scope": "如果我所在的战场上受你控制的其他单位有且仅有一个，则我获得{{S}}+2。",
+      "location": "armament",
+      "status": "route",
+      "runtime": {
+        "armament": {
+          "conditionalMight": {
+            "amount": 2,
+            "condition": "EXACT_OTHER_FRIENDLY_UNITS_HERE",
+            "threshold": 1
+          }
+        }
+      },
+      "reason": "仅宿主所在战场恰好有一名其他友方单位时提供+2；按实际控制者和战场计数，真实单位指示物也计入。基地、其他战场、敌方单位或第二名友方均不能借用该条件。",
+      "rules": "官方VEN·027中文下栏；中国区核心136.2.b–d、137.3及359.3.f（按当前物体与此处引用）",
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentConditionalMight.cs",
+          "contains": [
+            "other.ObjectId != host.ObjectId",
+            "EffectiveFieldControllerId(zones, other.ObjectId, other) == controller",
+            "at.BattlefieldObjectId == here.BattlefieldObjectId",
+            "others.Length == bonus.Threshold"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "+ ArmamentConditionalMightContributions(state, zones, card).Sum(c => c.Amount)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentConditionalMightTests.cs",
+          "methods": [
+            "GavelTracksExactlyOneOtherFriendlyUnitAtItsActualBattlefield",
+            "GavelCountsTheActuallyCreatedFriendlyUnitTokenAndReevaluatesEachRealDeparture"
+          ]
+        }
+      ]
+    }
+  ]
+}
