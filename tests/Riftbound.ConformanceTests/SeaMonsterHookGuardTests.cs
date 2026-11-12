@@ -678,7 +678,7 @@ public sealed class SeaMonsterHookGuardTests
                 new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [id]), default);
             Assert.True(opened.Accepted, opened.ErrorMessage); events.AddRange(opened.Events);
         }
-        Assert.True(opened.State.PendingEffectPlay!.IgnoreAllCosts);
+        Assert.False(opened.State.PendingEffectPlay!.IgnoreAllCosts);
         Assert.Equal("STACK", opened.State.ObjectLocations[id].Zone);
         Assert.Single(opened.State.PendingEffectPlay.Sources);
         var mana = opened.State.RunePools["P1"].Mana;

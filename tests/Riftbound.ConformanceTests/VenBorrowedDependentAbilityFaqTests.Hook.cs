@@ -97,7 +97,7 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
             Assert.DoesNotContain("HOOK-GEAR", text);
         }
         await SelectBorrowedHook(game);
-        Assert.True(game.State.PendingEffectPlay!.IgnoreAllCosts);
+        Assert.False(game.State.PendingEffectPlay!.IgnoreAllCosts);
         var paid = MatchStateHasher.HashValue(game.State.RunePools);
         await game.Act("P1", new PlayCardCommand("HOOK-UNIT", "OGN·096/298", [], Destination: "BASE"));
         Assert.Equal(paid, MatchStateHasher.HashValue(game.State.RunePools));

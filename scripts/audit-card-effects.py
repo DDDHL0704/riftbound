@@ -4299,6 +4299,59 @@ def battlefield_unit_play_route(card: dict, clause: dict, sources: Sources) -> d
         if exact else result('missing', '缺少精确战场打出规格、独立确认响应或原始首次事件与对象连续性校验')
 
 
+def deck_play_base_cost_waiver_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    """Bind reveal/kill deck permissions to their exact base-only producer."""
+    shape = (normalize(unparenthesize(clause['text'])), normalize(unparenthesize(clause['scope'])))
+    end_text = '在你的回合结束时，从主牌堆顶部开始逐一展示卡牌，直到翻出一名单位为止，将其放逐，然后将其打出，无视费用，并回收其余的卡牌。'
+    hook_text = '你可以选择从中放逐一名战力比被摧毁单位最多高1点的单位卡牌，然后将其打出，无视费用。'
+    hook_scope = '支付{{1}}和{{黄色}}，{{横置}}：摧毁一名友方单位。'
+    end = shape == (normalize(end_text), normalize(end_text))
+    hook = shape == (normalize(hook_text), normalize(hook_scope))
+    if not end and not hook:
+        return None
+    exact = card.get('cardCategory') == 'equipment' and clause.get('location', 'upper') == 'upper'
+    if end:
+        exact = exact and clause['kind'] == 'trigger' and any(
+            inventory_contains(t.get('node', {}), dict(kind='TURN_END_REVEAL_UNTIL_UNIT', timing='TURN_END',
+                banishCount=1, playCount=1, playOriginZone='BANISHED', playDestinationZone='STACK'))
+            for t in card.get('triggers', []))
+        marker = 'if (parent.EndAbility is { Kind: TriggerKinds.TurnEndRevealUntilUnit } end && EndSpec(end.CardNo) is not null)'
+        kind = 'SINGLE_REVEAL_UNTIL_UNIT'
+    else:
+        exact = exact and clause['kind'] == 'activated' and any(
+            inventory_contains(a, dict(kind='DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST',
+                requiredTargetCount=1, exhaustsSourceAsCost=True, requiresBaseEquipmentSource=True,
+                mainDeckLookCount=5, playPowerDelta=1, playCardFilter='CARD_TYPE:UNIT', recycleUnplayedLookedCards=True))
+            and activation_cost_matches(a, dict(clause, text=clause['scope'])) for a in card.get('activations', []))
+        marker = 'if (parent.DestroyDeckPlay is { Prepared: true } killed && DestroyDeckPlayDefinition(parent, out var ability))'
+        kind = 'SINGLE_PRIVATE_LIMITED_UNIT_PLAY'
+    producer = executable_member(sources, 'CoreRuleEngine.EffectPlay.cs', 'TryGetEffectPlayDefinition')
+    branch = producer.split(marker, 1)[1].split('\n        }', 1)[0] if marker in producer else ''
+    if 'EffectPlayIgnoreAllCosts: true' in branch:
+        return result('missing', '牌库再次打出的“无视费用”被扩大为无视一切费用，额外费用及增费错误豁免')
+    exact = exact and all(fragment in branch for fragment in (
+        f'DeckPlayKind: "{kind}"', 'EffectPlayIgnoreBaseMana: true',
+        'EffectPlayIgnoreBasePower: true', 'EffectPlayIgnoreAllCosts: false'))
+    checks = [
+        ('CoreRuleEngine.EffectPlay.cs', 'EffectPlayBehavior', ['behavior with { IgnorePrintedPowerCost = pending.IgnoreBasePower }']),
+        ('CoreRuleEngine.EffectPlay.cs', 'BuildEffectPlayPrompts', ['!p.IgnoreAllCosts', 'CommandTypes.RefusePlayPayment', 'CommandTypes.TapRune', 'CommandTypes.RecycleRune']),
+        ('CoreRuleEngine.EffectPlay.cs', 'ResolveEffectPlayCommand', ['return ResolveRefusePlayPayment(', 'if (command is TapRuneCommand tap) return ResolveTapRune(', 'if (command is RecycleRuneCommand recycle) return ResolveRecycleRune(']),
+        ('CoreRuleEngine.DeckPlaySequence.cs', 'DeckPlayPending', ['definition.EffectPlayIgnoreBaseMana', 'definition.EffectPlayIgnoreBasePower', 'IgnoreAllCosts: definition.EffectPlayIgnoreAllCosts)']),
+        ('CoreRuleEngine.DeckPlaySequence.cs', 'ValidDeckPlayPending', ['var expected = DeckPlayPending(pending.Parent, c);', 'pending.IgnoreBaseMana == expected.IgnoreBaseMana', 'pending.IgnoreBasePower == expected.IgnoreBasePower', 'pending.IgnoreAllCosts == expected.IgnoreAllCosts']),
+        ('CoreRuleEngine.RefusedPlayPayment.cs', 'ResolveRefusePlayPayment', ['TryBuildPlayCardPlan(', 'plan.TotalManaCost == 0 && plan.TotalPowerCost == 0', 'return FinishEffectPlay(']),
+        ('CoreRuleEngine.EndStep.cs', 'ResolveEndAbility', ['TryGetEffectPlayDefinition(item, out var definition); return BeginDeckPlaySequence(state, item, definition);'])
+        if end else ('CoreRuleEngine.DestroyDeckPlay.cs', 'ResolveDestroyDeckPlay', ['TryGetEffectPlayDefinition(item, out var definition);', 'BeginDeckPlaySequence(state, item, definition)'])]
+    exact = exact and all(all(fragment in executable_member(sources, filename, member) for fragment in fragments)
+                          for filename, member, fragments in checks)
+    mana = sources.files.get('src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs', '')
+    exact = exact and 'effect?.IgnoreBaseMana == true' in mana
+    if not exact:
+        return result('review', '牌库打出的基础费用豁免缺少精确规格、付款消费者或恢复校验')
+    evidence = sorted({'src/Riftbound.Engine/' + filename for filename, _, _ in checks}
+                      | {'src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs'})
+    return result('route', '牌库再次打出仅免基础法力／符能，额外费用、增费、产费和拒付沿共享出牌及恢复流程处理', evidence)
+
+
 def base_cost_effect_play_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     """Match the repaired base-cost permissions, including their payer.
 
@@ -4661,6 +4714,8 @@ def standby_hand_base_cost_waiver_route(card: dict, clause: dict, sources: Sourc
 
 
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
+    if deck_base_cost := deck_play_base_cost_waiver_route(card, clause, sources):
+        return deck_base_cost
     if conditional := armament_conditional_might_route(card, clause, sources):
         return conditional
     if experience_skill := experience_unit_skill_route(card, clause, sources):

@@ -50,7 +50,7 @@ public sealed class DeckPlayObservationOrderTests
         Assert.True(viewed.Count > 1);
         Assert.Equal("END_UNIT", viewed[^1].ObjectId);
         Assert.Single(viewed, binding => state.CardObjects[binding.ObjectId].Tags.Contains(CardObjectTags.UnitCard));
-        Assert.True(pending.IgnoreAllCosts);
+        Assert.False(pending.IgnoreAllCosts); Assert.True(pending.IgnoreBaseMana); Assert.True(pending.IgnoreBasePower);
         state = await ActAfterMemberReordering(state, "P1", new PlayCardCommand("END_UNIT", "OGN·096/298", []));
         Assert.Contains("END_UNIT", state.PlayerZones["P1"].Base);
         Assert.Null(state.PendingEffectPlay);

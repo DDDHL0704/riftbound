@@ -149,12 +149,13 @@ public sealed class EndDeckPlayTests
 
     [Theory]
     [InlineData("OGN·208/298")] [InlineData("SFD·044/221")] [InlineData("UNL-166/219")]
-    public async Task EndFreePlayIgnoresPrintedMandatoryAdditionalCosts(string card)
+    public async Task EndFreePlayStillRequiresPrintedMandatoryAdditionalCosts(string card)
     {
         var initial=DeckPlaySequenceTests.TopCard(Position(),"END_UNIT",card);
         initial=initial with {RunePools=new Dictionary<string,RunePool>(initial.RunePools){["P1"]=RunePool.Empty}};
         var driver=Driver(initial,"aurora-free-"+card.Replace('·','-').Replace('/','-'));await driver.Act("P1",new EndTurnCommand());await driver.Top();
-        await driver.Act("P1",new PlayCardCommand("END_UNIT",card,[]));Assert.Contains("END_UNIT",driver.State.PlayerZones["P1"].Base);
+        await RadGearTestPosition.Reject(driver.State,"P1",new PlayCardCommand("END_UNIT",card,[]));
+        Assert.DoesNotContain("END_UNIT",driver.State.PlayerZones["P1"].Base);
         Assert.All(driver.Events().Where(e=>e.Event.Kind=="COST_PAID"),e=>Assert.Equal(0,e.Event.Payload["mana"]));await RideTheWindCurrentMovementTests.Replay(initial,driver);
     }
 
@@ -223,7 +224,7 @@ public sealed class EndDeckPlayTests
     public async Task RecoveryRejectsForgedAuroraPendingPlayAndRevealSequence(string mutation)
     {
         var driver=new StandbyDefendObserverTests.Driver(Position());await driver.Act("P1",new EndTurnCommand());await driver.Top();var p=driver.State.PendingEffectPlay!;
-        if(mutation=="permission")p=p with {IgnoreAllCosts=false};
+        if(mutation=="permission")p=p with {IgnoreAllCosts=true};
         if(mutation=="source-generation")p=p with {Parent=p.Parent with {DeckPlaySequence=p.Parent.DeckPlaySequence! with {Source=new("GEAR",99)}}};
         if(mutation=="second-unit")p=p with {Parent=p.Parent with {DeckPlaySequence=p.Parent.DeckPlaySequence! with {
             Viewed=new Dictionary<string,IReadOnlyList<ObjectBinding>> { ["P1"]=[new("END_UNIT",0),new("HOOK_TOP",0)] }}}};
@@ -253,7 +254,8 @@ public sealed class EndDeckPlayTests
         Assert.Equal("P1",driver.State.TurnPlayerId);Assert.Equal(MatchPhases.TurnEnd,driver.State.Phase);
         Assert.Single(driver.State.StackItems);Assert.DoesNotContain(driver.Events(),e=>e.Event.Kind=="CARDS_REVEALED");
         await driver.Top();var pending=Assert.IsType<PendingEffectPlayState>(driver.State.PendingEffectPlay);
-        Assert.True(pending.IgnoreAllCosts);Assert.Equal("STACK",driver.State.ObjectLocations["END_UNIT"].Zone);
+        Assert.False(pending.IgnoreAllCosts);Assert.True(pending.IgnoreBaseMana);Assert.True(pending.IgnoreBasePower);
+        Assert.Equal("STACK",driver.State.ObjectLocations["END_UNIT"].Zone);
         Assert.Equal(["END_PREFIX"],driver.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(2,Assert.Single(driver.Events(),e=>e.Event.Kind=="CARDS_REVEALED").Event.Payload["count"]);
         await driver.Act("P1",new PlayCardCommand("END_UNIT","OGN·096/298",[]));

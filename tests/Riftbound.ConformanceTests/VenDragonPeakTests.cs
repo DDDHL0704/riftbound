@@ -77,7 +77,7 @@ public sealed class VenDragonPeakTests
 
     [Theory]
     [InlineData(false)] [InlineData(true)]
-    public async Task IgnoringAllCostsKeepsTheChosenPeakAndHasteBenefitsWithoutChargingTheirFees(bool haste)
+    public async Task ABaseCostWaiverStillPaysTheChosenPeakAndHasteFees(bool haste)
     {
         const string no = "OGN·001/298";
         var initial = DeckPlaySequenceTests.TopCard(HookDeckPlayTests.Position("SFD·148/221"), "HOOK_TOP", no);
@@ -85,17 +85,18 @@ public sealed class VenDragonPeakTests
             CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
                 ["F"] = OfficialGarenConquestBattlefieldCountTests.Printed("F", "VEN·157", "P1") with { ControllerId = null } },
             RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
-                ["P1"] = new(1, 0, new Dictionary<string, int> { [RuneTrait.Yellow] = 1 }) } };
+                ["P1"] = new(1 + (haste ? 1 : 0), 2 + (haste ? 1 : 0), new Dictionary<string, int> { [RuneTrait.Yellow] = 1 }) } };
         var game = HookDeckPlayTests.Driver(initial, "free-peak-haste-" + haste);
         await HookDeckPlayTests.Activate(game); await game.Top();
         await DeckPlaySequenceTests.Select(game, "HOOK_TOP");
-        Assert.True(game.State.PendingEffectPlay!.IgnoreAllCosts);
-        Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]);
+        Assert.False(game.State.PendingEffectPlay!.IgnoreAllCosts);
         var play = new PlayCardCommand("HOOK_TOP", no, [], Destination: "BATTLEFIELD:F",
             OptionalCosts: haste ? ["BATTLEFIELD_UNIT_PLAY:F", HasteOptionalCostNames.HasteReady] : ["BATTLEFIELD_UNIT_PLAY:F"]);
         await Reject(game.State, "P1", play with { Destination = "BASE" });
         var quote = Quote(game.State, play); Assert.True(quote.CanPay, quote.Message);
-        Assert.Equal(0, quote.Cost!.Mana); Assert.Equal(0, quote.Cost.GenericPower); Assert.Empty(quote.Cost.PowerByTrait);
+        Assert.Equal(haste ? 1 : 0, quote.Cost!.Mana);
+        Assert.Equal(haste ? 3 : 2, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
+        await Reject(game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) { ["P1"] = RunePool.Empty } }, "P1", play);
         var prompt = Assert.Single(ResolutionResult.BuildPrompts(game.State)["P1"].Candidates!, c => c.Action == CommandTypes.PlayCard);
         Assert.Contains(prompt.Destinations!, d => d.Id == "BATTLEFIELD:F");
         await game.Act("P1", play);
