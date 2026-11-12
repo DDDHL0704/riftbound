@@ -878,9 +878,83 @@ def armament_trait_aura_route(card: dict, clause: dict, sources: Sources) -> dic
         if exact else result('missing', '缺少精确宿主属性／此处友方规格、公开贴附绑定或实际派生标签与移动消费者')
 
 
+def armament_spell_skill_damage_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    plain = unparenthesize(clause['text']).strip()
+    match = re.fullmatch(r'你的法术和技能造成的伤害\+(\d+)[。.]?', plain)
+    if not match:
+        return None
+    runtime = card.get('armament') or {}
+    text = runtime.get('effectText', '')
+    printed = re.fullmatch(r'你的法术和技能造成的伤害\+([1-9][0-9]*)（如果已贴附此牌）[。]?', text)
+    amount = runtime.get('spellSkillDamageBonus')
+    exact = printed is not None and type(amount) is int and amount == int(match[1]) == int(printed[1]) \
+        and clause.get('location') == 'armament' and clause['kind'] == 'static' \
+        and card.get('cardCategory') in {'equipment', 'exclusive_equipment'} \
+        and normalize(clause['text']) == normalize(text) \
+        and normalize(clause['scope']) == normalize(text) \
+        and normalize(unparenthesize(clause['scope'])) == normalize(plain) \
+        and not any(runtime.get(key) for key in ['grantedKeywords', 'grantedTraits', 'friendlyUnitsHereKeywords'])
+    allowed = {'cardNo', 'sourceCardNo', 'baseMightBonus', 'effectText', 'cardImageUrl', 'spellSkillDamageBonus',
+        'grantedKeywords', 'grantedTraits', 'friendlyUnitsHereKeywords'}
+    exact = exact and not any(meaningful(value) for key, value in runtime.items() if key not in allowed)
+    family = 'CoreRuleEngine.ArmamentSpellDamage.cs'
+    grant = executable_member(sources, family, 'AttachedArmamentSpellSkillDamageBonuses')
+    capture = executable_member(sources, family, 'ArmamentDamageCaptureHash')
+    checks = [
+        (family, 'AttachedArmamentSpellSkillDamageBonuses', [
+            'OfficialArmamentCatalog.Find(face)?.SpellSkillDamageBonus ?? 0',
+            'amount <= 0 || gear.IsFaceDown', '!gear.Tags.Contains(CardObjectTags.EquipmentCard)',
+            'gear.AttachedToObjectId is not { } hostId', '!IsObjectOnField(state.PlayerZones, gear.ObjectId)',
+            '!state.CardObjects.TryGetValue(hostId, out var host) || host.IsFaceDown',
+            'host.Tags.Contains(CardObjectTags.UnitCard) || host.Tags.Contains(CardObjectTags.EquipmentCard)',
+            '!IsObjectOnField(state.PlayerZones, hostId)',
+            '!IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, hostId)',
+            'EffectiveFieldControllerId(state.PlayerZones, hostId, host) != controller',
+            'yield return new(face!, ArmamentSpellSkillDamageBonusKind, amount,', 'new(gear.ObjectId, gear.ObjectGeneration)']),
+        (family, 'ArmamentDamageCaptureHash', ['context.InitialDamage, context.InitialBonuses',
+            'context.Origin, context.ReturnFocusPlayerId, sourceObjectId = source, controllerId = controller']),
+        ('CoreRuleEngine.DamageDistribution.cs', 'DistributionBonuses', [
+            'bonuses.AddRange(AttachedArmamentSpellSkillDamageBonuses(state, controller))',
+            'AttachedRuleTextRules.Instances(state, source)', 'ControllerSpellSkillDamageBonus',
+            'BattlefieldStaticAbilitySpecRules.IsBattlefieldTargetSpellSkillDamageBonusAbility']),
+        ('CoreRuleEngine.DamageDistribution.cs', 'DistributionDamage', [
+            'DistributionBonuses(state, item.ControllerId, DistributionHere(state, item.DamageDistribution!)).Sum(b => b.Amount)']),
+        ('CoreRuleEngine.cs', 'ApplySpellSkillDamageBonuses', [
+            'DistributionBonuses(state, controllerId, null).Sum(b => b.Amount)',
+            'EquipmentSkillDamageBonus(state, controllerId, sourceItem)', 'ActivatedSpellDamageBonus(state, sourceItem)']),
+        ('CoreRuleEngine.DistributedSpellDamage.cs', 'DistributedSpellDamage', [
+            'DistributionBonuses(state, player, targets.Select(id => state.ObjectLocations.GetValueOrDefault(id))']),
+        ('CoreRuleEngine.AttackAreaDamage.cs', 'ResolveAttackAreaDamage', [
+            'DistributionBonuses(state, item.ControllerId, null).Sum(bonus => bonus.Amount)']),
+        ('CoreRuleEngine.cs', 'BuildTriggerQueuedEvent', ['RequiresArmamentDamageHistory(trigger.DamageDistribution)',
+            'payload[ArmamentDamageCaptureHashKey] = ArmamentDamageCaptureHash(trigger.DamageDistribution!']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'DiscardUnconfirmedTrigger', [
+            'RequiresArmamentDamageHistory(item.DamageDistribution)',
+            'payload[DiscardedArmamentDamageHashKey] = MatchStateHasher.HashValue(item.StackItemId)']),
+        ('MatchRecovery.cs', 'ValidateFrame', [
+            'ValidateArmamentDamageBonusHistory(authoritativeState, commands, events, errors)']),
+        ('MatchRecovery.ArmamentDamageBonuses.cs', 'ValidateArmamentDamageBonusHistory', [
+            'state.PendingRuleChoice?.Origin', 'entry.Event.Payload?.ContainsKey(CoreRuleEngine.ArmamentDamageCaptureHashKey) == true',
+            'command.Accepted && command.CompletedTick == entry.Tick',
+            'CoreRuleEngine.ArmamentDamageCaptureHash(item.Context, item.Source, item.Controller)',
+            'pending.Parent', 'expected.ExceptWith(retired)', '!expected.SetEquals(current.Select(item => item.Id))']),
+    ]
+    exact = exact and not any(token in grant for token in [
+        'gear.ControllerId == controller', 'gear.OwnerId == controller',
+        'gear.Tags.Contains(CardObjectTags.Standby)', 'host.Tags.Contains(CardObjectTags.Standby)']) \
+        and not any(token in capture for token in ['context.SourceLocation', 'context.Assignments', 'context.ResolutionDamage']) \
+        and all(all(token in executable_member(sources, path, name) for token in tokens)
+            for path, name, tokens in checks)
+    paths = sorted({'src/Riftbound.Engine/' + path for path, _, _ in checks})
+    return result('route', '精确下栏按公开贴附宿主的当前控制者增加法术和技能伤害；共享实际伤害及分配池消费者，原始捕获凭据约束恢复', paths) \
+        if exact else result('missing', '缺少精确已贴附伤害规格、当前宿主绑定、实际伤害消费者或原始捕获恢复校验')
+
+
 def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if trait_aura := armament_trait_aura_route(card, clause, sources):
         return trait_aura
+    if damage := armament_spell_skill_damage_route(card, clause, sources):
+        return damage
     runtime = card.get("armament", {})
     bare = normalize(unparenthesize(clause["text"]))
     if clause["kind"] == "keyword":
@@ -904,7 +978,7 @@ def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
     # Upper-box activations, the equipment's own tags and donor parsers do not
     # grant a lower-box skill to its host. Unknown future runtime fields keep
     # the clause in review until their concrete consumer is mapped.
-    known = {"cardNo", "sourceCardNo", "baseMightBonus", "effectText", "cardImageUrl",
+    known = {"cardNo", "sourceCardNo", "baseMightBonus", "effectText", "cardImageUrl", "spellSkillDamageBonus",
              "copiesHostPrintedRulesText", "copiesChosenFriendlyUnit", "replacesHostDestruction", "grantedKeywords",
              "grantedTraits", "friendlyUnitsHereKeywords"}
     if any(meaningful(value) for key, value in runtime.items() if key not in known):

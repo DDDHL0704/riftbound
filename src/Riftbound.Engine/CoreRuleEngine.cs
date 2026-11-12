@@ -5337,6 +5337,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
         AddBattlefieldUnitPlayReceipt(trigger, payload);
+        if (RequiresArmamentDamageHistory(trigger.DamageDistribution))
+            payload[ArmamentDamageCaptureHashKey] = ArmamentDamageCaptureHash(trigger.DamageDistribution!,
+                trigger.SourceObjectId, trigger.ControllerId);
         if (trigger.UnitEvent is { FirstConquestTurn: { } firstTurn } firstConquest)
         {
             payload["firstConquestUse"] = FirstConquestUse(trigger.SourceObjectId, firstConquest);
