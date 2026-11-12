@@ -15,15 +15,16 @@ class DailyWorkflowTests(unittest.TestCase):
         # setup-dotnet's default shared directory can contain a newer SDK that
         # global.json's latestFeature selects despite installing the requested one.
         self.assertEqual('latestFeature', json.loads((ROOT / 'global.json').read_text())['sdk']['rollForward'])
-        for filename, jobs in [('backend-l2.yml', ('prepare', 'rule_suite')),
-                               ('native-desktop.yml', ('rule_prepare', 'rule_shards'))]:
+        for filename, jobs, install_dir in [
+                ('backend-l2.yml', ('prepare', 'rule_suite'), 'riftbound-l2-dotnet'),
+                ('native-desktop.yml', ('rule_prepare', 'rule_shards'), 'riftbound-rule-dotnet')]:
             text = (ROOT / '.github/workflows' / filename).read_text()
             blocks = dict(re.findall(r'^  ([a-z0-9_]+):\n(.*?)(?=^  [a-z0-9_]+:\n|\Z)',
                                      text.split('jobs:\n', 1)[1], re.M | re.S))
             for job in jobs:
                 setup = blocks[job].split('      - uses: actions/setup-dotnet@', 1)[1].split('\n      - ', 1)[0]
                 with self.subTest(workflow=filename, job=job):
-                    self.assertIn('DOTNET_INSTALL_DIR: ${{ runner.temp }}/riftbound-rule-dotnet', setup)
+                    self.assertIn('DOTNET_INSTALL_DIR: ${{ runner.temp }}/' + install_dir, setup)
                     self.assertIn('8.0.x', setup)
                     self.assertIn('10.0.403' if job.endswith('prepare') else 'outputs.sdk }}', setup)
                     self.assertNotIn('10.0.x', setup)

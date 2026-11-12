@@ -98,7 +98,7 @@ public sealed partial class CoreRuleEngine
         {
             definition = new(end.CardNo, "结束步骤展示并打出", 0, parent.EffectKind, 0, 0,
                 DeckPlayKind: "SINGLE_REVEAL_UNTIL_UNIT", EffectPlayRevealsCards: true,
-                EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true, EffectPlayIgnoreAllCosts: true);
+                EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true, EffectPlayIgnoreAllCosts: false);
             return true;
         }
         if (parent.DestroyDeckPlay is { Prepared: true } killed && DestroyDeckPlayDefinition(parent, out var ability))
@@ -106,7 +106,7 @@ public sealed partial class CoreRuleEngine
             definition = new(parent.CardNo, ability.DisplayName, 0, parent.EffectKind, 0, 0,
                 MainDeckLookCount: ability.MainDeckLookCount, DeckPlayKind: "SINGLE_PRIVATE_LIMITED_UNIT_PLAY",
                 DeckPlayMaximumUnitMight: killed.KilledMight is { } might ? might + ability.PlayPowerDelta : null,
-                EffectPlayOptional: true, EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true, EffectPlayIgnoreAllCosts: true);
+                EffectPlayOptional: true, EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true, EffectPlayIgnoreAllCosts: false);
             return true;
         }
         if (parent.FieldContext is { Kind: "ATTACK_DECK_PLAY" } attack && AttackDeckPlaySpec(attack.CardNo) is { } spec)
