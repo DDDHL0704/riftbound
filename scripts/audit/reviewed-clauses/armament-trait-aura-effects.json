@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·073/221"
+      ],
+      "text": "我拥有“机械”属性。",
+      "scope": "我拥有“机械”属性。",
+      "location": "armament",
+      "status": "route",
+      "reason": "已贴附下栏从当前宿主授予属性或此处友方游走；卸除、移动、隐藏及控制者变化重算，印刷属性保留。",
+      "rules": "SFD官方中文下栏；核心136.2.b—d、718.3及718.5.e—g、719.1/719.3/719.5；持续效果476—478和游走810。",
+      "runtime": {
+        "armament": {
+          "effectText": "我拥有“机械”属性。",
+          "grantedTraits": [
+            "机械"
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentKeywords.cs",
+          "member": "AttachedArmamentTraitAndHereGrants",
+          "contains": [
+            "gear.AttachedToObjectId is not { } hostId || gear.IsFaceDown",
+            "!state.CardObjects.TryGetValue(hostId, out var host) || host.IsFaceDown",
+            "!IsObjectOnField(state.PlayerZones, gear.ObjectId)",
+            "!IsObjectOnField(state.PlayerZones, hostId)",
+            "!IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, hostId)",
+            "grants.AddRange((definition.GrantedTraits ?? []).Select(trait => (hostId, trait)))",
+            "EffectiveFieldControllerId(state.PlayerZones, hostId, host)",
+            "IsFaceUpNonStandbyUnit(target)",
+            "EffectiveFieldControllerId(state.PlayerZones, target.ObjectId, target) == controller",
+            "IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, hostId, target.ObjectId)",
+            "grants.AddRange(aura.Select(keyword => (target.ObjectId, keyword)))"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "member": "RecomputeConditionalRuleDerivedKeywords",
+          "contains": [
+            ".Concat(AttachedArmamentTraitAndHereGrants(state))",
+            ".Concat(everywhereKeywords)",
+            "var printed = PrintedObjectKeywords(card)",
+            "printed.Contains(t) || card.GrantedTags?.Contains(t) == true",
+            "armamentKeywords.GetValueOrDefault(id)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "member": "PrintedObjectKeywords",
+          "contains": [
+            "PrintedCardFactory.PrintedTags(AttachedRuleTextRules.Face(card))"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "member": "RefreshRuleDerivedKeywordLayers",
+          "contains": [
+            "RecomputeRuleDerivedKeywords(result.State)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentTraitAuraTests.cs",
+          "methods": [
+            "ActualPlayAttachAndDetachGrantOnlyTheLowerBoxHostOrAura",
+            "TheMechanicalCostReductionUsesTheHostTraitAndEndsOnDetach",
+            "ARealMechanicalOnlySpellBuffsTheAttachedHostAndLeavesOtherUnitsAlone"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentTraitAuraTests.Additional.cs",
+          "methods": [
+            "RemovingTheCurrentAttachmentOrPublicLocationRemovesItsOwnDerivedLayer",
+            "RecoveryRejectsAnErasedOrInventedDerivedTraitAndLocalAura"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·192/221"
+      ],
+      "text": "你在此处的单位获得{{游走}}。（我们可以向其他战场进行移动。）",
+      "scope": "你在此处的单位获得{{游走}}。（我们可以向其他战场进行移动。）",
+      "location": "armament",
+      "status": "route",
+      "reason": "已贴附下栏从当前宿主授予属性或此处友方游走；卸除、移动、隐藏及控制者变化重算，印刷属性保留。",
+      "rules": "SFD官方中文下栏；核心136.2.b—d、718.3及718.5.e—g、719.1/719.3/719.5；持续效果476—478和游走810。",
+      "runtime": {
+        "armament": {
+          "effectText": "你在此处的单位获得{{游走}}。（我们可以向其他战场进行移动。）",
+          "friendlyUnitsHereKeywords": [
+            "游走"
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentKeywords.cs",
+          "member": "AttachedArmamentTraitAndHereGrants",
+          "contains": [
+            "gear.AttachedToObjectId is not { } hostId || gear.IsFaceDown",
+            "!state.CardObjects.TryGetValue(hostId, out var host) || host.IsFaceDown",
+            "!IsObjectOnField(state.PlayerZones, gear.ObjectId)",
+            "!IsObjectOnField(state.PlayerZones, hostId)",
+            "!IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, hostId)",
+            "grants.AddRange((definition.GrantedTraits ?? []).Select(trait => (hostId, trait)))",
+            "EffectiveFieldControllerId(state.PlayerZones, hostId, host)",
+            "IsFaceUpNonStandbyUnit(target)",
+            "EffectiveFieldControllerId(state.PlayerZones, target.ObjectId, target) == controller",
+            "IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, hostId, target.ObjectId)",
+            "grants.AddRange(aura.Select(keyword => (target.ObjectId, keyword)))"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "member": "RecomputeConditionalRuleDerivedKeywords",
+          "contains": [
+            ".Concat(AttachedArmamentTraitAndHereGrants(state))",
+            ".Concat(everywhereKeywords)",
+            "var printed = PrintedObjectKeywords(card)",
+            "printed.Contains(t) || card.GrantedTags?.Contains(t) == true",
+            "armamentKeywords.GetValueOrDefault(id)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "member": "PrintedObjectKeywords",
+          "contains": [
+            "PrintedCardFactory.PrintedTags(AttachedRuleTextRules.Face(card))"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "member": "RefreshRuleDerivedKeywordLayers",
+          "contains": [
+            "RecomputeRuleDerivedKeywords(result.State)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentTraitAuraTests.cs",
+          "methods": [
+            "ActualPlayAttachAndDetachGrantOnlyTheLowerBoxHostOrAura",
+            "MovingTheAuraHostChangesHereAndEnablesTheNewBattlefieldFriendsRoam",
+            "RecallingTheAuraHostRemovesTheOldLocationsGrantAndDetachesTheSource"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentTraitAuraTests.Additional.cs",
+          "methods": [
+            "RemovingTheCurrentAttachmentOrPublicLocationRemovesItsOwnDerivedLayer",
+            "RecoveryRejectsAnErasedOrInventedDerivedTraitAndLocalAura"
+          ]
+        }
+      ]
+    }
+  ]
+}

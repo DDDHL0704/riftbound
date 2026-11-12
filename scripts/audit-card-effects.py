@@ -809,7 +809,78 @@ def has_bounded_enemy_armament_movement_reader(sources: Sources) -> bool:
         and len(re.findall(r'\b[A-Za-z_]\w*\.EffectText\b', code)) == 1
 
 
+def armament_trait_aura_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    plain = unparenthesize(clause['text']).strip()
+    trait = re.fullmatch(r'我拥有[“"]([^“”"\r\n]+)[”"]属性[。.]?', plain)
+    aura = normalize(plain) == normalize('你在此处的单位获得{{游走}}。')
+    if not trait and not aura:
+        return None
+    runtime = card.get('armament') or {}
+    expected = dict(grantedTraits=[trait[1]], friendlyUnitsHereKeywords=[]) if trait else dict(
+        grantedTraits=[], friendlyUnitsHereKeywords=['游走'])
+    exact = clause.get('location') == 'armament' and clause['kind'] == 'static' \
+        and card.get('cardCategory') in {'equipment', 'exclusive_equipment'} \
+        and normalize(unparenthesize(clause['scope'])) == normalize(plain) \
+        and normalize(unparenthesize(runtime.get('effectText', ''))) == normalize(plain) \
+        and not runtime.get('grantedKeywords') \
+        and all((runtime.get(key) or []) == value for key, value in expected.items())
+    allowed = {'cardNo', 'sourceCardNo', 'baseMightBonus', 'effectText', 'cardImageUrl',
+        'grantedTraits', 'friendlyUnitsHereKeywords', 'grantedKeywords'}
+    exact = exact and not any(meaningful(value) for key, value in runtime.items() if key not in allowed)
+    family = 'CoreRuleEngine.ArmamentKeywords.cs'
+    member = executable_member(sources, family, 'AttachedArmamentTraitAndHereGrants')
+    checks = [
+        (family, 'AttachedArmamentTraitAndHereGrants', [
+            'gear.AttachedToObjectId is not { } hostId || gear.IsFaceDown',
+            '!gear.Tags.Contains(CardObjectTags.EquipmentCard)',
+            '!IsObjectOnField(state.PlayerZones, gear.ObjectId)',
+            '!state.CardObjects.TryGetValue(hostId, out var host) || host.IsFaceDown',
+            'host.Tags.Contains(CardObjectTags.UnitCard) || host.Tags.Contains(CardObjectTags.EquipmentCard)',
+            '!IsObjectOnField(state.PlayerZones, hostId)',
+            '!IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, hostId)',
+            'OfficialArmamentCatalog.Find(AttachedRuleTextRules.Face(gear))',
+            'grants.AddRange((definition.GrantedTraits ?? []).Select(trait => (hostId, trait)))',
+            'definition.FriendlyUnitsHereKeywords is not { Count: > 0 } aura',
+            'var controller = EffectiveFieldControllerId(state.PlayerZones, hostId, host)',
+            'IsFaceUpNonStandbyUnit(target)', 'IsObjectOnField(state.PlayerZones, target.ObjectId)',
+            'EffectiveFieldControllerId(state.PlayerZones, target.ObjectId, target) == controller',
+            'IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, hostId, target.ObjectId)',
+            'grants.AddRange(aura.Select(keyword => (target.ObjectId, keyword)))',
+            'grants.GroupBy(grant => grant.Target, StringComparer.Ordinal)']),
+        ('CoreRuleEngine.RuleDerivedKeywords.cs', 'RecomputeConditionalRuleDerivedKeywords', [
+            'AttachedArmamentKeywordGrants(state)', '.Concat(AttachedArmamentTraitAndHereGrants(state))',
+            '.Concat(everywhereKeywords)', '.Concat(armamentKeywords.Keys)',
+            'var printed = PrintedObjectKeywords(card)', 'var removable = (card.RuleDerivedTags ?? [])',
+            'printed.Contains(t) || card.GrantedTags?.Contains(t) == true',
+            'armamentKeywords.GetValueOrDefault(id)', 'RuleDerivedTags = derived.Length == 0 ? null : derived']),
+        ('CoreRuleEngine.RuleDerivedKeywords.cs', 'PrintedObjectKeywords', [
+            'AttachedRuleTextRules.PrintedKeywords(AttachedRuleTextRules.Face(card) ?? "")',
+            'PrintedCardFactory.PrintedTags(AttachedRuleTextRules.Face(card))']),
+        ('CoreRuleEngine.RuleDerivedKeywords.cs', 'RefreshRuleDerivedKeywordLayers', [
+            'if (!result.Accepted) return result', 'RecomputeRuleDerivedKeywords(result.State)',
+            'ResolutionResult.BuildSnapshots(state)', 'BuildCorePrompts(state)']),
+        ('PrintedCardFactory.cs', 'PrintedTags', ['Cards.Value.TryGetValue(cardNo, out var card)', 'OfficialCardTags(card)']),
+        ('PrintedCardFactory.cs', 'OfficialCardTags', ['card.Tag.Split']),
+        ('CoreRuleEngine.cs', 'IsFaceUpNonStandbyUnit', ['CardObjectTags.UnitCard', '!sourceState.IsFaceDown']),
+    ]
+    if aura:
+        checks += [('CoreRuleEngine.cs', 'HasRoamPermission', [
+            'sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)']),
+            ('CoreRuleEngine.cs', 'ResolvePreciseRoamMoveUnit', [
+                '!HasRoamPermission(state, intent.PlayerId, command.SourceObjectId, sourceState)'])]
+    exact = exact and not any(token in member for token in [
+        'target.ObjectId != hostId', 'host.Tags.Contains(CardObjectTags.Standby)',
+        'target.Tags.Contains(CardObjectTags.Standby)', 'gear.Tags.Contains(CardObjectTags.Standby)']) \
+        and all(all(token in executable_member(sources, path, name) for token in tokens)
+                for path, name, tokens in checks)
+    paths = sorted({'src/Riftbound.Engine/' + path for path, _, _ in checks})
+    return result('route', '贴附下栏按当前宿主授予属性或此处友方游走；重算移除旧层并保留印刷属性，接入真实移动许可', paths) \
+        if exact else result('missing', '缺少精确宿主属性／此处友方规格、公开贴附绑定或实际派生标签与移动消费者')
+
+
 def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
+    if trait_aura := armament_trait_aura_route(card, clause, sources):
+        return trait_aura
     runtime = card.get("armament", {})
     bare = normalize(unparenthesize(clause["text"]))
     if clause["kind"] == "keyword":
@@ -834,7 +905,8 @@ def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
     # grant a lower-box skill to its host. Unknown future runtime fields keep
     # the clause in review until their concrete consumer is mapped.
     known = {"cardNo", "sourceCardNo", "baseMightBonus", "effectText", "cardImageUrl",
-             "copiesHostPrintedRulesText", "copiesChosenFriendlyUnit", "replacesHostDestruction", "grantedKeywords"}
+             "copiesHostPrintedRulesText", "copiesChosenFriendlyUnit", "replacesHostDestruction", "grantedKeywords",
+             "grantedTraits", "friendlyUnitsHereKeywords"}
     if any(meaningful(value) for key, value in runtime.items() if key not in known):
         return result("review", "存在新增武装规格；需核对下栏句子及宿主执行消费者")
     # These bounded readers only support reviewed host event/death templates.

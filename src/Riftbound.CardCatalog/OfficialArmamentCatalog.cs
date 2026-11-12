@@ -9,6 +9,8 @@ public sealed record OfficialArmamentDefinition(string CardNo, string SourceCard
     // While attached: destroy this equipment instead, then heal, exhaust and recall the host.
     public bool ReplacesHostDestruction { get; init; }
     public IReadOnlyList<string>? GrantedKeywords { get; init; }
+    public IReadOnlyList<string>? GrantedTraits { get; init; }
+    public IReadOnlyList<string>? FriendlyUnitsHereKeywords { get; init; }
 }
 
 // The official gallery stores the lower armament box separately from rules text.
@@ -21,13 +23,26 @@ public static class OfficialArmamentCatalog
         var document = JsonSerializer.Deserialize<Document>(File.ReadAllText(path), new JsonSerializerOptions(JsonSerializerDefaults.Web))
             ?? throw new InvalidDataException("Official armament source data is missing.");
         return document.Records.Select(record => record with {
-            GrantedKeywords = record.GrantedKeywords ?? StandaloneKeywords(record.EffectText)
+            GrantedKeywords = record.GrantedKeywords ?? StandaloneKeywords(record.EffectText),
+            GrantedTraits = record.GrantedTraits ?? HostTraits(record.EffectText),
+            FriendlyUnitsHereKeywords = record.FriendlyUnitsHereKeywords ?? FriendlyHereKeywords(record.EffectText)
         }).ToDictionary(record => Normalize(record.CardNo), StringComparer.Ordinal);
     });
     // Only a complete keyword line is unconditional. Keywords mentioned by
     // triggers, level clauses or reminder text are not host keyword grants.
     private static IReadOnlyList<string> StandaloneKeywords(string text)
         => Regex.Matches(text, @"(?:^|\r?\n)\{\{(?<keyword>[^{}]+)\}\}(?:（[^）]*）)?[。]?(?=\r?$|\n)")
+            .SelectMany(match => KeywordParser.Parse("{{" + match.Groups["keyword"].Value + "}}", "")
+                .Where(keyword => keyword.RawText == match.Groups["keyword"].Value))
+            .Select(keyword => keyword.RawText).Distinct(StringComparer.Ordinal).ToArray();
+
+    // Only complete unconditional lower-box lines grant these characteristics.
+    private static IReadOnlyList<string> HostTraits(string text)
+        => Regex.Matches(text, @"(?:^|\r?\n)我拥有[“""](?<trait>[^“”""\r\n]+)[”""]属性[。]?(?=\r?$|\n)")
+            .Select(match => match.Groups["trait"].Value).Distinct(StringComparer.Ordinal).ToArray();
+
+    private static IReadOnlyList<string> FriendlyHereKeywords(string text)
+        => Regex.Matches(text, @"(?:^|\r?\n)你在此处的单位获得\{\{(?<keyword>[^{}]+)\}\}[。]?(?:（[^）]*）)?[。]?(?=\r?$|\n)")
             .SelectMany(match => KeywordParser.Parse("{{" + match.Groups["keyword"].Value + "}}", "")
                 .Where(keyword => keyword.RawText == match.Groups["keyword"].Value))
             .Select(keyword => keyword.RawText).Distinct(StringComparer.Ordinal).ToArray();

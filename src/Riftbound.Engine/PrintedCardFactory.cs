@@ -38,6 +38,9 @@ internal static class PrintedCardFactory
         return true;
     }
 
+    internal static IReadOnlyList<string> PrintedTags(string? cardNo)
+        => cardNo is not null && Cards.Value.TryGetValue(cardNo, out var card) ? OfficialCardTags(card) : [];
+
     internal static CardObjectState Create(string objectId, string playerId, OfficialCard card)
     {
         return new CardObjectState(
