@@ -75,6 +75,8 @@ jobs:
       - name: Verify fixed nightly build checkout
         run: python3 scripts/ci-candidate.py --expected "$RIFTBOUND_FIXED_COMMIT" --event-sha "$RIFTBOUND_FIXED_COMMIT" --output var/qa/nightly-prepared/checkout.json
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/riftbound-rule-dotnet
         with:
           dotnet-version: |
             8.0.x
@@ -137,6 +139,8 @@ jobs:
         with:
           ref: ${{ needs.scope.outputs.commit }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/riftbound-rule-dotnet
         with:
           dotnet-version: |
             8.0.x

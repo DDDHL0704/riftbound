@@ -25,7 +25,9 @@ def probe(commit, output):
     sdk = subprocess.check_output(['dotnet', '--version'], cwd=ROOT, text=True).strip()
     if (platform.system() != 'Linux' or sdk != '10.0.403' or checkout['actualSha'] != commit
             or checkout['eventSha'] != commit):
-        raise ValueError('Probe requires the actual fixed Linux/10.0.403 candidate.')
+        raise ValueError('Probe requires the actual fixed Linux/10.0.403 candidate; '
+                         f'observed platform={platform.system()!r}, sdk={sdk!r}, '
+                         f'actual={checkout["actualSha"]!r}, event={checkout["eventSha"]!r}, expected={commit!r}.')
     project = ROOT / 'scripts/ci/L2RowFilterProbe/L2RowFilterProbe.csproj'
     D.run_logged(['dotnet', 'build', str(project), '-m:1', '-v:q', '--nologo'], output / 'build.log')
     dll = project.parent / 'bin/Debug/net10.0/L2RowFilterProbe.dll'

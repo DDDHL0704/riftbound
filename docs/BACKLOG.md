@@ -12,6 +12,8 @@
 
 ## P0 · 让 main 和夜间验收恢复全绿（A 线）
 
+- [ ] **11 月 12 日修复 PR 的 L2 SDK 选择阻塞**（`a/nightly-ornn-payment-reconnect`）：[#647](https://github.com/DDDHL0704/riftbound/pull/647) 首轮 [43236429947](https://github.com/DDDHL0704/riftbound/actions/runs/43236429947) 在规则测试前失败。固定提交校验通过，setup-dotnet 安装 10.0.403 后，行筛选探针仍未取得该 SDK；仓库 `global.json` 允许 `latestFeature`，共享安装目录中的预装版本会参与选择。规则准备与消费分片改用 setup-dotnet 支持的独立安装目录，保持原有 10.0.403／准备产物 SDK 校验；探针失败信息增加实际平台、SDK 和提交，便于后续定位。待此 PR 正常完整 L2 通过并合入后关闭。
+
 - [ ] **11 月 12 日定时夜验：奥恩熔炉完整对局的灵便目标确认旧预期**（M 线接手，`a/nightly-ornn-payment-reconnect`）：夜验 [43126951984](https://github.com/DDDHL0704/riftbound/actions/runs/43126951984) 固定 `3bd115cf8`，北京时间 08:23 才触发；规则分片 8 的 `OfficialDeckMidgameResolvesOrnnForgeEquipmentCostReductionAndScoreVictoryActionLogReplaysToFinalStateHash` 在打出前找不到贴附目标 `P1-MAIN-SFD-006-221-01`，其余 3255 条通过。最新 main `d4f6f0558` 单独运行约 49 秒确定复现：长剑没有打出目标，灵便在装备进场后独立确认目标。夹具按 SFD·022/221 灵便文本增加真实 `ChooseCards`，保留精确费用、贴附前后状态、得分胜利和完整原始日志回放；不改生产规则或 O 线 #646 的费用方法。修复后核对下一轮北京时间 02:00 的定时夜验，再确认关闭。
 
 - [ ] **11 月 12 日定时夜验：付款 SQL 与认证重连总预算不足**（M 线接手，`a/nightly-ornn-payment-reconnect`）：同轮 `SQL SignalR process restart` 的真实进程重启先通过，付款步骤从 UTC 00:27 运行到 02:24 被整个 job 的 120 分钟上限取消。原始产物中前四项的 SQL、双方认证重连、真实 API 重启与篡改负控均通过；最后 `imposed-movement` 的 SQL 于 02:24:36 通过，约 17 秒后在准备阶段被取消，证据不指向 Reconnect 死锁。job 预算与 SQL 分区对齐为 360 分钟，子阶段新增落盘的开始／结束时间、运行中与退出状态；保持五项矩阵、首次 `Reconnect` 十分钟期限及原始回放校验。单分区诊断入口增加默认关闭的 `imposed-movement` 单项，不手动触发整轮夜验；确认诊断及下一轮定时夜验结果前保持未勾选。
