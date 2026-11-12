@@ -4055,6 +4055,80 @@ def executable_member(sources: Sources, filename: str, name: str, *, field=False
     return code[start.start():start.end() + following.start()] if following else code[start.start():]
 
 
+def armament_conditional_might_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    if clause.get('location') != 'armament':
+        return None
+    text = normalize(unparenthesize(clause['text']))
+    attached = re.fullmatch(r'如果此牌是在本回合贴附到我身上的则我额外获得\{\{S\}\}\+(?P<amount>[1-9][0-9]*)', text)
+    level = re.fullmatch(r'\{\{等级(?P<threshold>[1-9][0-9]*)\}\}我额外获得\{\{S\}\}\+(?P<amount>[1-9][0-9]*)', text)
+    here = re.fullmatch(r'如果我所在的战场上受你控制的其他单位有且仅有一个则我获得\{\{S\}\}\+(?P<amount>[1-9][0-9]*)', text)
+    match = attached or level or here
+    if match is None:
+        return None
+    condition = 'ATTACHED_THIS_TURN' if attached else 'CONTROLLER_EXPERIENCE_AT_LEAST' if level else 'EXACT_OTHER_FRIENDLY_UNITS_HERE'
+    threshold = int(level['threshold']) if level else 1 if here else 0
+    runtime = card.get('armament')
+    bonus = runtime.get('conditionalMight') if isinstance(runtime, dict) else None
+    expected = dict(amount=int(match['amount']), condition=condition)
+    exact = isinstance(bonus, dict) and inventory_contains(bonus, expected) \
+        and type(bonus.get('threshold', 0)) is int and bonus.get('threshold', 0) == threshold \
+        and not any(meaningful(v) for k, v in bonus.items() if k not in {'amount', 'condition', 'threshold'}) \
+        and normalize(unparenthesize(runtime.get('effectText', ''))) == text \
+        and card.get('cardCategory') == 'equipment' and clause['kind'] == 'static' \
+        and normalize(unparenthesize(clause['scope'])) == text
+    filename = 'CoreRuleEngine.ArmamentConditionalMight.cs'
+    checks = [
+        ('CoreRuleEngine.cs', 'ResolveFieldPowerStaticAuraBonus', ['+ ArmamentConditionalMightContributions(state, zones, card).Sum(c => c.Amount)']),
+        (filename, 'ArmamentConditionalMightContributions', [
+            'host.IsFaceDown', '!IsFaceUpNonStandbyUnit(host)', '!IsObjectOnField(zones, host.ObjectId)',
+            'EffectiveFieldControllerId(zones, host.ObjectId, host)', 'gear.AttachedToObjectId == host.ObjectId',
+            '!gear.IsFaceDown', 'gear.Tags.Contains(CardObjectTags.EquipmentCard)', 'IsObjectOnField(zones, gear.ObjectId)',
+            'OfficialArmamentCatalog.Find(gear.CardNo)?.ConditionalMight',
+            'new(gear.ObjectId, gear.CardNo!, bonus.Amount, bonus.Condition,']),
+    ]
+    if attached:
+        checks += [
+            (filename, 'ArmamentConditionalMightContributions', ['"ATTACHED_THIS_TURN" => gear.UntilEndOfTurnEffects.Contains(ArmamentAttachedThisTurn)']),
+            ('CoreRuleEngine.AttachmentObservers.cs', 'TryAttachEquipment', [
+                'if (gear.AttachedToObjectId == unitId) return false',
+                'OfficialArmamentCatalog.Find(gear.CardNo)?.ConditionalMight?.Condition == "ATTACHED_THIS_TURN"',
+                'gear.UntilEndOfTurnEffects.Append(ArmamentAttachedThisTurn)',
+                'payload[PrivateArmamentAttachmentTurn] = new ObjectBinding(gearId, gear.ObjectGeneration)', '"EQUIPMENT_ATTACHED"']),
+            ('CoreRuleEngine.BattleResultContinuation.cs', 'CollectResolutionEffects', ['return RecordArmamentAttachmentTurnHistory(state, NormalizeTurnEffectMarkers(']),
+            (filename, 'RecordArmamentAttachmentTurnHistory', [
+                'if (!result.Accepted', 'result.Events.Select(', '!IsObjectOnField(before.PlayerZones, binding.ObjectId)',
+                'IsObjectOnField(result.State.PlayerZones, binding.ObjectId)', 'checked(prior.ObjectGeneration + 1)',
+                'payload.Remove(PrivateArmamentAttachmentTurn)',
+                'payload[ArmamentAttachmentTurnObjectKey] = MatchStateHasher.HashValue(binding with { Generation = generation })']),
+            ('CoreRuleEngine.cs', 'ApplyTurnEndCleanup', ['UntilEndOfTurnEffects = []']),
+            ('MatchRecovery.cs', 'ValidateFrame', ['ValidateArmamentAttachmentTurnHistory(authoritativeState, commands, events, errors)']),
+            ('MatchRecovery.ArmamentConditionalMight.cs', 'ValidateArmamentAttachmentTurnHistory', [
+                'state.PendingRuleChoice?.Origin', 'CurrentGameAcceptedEventBoundary(frame, commands, events)',
+                'entry.Sequence > boundary && entry.Tick <= frame.Tick', '"TURN_END_CLEANUP_STARTED"',
+                'attached.Clear()', 'entry.Event.Kind != "EQUIPMENT_ATTACHED"',
+                'command.Accepted && command.CompletedTick == entry.Tick',
+                'command.StartedEventSequence < entry.Sequence && command.CompletedEventSequence >= entry.Sequence',
+                'attached.Contains(CoreRuleEngine.ArmamentAttachmentTurnObject(card))', 'if (actual != expected)']),
+        ]
+        attach = executable_member(sources, 'CoreRuleEngine.AttachmentObservers.cs', 'TryAttachEquipment')
+        exact = exact and 0 <= attach.find('if (gear.AttachedToObjectId == unitId) return false') \
+            < attach.find('gear.UntilEndOfTurnEffects.Append(ArmamentAttachedThisTurn)')
+    elif level:
+        checks += [(filename, 'ArmamentConditionalMightContributions', [
+            '"CONTROLLER_EXPERIENCE_AT_LEAST" => state.PlayerExperience.GetValueOrDefault(controller) >= bonus.Threshold'])]
+    else:
+        checks += [(filename, 'ArmamentConditionalMightContributions', [
+            'other.ObjectId != host.ObjectId', 'IsFaceUpNonStandbyUnit(other)', 'IsObjectOnField(zones, other.ObjectId)',
+            'EffectiveFieldControllerId(zones, other.ObjectId, other) == controller', 'at.Zone == "BATTLEFIELD"',
+            'at.BattlefieldObjectId == here.BattlefieldObjectId',
+            '"EXACT_OTHER_FRIENDLY_UNITS_HERE" => here is { Zone: "BATTLEFIELD" } && others.Length == bonus.Threshold'])]
+    exact = exact and all(all(token in executable_member(sources, path, name) for token in tokens)
+                          for path, name, tokens in checks)
+    evidence = sorted({'src/Riftbound.Engine/' + path for path, _, _ in checks})
+    return result('route', '武装下栏按实际贴附回合、宿主当前控制者经验或同战场恰好一名其他友方单位提供独立附加战力', evidence) if exact else result(
+        'missing', '缺少精确武装下栏条件／数值、实际战力消费者，或贴附回合的原始记录及清理校验')
+
+
 def source_play_here_unit_token_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     plain = re.sub(r'\s+', '', unparenthesize(clause['text']))
     match = re.fullmatch(r'当你打出我时[，,]在此处(?:额外)?打出(?:一名|一个)(?P<ready>活跃的|处于活跃状态的)?'
@@ -4587,6 +4661,8 @@ def standby_hand_base_cost_waiver_route(card: dict, clause: dict, sources: Sourc
 
 
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
+    if conditional := armament_conditional_might_route(card, clause, sources):
+        return conditional
     if experience_skill := experience_unit_skill_route(card, clause, sources):
         return experience_skill
     if base_cost := base_cost_effect_play_route(card, clause, sources):

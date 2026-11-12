@@ -13775,6 +13775,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             + ResolveSourceObjectPowerStaticAuraBonus(state, card)
             + CopiedRuleTextPowerContributions(state, card).Sum(c => c.Delta)
             + ArmamentMightContributions(state, zones, card).Sum(c => c.Delta)
+            + ArmamentConditionalMightContributions(state, zones, card).Sum(c => c.Amount)
             + BoonAmplifiersFor(state, zones, card).Sum(c => c.Amount) * BoonRules.Count(card)
             + EmpowerRules.Might(state, card)
             + ConditionalSourceUnitContributions(state, card).Sum(contribution => contribution.PowerDelta)
