@@ -52,6 +52,22 @@ class PaidEquipmentTheftAuditTests(unittest.TestCase):
 
     def test_source_fragments_must_remain_in_the_live_consumer(self):
         for filename, token in [
+            ('MatchSession.cs', 'item.TurnUnitPlayDraw is not null || item.Tempered is not null'),
+            ('MatchSession.cs', 'trigger.TurnUnitPlayDraw is not null || trigger.Tempered is not null'),
+            ('MatchRecovery.cs', 'item.TurnUnitPlayDraw is not null || item.Tempered is not null'),
+            ('MatchRecovery.cs', 'ValidatePermanentPlayOrderingHistory(authoritativeState, commands, events, errors)'),
+            ('MatchRecovery.PermanentPlayOrdering.cs', 'command.Accepted'),
+            ('MatchRecovery.PermanentPlayOrdering.cs', '!pending.SetEquals('),
+            ('MatchRecovery.PermanentPlayOrdering.cs', 'capture.StackId != trigger.PermanentPlayStackItemId'),
+            ('MatchRecovery.PermanentPlayOrdering.cs', '!pending.Remove(id)'),
+            ('CoreRuleEngine.UnitPlayMight.cs', 'trigger.Tempered?.Unit'),
+            ('CoreRuleEngine.UnitPlayMight.cs', 'CompanionPlayedUnit(t) is not null'),
+            ('CoreRuleEngine.TriggerHandoff.cs', 'OnlyUnconfirmableTemperedCompanion(state, pending)'),
+            ('CoreRuleEngine.TriggerHandoff.cs', 'TemperedTargets(state, tempered.ControllerId).Length == 0'),
+            ('CoreRuleEngine.UnitPlayMight.cs', 'play.Tick == capturedTick'),
+            ('CoreRuleEngine.UnitPlayMight.cs', 'companion.Tempered is { } tempered'),
+            ('CoreRuleEngine.UnitPlayMight.cs', 'ValidTempered(state, tempered, companion.EffectKind,'),
+            ('PermanentPlayTriggerRecoveryRules.cs', 'CoreRuleEngine.ValidPermanentPlayCompanion(state, companion, item, trigger.EnqueuedAtTick)'),
             ('CoreRuleEngine.cs', 'TryBuildTargetEffectAdditionalCost('),
             ('CoreRuleEngine.cs', 'TryResolveSourceStealEnemyEquipment('),
             ('CoreRuleEngine.cs', 'RecordEquipmentControlHistory(state, completed)'),

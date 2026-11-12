@@ -66,7 +66,7 @@ public sealed partial class CoreRuleEngine
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
 
     private static ObjectBinding? CompanionPlayedUnit(TriggerQueueItemState trigger)
-        => trigger.UnitPlayMight?.PlayedUnit ?? trigger.TurnUnitPlayBoon?.Unit ?? trigger.TurnUnitPlayDraw?.Unit
+        => trigger.UnitPlayMight?.PlayedUnit ?? trigger.TurnUnitPlayBoon?.Unit ?? trigger.TurnUnitPlayDraw?.Unit ?? trigger.Tempered?.Unit
             ?? (trigger.UnitEvent is { Timing: AgilePlayTiming } agile
                 ? new ObjectBinding(trigger.SourceObjectId, agile.SourceGeneration) : null)
             ?? (HasArmamentPlayAttachment(trigger.UnitEvent) && trigger.UnitEvent!.ReflexiveTick is not null
@@ -114,6 +114,11 @@ public sealed partial class CoreRuleEngine
             || CompanionPlayedUnit(companion) is not { } unit || unit.ObjectId != item.SourceObjectId
             || !state.CardPlays.Resolved.Any(play => play.PlayId == item.StackItemId && play.Source == unit
                 && play.CardNo == item.CardNo && play.PlayerId == item.ControllerId && play.Tick == capturedTick)) return false;
+        if (companion.Tempered is { } tempered)
+            return companion.SourceCardNo == item.CardNo && tempered.CardNo == item.CardNo
+                && tempered.Equipment is null && tempered.Costs is null
+                && !tempered.UnableToPay && ValidTempered(state, tempered, companion.EffectKind,
+                    companion.ControllerId, companion.SourceObjectId, companion.SourceCardNo);
         if (HasArmamentPlayAttachment(companion.UnitEvent))
             return companion.UnitEvent!.ReflexiveTick == capturedTick && companion.UnitEvent.Other?.CardNo == item.CardNo
                 && ValidArmamentPlayAttachmentContext(state, companion.UnitEvent, companion.ControllerId);

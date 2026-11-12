@@ -47,6 +47,18 @@ public sealed partial class CoreRuleEngine
                 ?? after.GetValueOrDefault(trigger.SourceObjectId)?.CardNo }
             : trigger;
 
+    private static bool OnlyUnconfirmableTemperedCompanion(MatchState state, IReadOnlyList<TriggerQueueItemState> pending)
+    {
+        if (pending.Count != 2) return false;
+        var tempered = pending.FirstOrDefault(t => t.Tempered is not null);
+        var deferred = pending.FirstOrDefault(t => t.PermanentPlayStackItemId is not null);
+        return tempered is not null && deferred is { PermanentPlayStackItemId: { } id }
+            && state.StackItems.FirstOrDefault(i => i.StackItemId == id) is { } item
+            && tempered.TriggeredByEventKind == deferred.TriggeredByEventKind
+            && ValidPermanentPlayCompanion(state, tempered, item, deferred.EnqueuedAtTick)
+            && TemperedTargets(state, tempered.ControllerId).Length == 0;
+    }
+
     private static ResolutionResult PublishPendingTriggers(ResolutionResult result)
     {
         var state = result.State;
@@ -66,7 +78,8 @@ public sealed partial class CoreRuleEngine
             state = state with { DuelChainFocus = new(focus, state.PassedFocusPlayerIds.ToArray()) };
 
         var events = result.Events.ToList();
-        if (pending.Length == 1 || AreDistinctCommandTriggers(pending))
+        var unconfirmableCompanion = OnlyUnconfirmableTemperedCompanion(state, pending);
+        if (pending.Length == 1 || AreDistinctCommandTriggers(pending) || unconfirmableCompanion)
         {
             var admitted = pending.OrderBy(t => t.EnqueuedAtTick).ThenBy(TriggerInstructionOrder).ToArray();
             var items = admitted.Select(t => BuildStackItemForOrderedTrigger(state, t)).ToArray();
@@ -84,7 +97,9 @@ public sealed partial class CoreRuleEngine
                     ["confirmationTriggerIds"] = admitted.Select(t => t.TriggerId).ToArray(),
                     ["stackItemIds"] = items.Select(i => i.StackItemId).ToArray(), ["topStackItemId"] = item.StackItemId,
                     ["nextPriorityPlayerId"] = item.ControllerId, ["orderingPolicy"] = pending.Length == 1
-                        ? "SINGLE_TRIGGER_AUTO_STACK" : "DISTINCT_COMMAND_TRIGGERS_CHRONOLOGICAL_AUTO_STACK"
+                        ? "SINGLE_TRIGGER_AUTO_STACK" : unconfirmableCompanion
+                            ? "OPTIONAL_COMPANION_WITHOUT_TARGET_AUTO_STACK"
+                            : "DISTINCT_COMMAND_TRIGGERS_CHRONOLOGICAL_AUTO_STACK"
                 }));
         }
         else
