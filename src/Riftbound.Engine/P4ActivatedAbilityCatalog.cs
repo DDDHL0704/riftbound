@@ -70,7 +70,7 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool RequiresEncouraged = false, bool DestroysSourceAsCost = false, bool RecyclesGraveyardTargets = false,
     bool ConsumesSourceBoonAsCost = false, bool GrantsSourceRoam = false,
     bool BanishesSourceAsCost = false, bool RequiresUnattachedSource = false,
-    bool PlaysAllLinkedArmamentUnits = false);
+    bool PlaysAllLinkedArmamentUnits = false, bool GrantsFriendlyHereRoam = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -1098,12 +1098,12 @@ public static class P4ActivatedAbilityCatalog
             .SelectMany(spec => spec.ActivatedAbilities
                 .Where(ability => IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility(ability)
                     || IsDestroySourceGraveyardRecycleSpec(ability) && spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
-                    || IsSelfBoonSpec(ability) && spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)
+                    || IsOrdinaryUntargetedUnitAbility(ability) && spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)
                     || IsTargetedUnitExhaustSpec(ability) && spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)
                     || IsTargetedPowerModifier(ability) && (spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
                         || spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)))
                 .Select(ability => IsDestroySourceGraveyardRecycleSpec(ability) ? DestroySourceGraveyardRecycleDefinition(spec, ability)
-                    : IsSelfBoonSpec(ability) ? SelfBoonDefinition(spec, ability)
+                    : IsOrdinaryUntargetedUnitAbility(ability) ? UntargetedUnitDefinition(spec, ability)
                     : IsTargetedUnitExhaustSpec(ability) ? TargetedUnitExhaustDefinition(spec, ability)
                     : IsTargetedPowerModifier(ability)
                     ? TargetedPowerModifierDefinition(spec, ability)
@@ -1135,15 +1135,20 @@ public static class P4ActivatedAbilityCatalog
             SimpleEffect: new(DestroysSourceAsCost: true, RecyclesGraveyardTargets: true), MaximumTargetCount: ability.MaximumTargetCount);
     }
 
-    private static bool IsSelfBoonSpec(ActivatedAbilitySpec ability)
-        => ability.Kind == ActivatedAbilityKinds.GrantSelfBoon && ability.ExhaustsSourceAsCost == true
+    private static bool IsOrdinaryUntargetedUnitAbility(ActivatedAbilitySpec ability)
+        => ability.Kind is ActivatedAbilityKinds.GrantSelfBoon or ActivatedAbilityKinds.GrantFriendlyHereRoam
+            && (ability.ExhaustsSourceAsCost == true && ability.ExperienceCost.GetValueOrDefault() == 0
+                || ability.ExhaustsSourceAsCost == false && ability.ExperienceCost is > 0)
             && ability.RequiredTargetCount == 0 && ability.ManaCost == 0 && ability.PowerCost == 0;
 
-    private static P4ActivatedAbilityDefinition SelfBoonDefinition(BehaviorSpec spec, ActivatedAbilitySpec ability)
+    private static P4ActivatedAbilityDefinition UntargetedUnitDefinition(BehaviorSpec spec, ActivatedAbilitySpec ability)
     {
         var id = BuildBehaviorSpecAbilityId(spec.CardNo, ability.Kind);
-        return new(id, spec.CardNo, id, spec.CardName, 0, 0, 0, false, true, 0, false, ability.Reason,
-            Kind: ability.Kind!, SourceRequiredTag: CardObjectTags.UnitCard, SimpleEffect: new(GrantsSourceBoon: true));
+        return new(id, spec.CardNo, id, spec.CardName, 0, 0, 0, false, ability.ExhaustsSourceAsCost == true, 0, false, ability.Reason,
+            ExperienceCost: ability.ExperienceCost.GetValueOrDefault(),
+            Kind: ability.Kind!, SourceRequiredTag: CardObjectTags.UnitCard, SimpleEffect: new(
+                GrantsSourceBoon: ability.Kind == ActivatedAbilityKinds.GrantSelfBoon,
+                GrantsFriendlyHereRoam: ability.Kind == ActivatedAbilityKinds.GrantFriendlyHereRoam));
     }
 
     private static bool IsTargetedUnitExhaustSpec(ActivatedAbilitySpec ability)

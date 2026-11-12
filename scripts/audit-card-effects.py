@@ -255,6 +255,11 @@ class Sources:
     def __init__(self, root: Path, constants: list[dict], probes: list[dict] = ()):
         self.root = root
         self.files = {}
+        # Registry declarations are inspected explicitly, never searched as execution routes.
+        self.registration_files = {}
+        registry = root / 'src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs'
+        if registry.exists():
+            self.registration_files[str(registry.relative_to(root))] = registry.read_text()
         for path in sorted((root / "src/Riftbound.Engine").rglob("*.cs")):
             if {"obj", "bin"} & set(path.parts) or path.name in ("CardBehaviorRegistry.cs", "P4ActivatedAbilityCatalog.cs", "KeywordCoverageReporter.cs"):
                 continue
@@ -3961,9 +3966,10 @@ def temporary_assault_grant_route(card: dict, clause: dict, sources: Sources) ->
     return result("missing", "本句未授予正确数量的持续强攻；结算当下条件加战力不能代替临时关键词")
 
 
-def executable_member(sources: Sources, filename: str, name: str, *, field=False) -> str:
+def executable_member(sources: Sources, filename: str, name: str, *, field=False, registration=False) -> str:
     """Bound evidence to one actual declaration; ambiguous overloads stay open."""
-    code = sources.files.get('src/Riftbound.Engine/' + filename, '')
+    files = getattr(sources, 'registration_files', {}) if registration else sources.files
+    code = files.get('src/Riftbound.Engine/' + filename, '')
     code = re.sub(r'/\*.*?\*/|//[^\n]*', '', code, flags=re.S)
     declarations = list(re.finditer(
         r'(?m)^    (?:private|internal|public) (?:static )?[^()\n=;{}]+?\b'
@@ -4255,6 +4261,30 @@ def base_cost_effect_play_route(card: dict, clause: dict, sources: Sources) -> d
 
 
 
+def experience_unit_skill_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    shape = normalize(unparenthesize(clause["text"]))
+    boon = shape == normalize("消耗2经验：给予我{{增益}}。")
+    here = shape == normalize("消耗3经验：你在此处的单位在本回合内获得{{游走}}。")
+    if not boon and not here:
+        return None
+    kind, flag, cost = ("GRANT_SELF_BOON", "grantsSourceBoon", 2) if boon else ("GRANT_FRIENDLY_HERE_ROAM", "grantsFriendlyHereRoam", 3)
+    exact = card.get("cardCategory") in {"unit", "hero_unit"} and clause["kind"] == "activated" and clause.get("location", "upper") == "upper" and normalize(clause["scope"]) == normalize(clause["text"])
+    matching = [a for a in card.get("activations", []) if a.get("kind") == kind]
+    def valid(ability):
+        simple = {key: value for key, value in (ability.get("simpleEffect") or {}).items() if meaningful(value)}
+        return (activation_cost_matches(ability, clause) and ability.get("experienceCost") == cost
+            and ability.get("requiredTargetCount", 0) == 0 and ability.get("sourceRequiredTag") == "CARD_TYPE:UNIT"
+            and not any(ability.get(key) for key in ("exhaustsSourceAsCost", "requiresBattlefieldSource", "requiresBaseEquipmentSource", "reactionSpeed", "swiftSpeed"))
+            and inventory_contains(simple, {flag: True}) and inventory_contains({flag: True}, simple))
+    exact = exact and len(matching) == 1 and valid(matching[0])
+    checks = [('P4ActivatedAbilityCatalog.cs', 'IsOrdinaryUntargetedUnitAbility', ['ActivatedAbilityKinds.GrantSelfBoon or ActivatedAbilityKinds.GrantFriendlyHereRoam', 'ability.ExhaustsSourceAsCost == false && ability.ExperienceCost is > 0', 'ability.RequiredTargetCount == 0 && ability.ManaCost == 0 && ability.PowerCost == 0']), ('P4ActivatedAbilityCatalog.cs', 'UntargetedUnitDefinition', ['ability.ExhaustsSourceAsCost == true', 'ExperienceCost: ability.ExperienceCost.GetValueOrDefault()', 'SourceRequiredTag: CardObjectTags.UnitCard', 'GrantsSourceBoon: ability.Kind == ActivatedAbilityKinds.GrantSelfBoon', 'GrantsFriendlyHereRoam: ability.Kind == ActivatedAbilityKinds.GrantFriendlyHereRoam']), ('CoreRuleEngine.SimpleActivatedAbilities.cs', 'ResolveSimpleActivation', ['CanActivateOrdinaryPowerAbility(state, intent.PlayerId)', 'SimpleActivationTargetCountValid(ability, targets.Count)', 'experienceCost: ability.ExperienceCost', 'PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state)', 'new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration)', 'PlayerExperience = paid.PlayerExperience, StackItems = [..state.StackItems, item]']), ('CoreRuleEngine.SimpleActivatedAbilities.cs', 'ValidSimpleActivationSource', ['AttachedRuleTextRules.ValidCaptured(state, origin, context.Source.ObjectId, context.Source.Generation, cardNo)', 'context.RuleTextInstanceId != $"PRINTED:{context.Source.ObjectId}:{context.Source.Generation}"']), ('PaymentCostRules.cs', 'AuthorizePayment', ['currentExperience < plan.ExperienceCost']), ('PaymentCostRules.cs', 'TryCommitPayment', ['currentExperience - plan.ExperienceCost'])] + ([('CoreRuleEngine.SimpleActivatedAbilities.cs', 'ResolveSimpleActivationEffect', ['spec.GrantsSourceBoon', 'boonSource.ObjectGeneration == item.SimpleActivation!.Source.Generation', 'IsFaceUpNonStandbyUnit(boonSource) && IsObjectOnField(zones, boonSource.ObjectId)', 'ApplyBoon(boonSource'])] if boon else [('CoreRuleEngine.SimpleActivatedAbilities.cs', 'ResolveSimpleActivationEffect', ['spec.GrantsFriendlyHereRoam', 'hereSource.ObjectGeneration == item.SimpleActivation!.Source.Generation', '!hereSource.IsFaceDown', 'IsObjectOnField(zones, hereSource.ObjectId)', 'EffectiveFieldControllerId(zones, card.ObjectId, card) == item.ControllerId', 'IsSameFieldLocation(zones, locations, hereSource.ObjectId, card.ObjectId)', 'GrantLegendRoam(cards, unit.ObjectId, item.ControllerId, item.SourceObjectId, ability.AbilityId, events)'])])
+    exact = exact and all(all(fragment in executable_member(sources, filename, member, registration=filename == "P4ActivatedAbilityCatalog.cs") for fragment in fragments)
+                          for filename, member, fragments in checks)
+    paths = ["src/Riftbound.Engine/" + filename for filename, _, _ in checks]
+    return result("route", "零目标、不横置的印刷经验技能；共享支付先扣经验，再独立结算当前原物体的增益或此处友方单位游走", paths) if exact else result(
+        "missing", "缺少精确经验费用、无目标／横置边界、真实共享支付、当前来源代际或独立效果消费者", paths)
+
+
 def friendly_equipment_ready_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     if text != normalize("当你打出一件装备时，让我变为活跃状态。"):
@@ -4483,6 +4513,8 @@ def standby_hand_base_cost_waiver_route(card: dict, clause: dict, sources: Sourc
 
 
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
+    if experience_skill := experience_unit_skill_route(card, clause, sources):
+        return experience_skill
     if base_cost := base_cost_effect_play_route(card, clause, sources):
         return base_cost
     if clause.get("location") == "armament":

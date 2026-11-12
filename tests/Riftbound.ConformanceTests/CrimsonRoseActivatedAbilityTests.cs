@@ -25,10 +25,12 @@ public sealed class CrimsonRoseActivatedAbilityTests
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
         Assert.True(activateCandidate.Enabled);
-        Assert.Equal([CrimsonRoseObjectId], (activateCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+        Assert.Equal([CrimsonRoseObjectId, FriendlyBattlefieldUnitObjectId],
+            (activateCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]);
         var requirement = Assert.Single(
-            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            sourceRequirements,
             entry => string.Equals(
                 entry["abilityId"] as string,
                 P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
@@ -58,6 +60,14 @@ public sealed class CrimsonRoseActivatedAbilityTests
         Assert.Equal(
             [FriendlyBaseUnitObjectId, FriendlyBattlefieldUnitObjectId, EnemyBaseUnitObjectId, EnemySpellshieldUnitObjectId],
             targetIds);
+
+        var unitRequirement = Assert.Single(sourceRequirements,
+            entry => Equals(entry["sourceObjectId"], FriendlyBattlefieldUnitObjectId));
+        Assert.Equal("UNL-102/219", unitRequirement["cardNo"]);
+        Assert.Equal(2, unitRequirement["experienceCost"]);
+        Assert.Equal(0, unitRequirement["minTargetCount"]);
+        Assert.Equal(0, unitRequirement["maxTargetCount"]);
+        Assert.False(Assert.IsType<bool>(unitRequirement["exhaustsSource"]));
     }
 
     [Fact]
@@ -233,7 +243,8 @@ public sealed class CrimsonRoseActivatedAbilityTests
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
         Assert.True(activateCandidate.Enabled);
-        Assert.Equal([CrimsonRoseObjectId], (activateCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+        Assert.Equal([CrimsonRoseObjectId, FriendlyBattlefieldUnitObjectId],
+            (activateCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
         var command = CrimsonRoseCommand([EnemySpellshieldUnitObjectId]);
         var staleRawCommand = PromptScopedActivateAbilityRawCommand(command, prompt);
         var changedStaleRawCommand = PromptScopedActivateAbilityRawCommandWithClientNote(command, prompt, "changed-payload");

@@ -1051,6 +1051,9 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "TUNDRA_HUNTER_READY",
                 "UNITY_SIGIL_REACTION_EXHAUST_GAIN_1_YELLOW_POWER",
                 "UNL_001_219_UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN",
+                "UNL_102_219_GRANT_SELF_BOON",
+                "UNL_126_219_GRANT_FRIENDLY_HERE_ROAM",
+                "UNL_162_219_GRANT_SELF_BOON",
                 "WAKEBLOOM_EXHAUST_POWERFUL_DRAW"
             ],
             P4ActivatedAbilityCatalog.GetAll()
