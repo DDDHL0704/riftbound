@@ -2568,8 +2568,54 @@ def paid_equipment_theft_route(card: dict, clause: dict, sources: Sources) -> di
         ('CoreRuleEngine.EquipmentControlHistory.cs', 'ValidEquipmentControlLeases', ['lease.Equipment.Generation == card.ObjectGeneration',
             'card.ControllerId == lease.Grants.LastOrDefault()?.ControllerId', '!string.IsNullOrWhiteSpace(grant.Source.ObjectId)']),
         ('MatchRecovery.cs', 'ValidateFrame', ['ValidateEquipmentControlHistory(authoritativeState, commands, events, errors)',
-            'ValidatePaidPermanentPlayHistory(authoritativeState, commands, events, errors)']),
+            'ValidatePaidPermanentPlayHistory(authoritativeState, commands, events, errors)',
+            'ValidatePermanentPlayOrderingHistory(authoritativeState, commands, events, errors)']),
     ]
+    checks.extend([
+        ('CoreRuleEngine.UnitPlayMight.cs', 'CompanionPlayedUnit', ['trigger.Tempered?.Unit']),
+        ('CoreRuleEngine.UnitPlayMight.cs', 'DeferCompanionPermanentPlayOrdering', [
+            '!before.TriggerQueue.Any(old => old.TriggerId == t.TriggerId)',
+            'CompanionPlayControllerMatches(t, item)',
+            'queue.Any(t => t.PermanentPlayStackItemId == item.StackItemId)', 'queue.Add(trigger)']),
+        ('CoreRuleEngine.UnitPlayMight.cs', 'ValidPermanentPlayCompanion', [
+            'companion.EnqueuedAtTick != capturedTick', 'play.PlayId == item.StackItemId', 'play.Source == unit',
+            'play.CardNo == item.CardNo', 'play.PlayerId == item.ControllerId', 'play.Tick == capturedTick',
+            'companion.Tempered is { } tempered', 'companion.SourceCardNo == item.CardNo', 'tempered.CardNo == item.CardNo',
+            'tempered.Equipment is null', 'tempered.Costs is null', '!tempered.UnableToPay',
+            'ValidTempered(state, tempered, companion.EffectKind,']),
+        ('CoreRuleEngine.BattleResultContinuation.cs', 'CollectResolutionEffects', [
+            'QueueTempered(state,', 'DeferCompanionPermanentPlayOrdering(state, collected)',
+            'StampNewTriggerQueueTimes(state, collected)', 'RecordCardPlayHistory(state, collected)']),
+        ('CoreRuleEngine.TriggerHandoff.cs', 'PublishPendingTriggers', [
+            'state.PendingEffectPlay is not null', 'OnlyUnconfirmableTemperedCompanion(state, pending)',
+            'AreDistinctCommandTriggers(pending) || unconfirmableCompanion']),
+        ('CoreRuleEngine.TriggerHandoff.cs', 'OnlyUnconfirmableTemperedCompanion', [
+            'pending.Count != 2', 't.PermanentPlayStackItemId is not null',
+            'ValidPermanentPlayCompanion(state, tempered, item, deferred.EnqueuedAtTick)',
+            'TemperedTargets(state, tempered.ControllerId).Length == 0']),
+        ('PermanentPlayTriggerRecoveryRules.cs', 'ValidQueued', [
+            'CoreRuleEngine.ValidPermanentPlayCompanion(state, companion, item, trigger.EnqueuedAtTick)']),
+        ('MatchRecovery.PermanentPlayOrdering.cs', 'ValidatePermanentPlayOrderingHistory', [
+            'state.PendingRuleChoice?.Origin', 'CurrentGameAcceptedEventBoundary(state, commands, events)',
+            '"TRIGGER_ORDERING_DEFERRED"', '"TRIGGERS_MOVED_TO_STACK"', 'command.Accepted',
+            'command.StartedEventSequence < record.Sequence', 'command.CompletedEventSequence >= record.Sequence',
+            'record.Tick <= frame.Tick', '!captures.TryAdd(', '!pending.Add(id)', '!pending.Remove(id)',
+            'capture.StackId != trigger.PermanentPlayStackItemId', 'capture.SourceId != trigger.SourceObjectId',
+            'capture.Tick != trigger.EnqueuedAtTick', '!pending.SetEquals(', 'pending.Count != queued.Length']),
+        ('MatchSession.cs', 'BuildStackItemSnapshotView', [
+            'item.TurnUnitPlayDraw is not null || item.Tempered is not null',
+            'VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId)']),
+        ('MatchSession.cs', 'OrderTriggerSourceObjectIdForViewer', [
+            'trigger.TurnUnitPlayDraw is not null || trigger.Tempered is not null',
+            'VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId)']),
+        ('MatchRecovery.cs', 'CapturedBattleSourceIsPrivate', [
+            'item.TurnUnitPlayDraw is not null || item.Tempered is not null',
+            'IsHiddenObjectIdForSpectator(state, item.SourceObjectId)']),
+    ])
+    exact = exact and bool(re.search(
+        r'var companions = state\.TriggerQueue\.Where\(t => CompanionPlayedUnit\(t\) is not null\s*'
+        r'&& !before\.TriggerQueue\.Any\(old => old\.TriggerId == t\.TriggerId\)\)\.ToArray\(\)',
+        member('CoreRuleEngine.UnitPlayMight.cs', 'DeferCompanionPermanentPlayOrdering')))
     exact = exact and all(all(token in member(filename, name) for token in tokens) for filename, name, tokens in checks)
     evidence = sorted({prefix + filename for filename, _, _ in checks})
     return result('route', '共享额外费用先付款，入场后可选敌方装备；独立技能重查目标，移动后按原来源代际取得控制／贴附，持续效果与原始接受历史绑定', evidence) if exact else result(

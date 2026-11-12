@@ -461,9 +461,11 @@ public sealed class AkshanGuardTests
         var engine = new CoreRuleEngine();
         var played = await PlayAkshanAsync(engine, BuildAkshanStealState(), AkshanObjectId, [], [ExtraOrange]);
         Assert.True(played.Accepted, played.ErrorMessage);
+        played = await OrderPlayedSkillsAsync(engine, played);
         while (played.State.PendingCardChoice?.ChoiceWindow == "TEMPERED_CONFIRMATION")
             played = await TemperedTestDriver.ConfirmAsync(engine, played);
         var choice = Assert.IsType<PendingCardChoiceState>(played.State.PendingCardChoice);
+        Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);
         var hash = MatchStateHasher.Hash(played.State);
         var result = await engine.ResolveAsync(played.State, new("invalid-theft-target", "P1", CommandTypes.ChooseCards),
             new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [equipmentObjectId]), default);
@@ -789,6 +791,7 @@ public sealed class AkshanGuardTests
     private static async Task<ResolutionResult> ConfirmTheftAsync(CoreRuleEngine engine, ResolutionResult result,
         string equipmentObjectId = EnemyWeaponObjectId, string? temperedEquipment = null)
     {
+        result = await OrderPlayedSkillsAsync(engine, result);
         var events = result.Events.ToList();
         for (var count = 0; result.State.PendingCardChoice is { } choice; count++)
         {
@@ -802,6 +805,22 @@ public sealed class AkshanGuardTests
             Assert.True(result.Accepted, result.ErrorMessage); events.AddRange(result.Events);
         }
         return result with { Events = events };
+    }
+
+    private static async Task<ResolutionResult> OrderPlayedSkillsAsync(CoreRuleEngine engine, ResolutionResult result)
+    {
+        if (result.State.TriggerQueue.Count == 0) return result;
+        Assert.Equal(2, result.State.TriggerQueue.Count);
+        var tempered = Assert.Single(result.State.TriggerQueue, item => item.Tempered is not null);
+        var theft = Assert.Single(result.State.TriggerQueue, item => item.PermanentPlayStackItemId is not null);
+        // Preserve the fixture's original keyword-first resolution by choosing
+        // it through the same public ordering command as a real controller.
+        var ordered = await engine.ResolveAsync(result.State,
+            new("order-akshan-skills-" + result.State.Tick, "P1", CommandTypes.OrderTriggers),
+            new OrderTriggersCommand(OrderedTriggerIds: [tempered.TriggerId, theft.TriggerId]), default);
+        Assert.True(ordered.Accepted, ordered.ErrorMessage);
+        Assert.Empty(ordered.State.TriggerQueue);
+        return ordered with { Events = result.Events.Concat(ordered.Events).ToArray() };
     }
 
     private static async Task<ResolutionResult> ResolveTopStackAsync(

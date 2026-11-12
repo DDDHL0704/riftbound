@@ -125,9 +125,12 @@ public sealed partial class CoreRuleEngine
     }
 
     private static string[] TemperedTargets(MatchState state, StackItemState item)
+        => TemperedTargets(state, item.ControllerId);
+
+    private static string[] TemperedTargets(MatchState state, string player)
         => state.CardObjects.Values.Where(c => !c.IsFaceDown && c.Tags.Contains(CardObjectTags.EquipmentCard)
             && c.Tags.Contains(CardEquipmentKeywordNames.Weapon) && IsObjectOnField(state.PlayerZones, c.ObjectId)
-            && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId)
+            && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == player)
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
 
     private static ResolutionResult PrepareTempered(ResolutionResult result, StackItemState item)

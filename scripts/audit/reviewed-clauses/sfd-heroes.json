@@ -949,7 +949,7 @@
       "text": "你可以选择支付{{橙色}}{{橙色}}，作为打出我的额外费用。",
       "scope": "你可以选择支付{{橙色}}{{橙色}}，作为打出我的额外费用。",
       "status": "route",
-      "reason": "额外两橙费用独立于装备目标；入场后可选确认目标，独立技能移动装备；控制权绑定原来源代际与持续时间，武装通过共享贴附，来源已离场时不取得控制权",
+      "reason": "额外两橙费用独立于装备目标；入场后可选确认目标，独立技能移动装备；控制权绑定原来源代际与持续时间，武装通过共享贴附，来源已离场时不取得控制权；与同次百炼共享控制者排序，原始打出来源、代际和时点共同校验，无合法武装时保留自动放弃；等待排序凭据与原始捕获及入链记录逐项核对，防止静默删除或复活；来源返手后技能保留，公开来源字段按当前私有区域脱敏，恢复拒绝泄漏值",
       "runtime": {
         "behaviors": [
           {
@@ -985,6 +985,38 @@
             "FindFieldObjectLocation(state.PlayerZones, hostId) != location",
             "equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitPlayMight.cs",
+          "contains": [
+            "trigger.Tempered?.Unit",
+            "companion.Tempered is { } tempered",
+            "play.Tick == capturedTick"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+          "contains": [
+            "OnlyUnconfirmableTemperedCompanion(state, pending)",
+            "ValidPermanentPlayCompanion(state, tempered, item, deferred.EnqueuedAtTick)",
+            "TemperedTargets(state, tempered.ControllerId).Length == 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.PermanentPlayOrdering.cs",
+          "contains": [
+            "ValidatePermanentPlayOrderingHistory",
+            "command.Accepted",
+            "!pending.SetEquals(",
+            "capture.StackId != trigger.PermanentPlayStackItemId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "item.TurnUnitPlayDraw is not null || item.Tempered is not null",
+            "trigger.TurnUnitPlayDraw is not null || trigger.Tempered is not null"
+          ]
         }
       ],
       "tests": [
@@ -1015,9 +1047,19 @@
             "ARealEquipmentSpellCanTargetAnOpponentsArmamentAttachedToOurUnit",
             "AForeignLocationNeedsARealLegalAttachmentRatherThanOnlyAnAttachmentId"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AkshanTemperedOrderingTests.cs",
+          "methods": [
+            "ActualPaidEntryWithoutOtherObserversLetsTheControllerChooseEitherResolutionOrder",
+            "EitherOrderedSkillCanBeDeclinedIndependentlyWithoutRefundingThePaidOrange",
+            "ARealReturnResponseKeepsBothEarnedSkillsBoundToTheDepartedSource",
+            "ASingleUsableSkillKeepsItsExistingConfirmationWithoutOrdering",
+            "OriginalPlayHistoryRejectsForgedTemperedCompanionsAndDeferredReceipts"
+          ]
         }
       ],
-      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序"
+      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序；383.3.d 同时触发排序，821.1 百炼独立打出效果"
     },
     {
       "cardNos": [
@@ -1026,7 +1068,7 @@
       "text": "当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。",
       "scope": "当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。",
       "status": "route",
-      "reason": "额外两橙费用独立于装备目标；入场后可选确认目标，独立技能移动装备；控制权绑定原来源代际与持续时间，武装通过共享贴附，来源已离场时不取得控制权",
+      "reason": "额外两橙费用独立于装备目标；入场后可选确认目标，独立技能移动装备；控制权绑定原来源代际与持续时间，武装通过共享贴附，来源已离场时不取得控制权；与同次百炼共享控制者排序，原始打出来源、代际和时点共同校验，无合法武装时保留自动放弃；等待排序凭据与原始捕获及入链记录逐项核对，防止静默删除或复活；来源返手后技能保留，公开来源字段按当前私有区域脱敏，恢复拒绝泄漏值",
       "runtime": {
         "behaviors": [
           {
@@ -1062,6 +1104,38 @@
             "FindFieldObjectLocation(state.PlayerZones, hostId) != location",
             "equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitPlayMight.cs",
+          "contains": [
+            "trigger.Tempered?.Unit",
+            "companion.Tempered is { } tempered",
+            "play.Tick == capturedTick"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+          "contains": [
+            "OnlyUnconfirmableTemperedCompanion(state, pending)",
+            "ValidPermanentPlayCompanion(state, tempered, item, deferred.EnqueuedAtTick)",
+            "TemperedTargets(state, tempered.ControllerId).Length == 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.PermanentPlayOrdering.cs",
+          "contains": [
+            "ValidatePermanentPlayOrderingHistory",
+            "command.Accepted",
+            "!pending.SetEquals(",
+            "capture.StackId != trigger.PermanentPlayStackItemId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "item.TurnUnitPlayDraw is not null || item.Tempered is not null",
+            "trigger.TurnUnitPlayDraw is not null || trigger.Tempered is not null"
+          ]
         }
       ],
       "tests": [
@@ -1092,9 +1166,19 @@
             "ARealEquipmentSpellCanTargetAnOpponentsArmamentAttachedToOurUnit",
             "AForeignLocationNeedsARealLegalAttachmentRatherThanOnlyAnAttachmentId"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AkshanTemperedOrderingTests.cs",
+          "methods": [
+            "ActualPaidEntryWithoutOtherObserversLetsTheControllerChooseEitherResolutionOrder",
+            "EitherOrderedSkillCanBeDeclinedIndependentlyWithoutRefundingThePaidOrange",
+            "ARealReturnResponseKeepsBothEarnedSkillsBoundToTheDepartedSource",
+            "ASingleUsableSkillKeepsItsExistingConfirmationWithoutOrdering",
+            "OriginalPlayHistoryRejectsForgedTemperedCompanionsAndDeferredReceipts"
+          ]
         }
       ],
-      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序"
+      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序；383.3.d 同时触发排序，821.1 百炼独立打出效果"
     },
     {
       "cardNos": [
@@ -1103,7 +1187,7 @@
       "text": "你控制这件装备，直到我离场为止。",
       "scope": "当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。",
       "status": "route",
-      "reason": "额外两橙费用独立于装备目标；入场后可选确认目标，独立技能移动装备；控制权绑定原来源代际与持续时间，武装通过共享贴附，来源已离场时不取得控制权",
+      "reason": "额外两橙费用独立于装备目标；入场后可选确认目标，独立技能移动装备；控制权绑定原来源代际与持续时间，武装通过共享贴附，来源已离场时不取得控制权；与同次百炼共享控制者排序，原始打出来源、代际和时点共同校验，无合法武装时保留自动放弃；等待排序凭据与原始捕获及入链记录逐项核对，防止静默删除或复活；来源返手后技能保留，公开来源字段按当前私有区域脱敏，恢复拒绝泄漏值",
       "runtime": {
         "behaviors": [
           {
@@ -1139,6 +1223,38 @@
             "FindFieldObjectLocation(state.PlayerZones, hostId) != location",
             "equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitPlayMight.cs",
+          "contains": [
+            "trigger.Tempered?.Unit",
+            "companion.Tempered is { } tempered",
+            "play.Tick == capturedTick"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+          "contains": [
+            "OnlyUnconfirmableTemperedCompanion(state, pending)",
+            "ValidPermanentPlayCompanion(state, tempered, item, deferred.EnqueuedAtTick)",
+            "TemperedTargets(state, tempered.ControllerId).Length == 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.PermanentPlayOrdering.cs",
+          "contains": [
+            "ValidatePermanentPlayOrderingHistory",
+            "command.Accepted",
+            "!pending.SetEquals(",
+            "capture.StackId != trigger.PermanentPlayStackItemId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "item.TurnUnitPlayDraw is not null || item.Tempered is not null",
+            "trigger.TurnUnitPlayDraw is not null || trigger.Tempered is not null"
+          ]
         }
       ],
       "tests": [
@@ -1169,9 +1285,19 @@
             "ARealEquipmentSpellCanTargetAnOpponentsArmamentAttachedToOurUnit",
             "AForeignLocationNeedsARealLegalAttachmentRatherThanOnlyAnAttachmentId"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AkshanTemperedOrderingTests.cs",
+          "methods": [
+            "ActualPaidEntryWithoutOtherObserversLetsTheControllerChooseEitherResolutionOrder",
+            "EitherOrderedSkillCanBeDeclinedIndependentlyWithoutRefundingThePaidOrange",
+            "ARealReturnResponseKeepsBothEarnedSkillsBoundToTheDepartedSource",
+            "ASingleUsableSkillKeepsItsExistingConfirmationWithoutOrdering",
+            "OriginalPlayHistoryRejectsForgedTemperedCompanionsAndDeferredReceipts"
+          ]
         }
       ],
-      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序"
+      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序；383.3.d 同时触发排序，821.1 百炼独立打出效果"
     },
     {
       "cardNos": [
@@ -1180,7 +1306,7 @@
       "text": "如果它是一件武装，则将其贴附到我身上。",
       "scope": "当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。",
       "status": "route",
-      "reason": "额外两橙费用独立于装备目标；入场后可选确认目标，独立技能移动装备；控制权绑定原来源代际与持续时间，武装通过共享贴附，来源已离场时不取得控制权",
+      "reason": "额外两橙费用独立于装备目标；入场后可选确认目标，独立技能移动装备；控制权绑定原来源代际与持续时间，武装通过共享贴附，来源已离场时不取得控制权；与同次百炼共享控制者排序，原始打出来源、代际和时点共同校验，无合法武装时保留自动放弃；等待排序凭据与原始捕获及入链记录逐项核对，防止静默删除或复活；来源返手后技能保留，公开来源字段按当前私有区域脱敏，恢复拒绝泄漏值",
       "runtime": {
         "behaviors": [
           {
@@ -1216,6 +1342,38 @@
             "FindFieldObjectLocation(state.PlayerZones, hostId) != location",
             "equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitPlayMight.cs",
+          "contains": [
+            "trigger.Tempered?.Unit",
+            "companion.Tempered is { } tempered",
+            "play.Tick == capturedTick"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+          "contains": [
+            "OnlyUnconfirmableTemperedCompanion(state, pending)",
+            "ValidPermanentPlayCompanion(state, tempered, item, deferred.EnqueuedAtTick)",
+            "TemperedTargets(state, tempered.ControllerId).Length == 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.PermanentPlayOrdering.cs",
+          "contains": [
+            "ValidatePermanentPlayOrderingHistory",
+            "command.Accepted",
+            "!pending.SetEquals(",
+            "capture.StackId != trigger.PermanentPlayStackItemId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "item.TurnUnitPlayDraw is not null || item.Tempered is not null",
+            "trigger.TurnUnitPlayDraw is not null || trigger.Tempered is not null"
+          ]
         }
       ],
       "tests": [
@@ -1246,9 +1404,19 @@
             "ARealEquipmentSpellCanTargetAnOpponentsArmamentAttachedToOurUnit",
             "AForeignLocationNeedsARealLegalAttachmentRatherThanOnlyAnAttachmentId"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AkshanTemperedOrderingTests.cs",
+          "methods": [
+            "ActualPaidEntryWithoutOtherObserversLetsTheControllerChooseEitherResolutionOrder",
+            "EitherOrderedSkillCanBeDeclinedIndependentlyWithoutRefundingThePaidOrange",
+            "ARealReturnResponseKeepsBothEarnedSkillsBoundToTheDepartedSource",
+            "ASingleUsableSkillKeepsItsExistingConfirmationWithoutOrdering",
+            "OriginalPlayHistoryRejectsForgedTemperedCompanionsAndDeferredReceipts"
+          ]
         }
       ],
-      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序"
+      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序；383.3.d 同时触发排序，821.1 百炼独立打出效果"
     },
     {
       "cardNos": [

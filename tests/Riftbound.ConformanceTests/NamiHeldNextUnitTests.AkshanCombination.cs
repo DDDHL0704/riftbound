@@ -30,7 +30,7 @@ public sealed partial class NamiHeldNextUnitTests
         Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with {
             TriggerQueue = game.State.TriggerQueue.Select(trigger => trigger.TriggerId == legacy.TriggerId
                 ? trigger with { EnqueuedAtTick = trigger.EnqueuedAtTick - 1 } : trigger).ToArray() }));
-        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with {
+        Assert.NotEmpty(AkshanTemperedOrderingTests.Errors(game, game.State with {
             TriggerQueue = game.State.TriggerQueue.Where(trigger => trigger.TurnUnitPlayBoon is null).ToArray() }));
         Assert.Contains(CommandTypes.OrderTriggers, game.PromptFor("P1").EnabledActions());
         var order = game.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray();

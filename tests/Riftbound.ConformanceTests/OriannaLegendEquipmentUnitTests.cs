@@ -807,6 +807,12 @@ public sealed class OriannaLegendEquipmentUnitTests
         var firstEvent = game.Events().Length;
         await game.Act("P2", new PlayCardCommand("AKSHAN", "SFD·109/221", [],
             OptionalCosts: ["SPEND_POWER:2:ORANGE"]));
+        Assert.Equal(2, game.State.TriggerQueue.Count);
+        var tempered = Assert.Single(game.State.TriggerQueue, item => item.Tempered is not null);
+        var theft = Assert.Single(game.State.TriggerQueue, item => item.PermanentPlayStackItemId is not null);
+        // Select the fixture's keyword-first order through the controller's command.
+        await game.Act("P2", new OrderTriggersCommand(OrderedTriggerIds: [tempered.TriggerId, theft.TriggerId]));
+        Assert.Empty(game.State.TriggerQueue);
         for (var confirmations = 0; game.State.PendingCardChoice is { } choice; confirmations++)
         {
             Assert.True(confirmations < 3);
