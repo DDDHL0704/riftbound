@@ -331,6 +331,15 @@ public sealed class CompoundOptionalCostTests
         var paid = await driver.Act("P1", command);
         Assert.Equal(quote.Cost.RemainingMana, driver.State.RunePools["P1"].Mana);
         Assert.Equal(quote.Cost.RemainingPowerByTrait!.OrderBy(x => x.Key), driver.State.RunePools["P1"].PowerByTrait!.OrderBy(x => x.Key));
+        if (card == "SFD·109/221")
+        {
+            Assert.Equal(2, driver.State.TriggerQueue.Count);
+            var temperedTrigger = Assert.Single(driver.State.TriggerQueue, item => item.Tempered is not null);
+            var theftTrigger = Assert.Single(driver.State.TriggerQueue, item => item.PermanentPlayStackItemId is not null);
+            // Keep the fee fixture's keyword-first order as an accepted player choice.
+            await driver.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: [temperedTrigger.TriggerId, theftTrigger.TriggerId]));
+            Assert.Empty(driver.State.TriggerQueue);
+        }
         if (driver.State.PendingCardChoice is { ChoiceWindow: "TEMPERED_CONFIRMATION" } tempered)
             await driver.Act(tempered.PlayerId, new ChooseCardsCommand(tempered.ChoiceId, tempered.ChoiceWindow, []));
         if (card == "SFD·109/221") {
