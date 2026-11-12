@@ -1,0 +1,10 @@
+抓取：2026-11-13 00:02 (UTC+8)，由规划管理者在 macOS 用 curl 抓取，原样保存。
+article.html          符文战场官方微博头条文章《关于开局流程规则测试的说明》，发布 2026-10-16 13:37
+                      https://weibo.com/ttarticle/p/show?id=2309405354639653732396 （短链 http://t.cn/AXlY0kJo）
+post-20261028.html    官方微博 2026-10-28 12:00「城市挑战赛第五赛季｜开局流程测试即将开启」（新浪转载页）
+                      https://www.sina.cn/news/detail/5358963811159289.html
+schedule-20261028.jpg 上条微博配图原图（测试模式与各模式时间安排）
+                      https://wx1.sinaimg.cn/large/005Ab2OQgy1iihw25vf8jj31e01uou0z.jpg
+2bfd21b7125e1890a4f973db859c2a1a99022dae440ba6498b5b62c45480dcef  article.html
+3497b0a0247310e331448993f78df9bc3c471bb182ce5e1aacd8d8390ff2be0c  post-20261028.html
+ae6f0d4536ca11335801bb0e7821b37376ac8a456ce0ab6e25d27250f6af4899  schedule-20261028.jpg

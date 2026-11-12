@@ -1,0 +1,60 @@
+{
+  "fetchedAt": "2026-11-13 00:02 (UTC+8)",
+  "fetchedBy": "规划管理者；macOS curl，原样抓取",
+  "archiveDate": "2026-11-13",
+  "sources": [
+    {
+      "snapshotPath": "data/official/upstream/2026-11-13/article.html.gz",
+      "textPath": "data/official/upstream/2026-11-13/article.txt",
+      "url": "https://weibo.com/ttarticle/p/show?id=2309405354639653732396",
+      "title": "关于开局流程规则测试的说明",
+      "author": "符文战场",
+      "publishedAt": "2026-10-16 13:37 (UTC+8)",
+      "sourceLevel": "official",
+      "sha256": "2bfd21b7125e1890a4f973db859c2a1a99022dae440ba6498b5b62c45480dcef",
+      "bytes": 33309,
+      "archiveSha256": "522a9dc27a4ab689fd67b4b6cb6d4b1db396c3a936563f215345d3dabd882ea4",
+      "archiveBytes": 9311,
+      "textSha256": "85061ea3c3f50ac861bb6f50c3db1d099218d42f23e218d54c2508215f62cd8f"
+    },
+    {
+      "snapshotPath": "data/official/upstream/2026-11-13/post-20261028.html.gz",
+      "textPath": "data/official/upstream/2026-11-13/post-20261028.txt",
+      "url": "https://www.sina.cn/news/detail/5358963811159289.html",
+      "title": "城市挑战赛第五赛季｜开局流程测试即将开启",
+      "author": "符文战场",
+      "publishedAt": "2026-10-28 12:00 (UTC+8)",
+      "sourceLevel": "official_reprint",
+      "sha256": "3497b0a0247310e331448993f78df9bc3c471bb182ce5e1aacd8d8390ff2be0c",
+      "bytes": 66679,
+      "archiveSha256": "e07bd0ab110a900836b6123abba5f7c66f5b57fe528090e38a4db5d5545f21d4",
+      "archiveBytes": 11577,
+      "textSha256": "de87528b3448b8c755f27490b0c415772c87af8a09956a11a2c1372db142375a"
+    },
+    {
+      "url": "https://wx1.sinaimg.cn/large/005Ab2OQgy1iihw25vf8jj31e01uou0z.jpg",
+      "title": "第五赛季城市挑战赛 开局流程测试",
+      "publishedAt": "2026-10-28 12:00 (UTC+8)",
+      "sourceLevel": "official",
+      "mediaType": "image/jpeg",
+      "sha256": "ae6f0d4536ca11335801bb0e7821b37376ac8a456ce0ab6e25d27250f6af4899",
+      "bytes": 4036515,
+      "storedOriginalImage": false,
+      "compressedImage": null,
+      "textPath": "data/official/upstream/2026-11-13/schedule-20261028.txt",
+      "textSha256": "00d7278d5721462821dfb36f6f24ae2cea59cabd35b1ac0b609c46bd98fb2e16",
+      "transcription": "Manually checked against the original image; visual reading order, all text including footer; gift icons represented by an emoji."
+    }
+  ],
+  "snapshotEncoding": "gzip for raw HTML; UTF-8 for extracted/transcribed text",
+  "sha256Scope": "sha256 and bytes describe original supplied bytes (decompressed HTML or original JPEG); archiveSha256 and archiveBytes describe stored gzip; textSha256 describes the derived UTF-8 text.",
+  "scope": "limited-event opening-flow test; not a core-rules update",
+  "defaultOpeningChanged": false,
+  "decisionPending": "Wait for the sixth-set 传承 official rules announcement before deciding whether to implement an optional match mode or replace the default opening.",
+  "trialPeriod": {
+    "from": "2026-11-14",
+    "through": "2027-01-10"
+  },
+  "managerSourcesPath": "SOURCES.txt",
+  "managerSourcesSha256": "6a2461dd5bb51e802c2ef84c0b4ac81c6d57a43c32eaf9602362297ee8f09773"
+}
