@@ -2550,7 +2550,7 @@ def paid_equipment_theft_route(card: dict, clause: dict, sources: Sources) -> di
             'MovementRestrictionRules.CanMove(', 'PayImposedMovementCost(', 'CaptureMovementBatchObservers(', 'CaptureUnitEvents(',
             'item.PermanentPlaySource ?? PlayInstructionSource(state, item)', 'unit.ObjectGeneration == binding.Generation',
             'AddFieldObjectToLocation(zones, item.ControllerId, MoveUnitBaseZone, target)', 'if (hasSource)',
-            'EquipmentControl = new(original, underlying,', 'new(item.StackItemId, source!, item.ControllerId, reason, RuleChoices.Value!.CompletionTick)',
+            'EquipmentControl = new(original, underlying,', 'new(item.StackItemId, source!, item.ControllerId, reason, RuleChoices.Value!.AnswerTick)',
             'AttachedEquipmentObjectIds(cards, target)', 'MoveAttachedEquipmentWithHost(zones, attached, item.ControllerId, target, MoveUnitBaseZone)',
             'equipment.Tags.Contains(CardEquipmentKeywordNames.Weapon', 'TryAttachEquipment(']),
         ('CoreRuleEngine.EquipmentTheft.cs', 'ReturnSourceStolenEquipmentForMissingSources', [

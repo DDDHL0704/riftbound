@@ -80,10 +80,13 @@ public sealed partial class CoreRuleEngine
             var grants = lease?.Equipment == original ? lease.Grants : [];
             var underlying = lease?.Equipment == original ? lease.UnderlyingControllerId
                 : equipment.UnitControl?.UnderlyingControllerId ?? equipment.ControllerId ?? origin.PlayerId;
+            // The grant can appear in an attachment-choice preview. The
+            // instruction cursor is stable when that choice is replayed;
+            // the eventual confirmation command's completion tick is not.
             cards[target] = equipment with {
                 ControllerId = item.ControllerId,
                 EquipmentControl = new(original, underlying,
-                    [..grants, new(item.StackItemId, source!, item.ControllerId, reason, RuleChoices.Value!.CompletionTick)]) };
+                    [..grants, new(item.StackItemId, source!, item.ControllerId, reason, RuleChoices.Value!.AnswerTick)]) };
             events.Add(new("EQUIPMENT_CONTROL_CHANGED", "取得装备的控制权，直到来源离场",
                 new Dictionary<string, object?> {
                     ["sourceObjectId"] = publicSource, ["equipmentObjectId"] = target,

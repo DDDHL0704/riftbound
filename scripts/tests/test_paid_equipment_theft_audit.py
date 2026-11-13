@@ -84,7 +84,7 @@ class PaidEquipmentTheftAuditTests(unittest.TestCase):
             ('CoreRuleEngine.EquipmentTheft.cs', 'if (hasSource)'),
             ('CoreRuleEngine.EquipmentTheft.cs', 'TryAttachEquipment('),
             ('CoreRuleEngine.EquipmentTheft.cs', 'source.ObjectGeneration == grant.Source.Generation'),
-            ('CoreRuleEngine.EquipmentTheft.cs', 'new(item.StackItemId, source!, item.ControllerId, reason, RuleChoices.Value!.CompletionTick)'),
+            ('CoreRuleEngine.EquipmentTheft.cs', 'new(item.StackItemId, source!, item.ControllerId, reason, RuleChoices.Value!.AnswerTick)'),
             ('CoreRuleEngine.EquipmentTheft.cs', 'LayeredControlController(remaining, lease.UnderlyingControllerId)'),
             ('CoreRuleEngine.UnitControl.cs', 'unit.CreatedAtTick >= equipment.CreatedAtTick'),
             ('CoreRuleEngine.UnitControl.cs', 'equipment?.ControllerId ?? card.UnitControl?.UnderlyingControllerId'),

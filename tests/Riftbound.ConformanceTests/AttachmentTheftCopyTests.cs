@@ -45,8 +45,16 @@ public sealed class AttachmentTheftCopyTests
 
     internal static async Task<MatchState> Choose(ResolutionResult waiting)
     {
-        var request = waiting.State.PendingRuleChoice!.Request;
-        return (await Act(waiting.State, "P2", new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["COPY:P2-COPY"]))).State;
+        var pending = waiting.State.PendingRuleChoice!;
+        var request = pending.Request;
+        var previewGrant = Assert.Single(request.Preview!.CardObjects["GEAR"].EquipmentControl!.Grants);
+        var before = MatchStateHasher.Hash(waiting.State);
+        var done = (await Act(waiting.State, "P2", new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["COPY:P2-COPY"]))).State;
+        var committedGrant = Assert.Single(done.CardObjects["GEAR"].EquipmentControl!.Grants);
+        Assert.Equal(previewGrant.CreatedAtTick, committedGrant.CreatedAtTick);
+        Assert.InRange(committedGrant.CreatedAtTick, pending.Origin.Tick + 1, done.Tick);
+        Assert.Equal(before, MatchStateHasher.Hash(waiting.State));
+        return done;
     }
 
     internal static MatchState Sword(MatchState state)

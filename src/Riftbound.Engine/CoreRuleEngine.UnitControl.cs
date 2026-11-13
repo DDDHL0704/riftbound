@@ -30,9 +30,10 @@ public sealed partial class CoreRuleEngine
         var unit = cards[target];
         var binding = new ObjectBinding(target, unit.ObjectGeneration);
         var prior = unit.UnitControl?.Unit == binding ? unit.UnitControl : null;
+        // Use the same replay-stable instruction clock as equipment control.
         var grant = new UnitControlGrant($"{item.StackItemId}:CONTROL:{item.CompletedRepeatExecutions}:{target}",
             item.StackItemId, new(item.SourceObjectId, state.CardObjects.GetValueOrDefault(item.SourceObjectId)?.ObjectGeneration ?? 0),
-            item.CardNo!, item.EffectKind, item.ControllerId, RuleChoices.Value!.CompletionTick, item.CompletedRepeatExecutions);
+            item.CardNo!, item.EffectKind, item.ControllerId, RuleChoices.Value!.AnswerTick, item.CompletedRepeatExecutions);
         cards[target] = unit with { UnitControl = new(binding,
             prior?.UnderlyingControllerId ?? unit.EquipmentControl?.UnderlyingControllerId ?? previousController,
             [..prior?.Grants ?? [], grant]) };
