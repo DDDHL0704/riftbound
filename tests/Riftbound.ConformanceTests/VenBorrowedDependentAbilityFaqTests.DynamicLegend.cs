@@ -1,6 +1,7 @@
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
+using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 
 namespace Riftbound.ConformanceTests;
 
@@ -78,6 +79,62 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         Assert.DoesNotContain(privateMarker, publicJson);
         Assert.DoesNotContain("NEXT_UNIT_EPHEMERAL_DISCOUNT", publicJson);
         await game.ColdCheckpoint();
+        await FinishBorrowedDiscountTurn(game);
+    }
+
+    [Theory]
+    [InlineData("before-resolution")]
+    [InlineData("after-grant")]
+    [InlineData("after-play")]
+    public async Task BorrowedNextUnitDiscountSurvivesATokenBorrowerCeasing(string departedAt)
+    {
+        const string unit = "SFD·143/221";
+        var initial = RadGearTestPosition.Put(BorrowedBombPosition("RAD·139/167"), "NEXT", unit, "P1", "HAND");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["HOST"] = initial.CardObjects["HOST"] with { IsEmpowered = true,
+                TokenFactoryCardNo = P6TokenFactoryCatalog.ImageTokenCardNo,
+                CopyFaceTransitions = [new(0, initial.CardObjects["HOST"].ObjectGeneration,
+                    P6TokenFactoryCatalog.ImageTokenCardNo, initial.CardObjects["HOST"].CardNo!)] } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new ActivateAbilityCommand("HOST", TemplateId(game.State, "下一名单位费用减少"), []));
+        if (departedAt != "before-resolution") await game.Top();
+        if (departedAt != "after-play") await ReturnBorrower();
+        if (departedAt == "before-resolution") await game.Top();
+        var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1",
+            PlayCostPreviewTests.Request(game.State, new("NEXT", unit, [], Destination: "BASE")));
+        Assert.True(quote.CanPay, quote.Message); Assert.Equal(2, quote.Cost!.Mana);
+        Assert.Equal(0, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
+        await game.Act("P1", new PlayCardCommand("NEXT", unit, [], Destination: "BASE"));
+        if (departedAt == "after-play") await ReturnBorrower();
+        Assert.False(game.State.CardObjects.ContainsKey("HOST"));
+        var marker = Assert.Single(game.State.CardObjects["NEXT"].UntilEndOfTurnEffects,
+            effect => effect.StartsWith(CoreRuleEngine.TimeAssassinDestructionPrefix, StringComparison.Ordinal));
+        var context = CoreRuleEngine.ReadTimeAssassinDestructionMarker(marker)!;
+        var grant = context.BorrowedGrant!;
+        var borrowed = grant.Borrowed!;
+        Assert.NotNull(borrowed.Borrower.CeasedSource);
+        foreach (var forged in new[] { borrowed with { Borrower = borrowed.Borrower with { CeasedSource = null } },
+            borrowed with { Borrower = null! } })
+        {
+            var invalid = CoreRuleEngine.TimeAssassinDestructionMarker(context.TurnNumber, context.ControllerId,
+                context.Source, context.Target, context.CardNo, context.CreatedTick, grant with { Borrowed = forged });
+            Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game, game.State with {
+                CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+                    ["NEXT"] = game.State.CardObjects["NEXT"] with { UntilEndOfTurnEffects = [invalid] } } }));
+        }
+        await game.ColdCheckpoint();
+        await FinishBorrowedDiscountTurn(game);
+
+        async Task ReturnBorrower()
+        {
+            if (game.State.PriorityPlayerId == "P2") await game.Act("P2", new PassPriorityCommand());
+            await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"]));
+            await game.Top();
+        }
+    }
+
+    private static async Task FinishBorrowedDiscountTurn(Driver game)
+    {
         await game.Act("P1", new EndTurnCommand());
         for (var step = 0; game.State.TurnPlayerId == "P1"; step++)
         {

@@ -90,8 +90,11 @@ public sealed partial class CoreRuleEngine
         string cardNo, ActivatedPlayGrant? grant)
         => grant is null ? LegendActionAbilityCatalog.IsSourceCardNoForAbility(
             LegendActionAbilityCatalog.TimeAssassinLegendAbilityId, cardNo)
+                && state.CardObjects.TryGetValue(source.ObjectId, out var current)
+                && current.ObjectGeneration >= source.Generation
+                && (current.ObjectGeneration != source.Generation || current.CardNo == cardNo)
             : grant.Kind == "NEXT_UNIT_EPHEMERAL_DISCOUNT" && grant.ControllerId == controller
-                && grant.CardNo == cardNo && grant.Borrowed?.Borrower.Object == source
+                && grant.CardNo == cardNo && grant.Borrowed?.Borrower?.Object == source
                 && ValidActivatedPlayGrant(state, grant);
 
     private static string TimeAssassinMarker(TimeAssassinNextUnitReduction reduction)
@@ -146,9 +149,6 @@ public sealed partial class CoreRuleEngine
             && reduction.Source.Generation >= 0
             && !string.IsNullOrWhiteSpace(reduction.CardNo)
             && ValidTimeAssassinSource(state, reduction.ControllerId, reduction.Source, reduction.CardNo, reduction.BorrowedGrant)
-            && state.CardObjects.TryGetValue(reduction.Source.ObjectId, out var source)
-            && source.ObjectGeneration >= reduction.Source.Generation
-            && (source.ObjectGeneration != reduction.Source.Generation || source.CardNo == reduction.CardNo)
             && reduction.CreatedTick > 0
             && reduction.CreatedTick <= state.Tick;
 
@@ -229,9 +229,7 @@ public sealed partial class CoreRuleEngine
             || !target.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || target.IsFaceDown)
             return false;
-        return state.CardObjects.TryGetValue(context.Source.ObjectId, out var source)
-            && source.ObjectGeneration >= context.Source.Generation
-            && (source.ObjectGeneration != context.Source.Generation || source.CardNo == context.CardNo);
+        return true;
     }
 
     internal static IReadOnlyList<TimeAssassinNextUnitReduction> TimeAssassinNextUnitReductions(

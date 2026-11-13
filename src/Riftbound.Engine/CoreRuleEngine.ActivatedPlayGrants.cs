@@ -138,23 +138,39 @@ public sealed partial class CoreRuleEngine
 
     private static MatchState RecordCeasedActivatedPlayGrantSources(MatchState before, MatchState state, IReadOnlySet<string> departed)
     {
-        var effects = state.UntilEndOfTurnEffects.Select(marker => {
-            if (ReadActivatedPlayGrant(marker) is not { } grant
-                || !ValidActivatedPlayGrant(before with { Tick = state.Tick }, grant)) return marker;
+        ActivatedPlayGrant CaptureGrant(ActivatedPlayGrant grant)
+        {
+            if (!ValidActivatedPlayGrant(before with { Tick = state.Tick }, grant)) return grant;
             if (grant.Borrowed is { } borrowed)
             {
                 BorrowedTextSource Capture(BorrowedTextSource text) => text.CeasedSource is null && departed.Contains(text.Object.ObjectId)
                     ? text with { CeasedSource = SelfAbilitySourceRules.Capture(before, state.Tick, text.Object,
                         text.PhysicalCardNo, text.FaceRevision, borrowed.AcquiredTick, text.TokenFactoryCardNo) } : text;
-                return ActivatedPlayGrantMarker(grant with { Borrowed = borrowed with {
-                    Borrower = Capture(borrowed.Borrower), Donor = Capture(borrowed.Donor) } });
+                return grant with { Borrowed = borrowed with {
+                    Borrower = Capture(borrowed.Borrower), Donor = Capture(borrowed.Donor) } };
             }
             if (grant.Printed is { CeasedSource: null, SourceTokenFactoryCardNo: not null } printed
                 && departed.Contains(printed.Source.ObjectId))
-                return ActivatedPlayGrantMarker(grant with { Printed = printed with {
-                    CeasedSource = new(printed.SourceTokenFactoryCardNo, state.Tick) { SourceFaceRevision = printed.SourceFaceRevision } } });
+                return grant with { Printed = printed with {
+                    CeasedSource = new(printed.SourceTokenFactoryCardNo, state.Tick) { SourceFaceRevision = printed.SourceFaceRevision } } };
+            return grant;
+        }
+        string CaptureMarker(string marker)
+        {
+            if (ReadActivatedPlayGrant(marker) is { } grant)
+                return ActivatedPlayGrantMarker(CaptureGrant(grant));
+            if (ReadTimeAssassinNextUnitReduction(marker) is { BorrowedGrant: { } reductionGrant } reduction)
+                return TimeAssassinMarker(reduction with { BorrowedGrant = CaptureGrant(reductionGrant) });
+            if (ReadTimeAssassinDestructionMarker(marker) is { BorrowedGrant: { } destructionGrant } destruction)
+                return TimeAssassinDestructionMarker(destruction with { BorrowedGrant = CaptureGrant(destructionGrant) });
             return marker;
-        }).ToArray();
-        return state with { UntilEndOfTurnEffects = effects };
+        }
+        var cards = state.CardObjects.ToDictionary();
+        foreach (var (id, card) in state.CardObjects)
+        {
+            var effects = card.UntilEndOfTurnEffects.Select(CaptureMarker).ToArray();
+            if (!effects.SequenceEqual(card.UntilEndOfTurnEffects)) cards[id] = card with { UntilEndOfTurnEffects = effects };
+        }
+        return state with { UntilEndOfTurnEffects = state.UntilEndOfTurnEffects.Select(CaptureMarker).ToArray(), CardObjects = cards };
     }
 }
