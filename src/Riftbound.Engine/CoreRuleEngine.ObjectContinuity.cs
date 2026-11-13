@@ -8,7 +8,7 @@ public sealed partial class CoreRuleEngine
     {
         if (cards.TryGetValue(objectId, out var card))
             cards[objectId] = card with { ObjectGeneration = checked(card.ObjectGeneration + 1),
-                CopyFaceTransitions = null, GrantedTags = null };
+                CopyFaceTransitions = null, GrantedTags = null, UnitControl = null };
     }
 
     // CN 124: movement within the field preserves the object. Crossing into or
@@ -37,12 +37,13 @@ public sealed partial class CoreRuleEngine
             var damageMarkers = crossedZone || card.Damage == 0 || !IsObjectOnField(after.PlayerZones, id)
                 ? null : card.DamageMarkedByPlayerIds;
             var grantedTags = crossedZone || !IsObjectOnField(after.PlayerZones, id) ? null : card.GrantedTags;
+            var unitControl = crossedZone || !IsObjectOnField(after.PlayerZones, id) ? null : card.UnitControl;
             var placement = card.IsFaceDown && nextLocations.GetValueOrDefault(id)?.Zone == "BATTLEFIELD" ? card.StandbyPlacement : null;
             var lastStandby = card.LastStandbyPlay?.SourceGeneration + 1 == generation ? card.LastStandbyPlay : null;
-            if ((!crossedZone || card.CopyFaceTransitions is null) && card.GrantedTags == grantedTags
+            if ((!crossedZone || card.CopyFaceTransitions is null) && card.GrantedTags == grantedTags && card.UnitControl == unitControl
                 && card.ObjectGeneration == generation && card.MovementCountThisTurn == movementCount
                 && card.DamageMarkedByPlayerIds == damageMarkers && card.StandbyPlacement == placement && card.LastStandbyPlay == lastStandby) continue;
-            cards[id] = card with { CopyFaceTransitions = crossedZone ? null : card.CopyFaceTransitions,
+            cards[id] = card with { CopyFaceTransitions = crossedZone ? null : card.CopyFaceTransitions, UnitControl = unitControl,
                 StandbyPlacement = placement, LastStandbyPlay = lastStandby, GrantedTags = grantedTags, ObjectGeneration = generation, MovementCountThisTurn = movementCount, DamageMarkedByPlayerIds = damageMarkers };
             changed = true;
         }

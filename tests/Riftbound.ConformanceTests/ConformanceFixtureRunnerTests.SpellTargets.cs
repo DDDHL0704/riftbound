@@ -2748,7 +2748,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
         Assert.Equal(
             ["P2-BASE-UNIT-001", "P2-BATTLEFIELD-UNIT-001"],
             result.FinalState.PlayerZones["P2"].Base);

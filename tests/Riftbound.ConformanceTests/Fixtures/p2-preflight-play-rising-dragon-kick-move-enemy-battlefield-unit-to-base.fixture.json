@@ -123,10 +123,12 @@
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
+      "LEVEL_TARGETS_CONFIRMED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_MOVED_TO_BASE"
+      "UNIT_MOVED_TO_BASE",
+      "LEVEL_TARGETS_RETIRED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -145,9 +147,10 @@
           "sourceObjectId": "P1-SPELL-RISING-DRAGON-KICK",
           "cardNo": "UNL-038/219",
           "targetObjectIds": ["P2-BATTLEFIELD-UNIT-001"],
-          "effectKind": "RISING_DRAGON_KICK_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_LEVEL_6"
+          "effectKind": "RISING_DRAGON_KICK_MOVE_THEN_LEVEL_STUN"
         }
       },
+      {"kind": "LEVEL_TARGETS_CONFIRMED"},
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
@@ -158,7 +161,8 @@
           "targetObjectId": "P2-BATTLEFIELD-UNIT-001",
           "ownerPlayerId": "P2"
         }
-      }
+      },
+      {"kind": "LEVEL_TARGETS_RETIRED"}
     ],
     "promptActions": {
       "P1": ["END_TURN"],

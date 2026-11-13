@@ -15,16 +15,18 @@ public sealed partial class CoreRuleEngine
             card.EquipmentControl is not { } lease || lease.Equipment is not null
                 && lease.Equipment.ObjectId == card.ObjectId && lease.Equipment.Generation == card.ObjectGeneration
                 && lease.Grants is { Count: > 0 } && frame.Seats.ContainsKey(lease.UnderlyingControllerId ?? "")
-                && card.ControllerId == lease.Grants.LastOrDefault()?.ControllerId
+                && card.ControllerId == LayeredControlController(card, lease.UnderlyingControllerId)
                 && IsObjectOnField(frame.PlayerZones, card.ObjectId)
                 && lease.Grants.Select(grant => grant?.SkillId).Distinct(StringComparer.Ordinal).Count() == lease.Grants.Count
                 && lease.Grants.All(grant => grant is { Source: not null }
                     && !string.IsNullOrWhiteSpace(grant.SkillId) && !string.IsNullOrWhiteSpace(grant.Reason)
+                    && grant.CreatedAtTick >= 0 && grant.CreatedAtTick <= frame.Tick
                     && !string.IsNullOrWhiteSpace(grant.Source.ObjectId)
                     && frame.Seats.ContainsKey(grant.ControllerId ?? "") && grant.Source.Generation >= 0
                     && frame.CardObjects.TryGetValue(grant.Source.ObjectId, out var source)
                     && source.ObjectGeneration == grant.Source.Generation
-                    && IsObjectOnField(frame.PlayerZones, source.ObjectId))));
+                    && IsObjectOnField(frame.PlayerZones, source.ObjectId))
+                && lease.Grants.Zip(lease.Grants.Skip(1)).All(pair => pair.First.CreatedAtTick <= pair.Second.CreatedAtTick)));
 
     internal static IEnumerable<(string Key, string Proof)> EquipmentControlReceipts(MatchState state)
     {

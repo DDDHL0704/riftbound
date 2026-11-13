@@ -14,7 +14,7 @@ public sealed partial class CoreRuleEngine
         if (destination.Length == 0 && behavior.MovesTargetsToChosenLocation
             && behavior.DefaultChosenMovementToControllerBase)
         {
-            var targets = NormalizeTargetObjectIds(command.TargetObjectIds);
+            var targets = ChosenMovementTargets(behavior, NormalizeTargetObjectIds(command.TargetObjectIds));
             if (targets.Count == 1 && FindFieldObjectLocation(state.PlayerZones, targets[0]) is { } source)
                 destination = "BASE:" + source.PlayerId;
         }

@@ -458,6 +458,9 @@ public sealed partial record CardBehaviorDefinition(
     public bool RemovesTargetMightLimitIfExperiencePaid { get; init; }
     public string EntryBattlefieldTokenCardNo { get; init; } = "";
     public int? PowerModifierAmountAtLevel { get; init; }
+    public int AdditionalTargetsAtLevel { get; init; }
+    public bool AppliesStatusAfterChosenMovement { get; init; }
+    public bool LosesGrantedControlAtEndStep { get; init; }
     public int ExperienceWhenTargetWinsBattleThisTurn { get; init; }
     public bool AllowsPlayToBattlefieldWithAloneEnemy { get; init; }
     public bool FriendlyUnitsMayPlayToBattlefieldWithAloneEnemy { get; init; }
@@ -9079,12 +9082,21 @@ public static class CardBehaviorRegistry
             "UNL-038/219",
             "升龙踢",
             2,
-            "RISING_DRAGON_KICK_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_LEVEL_6",
+            "RISING_DRAGON_KICK_MOVE_THEN_LEVEL_STUN",
             0,
             1,
+            StatusEffectId: "STUNNED",
             TargetScope: CardTargetScopes.EnemyUnit,
+            AllowsRepeatedTargets: true,
+            StatusEffectTargetIndex: 1,
+            LevelExperienceThreshold: 6,
             MovesTargetsToChosenLocation: true,
-            DefaultChosenMovementToControllerBase: true),
+            ChosenMovementTargetIndex: 0,
+            DefaultChosenMovementToControllerBase: true)
+        {
+            AdditionalTargetsAtLevel = 1,
+            AppliesStatusAfterChosenMovement = true
+        },
         new(
             "UNL-124/219",
             "隔绝",
@@ -9127,7 +9139,7 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.EnemyBattlefieldUnit,
             TargetRequiredTag: CardObjectTags.UnitCard,
             GainsControlOfTargetToBattlefield: true,
-            ReadiesTarget: true),
+            ReadiesTarget: true) { LosesGrantedControlAtEndStep = true },
         new(
             "UNL-101/219",
             "战斗号令",
