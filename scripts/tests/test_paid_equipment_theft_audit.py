@@ -72,6 +72,7 @@ class PaidEquipmentTheftAuditTests(unittest.TestCase):
             ('CoreRuleEngine.cs', 'TryResolveSourceStealEnemyEquipment('),
             ('CoreRuleEngine.cs', 'RecordEquipmentControlHistory(state, completed)'),
             ('CoreRuleEngine.cs', 'EquipmentControl = null'),
+            ('CoreRuleEngine.cs', 'EquipmentControl = controlledTargetState.EquipmentControl'),
             ('CoreRuleEngine.cs', 'HasValidFieldObjectIdentity(state, playerZones, cardObjects, targetObjectId)'),
             ('CoreRuleEngine.EquipmentTargets.cs', 'FindFieldObjectLocation(state.PlayerZones, hostId) != location'),
             ('CoreRuleEngine.PermanentConfirmation.cs', 'declaration.StealsTargetEquipmentUntilSourceLeaves'),
@@ -83,8 +84,14 @@ class PaidEquipmentTheftAuditTests(unittest.TestCase):
             ('CoreRuleEngine.EquipmentTheft.cs', 'if (hasSource)'),
             ('CoreRuleEngine.EquipmentTheft.cs', 'TryAttachEquipment('),
             ('CoreRuleEngine.EquipmentTheft.cs', 'source.ObjectGeneration == grant.Source.Generation'),
+            ('CoreRuleEngine.EquipmentTheft.cs', 'new(item.StackItemId, source!, item.ControllerId, reason, RuleChoices.Value!.CompletionTick)'),
+            ('CoreRuleEngine.EquipmentTheft.cs', 'LayeredControlController(remaining, lease.UnderlyingControllerId)'),
+            ('CoreRuleEngine.UnitControl.cs', 'unit.CreatedAtTick >= equipment.CreatedAtTick'),
+            ('CoreRuleEngine.UnitControl.cs', 'equipment?.ControllerId ?? card.UnitControl?.UnderlyingControllerId'),
             ('CoreRuleEngine.PaidPermanentPlayHistory.cs', 'item.PermanentPlaySource'),
             ('CoreRuleEngine.EquipmentControlHistory.cs', '!string.IsNullOrWhiteSpace(grant.Source.ObjectId)'),
+            ('CoreRuleEngine.EquipmentControlHistory.cs', 'card.ControllerId == LayeredControlController(card, lease.UnderlyingControllerId)'),
+            ('CoreRuleEngine.EquipmentControlHistory.cs', 'lease.Grants.Zip(lease.Grants.Skip(1)).All(pair => pair.First.CreatedAtTick <= pair.Second.CreatedAtTick)'),
             ('MatchRecovery.EquipmentControlHistory.cs', 'proof != row.Proof')]:
             with self.subTest(token=token):
                 path = 'src/Riftbound.Engine/' + filename
