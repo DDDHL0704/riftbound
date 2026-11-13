@@ -337,4 +337,50 @@ public sealed class HostileTakeoverDelayedControlTests
         Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game, forged));
         await game.Act("P1", new EndTurnCommand()); await FinishEnd(game, "P1"); await game.Replay();
     }
+
+    [Theory]
+    [InlineData(false, "list")] [InlineData(true, "list")]
+    [InlineData(false, "first")] [InlineData(true, "first")]
+    [InlineData(false, "last")] [InlineData(true, "last")]
+    public async Task ARealControlGrantRejectsNullEffectsInEitherRecoveryFrameWithoutThrowing(bool inOrigin, string malformed)
+    {
+        var game = new Driver(RadGearTestPosition.Put(Position(), "BIRDS", "UNL-044/219", "P1", "HAND"));
+        await Steal(game); await ToMain(game);
+        await game.Act("P1", new PlayCardCommand("BIRDS", "UNL-044/219", [], Mode: "CREATE_WARHAWKS"));
+        await game.Top();
+        var pending = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
+        var frame = inOrigin ? pending.Origin : game.State;
+        Assert.Contains(frame.UntilEndOfTurnEffects,
+            effect => effect.StartsWith(CoreRuleEngine.DelayedControlLossPrefix, StringComparison.Ordinal));
+        Assert.NotNull(frame.CardObjects["ENEMY"].UnitControl);
+        IReadOnlyList<string> effects = malformed switch {
+            "list" => null!, "first" => [null!, ..frame.UntilEndOfTurnEffects],
+            _ => [..frame.UntilEndOfTurnEffects, null!] };
+        var corrupted = frame with { UntilEndOfTurnEffects = effects };
+        var forged = inOrigin ? game.State with { PendingRuleChoice = pending with { Origin = corrupted } } : corrupted;
+        var before = MatchStateHasher.HashValue(game.State);
+        var commands = MatchStateHasher.HashValue(game.Commands()); var events = MatchStateHasher.HashValue(game.Events());
+        // Preserve the actual views and accepted journal. The malformed copy
+        // must be rejected before it can be restored or certify any receipt.
+        var sequence = game.Commands().Last().CompletedEventSequence;
+        var snapshots = ResolutionResult.BuildSnapshots(game.State); var prompts = ResolutionResult.BuildPrompts(game.State);
+        var views = game.State.Seats.Keys.ToDictionary(player => player, player => new RecoveredPlayerView(
+            player, game.State.Tick, sequence, snapshots[player], game.State.Tick, sequence, prompts[player]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(game.State.RoomId, game.State.Tick, sequence, [], game.State);
+        var errors = MatchRecoveryValidator.Validate(game.State.RoomId, sequence,
+            game.Commands(), game.Events(), views, forged, game.State.Tick, spectator);
+        Assert.Contains("unit control history contains a null effect list or value", errors);
+        var recovery = new MatchRecoveryFrame(game.State.RoomId, game.State.Tick, sequence, game.Commands(), game.Events(),
+            views, errors, AuthoritativeState: forged, SpectatorReplayFrame: spectator) { OpeningSeed = game.State.Seed };
+        Assert.Throws<MatchSessionException>(() => MatchSession.Restore(recovery, new CoreRuleEngine(), game));
+        Assert.Equal(before, MatchStateHasher.HashValue(game.State));
+        Assert.Equal(commands, MatchStateHasher.HashValue(game.Commands())); Assert.Equal(events, MatchStateHasher.HashValue(game.Events()));
+        for (var step = 0; game.State.PendingRuleChoice is { } choice; step++)
+        {
+            Assert.InRange(step, 0, 3);
+            await game.Act(choice.Request.PlayerId, new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", ["BASE"]));
+        }
+        if (game.State.StackItems.Count > 0) await game.Top();
+        await game.ColdCheckpoint(); await game.Replay();
+    }
 }

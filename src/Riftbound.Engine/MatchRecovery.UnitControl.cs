@@ -10,6 +10,11 @@ public static partial class MatchRecoveryValidator
     {
         foreach (var frame in CoreRuleEngine.UnitControlFrames(state))
         {
+            if (!HasUnitControlEffectList(frame))
+            {
+                errors.Add("unit control history contains a null effect list or value");
+                continue;
+            }
             var markers = frame.UntilEndOfTurnEffects.Where(e => e.StartsWith(CoreRuleEngine.DelayedControlLossPrefix, StringComparison.Ordinal)).ToArray();
             if (markers.Any(marker => !CoreRuleEngine.ValidControlLoss(frame, CoreRuleEngine.ReadControlLoss(marker)))
                 || markers.Length > 0 && (frame.EndStep is not null || frame.Phase == MatchPhases.TurnEnd))
@@ -39,6 +44,11 @@ public static partial class MatchRecoveryValidator
     private static void ValidateUnitControlHistory(MatchState state, IReadOnlyList<RecoveredCommand> commands,
         IReadOnlyList<RecoveredEvent> events, List<string> errors)
     {
+        if (CoreRuleEngine.UnitControlFrames(state).Any(frame => !HasUnitControlEffectList(frame)))
+        {
+            errors.Add("unit control history contains a null effect list or value");
+            return;
+        }
         if (!CoreRuleEngine.ValidUnitControlLeases(state)) {
             errors.Add("unit control lease has an invalid source, unit or controller");
             return;
@@ -83,4 +93,7 @@ public static partial class MatchRecoveryValidator
         if (state.Status == MatchStatuses.InProgress && !pending.SetEquals(current.Select(row => row.Key)))
             errors.Add("unit control effects differ from original capture and retirement history");
     }
+
+    private static bool HasUnitControlEffectList(MatchState state)
+        => state.UntilEndOfTurnEffects is { } effects && effects.All(effect => effect is not null);
 }
