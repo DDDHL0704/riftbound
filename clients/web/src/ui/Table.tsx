@@ -37,7 +37,7 @@ import {
   useViewportFit,
 } from "./table/hooks";
 import { MulliganPanel } from "./table/MulliganPanel";
-import { applyChoice, EXCLUSIVE_COST_PREFIXES, GROUP, type Pick } from "./table/pick";
+import { applyChoice, boonSteppers, GROUP, offeredCosts, offeredSelection, toggleCost, type Pick } from "./table/pick";
 import { PickBar } from "./table/PickBar";
 import { ResultPanel } from "./table/ResultPanel";
 import { RuneBar } from "./table/RuneBar";
@@ -200,8 +200,9 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     return map;
   }, [stepChoices, peers, pick]);
 
-  const submitPick = (p: Pick) => {
+  const submitPick = (picked: Pick) => {
     setPick(null);
+    const p = { ...picked, sel: offeredSelection(picked) };
     if (p.action.cmdType === "MOVE_UNIT" && p.group.length && p.sel.destination) {
       // A group move names its units and destination; each unit keeps its own origin.
       void client.submit(
@@ -267,7 +268,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
   const advance = (p: Pick) => {
     if (p.step >= p.action.steps.length) {
-      if (p.action.optionalCosts.length || p.action.powerShortfall > 0 || p.action.variablePower) setPick(p);
+      if (offeredCosts(p).length || boonSteppers(p.action).length || p.action.powerShortfall > 0 || p.action.variablePower) setPick(p);
       else submitPick(p);
       return;
     }
@@ -586,14 +587,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
                 objects={objects}
                 onChoose={choose}
                 onSkip={skipStep}
-                onToggleCost={(id) => {
-                  const on = pick.sel.optionalCosts.includes(id);
-                  // At most one card may be showcased (shown) per play.
-                  const exclusive = EXCLUSIVE_COST_PREFIXES.find((p) => id.startsWith(p));
-                  const kept = exclusive ? pick.sel.optionalCosts.filter((c) => !c.startsWith(exclusive)) : pick.sel.optionalCosts;
-                  const next = on ? pick.sel.optionalCosts.filter((c) => c !== id) : [...kept, id];
-                  setPick({ ...pick, sel: { ...pick.sel, optionalCosts: next } });
-                }}
+                onToggleCost={(id) => setPick({ ...pick, sel: { ...pick.sel, optionalCosts: toggleCost(pick, id) } })}
                 onSetCosts={(costs) => setPick({ ...pick, sel: { ...pick.sel, optionalCosts: costs } })}
                 onConfirm={() => submitPick(pick)}
                 onCancel={() => setPick(null)}
