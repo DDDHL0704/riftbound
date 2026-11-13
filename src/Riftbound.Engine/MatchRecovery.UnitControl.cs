@@ -81,7 +81,7 @@ public static partial class MatchRecoveryValidator
             if (!pending.Contains(row.Key) || !captured.TryGetValue(row.Key, out var proof) || proof != row.Proof)
                 errors.Add("unit control differs from its original accepted effect");
         var order = receipts.Where(r => r.Event.Kind == CoreRuleEngine.UnitControlCaptured)
-            .Select((record, index) => (Key: record.Event.Payload.GetValueOrDefault(CoreRuleEngine.UnitControlKey)?.ToString(), Index: index))
+            .Select((record, index) => (Key: record.Event.Payload?.GetValueOrDefault(CoreRuleEngine.UnitControlKey)?.ToString(), Index: index))
             .Where(row => row.Key is not null).DistinctBy(row => row.Key).ToDictionary(row => row.Key!, row => row.Index, StringComparer.Ordinal);
         foreach (var lease in CoreRuleEngine.UnitControlFrames(state).SelectMany(frame => frame.CardObjects.Values)
             .Select(card => card.UnitControl).OfType<UnitControlLease>())

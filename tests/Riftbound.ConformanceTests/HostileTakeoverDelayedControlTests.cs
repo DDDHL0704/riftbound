@@ -338,6 +338,41 @@ public sealed class HostileTakeoverDelayedControlTests
         await game.Act("P1", new EndTurnCommand()); await FinishEnd(game, "P1"); await game.Replay();
     }
 
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task NullOriginalControlCaptureRejectsRecoveryBeforeAndAfterRetirementWithoutThrowing(bool retired)
+    {
+        var game = new Driver(Position()); await Steal(game);
+        if (retired) { await game.Act("P1", new EndTurnCommand()); await FinishEnd(game, "P1"); }
+        var state = game.State;
+        var commands = game.Commands(); var originalEvents = game.Events();
+        var captures = originalEvents.Where(record => record.Event.Kind == CoreRuleEngine.UnitControlCaptured).ToArray();
+        Assert.NotEmpty(captures);
+        Assert.Equal(retired, state.CardObjects["ENEMY"].UnitControl is null);
+        var before = MatchStateHasher.HashValue(state);
+        var commandHash = MatchStateHasher.HashValue(commands); var eventHash = MatchStateHasher.HashValue(originalEvents);
+        var sequence = commands.Last().CompletedEventSequence;
+        var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
+        var views = state.Seats.Keys.ToDictionary(player => player, player => new RecoveredPlayerView(
+            player, state.Tick, sequence, snapshots[player], state.Tick, sequence, prompts[player]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
+        Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId, sequence, commands, originalEvents, views, state, state.Tick, spectator));
+        foreach (var captured in captures)
+        {
+            var malformed = originalEvents.Select(record => record.Sequence == captured.Sequence
+                ? record with { Event = record.Event with { Payload = null! } } : record).ToArray();
+            var errors = MatchRecoveryValidator.Validate(state.RoomId, sequence, commands, malformed, views, state, state.Tick, spectator);
+            Assert.Contains(errors, error => error.Contains("payload is required", StringComparison.Ordinal));
+            Assert.Contains("unit control receipt lacks its original accepted command", errors);
+            var frame = new MatchRecoveryFrame(state.RoomId, state.Tick, sequence, commands, malformed, views, errors,
+                AuthoritativeState: state, SpectatorReplayFrame: spectator) { OpeningSeed = state.Seed };
+            Assert.Throws<MatchSessionException>(() => MatchSession.Restore(frame, new CoreRuleEngine(), game));
+        }
+        Assert.Equal(before, MatchStateHasher.HashValue(game.State));
+        Assert.Equal(commandHash, MatchStateHasher.HashValue(game.Commands()));
+        Assert.Equal(eventHash, MatchStateHasher.HashValue(game.Events()));
+        await game.ColdCheckpoint(); await game.Replay();
+    }
+
     [Theory]
     [InlineData(false, "list")] [InlineData(true, "list")]
     [InlineData(false, "first")] [InlineData(true, "first")]
