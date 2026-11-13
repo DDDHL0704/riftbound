@@ -944,33 +944,55 @@
       ],
       "text": "{{等级6>}} {{眩晕}}一名敌方单位。（如果你拥有不少于6经验，则获得该效果。被眩晕的单位在本回合内无法造成战斗伤害。）",
       "scope": "{{等级6>}} {{眩晕}}一名敌方单位。（如果你拥有不少于6经验，则获得该效果。被眩晕的单位在本回合内无法造成战斗伤害。）",
-      "status": "review",
-      "reason": "待确认（规则）：等级6眩晕尚未整体准入；确认时不足6经验而响应后达到6时，是否需要补选公开目标尚无明确中国区依据。现有355.5、355.8、355.10规定公开目标确认，824.1规定依赖性文本随经验变化，但未找到直接解决两者边界的裁定；保留疑点，不用私有原型的通过记录代替官方依据。",
-      "rules": "中国区核心355.5、355.8、355.10、824.1.b–d；升龙踢官方中文牌面；官网及CDN补充搜索无明确命中。",
+      "status": "route",
+      "reason": "等级6眩晕依赖当前控制者经验。确认时仅在经验达6时选择独立公开眩晕目标；结算先移动第一目标，再检查经验与原已确认的第二目标。确认时低经验而响应后升至6时不补选目标，按359.3.e.6忽略无目标指示；确认时达6而响应后降至6以下时仍移动但不眩晕。目标确认凭据防止恢复或重试添加晚选目标。如官方后续出专项裁定再调整。",
+      "rules": "中国区核心355.5／355.8／355.10、359.3.e.6、824.1.b–d；UNL-038官方中文卡面。",
       "runtime": {
         "behaviors": [
           {
-            "movesTargetsToChosenLocation": true
+            "movesTargetsToChosenLocation": true,
+            "appliesStatusAfterChosenMovement": true,
+            "additionalTargetsAtLevel": 1,
+            "levelExperienceThreshold": 6,
+            "statusEffectId": "STUNNED",
+            "statusEffectTargetIndex": 1
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LevelStatusAfterMovement.cs",
           "contains": [
-            "RISING_DRAGON_KICK_MOVE",
-            "DefaultChosenMovementToControllerBase: true"
+            "ActiveLevelAdditionalTargetCount",
+            "ApplyLevelStatusAfterMovement",
+            "ApplyUnitEventStun(state, item, zones, cards, events, target);"
           ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LevelTargetHistory.cs",
           "contains": [
-            "behavior.MovesTargetsToChosenLocation",
-            "behavior.DefaultChosenMovementToControllerBase"
+            "RecordLevelTargetHistory"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.LevelTargets.cs",
+          "contains": [
+            "ValidateLevelTargetHistory"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RisingDragonKickLevelTests.cs",
+          "methods": [
+            "TheLevelInstructionHasItsOwnEnemyTargetAndExecutesAfterOnlyTheFirstTargetsMovement",
+            "PayingExperienceInARealPoppyResponseDisablesOnlyTheLaterStun",
+            "ExperienceEarnedByARealResponseCannotAddATargetToTheAlreadyConfirmedSpell",
+            "EchoRepeatsTheIndependentStatusWithoutInventingASecondMoveToTheSameLocation",
+            "RecoveryCannotAddAnUndeclaredTargetToAnOriginalBelowLevelPlay"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

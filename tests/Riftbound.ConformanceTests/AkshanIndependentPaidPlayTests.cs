@@ -199,6 +199,12 @@ public sealed class AkshanIndependentPaidPlayTests
         await game.Act("P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["GEAR"]));
         await game.Top();
         Assert.Equal(2, game.State.CardObjects["GEAR"].EquipmentControl!.Grants.Count);
+        var gear = game.State.CardObjects["GEAR"];
+        var reversed = gear.EquipmentControl!.Grants.Reverse().ToArray();
+        Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game, game.State with {
+            CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+                ["GEAR"] = gear with { ControllerId = reversed[^1].ControllerId,
+                    EquipmentControl = gear.EquipmentControl with { Grants = reversed } } } }));
         Assert.Equal("SECOND", game.State.CardObjects["GEAR"].AttachedToObjectId);
         await game.Act("P2", new PlayCardCommand("RETURN-TWO", "OGN·104/298", ["SECOND"]));
         if (underlyingLeavesFirst)
@@ -254,8 +260,8 @@ public sealed class AkshanIndependentPaidPlayTests
         await game.ColdCheckpoint();
     }
 
-    [Theory, InlineData(false), InlineData(true)]
-    public async Task ANewControlInstructionSupersedesEarlierSourceBoundControl(bool battlefieldControl)
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(true, true)]
+    public async Task ANewControlInstructionSupersedesEarlierSourceBoundControl(bool battlefieldControl, bool sourceLeavesBeforeEnd)
     {
         var takeover = battlefieldControl ? "SFD·202/221" : "OGN·203/298";
         var initial = RadGearTestPosition.Put(Position(), "TAKE", takeover, "P2", "HAND");
@@ -270,17 +276,52 @@ public sealed class AkshanIndependentPaidPlayTests
         await game.Act("P1", new PlayCardCommand("UNIT", Akshan, [], OptionalCosts: [Fee]));
         await Confirm(game, "GEAR"); await game.Top();
         Assert.NotNull(game.State.CardObjects["GEAR"].EquipmentControl);
-        await game.Act("P1", new MoveUnitCommand("GEAR", "BASE", "BATTLEFIELD:BF"));
+        await game.Act("P1", new MoveUnitCommand("GEAR", "BASE", "BATTLEFIELD:OTHER"));
         var movement = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         Assert.Equal("UNIT_EVENT_MODE_CONFIRMATION", movement.ChoiceWindow);
         await game.Act("P1", new ChooseCardsCommand(movement.ChoiceId, movement.ChoiceWindow, ["DRAW"])); await game.Top();
+        await HostileTakeoverDelayedControlTests.ToMain(game);
         await game.Act("P1", new EndTurnCommand());
         await game.TapRunes("P2", Enumerable.Range(0, 9).Select(index => "CONTROL-RUNE-" + index));
         await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
         await game.Act("P2", new PlayCardCommand("TAKE", takeover, ["GEAR"])); await game.Top();
         Assert.Equal("P2", game.State.CardObjects["GEAR"].ControllerId);
+        if (battlefieldControl)
+        {
+            Assert.NotNull(game.State.CardObjects["GEAR"].EquipmentControl);
+            Assert.NotNull(game.State.CardObjects["GEAR"].UnitControl);
+            await HostileTakeoverDelayedControlTests.ToMain(game);
+            await game.Act("P2", new EndTurnCommand());
+            if (sourceLeavesBeforeEnd)
+            {
+                while (ResolutionResult.HasOpenOrderTriggersWindow(game.State))
+                    await game.Act(ResolutionResult.OrderTriggersOrderingPlayerId(game.State)!,
+                        new OrderTriggersCommand(OrderedTriggerIds: CoreRuleEngine.TriggerResolutionOrderIds(game.State)));
+                if (game.State.PriorityPlayerId != "P1")
+                    await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+                await game.Act("P1", new TapRuneCommand("P1-RETURN-RUNE"));
+                await game.Act("P1", new PlayCardCommand("RETURN-SOURCE", "OGN·104/298", ["UNIT"])); await game.Top();
+                Assert.Null(game.State.CardObjects["GEAR"].EquipmentControl);
+                Assert.Equal("P2", game.State.CardObjects["GEAR"].ControllerId);
+            }
+            for (var step = 0; game.State.TurnPlayerId == "P2"; step++)
+            {
+                Assert.InRange(step, 0, 8);
+                if (ResolutionResult.HasOpenOrderTriggersWindow(game.State))
+                    await game.Act(ResolutionResult.OrderTriggersOrderingPlayerId(game.State)!,
+                        new OrderTriggersCommand(OrderedTriggerIds: CoreRuleEngine.TriggerResolutionOrderIds(game.State)));
+                else if (game.State.StackItems.Count > 0) await game.Top();
+                else if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
+                else Assert.Fail("The actual end-step continuation stalled.");
+            }
+            Assert.Equal(sourceLeavesBeforeEnd ? "P2" : "P1", game.State.CardObjects["GEAR"].ControllerId);
+            Assert.Contains("GEAR", game.State.PlayerZones[sourceLeavesBeforeEnd ? "P2" : "P1"].Base);
+            Assert.Null(game.State.CardObjects["GEAR"].UnitControl);
+            Assert.Equal(!sourceLeavesBeforeEnd, game.State.CardObjects["GEAR"].EquipmentControl is not null);
+            await game.ColdCheckpoint(); return;
+        }
         Assert.Null(game.State.CardObjects["GEAR"].EquipmentControl);
-        if (battlefieldControl) { await game.ColdCheckpoint(); return; }
+        await HostileTakeoverDelayedControlTests.ToMain(game);
         await game.Act("P2", new EndTurnCommand());
         await game.Act("P1", new TapRuneCommand("P1-RETURN-RUNE"));
         await game.Act("P1", new PlayCardCommand("RETURN-SOURCE", "OGN·104/298", ["UNIT"])); await game.Top();

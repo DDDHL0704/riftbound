@@ -43,9 +43,9 @@ public sealed class HostileTakeoverGuardTests
         Assert.False(p2Pass.State.CardObjects["P2-BATTLEFIELD-UNIT"].IsExhausted);
         Assert.Equal(2, p2Pass.State.CardObjects["P2-BATTLEFIELD-UNIT"].Damage);
         Assert.Equal(5, p2Pass.State.CardObjects["P2-BATTLEFIELD-UNIT"].Power);
-        Assert.Contains(
-            "RETURN_CONTROL_TO_OWNER_AT_TURN_END:P2",
-            p2Pass.State.CardObjects["P2-BATTLEFIELD-UNIT"].UntilEndOfTurnEffects);
+        Assert.Single(p2Pass.State.CardObjects["P2-BATTLEFIELD-UNIT"].UnitControl!.Grants);
+        Assert.Contains(p2Pass.State.UntilEndOfTurnEffects, effect =>
+            effect.StartsWith(CoreRuleEngine.DelayedControlLossPrefix, StringComparison.Ordinal));
         Assert.Equal(["P1-SPELL-HOSTILE-TAKEOVER"], p2Pass.State.PlayerZones["P1"].Graveyard);
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)

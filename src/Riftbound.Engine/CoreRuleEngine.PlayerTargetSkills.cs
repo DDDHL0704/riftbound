@@ -75,7 +75,9 @@ public sealed partial class CoreRuleEngine
             && transferred.ObjectGeneration == sourceBinding.Generation && IsObjectOnField(zones, transferred.ObjectId)) {
             var controller = item.TargetObjectIds.Single();
             var previous = EffectiveFieldControllerId(zones, transferred.ObjectId, transferred);
-            cards[transferred.ObjectId] = transferred with { ControllerId = controller, AttachedToObjectId = null, AttachedRuleText = null };
+            // A later indefinite transfer cannot expose any of the older grants again.
+            cards[transferred.ObjectId] = transferred with { ControllerId = controller, AttachedToObjectId = null,
+                AttachedRuleText = null, UnitControl = null, EquipmentControl = null };
             RecallAttachedGroupToBase(zones, cards, transferred.ObjectId, controller);
             events.Add(new("CONTROL_CHANGED", "所选玩家获得来源物体控制权并将其召回", new Dictionary<string, object?> {
                 ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = item.SourceObjectId,

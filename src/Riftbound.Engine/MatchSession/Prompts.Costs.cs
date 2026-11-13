@@ -31,7 +31,7 @@ internal static partial class ActionPromptBuilder
         if (!CoreRuleEngine.HasMandatoryPlayAdditionalCostChoices(state, playerId, behavior))
             return false;
         var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior, sourceObjectId);
-        var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
+        var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies, CoreRuleEngine.ActiveLevelAdditionalTargetCount(state, playerId, behavior));
         if (minTargetCount == 0)
         {
             return true;
@@ -88,7 +88,8 @@ internal static partial class ActionPromptBuilder
 
     private static int PromptMinTargetCount(
         CardBehaviorDefinition behavior,
-        bool targetCountConditionApplies)
+        bool targetCountConditionApplies,
+        int additionalLevelTargets = 0)
     {
         if (CoreRuleEngine.IsDeferredDeckChoice(behavior) || CoreRuleEngine.HasIndependentPermanentTargets(behavior)) return 0;
         if (!targetCountConditionApplies)
@@ -101,7 +102,7 @@ internal static partial class ActionPromptBuilder
             return 1;
         }
 
-        return behavior.MinTargetCount < 0 ? behavior.RequiredTargetCount : behavior.MinTargetCount;
+        return (behavior.MinTargetCount < 0 ? behavior.RequiredTargetCount : behavior.MinTargetCount) + additionalLevelTargets;
     }
 
     private static int PromptMaxTargetCount(
@@ -131,7 +132,7 @@ internal static partial class ActionPromptBuilder
 
         if (!behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
         {
-            return behavior.RequiredTargetCount;
+            return behavior.RequiredTargetCount + CoreRuleEngine.ActiveLevelAdditionalTargetCount(state, playerId, behavior);
         }
 
         return state.PlayerZones.TryGetValue(playerId, out var zones)
@@ -170,7 +171,7 @@ internal static partial class ActionPromptBuilder
         // enumerating every permutation here grows factorially with zero-power units.
         if (behavior.AnyNumberOfTargets) return [];
         var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior, sourceObjectId);
-        var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
+        var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies, CoreRuleEngine.ActiveLevelAdditionalTargetCount(state, playerId, behavior));
         var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
         if (maxTargetCount == 0)
         {

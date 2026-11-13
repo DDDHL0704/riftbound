@@ -663,27 +663,61 @@
       ],
       "text": "回合结束时，失去该单位的控制权，然后将它召回。（把它送回基地，此行动不算作移动。）",
       "scope": "回合结束时，失去该单位的控制权，然后将它召回。（把它送回基地，此行动不算作移动。）",
-      "status": "review",
-      "reason": "待确认（规则）：已确认需要独立可响应的结束延迟，且结束步骤开始后结算不得创建延迟；现有直接归还物理所属者的结算不符。尚未查得中国区官方对“失去控制权”在先前永久夺取、连续两次恶意收购及结束技能被反击时如何撤销／保留控制效果的明确条文。铸魂淬炼裁判FAQ第22页仅明确阿克尚装备控制效果叠加，不能直接推广为本牌单位控制权裁定；保留该句等待规则依据。",
-      "rules": "中国区2026-10核心359.3.e.16、391.2／392–393、403–407、457–460及191.5.b；铸魂淬炼裁判FAQ260114第22页阿克尚双重控制装备问答。已检索核心188–192及上述FAQ，仍缺单位失去控制权的叠加／撤销依据；SFD·202官方中文牌面。",
+      "status": "route",
+      "reason": "结算时生成独立、可响应的结束步骤延时技能；只结束来源结算标识及时间戳所绑定的本次控制效果，按仍有效的早期效果恢复控制者，之后召回当前控制者基地且不计移动。结束步骤开始后不生成延时；单位离场换代后旧引用失效。采用核心控制效果层级及时间戳规则，并以FAQ的阿克尚案例佐证；如官方后续出专项裁定再调整。",
+      "rules": "中国区2026-10核心359.3.e.16、390–393、403–407、478–479／482、456／719.3–719.4；铸魂淬炼裁判FAQ260114第22页阿克尚双重控制问答；SFD·202官方中文卡面。",
       "runtime": {
         "behaviors": [
           {
-            "gainsControlOfTargetToBattlefield": true
+            "gainsControlOfTargetToBattlefield": true,
+            "losesGrantedControlAtEndStep": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitControl.cs",
           "contains": [
-            "private static TemporaryControlReturnResult ReturnTemporaryControlAtEndTurn(",
-            "ControllerId = ownerPlayerId",
-            "\"UNIT_RECALLED_TO_OWNER_BASE\""
+            "private static void ScheduleControlLoss(",
+            "private static StackResolutionResult ResolveControlLoss(",
+            "RecallAttachedGroupToBase(zones, cards, unit.ObjectId, currentController);",
+            "LayeredControlController"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EndStep.cs",
+          "contains": [
+            "CaptureControlLossEndAbilities(state)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitControl.cs",
+          "contains": [
+            "ValidateUnitControlHistory",
+            "CoreRuleEngine.ValidControlLossStack"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/HostileTakeoverDelayedControlTests.cs",
+          "methods": [
+            "TheEndInstructionUsesTheOrdinaryRespondableChainAndRecallsTheAttachedGroupWithoutMovement",
+            "TwoActualTakeoversOnTheSameUnitEachEndOnlyTheirOwnControlEffect",
+            "AStillActiveEarlierPermanentControlEffectResumesAndRecallUsesItsControllerRatherThanTheOwner",
+            "RemovingACounteredDelayedSkillDoesNotEndItsControlGrantDuringTurnCleanup",
+            "ARealResponseMayReturnTheUnitBeforeTheIndependentEndSkillResolves",
+            "ARealStandbyTakeoverAfterTheEndStepStartedCreatesNoDelayedSkillForThisOrTheNextTurn",
+            "RecoveryRejectsChangingTheOriginalGrantOrDelayedInstruction"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AkshanIndependentPaidPlayTests.cs",
+          "methods": [
+            "ANewControlInstructionSupersedesEarlierSourceBoundControl"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

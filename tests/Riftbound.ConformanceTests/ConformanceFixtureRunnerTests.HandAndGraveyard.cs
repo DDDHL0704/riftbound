@@ -545,9 +545,9 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.False(result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].IsExhausted);
         Assert.Equal("P2", result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].OwnerId);
         Assert.Equal("P1", result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].ControllerId);
-        Assert.Contains(
-            "RETURN_CONTROL_TO_OWNER_AT_TURN_END:P2",
-            result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].UntilEndOfTurnEffects);
+        Assert.Single(result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].UnitControl!.Grants);
+        Assert.Contains(result.FinalState.UntilEndOfTurnEffects, effect =>
+            effect.StartsWith(CoreRuleEngine.DelayedControlLossPrefix, StringComparison.Ordinal));
         Assert.Contains(
             "UNIT_CONTROL_GAINED",
             result.EventKinds);
@@ -625,14 +625,15 @@ public sealed partial class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
         Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Contains("P2-HOSTILE-TAKEOVER-TARGET", result.FinalState.PlayerZones["P2"].Base);
         Assert.Equal("P2", result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].OwnerId);
         Assert.Equal("P2", result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].ControllerId);
         Assert.Empty(result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].UntilEndOfTurnEffects);
         Assert.Contains("UNIT_CONTROL_RETURNED", result.EventKinds);
-        Assert.Contains("UNIT_RECALLED_TO_OWNER_BASE", result.EventKinds);
+        Assert.Contains("UNIT_RECALLED_TO_CONTROLLER_BASE", result.EventKinds);
     }
 
     [Fact]

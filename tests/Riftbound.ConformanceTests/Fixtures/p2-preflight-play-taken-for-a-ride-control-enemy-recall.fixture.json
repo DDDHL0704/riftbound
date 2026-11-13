@@ -101,7 +101,8 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_CONTROL_GAINED"
+      "UNIT_CONTROL_GAINED",
+      "UNIT_CONTROL_EFFECT_CAPTURED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -136,7 +137,8 @@
           "destinationZone": "BASE",
           "isExhausted": false
         }
-      }
+      },
+      { "kind": "UNIT_CONTROL_EFFECT_CAPTURED" }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {

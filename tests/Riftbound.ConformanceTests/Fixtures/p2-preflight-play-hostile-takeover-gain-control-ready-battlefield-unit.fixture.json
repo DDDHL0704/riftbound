@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-hostile-takeover-gain-control-ready-battlefield-unit",
-  "description": "Hostile Takeover gains control of an enemy battlefield unit and readies it.",
+  "description": "Hostile Takeover acquires and readies a battlefield unit and creates an independent delayed end-step skill.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -119,7 +119,10 @@
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
       "UNIT_READIED",
-      "UNIT_CONTROL_GAINED"
+      "DELAYED_CONTROL_LOSS_SCHEDULED",
+      "UNIT_CONTROL_GAINED",
+      "UNIT_CONTROL_EFFECT_CAPTURED",
+      "UNIT_CONTROL_EFFECT_CAPTURED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -153,6 +156,7 @@
           "isExhausted": false
         }
       },
+      {"kind": "DELAYED_CONTROL_LOSS_SCHEDULED"},
       {
         "kind": "UNIT_CONTROL_GAINED",
         "payload": {
@@ -162,10 +166,11 @@
           "controllerId": "P1",
           "previousControllerId": "P2",
           "destinationZone": "BATTLEFIELD",
-          "isExhausted": false,
-          "returnEffectId": "RETURN_CONTROL_TO_OWNER_AT_TURN_END:P2"
+          "isExhausted": false
         }
-      }
+      },
+      {"kind": "UNIT_CONTROL_EFFECT_CAPTURED"},
+      {"kind": "UNIT_CONTROL_EFFECT_CAPTURED"}
     ],
     "promptActions": {
       "P1": ["END_TURN"],
@@ -204,7 +209,7 @@
           "power": 4,
           "tags": ["CARD_TYPE:UNIT"],
           "isExhausted": false,
-          "untilEndOfTurnEffects": ["RETURN_CONTROL_TO_OWNER_AT_TURN_END:P2"]
+          "untilEndOfTurnEffects": []
         }
       },
       "stackItems": []

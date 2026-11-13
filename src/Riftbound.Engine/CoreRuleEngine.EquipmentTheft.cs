@@ -2,7 +2,7 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record EquipmentControlGrant(string SkillId, ObjectBinding Source, string ControllerId, string Reason);
+public sealed record EquipmentControlGrant(string SkillId, ObjectBinding Source, string ControllerId, string Reason, long CreatedAtTick = 0);
 public sealed record EquipmentControlLease(ObjectBinding Equipment, string UnderlyingControllerId,
     IReadOnlyList<EquipmentControlGrant> Grants);
 
@@ -79,11 +79,14 @@ public sealed partial class CoreRuleEngine
             var original = new ObjectBinding(target, equipment.ObjectGeneration);
             var grants = lease?.Equipment == original ? lease.Grants : [];
             var underlying = lease?.Equipment == original ? lease.UnderlyingControllerId
-                : equipment.ControllerId ?? origin.PlayerId;
+                : equipment.UnitControl?.UnderlyingControllerId ?? equipment.ControllerId ?? origin.PlayerId;
+            // The grant can appear in an attachment-choice preview. The
+            // instruction cursor is stable when that choice is replayed;
+            // the eventual confirmation command's completion tick is not.
             cards[target] = equipment with {
                 ControllerId = item.ControllerId,
                 EquipmentControl = new(original, underlying,
-                    [..grants, new(item.StackItemId, source!, item.ControllerId, reason)]) };
+                    [..grants, new(item.StackItemId, source!, item.ControllerId, reason, RuleChoices.Value!.AnswerTick)]) };
             events.Add(new("EQUIPMENT_CONTROL_CHANGED", "取得装备的控制权，直到来源离场",
                 new Dictionary<string, object?> {
                     ["sourceObjectId"] = publicSource, ["equipmentObjectId"] = target,
@@ -103,7 +106,7 @@ public sealed partial class CoreRuleEngine
         return true;
     }
 
-    private static void ReturnSourceStolenEquipmentForMissingSources(Dictionary<string, PlayerZones> zones,
+    internal static void ReturnSourceStolenEquipmentForMissingSources(Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, List<GameEvent> events)
     {
         foreach (var gear in cards.Values.Where(card => card.EquipmentControl is not null)
@@ -119,11 +122,12 @@ public sealed partial class CoreRuleEngine
             var active = lease.Grants.Where(grant => cards.TryGetValue(grant.Source.ObjectId, out var source)
                 && source.ObjectGeneration == grant.Source.Generation && IsObjectOnField(zones, source.ObjectId)).ToArray();
             if (active.Length == lease.Grants.Count) continue;
-            var controller = active.LastOrDefault()?.ControllerId ?? lease.UnderlyingControllerId;
             var attachment = gear.AttachedToObjectId is { } host && IsObjectOnField(zones, host)
                 ? host : null;
-            cards[gear.ObjectId] = gear with { ControllerId = controller, AttachedToObjectId = attachment,
+            var remaining = gear with { AttachedToObjectId = attachment,
                 EquipmentControl = active.Length == 0 ? null : lease with { Grants = active } };
+            var controller = LayeredControlController(remaining, lease.UnderlyingControllerId);
+            cards[gear.ObjectId] = remaining with { ControllerId = controller };
             if (controller == gear.ControllerId) continue;
             var ended = lease.Grants[^1];
             events.Add(new("EQUIPMENT_CONTROL_RETURNED", "装备控制效果的持续时间结束",
