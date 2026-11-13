@@ -25,6 +25,7 @@ internal static class BorrowedExhaustRules
 {
     internal const string Effect = "BORROWED_EXHAUST_ACTIVATION";
     internal const string AttachAnyArmament = "BATTLEFIELD_LEGEND_ATTACH_ARMAMENT";
+    private const string GrantedLegendAbilityPrefix = "GRANTED_LEGEND:";
     internal const string ConversionChoicePrefix = "BORROWED_CONVERSION:";
     private static readonly Lazy<IReadOnlyDictionary<string, OfficialCard>> Cards = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo));
@@ -64,6 +65,8 @@ internal static class BorrowedExhaustRules
 
     internal static BorrowedExhaustSpec? Spec(MatchState state, BorrowedExhaustContext context)
     {
+        if (context.BattlefieldAbilityKind?.StartsWith(GrantedLegendAbilityPrefix, StringComparison.Ordinal) == true)
+            return GrantedLegendSpec(context.BattlefieldAbilityKind[GrantedLegendAbilityPrefix.Length..]);
         if (context.BattlefieldAbilityKind is null)
             return Spec(context.Donor.CardNo, context.AbilityIndex);
         if (context.BattlefieldAbilityKind == StaticAbilityKinds.BattlefieldGrantUnitExperienceAbility
@@ -88,6 +91,18 @@ internal static class BorrowedExhaustRules
         }
         return null;
     }
+
+    private static BorrowedExhaustSpec? GrantedLegendSpec(string abilityId)
+        => P4ActivatedAbilityCatalog.TryGetByAbilityId(abilityId, out var ability)
+            && ability.SourceScope == ActivatedAbilitySourceScopes.FriendlyLegend
+            && ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+            && ability.ExhaustsSourceAsCost && ability.RequiredControllerCardNoOnField.Length > 0
+            ? new(-1, "MIGHT_UNIT", ability.ManaCost, ability.RequiredTargetCount, false,
+                ability.PowerModifierAmount, ability.MinimumPowerAfterModifier) {
+                    Power = ability.PowerCost, TypedPower = ability.PowerCostByTrait ?? new Dictionary<string, int>(),
+                    Experience = ability.ExperienceCost, Swift = ability.SwiftSpeed, Reaction = ability.ReactionSpeed,
+                    RequiresSourceBattlefield = ability.RequiresBattlefieldSource, TargetScope = ability.TargetScope }
+            : null;
     internal static bool TargetsPlayer(BorrowedExhaustSpec spec) => spec.TargetScope is "PLAYER" or "OPPONENT";
 
     internal static IEnumerable<BorrowedExhaustAbility> Abilities(MatchState state, string player, CardObjectState source)
@@ -119,6 +134,25 @@ internal static class BorrowedExhaustRules
                 var identity = $"{borrower.Id}|{borrower.CardNo}|{text.Id}|{text.CardNo}|{spec.Index}";
                 yield return new("BORROWED:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(identity))),
                     donor, borrower, text, spec);
+            }
+
+            // The legend owns skills granted by another card as well as its
+            // printed skills. Only the recipient must be a legend; the borrower
+            // pays and resolves the acquired skill as its own source.
+            if (donor.Tags.Contains(CardObjectTags.LegendCard, StringComparer.Ordinal))
+            foreach (var ability in P4ActivatedAbilityCatalog.GetAll())
+            {
+                if (GrantedLegendSpec(ability.AbilityId) is not { } spec || !SourceSupportsSpec(state, player, source, spec)) continue;
+                var grantedDonorText = AttachedRuleTextRules.Instances(state, donor).First();
+                foreach (var grant in state.CardObjects.Values.OrderBy(card => card.ObjectId, StringComparer.Ordinal)
+                    .Where(card => card.ControllerId == player && !card.IsFaceDown
+                        && card.CardNo == ability.RequiredControllerCardNoOnField && AttachedRuleTextRules.Field(state, card.ObjectId)))
+                {
+                    var kind = GrantedLegendAbilityPrefix + ability.AbilityId;
+                    var identity = $"{borrower.Id}|{borrower.CardNo}|{grantedDonorText.Id}|{grantedDonorText.CardNo}|{kind}|{grant.ObjectId}|{grant.ObjectGeneration}";
+                    yield return new("BORROWED:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(identity))),
+                        donor, borrower, grantedDonorText, spec, new(grant.ObjectId, grant.ObjectGeneration), grant.CardNo, kind);
+                }
             }
 
             // Battlefield static abilities are acquired by the unit/legend that
@@ -190,7 +224,7 @@ internal static class BorrowedExhaustRules
             && Spec(state, context) is { Kind: "INSIGHT_DRAW_EXPERIENCE" } spec
             ? spec : null;
 
-    private static bool ValidBattlefieldSource(MatchState state, BorrowedExhaustContext context)
+    private static bool ValidGrantedSource(MatchState state, BorrowedExhaustContext context)
     {
         if (context.BattlefieldAbilityKind is null)
             return context.BattlefieldSource is null && context.BattlefieldCardNo is null;
@@ -203,7 +237,12 @@ internal static class BorrowedExhaustRules
             StaticAbilityKinds.BattlefieldGrantLegendAttachArmament =>
                 BattlefieldStaticAbilitySpecRules.TryGetAbility(context.BattlefieldCardNo,
                     BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility, out _),
-            _ => false
+            _ => context.BattlefieldAbilityKind.StartsWith(GrantedLegendAbilityPrefix, StringComparison.Ordinal)
+                && GrantedLegendSpec(context.BattlefieldAbilityKind[GrantedLegendAbilityPrefix.Length..]) is not null
+                && P4ActivatedAbilityCatalog.TryGetByAbilityId(context.BattlefieldAbilityKind[GrantedLegendAbilityPrefix.Length..], out var ability)
+                && ability.RequiredControllerCardNoOnField == context.BattlefieldCardNo
+                && Cards.Value.TryGetValue(context.Donor.PhysicalCardNo, out var donor)
+                && donor.CardCategoryList.Contains("legendary", StringComparer.Ordinal)
         };
         if (!validCard || binding.Generation < 0 || string.IsNullOrWhiteSpace(binding.ObjectId)) return false;
         return !state.CardObjects.TryGetValue(binding.ObjectId, out var current)
@@ -226,7 +265,7 @@ internal static class BorrowedExhaustRules
             || item.CardNo != c.Borrower.PhysicalCardNo
             || (c.Native ? !ValidNativeSource(c)
                 : c.Borrower.Object.ObjectId == c.Donor.Object.ObjectId || !Inherits(c.Borrower.CardNo))
-            || !ValidBattlefieldSource(state, c)
+            || !ValidGrantedSource(state, c)
             || Spec(state, c) is not { } spec
             || !CoreRuleEngine.BorrowedEnemyTargetRequirementMet(state, item.ControllerId, spec)
             || !ValidSource(state, c.Borrower, c.AcquiredTick, spec.DestroysSourceAsCost || spec.DestroyedFriendlyCardTypeAsCost.Length > 0)

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using System.Text.Json;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
@@ -9,7 +10,10 @@ public sealed record TimeAssassinNextUnitReduction(
     string ControllerId,
     ObjectBinding Source,
     string CardNo,
-    long CreatedTick);
+    long CreatedTick)
+{
+    public ActivatedPlayGrant? BorrowedGrant { get; init; }
+}
 
 public sealed record TimeAssassinDestructionContext(
     int TurnNumber,
@@ -17,7 +21,10 @@ public sealed record TimeAssassinDestructionContext(
     ObjectBinding Source,
     ObjectBinding Target,
     string CardNo,
-    long CreatedTick);
+    long CreatedTick)
+{
+    public ActivatedPlayGrant? BorrowedGrant { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -55,6 +62,41 @@ public sealed partial class CoreRuleEngine
     private static string TimeAssassinIdentity(string value)
         => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
 
+    private static StackResolutionResult ResolveBorrowedNextUnitEphemeralDiscount(MatchState state, StackItemState item)
+    {
+        var grant = new ActivatedPlayGrant(state.TurnNumber, item.ControllerId, item.CardNo!, item.StackItemId,
+            item.BorrowedExhaust, null) { Kind = "NEXT_UNIT_EPHEMERAL_DISCOUNT" };
+        if (!ValidActivatedPlayGrant(state, grant)) throw new InvalidOperationException("Invalid borrowed next-unit grant.");
+        var reduction = new TimeAssassinNextUnitReduction(state.TurnNumber, item.ControllerId,
+            item.BorrowedExhaust!.Borrower.Object, item.CardNo!, state.Tick + 1) { BorrowedGrant = grant };
+        return NoopStackResolutionResult(state) with {
+            UntilEndOfTurnEffects = AddUntilEndOfTurnEffect(state.UntilEndOfTurnEffects, TimeAssassinMarker(reduction)),
+            Events = [new("TIME_ASSASSIN_NEXT_UNIT_REDUCTION_CREATED", "获得的技能创建下一名单位减费效果",
+                new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
+                    ["manaReduction"] = 2, ["powerReduction"] = 1, ["duration"] = "UNTIL_END_OF_TURN" })] };
+    }
+
+    private static string BorrowedTimeAssassinSuffix(ActivatedPlayGrant? grant)
+        => grant is null ? "" : "|" + TimeAssassinIdentity(JsonSerializer.Serialize(grant));
+
+    private static ActivatedPlayGrant? ReadBorrowedTimeAssassinGrant(string value)
+    {
+        try { return JsonSerializer.Deserialize<ActivatedPlayGrant>(Convert.FromBase64String(value)); }
+        catch (Exception error) when (error is JsonException or FormatException or ArgumentException) { return null; }
+    }
+
+    private static bool ValidTimeAssassinSource(MatchState state, string controller, ObjectBinding source,
+        string cardNo, ActivatedPlayGrant? grant)
+        => grant is null ? LegendActionAbilityCatalog.IsSourceCardNoForAbility(
+            LegendActionAbilityCatalog.TimeAssassinLegendAbilityId, cardNo)
+                && state.CardObjects.TryGetValue(source.ObjectId, out var current)
+                && current.ObjectGeneration >= source.Generation
+                && (current.ObjectGeneration != source.Generation || current.CardNo == cardNo)
+            : grant.Kind == "NEXT_UNIT_EPHEMERAL_DISCOUNT" && grant.ControllerId == controller
+                && grant.CardNo == cardNo && grant.Borrowed?.Borrower?.Object == source
+                && ValidActivatedPlayGrant(state, grant);
+
     private static string TimeAssassinMarker(TimeAssassinNextUnitReduction reduction)
         => string.Join('|',
             "TIME_ASSASSIN_NEXT_UNIT",
@@ -63,21 +105,21 @@ public sealed partial class CoreRuleEngine
             TimeAssassinIdentity(reduction.Source.ObjectId),
             reduction.Source.Generation.ToString(CultureInfo.InvariantCulture),
             TimeAssassinIdentity(reduction.CardNo),
-            reduction.CreatedTick.ToString(CultureInfo.InvariantCulture));
+            reduction.CreatedTick.ToString(CultureInfo.InvariantCulture)) + BorrowedTimeAssassinSuffix(reduction.BorrowedGrant);
 
     internal static string TimeAssassinNextUnitReductionMarker(
         int turnNumber,
         string controllerId,
         ObjectBinding source,
         string cardNo,
-        long createdTick)
-        => TimeAssassinMarker(new(turnNumber, controllerId, source, cardNo, createdTick));
+        long createdTick, ActivatedPlayGrant? borrowedGrant = null)
+        => TimeAssassinMarker(new(turnNumber, controllerId, source, cardNo, createdTick) { BorrowedGrant = borrowedGrant });
 
     internal static TimeAssassinNextUnitReduction? ReadTimeAssassinNextUnitReduction(string marker)
     {
         if (!marker.StartsWith(TimeAssassinNextUnitReductionPrefix, StringComparison.Ordinal)) return null;
         var fields = marker.Split('|');
-        if (fields.Length != 7
+        if (fields.Length is not (7 or 8)
             || !int.TryParse(fields[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var turn)
             || turn < 1
             || Decode(fields[2]) is not { Length: > 0 } controller
@@ -88,7 +130,9 @@ public sealed partial class CoreRuleEngine
             || !long.TryParse(fields[6], NumberStyles.Integer, CultureInfo.InvariantCulture, out var tick)
             || tick < 1)
             return null;
-        var reduction = new TimeAssassinNextUnitReduction(turn, controller, new(sourceId, generation), cardNo, tick);
+        var reduction = new TimeAssassinNextUnitReduction(turn, controller, new(sourceId, generation), cardNo, tick)
+            { BorrowedGrant = fields.Length == 8 ? ReadBorrowedTimeAssassinGrant(fields[7]) : null };
+        if (fields.Length == 8 && reduction.BorrowedGrant is null) return null;
         return TimeAssassinMarker(reduction) == marker ? reduction : null;
 
         static string? Decode(string value)
@@ -104,11 +148,7 @@ public sealed partial class CoreRuleEngine
             && state.Seats.ContainsKey(reduction.ControllerId)
             && reduction.Source.Generation >= 0
             && !string.IsNullOrWhiteSpace(reduction.CardNo)
-            && LegendActionAbilityCatalog.IsSourceCardNoForAbility(
-                LegendActionAbilityCatalog.TimeAssassinLegendAbilityId, reduction.CardNo)
-            && state.CardObjects.TryGetValue(reduction.Source.ObjectId, out var source)
-            && source.ObjectGeneration >= reduction.Source.Generation
-            && (source.ObjectGeneration != reduction.Source.Generation || source.CardNo == reduction.CardNo)
+            && ValidTimeAssassinSource(state, reduction.ControllerId, reduction.Source, reduction.CardNo, reduction.BorrowedGrant)
             && reduction.CreatedTick > 0
             && reduction.CreatedTick <= state.Tick;
 
@@ -132,17 +172,18 @@ public sealed partial class CoreRuleEngine
             TimeAssassinIdentity(context.Target.ObjectId),
             context.Target.Generation.ToString(CultureInfo.InvariantCulture),
             TimeAssassinIdentity(context.CardNo),
-            context.CreatedTick.ToString(CultureInfo.InvariantCulture));
+            context.CreatedTick.ToString(CultureInfo.InvariantCulture)) + BorrowedTimeAssassinSuffix(context.BorrowedGrant);
 
     internal static string TimeAssassinDestructionMarker(
-        int turnNumber, string controllerId, ObjectBinding source, ObjectBinding target, string cardNo, long createdTick)
-        => TimeAssassinDestructionMarker(new(turnNumber, controllerId, source, target, cardNo, createdTick));
+        int turnNumber, string controllerId, ObjectBinding source, ObjectBinding target, string cardNo, long createdTick,
+        ActivatedPlayGrant? borrowedGrant = null)
+        => TimeAssassinDestructionMarker(new(turnNumber, controllerId, source, target, cardNo, createdTick) { BorrowedGrant = borrowedGrant });
 
     internal static TimeAssassinDestructionContext? ReadTimeAssassinDestructionMarker(string marker)
     {
         if (!marker.StartsWith(TimeAssassinDestructionPrefix, StringComparison.Ordinal)) return null;
         var fields = marker.Split('|');
-        if (fields.Length != 9
+        if (fields.Length is not (9 or 10)
             || !int.TryParse(fields[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var turn)
             || turn < 1
             || Decode(fields[2]) is not { Length: > 0 } controller
@@ -157,7 +198,9 @@ public sealed partial class CoreRuleEngine
             || tick < 1)
             return null;
         var context = new TimeAssassinDestructionContext(turn, controller,
-            new(sourceId, sourceGeneration), new(targetId, targetGeneration), cardNo, tick);
+            new(sourceId, sourceGeneration), new(targetId, targetGeneration), cardNo, tick)
+            { BorrowedGrant = fields.Length == 10 ? ReadBorrowedTimeAssassinGrant(fields[9]) : null };
+        if (fields.Length == 10 && context.BorrowedGrant is null) return null;
         return TimeAssassinDestructionMarker(context) == marker ? context : null;
 
         static string? Decode(string value)
@@ -181,15 +224,12 @@ public sealed partial class CoreRuleEngine
             || context.CreatedTick < 1 || context.CreatedTick > state.Tick
             || context.Target.ObjectId != target.ObjectId || context.Target.Generation < 0
             || !state.Seats.ContainsKey(context.ControllerId)
-            || !LegendActionAbilityCatalog.IsSourceCardNoForAbility(
-                LegendActionAbilityCatalog.TimeAssassinLegendAbilityId, context.CardNo)
+            || !ValidTimeAssassinSource(state, context.ControllerId, context.Source, context.CardNo, context.BorrowedGrant)
             || target.ObjectGeneration != context.Target.Generation
             || !target.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || target.IsFaceDown)
             return false;
-        return state.CardObjects.TryGetValue(context.Source.ObjectId, out var source)
-            && source.ObjectGeneration >= context.Source.Generation
-            && (source.ObjectGeneration != context.Source.Generation || source.CardNo == context.CardNo);
+        return true;
     }
 
     internal static IReadOnlyList<TimeAssassinNextUnitReduction> TimeAssassinNextUnitReductions(
@@ -225,13 +265,15 @@ public sealed partial class CoreRuleEngine
             {
                 effects.Remove(TimeAssassinMarker(reduction));
                 var marker = TimeAssassinDestructionMarker(result.State.TurnNumber, player,
-                    reduction.Source, new(objectId, unit.ObjectGeneration), reduction.CardNo, reduction.CreatedTick);
+                    reduction.Source, new(objectId, unit.ObjectGeneration), reduction.CardNo, reduction.CreatedTick, reduction.BorrowedGrant);
                 unit = unit with { UntilEndOfTurnEffects = unit.UntilEndOfTurnEffects.Append(marker)
                     .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };
                 events.Add(new("TIME_ASSASSIN_UNIT_MARKED_FOR_DESTRUCTION", "时间刺客标记单位于回合结束时摧毁", new Dictionary<string, object?> {
                     ["playerId"] = player, ["sourceObjectId"] = reduction.Source.ObjectId,
                     ["targetObjectId"] = objectId, ["targetGeneration"] = unit.ObjectGeneration,
-                    ["cardNo"] = unit.CardNo, ["effectId"] = marker, ["duration"] = "UNTIL_END_OF_TURN" }));
+                    ["cardNo"] = unit.CardNo,
+                    ["effectId"] = reduction.BorrowedGrant is null ? marker : "TIME_ASSASSIN_DESTROY:" + MatchStateHasher.HashValue(marker),
+                    ["duration"] = "UNTIL_END_OF_TURN" }));
             }
             cards[objectId] = unit;
         }
