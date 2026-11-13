@@ -1140,7 +1140,7 @@ M 已核对旧远端分支、Windows 本地提交与脏树、主目录半途 che
 
 ## 前端（Claude）
 
-- [ ] **前端需适配 #559**：出牌提示的 `sourceRequirements` 可同时提供普通费用与替代费用；读取 `spellManaAlternativeCostChoiceId`／`spellManaAlternativeCostChoices` 和 `optionalCostChoices`。选择烬的替代费用时，在 `PLAY_CARD.optionalCosts` 提交 `SPELL_MANA_ALTERNATIVE_COST:4:1:blue`；未选时使用普通费用。条件为该玩家本回合单次法术实际法力付款至少 4，被无效化仍计入，界面按服务端给出的两种费用与可支付状态展示。
+- [x] **前端需适配 #559**（`web/server-adapt-20261113` 已适配：替代费用单列为「打出 · 替代费用」，显示所需符能，命令带上该费用编号；普通费用一项不再把它当作可勾选的额外费用）：出牌提示的 `sourceRequirements` 可同时提供普通费用与替代费用；读取 `spellManaAlternativeCostChoiceId`／`spellManaAlternativeCostChoices` 和 `optionalCostChoices`。选择烬的替代费用时，在 `PLAY_CARD.optionalCosts` 提交 `SPELL_MANA_ALTERNATIVE_COST:4:1:blue`；未选时使用普通费用。条件为该玩家本回合单次法术实际法力付款至少 4，被无效化仍计入，界面按服务端给出的两种费用与可支付状态展示。
 
 - **旧 Godot 参考**：`afff0be85a` 的征服选择队列／恢复，以及 `f283945288` 的伤害优先级模型、命令构造和覆盖层保存在上述归档中；具体路径见归档的 `evidence/all-frontend-handoff.json`。后端来源中没有额外待移植的 `clients/web` 差异。
 
@@ -1160,6 +1160,10 @@ M 已核对旧远端分支、Windows 本地提交与脏树、主目录半途 che
 - [x] 战场演出（#518）：带目标的结算链光束、宣战交锋、征服／据守盖章。
 - [x] 音效设计（#520）：混响与压缩总线，新增施法、交锋、征服／据守音效；设置里可开关背景氛围。
 - [x] 前端代码整理（#527）：`Table.tsx` 拆出选择、拖拽、桌面钩子与各面板到 `src/ui/table/`，`styles.css` 按界面区域拆到 `src/styles/`，行为与样式不变。
+- [x] 11-13 `web/server-adapt-20261113`：核对 11-05 以来出牌提示新增的费用字段并适配：
+  - 指定目标减费（`targetedSpellReductionChoices`）只在法术选中该单位后列出，同一来源的法力／符能二选一；不再指定该单位时自动撤掉。
+  - 消耗增益作为费用（`boonAdditionalCostGroups`）：无视基础费用的一种只能选一个单位；可消耗任意数量的一种，单位有多枚增益时改为加减计数，提交 `BOON_PLAY_COST:<单位>:<数量>`。
+  - 移除 #527 误提交的 `clients/web/node_modules` 软链接。
 - [ ] **观战与对局回放**（用户 11-06 决定：等 Codex 开发线有余力再开始）：需要服务端先提供接口，前端随后接入。
   - 观战者加入房间的入口：只读座位，投影按观战视角隐藏双方手牌、牌库顺序和背面待命牌。
   - 已结束对局的回放接口：按已接受的命令日志，逐步给出观战视角的快照和事件。

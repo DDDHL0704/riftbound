@@ -2,7 +2,7 @@ import { motion, useIsPresent } from "motion/react";
 import type { ActionStep, ObjectAction } from "../../game/actions";
 import { cardInfo, cardName, paymentChoiceLabel } from "../../game/cards";
 import type { Choice, GameObject } from "../../game/types";
-import { neededPower, providedPower, type Pick } from "./pick";
+import { boonSteppers, neededPower, offeredCosts, providedPower, type BoonCostGroup, type Pick } from "./pick";
 
 type PickBarProps = {
   pick: Pick;
@@ -49,6 +49,29 @@ function VariablePower({ prefix, chosen, onChange }: { prefix: string; chosen: s
       <button className="chip" onClick={() => set(amount + 1)} aria-label="增加">
         +
       </button>
+    </p>
+  );
+}
+
+/** Spends 0 to `maximumCount` boons of one unit ("BOON_PLAY_COST:<unit>:<count>"). */
+function BoonStepper({ group, chosen, objects, onChange }: { group: BoonCostGroup; chosen: string[]; objects: Record<string, GameObject>; onChange: (costs: string[]) => void }) {
+  const current = chosen.find((c) => c.startsWith(group.choicePrefix));
+  const amount = current ? Number(current.slice(group.choicePrefix.length)) : 0;
+  const set = (n: number) => {
+    const rest = chosen.filter((c) => !c.startsWith(group.choicePrefix));
+    onChange(n > 0 ? [...rest.filter((c) => !c.startsWith("TAP_RUNE:") && !c.startsWith("RECYCLE_RUNE:")), group.choicePrefix + n, ...rest.filter((c) => c.startsWith("TAP_RUNE:") || c.startsWith("RECYCLE_RUNE:"))] : rest);
+  };
+  return (
+    <p className="pickbar__hint pickbar__stepper" {...cardRefAttrs(group.sourceObjectId, objects)}>
+      消耗 {cardName(objects[group.sourceObjectId]?.cardNo)} 的增益：
+      <button className="chip" onClick={() => set(Math.max(0, amount - 1))} disabled={amount === 0} aria-label="减少">
+        −
+      </button>
+      <b>{amount}</b>
+      <button className="chip" onClick={() => set(Math.min(group.maximumCount, amount + 1))} disabled={amount >= group.maximumCount} aria-label="增加">
+        +
+      </button>
+      <span className="muted small">最多 {group.maximumCount}</span>
     </p>
   );
 }
@@ -124,8 +147,11 @@ export function PickBar({ pick, step, choices, peers, otherActions, onOtherActio
             {pick.action.variablePower && (
               <VariablePower prefix={pick.action.variablePower} chosen={pick.sel.optionalCosts} onChange={onSetCosts} />
             )}
+            {boonSteppers(pick.action).map((g) => (
+              <BoonStepper key={g.choicePrefix} group={g} chosen={pick.sel.optionalCosts} objects={objects} onChange={onSetCosts} />
+            ))}
             <div className="pickbar__choices">
-              {[...pick.action.optionalCosts, ...(neededPower(pick) > 0 ? pick.action.recycles : [])]
+              {[...offeredCosts(pick), ...(neededPower(pick) > 0 ? pick.action.recycles : [])]
                 .map((c) => (
                   <label key={c.id} className="chip chip--toggle">
                     <input type="checkbox" checked={pick.sel.optionalCosts.includes(c.id)} onChange={() => onToggleCost(c.id)} />

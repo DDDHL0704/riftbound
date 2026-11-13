@@ -50,6 +50,8 @@ export type ObjectAction = {
 type PowerByChoice = Record<string, { power?: number; trait?: string }>;
 
 const NORMAL_GRAVEYARD_PLAY = "NORMAL_GRAVEYARD_PLAY";
+const SPELL_MANA_ALTERNATIVE_COST = "SPELL_MANA_ALTERNATIVE_COST:";
+const TRAIT_LABEL: Record<string, string> = { red: "红", green: "绿", blue: "蓝", orange: "橙", purple: "紫", yellow: "黄" };
 
 export const isRecycle = (id: string) => id.startsWith("RECYCLE_RUNE:");
 export const isTap = (id: string) => id.startsWith("TAP_RUNE:");
@@ -163,6 +165,15 @@ function costLabel(req: Record<string, any>) {
   return parts.join(" + ");
 }
 
+/** The alternative base cost this requirement pays, e.g. "1 蓝色符能" (#559). */
+function alternativeCostLabel(req: Record<string, any>) {
+  const alt = (req.spellManaAlternativeCostChoices ?? []).find((c: any) => c.id === req.spellManaAlternativeCostChoiceId);
+  const power = Number(alt?.power ?? 0);
+  if (!alt || power <= 0) return "免费";
+  const traits: string[] = alt.traits ?? [];
+  return `${power} ${traits.map((t) => TRAIT_LABEL[t] ?? t).join("/")}${traits.length ? "色" : ""}符能`;
+}
+
 function fromRequirement(candidate: Candidate, req: Record<string, any>, index: number): ObjectAction | null {
   if (req.composable === false) return null;
   const action = candidate.action;
@@ -200,12 +211,20 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
       break;
   }
 
-  // A card playable several ways (flow cost, or its normal cost from the graveyard) comes as one
-  // requirement per way; the command names the way, or the server falls back to the cheapest.
-  const variant: string[] = [req.flowCostChoiceId, req.normalGraveyardPlayChoiceId].filter(Boolean);
+  // A card playable several ways (flow cost, its normal cost from the graveyard, or an alternative
+  // base cost such as Jhin's after a 4-mana spell, #559) comes as one requirement per way; the
+  // command names the way, or the server uses the normal cost.
+  const variant: string[] = [req.flowCostChoiceId, req.normalGraveyardPlayChoiceId, req.spellManaAlternativeCostChoiceId].filter(Boolean);
   if (req.flowCostChoiceId) label = `${label} · 流转`;
-  else if (req.normalGraveyardPlayChoiceId) label = `${label} · 普通费用`;
-  const costChoices: Choice[] = (req.optionalCostChoices ?? []).filter((c: Choice) => !variant.includes(c.id) && c.id !== NORMAL_GRAVEYARD_PLAY);
+  else if (req.spellManaAlternativeCostChoiceId) {
+    label = `${label} · 替代费用`;
+    detail = alternativeCostLabel(req);
+  } else if (req.normalGraveyardPlayChoiceId) label = `${label} · 普通费用`;
+  else if ((req.spellManaAlternativeCostChoices?.length ?? 0) > 0) label = `${label} · 普通费用`;
+  // The other ways are separate actions, never extra costs of this one.
+  const costChoices: Choice[] = (req.optionalCostChoices ?? []).filter(
+    (c: Choice) => !variant.includes(c.id) && c.id !== NORMAL_GRAVEYARD_PLAY && !c.id.startsWith(SPELL_MANA_ALTERNATIVE_COST),
+  );
   const resources = uniqueChoices([...costChoices, ...(req.paymentResourceChoices ?? [])]);
   const taps = resources.filter((c) => isTap(c.id)).map((c) => c.id);
   const recycles = resources.filter((c) => isRecycle(c.id));
