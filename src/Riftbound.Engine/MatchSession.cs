@@ -1257,6 +1257,8 @@ public sealed partial record MatchState
             || effectId.StartsWith(CoreRuleEngine.ActivatedPaidRecallGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.ActivatedSpellDamageGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TimeAssassinNextUnitReductionPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(CoreRuleEngine.TimeAssassinDestructionPrefix, StringComparison.Ordinal)
+                && CoreRuleEngine.ReadTimeAssassinDestructionMarker(effectId)?.BorrowedGrant is not null
             || effectId.StartsWith(CoreRuleEngine.StandbyDrawUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnFlowGrantPrefix, StringComparison.Ordinal)

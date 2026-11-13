@@ -216,6 +216,16 @@ public static class BorrowedExhaustParser
                 result.Add(Skill("RETURN_AND_CREATE_GOLD", scope: "FRIENDLY_BATTLEFIELD_UNIT"));
                 continue;
             }
+            if (effect == "你在本回合内打出的下一名单位的费用减少{{2}}和{{A}}，并给予其“在回合结束时，将我摧毁。”")
+            {
+                result.Add(Skill("GRANT_NEXT_UNIT_EPHEMERAL_DISCOUNT", 0));
+                continue;
+            }
+            if (effect == "给予一名友方单位在本回合内“我具有等同于自身{{坚守}}的{{强攻}}。”")
+            {
+                result.Add(Skill("KEYWORD_UNIT", scope: "FRIENDLY_UNIT", keyword: "强攻等同于坚守"));
+                continue;
+            }
             if (effect == "{{鼓舞}}—你在本回合内打出的下一名单位以活跃状态进场")
             {
                 result.Add(Skill("GRANT_NEXT_UNIT_READY", 0) with { EffectRequiresEncouraged = true });

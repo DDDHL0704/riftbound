@@ -339,6 +339,7 @@ public sealed partial class CoreRuleEngine
             return ResolveBorrowedBattlefieldUnitGainExperience(state, item, spec);
         if (spec.Kind == "GRANT_NEXT_SPELL_ECHO") return ResolveNextSpellEchoGrant(state, item);
         if (spec.Kind == "GRANT_NEXT_UNIT_READY") return ResolveActivatedNextUnitReady(state, item);
+        if (spec.Kind == "GRANT_NEXT_UNIT_EPHEMERAL_DISCOUNT") return ResolveBorrowedNextUnitEphemeralDiscount(state, item);
         if (spec.Kind == "GRANT_NEXT_SPELL_DAMAGE") return ResolveActivatedNextSpellDamage(state, item);
         if (spec.Kind == "GRANT_PAID_RECALL") return ResolveActivatedPaidRecall(state, item);
         if (spec.Kind == "COMMAND_OPPONENT_MOVEMENT")

@@ -65,10 +65,11 @@ public sealed partial class CoreRuleEngine
 
     private static bool ValidActivatedPlayGrant(MatchState state, ActivatedPlayGrant grant)
     {
-        if (grant.Kind is not ("NEXT_UNIT_READY" or "NEXT_SPELL_DAMAGE" or "PAID_RECALL")
+        if (grant.Kind is not ("NEXT_UNIT_READY" or "NEXT_SPELL_DAMAGE" or "PAID_RECALL" or "NEXT_UNIT_EPHEMERAL_DISCOUNT")
             || (grant.Kind == "PAID_RECALL" ? !CurrentPaidRecallTarget(state, grant) : grant.Target is not null)
             || grant.Kind == "PAID_RECALL" && (grant.GrantedTick != 0 || grant.SpellPlayId is not null)
             || grant.Kind == "NEXT_UNIT_READY" && (grant.GrantedTick != 0 || grant.SpellPlayId is not null)
+            || grant.Kind == "NEXT_UNIT_EPHEMERAL_DISCOUNT" && (grant.GrantedTick != 0 || grant.SpellPlayId is not null || grant.Borrowed is null)
             || grant.Kind == "NEXT_SPELL_DAMAGE" && !ValidActivatedSpellDamageBinding(state, grant)
             || grant.TurnNumber != state.TurnNumber || string.IsNullOrWhiteSpace(grant.ControllerId)
             || string.IsNullOrWhiteSpace(grant.CardNo) || !state.Seats.ContainsKey(grant.ControllerId)
@@ -76,7 +77,8 @@ public sealed partial class CoreRuleEngine
         if (item.BorrowedExhaust is { } borrowed)
             return item.StackItemId == $"STACK-{borrowed.AcquiredTick}-{item.SourceObjectId}-BORROWED"
                 && BorrowedExhaustRules.Spec(state, borrowed)?.Kind == (grant.Kind == "PAID_RECALL" ? "GRANT_PAID_RECALL"
-                    : grant.Kind == "NEXT_UNIT_READY" ? "GRANT_NEXT_UNIT_READY" : "GRANT_NEXT_SPELL_DAMAGE")
+                    : grant.Kind == "NEXT_UNIT_READY" ? "GRANT_NEXT_UNIT_READY"
+                    : grant.Kind == "NEXT_UNIT_EPHEMERAL_DISCOUNT" ? "GRANT_NEXT_UNIT_EPHEMERAL_DISCOUNT" : "GRANT_NEXT_SPELL_DAMAGE")
                 && BorrowedExhaustRules.Valid(state, item);
         return ValidSimpleActivation(state, item);
     }
