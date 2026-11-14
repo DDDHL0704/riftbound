@@ -222,8 +222,8 @@ function DamagePanel({ prompt, objects, kind }: { prompt: Prompt | null; objects
   }, [prompt?.promptId]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!cand || !md || md.assignmentState === "WAIT") return null;
   const required: Required[] = md.requiredAssignments ?? [];
+  // Already net of marked damage and prevention, in original (pre-doubling) points.
   const lethal: Record<string, number> = md.lethalDamageThreshold ?? {};
-  const existing: Record<string, number> = md.existingDamage ?? {};
   const targetCount = Number(md.minimumAssignedTargets ?? 0);
   // Combat order per target (CN 467.2.c): 0 bulwark first, 1 ordinary, 2 back row last; a unit with both may be either.
   const priorityOptions: Record<string, number[]> = md.targetPriorityOptions ?? {};
@@ -267,7 +267,7 @@ function DamagePanel({ prompt, objects, kind }: { prompt: Prompt | null; objects
             <div key={t} className="dmg__row">
               <span>
                 <Named id={t} objects={objects} />
-                <span className="muted small">（致命 {Math.max(0, (lethal[t] ?? 0) - (existing[t] ?? 0))}）</span>
+                <span className="muted small">（致命 {lethal[t] ?? 0}）</span>
                 {kind === "combat" && orderLabel(t) && <span className="dmg__order">{orderLabel(t)}</span>}
               </span>
               <span className="stepper">
