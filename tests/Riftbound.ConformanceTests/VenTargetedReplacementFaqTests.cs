@@ -256,6 +256,13 @@ public sealed class VenTargetedReplacementFaqTests
         Assert.Equal(printing, game.State.CardObjects["GEAR"].AttachedRuleText!.CardNo);
         await game.Act("P1", new PlayCardCommand("STUN", "UNL-042/219", ["HOST"]));
         await game.Top();
+        var choice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice).Request;
+        Assert.Equal("TARGETED_ACTION_REPLACEMENT", choice.Kind);
+        Assert.Equal("P1", choice.PlayerId); Assert.Equal(2, choice.Options.Count);
+        Assert.Equal(6, ArmamentMightTests.Might(game.State));
+        var attached = Assert.Single(choice.Options, o => o.ObjectIds!.Contains("GEAR"));
+        await game.Act("P1", new PayCostCommand(choice.Id, "RULE_REPLACEMENT", [attached.Id]));
+        Assert.Null(game.State.PendingRuleChoice);
         Assert.Equal(9, ArmamentMightTests.Might(game.State));
         Assert.Single(game.State.CardObjects["HOST"].UntilEndOfTurnPowerModifiers);
         Assert.DoesNotContain("STUNNED", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
