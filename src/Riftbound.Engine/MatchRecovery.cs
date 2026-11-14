@@ -1175,6 +1175,7 @@ public static partial class MatchRecoveryValidator
         if (authoritativeState is not null)
         {
             ValidateTemporaryNumericUnitEffects(authoritativeState, events, requireAcceptedBattleHistory, errors);
+            if (!CoreRuleEngine.ValidCombatDamageOrder(authoritativeState)) errors.Add("invalid combat damage replacement order");
             ValidateOriginalEffectPlayLocation(authoritativeState, events, requireAcceptedBattleHistory, errors);
         }
         if (authoritativeState is not null && requireAcceptedBattleHistory)

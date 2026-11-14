@@ -21,6 +21,6 @@ public sealed partial class CoreRuleEngine
             && HasControllerLethalDamage(state, assigningPlayer)
                 ? target.DamageMarkedByPlayerIds?.Contains(assigningPlayer) == true ? 0 : System.Math.Min(1, ordinary)
                 : ordinary;
-        return beforePrevention == 0 ? 0 : checked(beforePrevention + TemporaryUnitEffectRules.RemainingPrevention(target));
+        return OriginalCombatDamageNeeded(state, target, beforePrevention);
     }
 }
