@@ -31,15 +31,9 @@
   font-size: 32px;
   letter-spacing: 0.12em;
 }
-.gate__lede {
-  max-width: 30em;
-  margin: 16px 0 36px;
-  text-align: center;
-  color: var(--muted);
-  font-size: 15px;
-}
 .gate__form {
   width: min(360px, 100%);
+  margin-top: 40px;
   display: grid;
   gap: 16px;
 }

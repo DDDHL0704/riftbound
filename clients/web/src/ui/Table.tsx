@@ -496,9 +496,6 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
                 related={prompt?.view?.relatedBattlefieldId === bf.battlefieldObjectId}
               />
             ))}
-            {myMainTurn && !pick && !runeSel.length && (
-              <p className="tips">拖出手牌即可打出（法力不足会自动横置符文）· 点单位再点战场来移动，可连点多个单位一起移动 · 点符文可多选横置或回收 · 快捷键：空格 让过/结束回合，T 全部横置，Enter 确认，Esc 取消</p>
-            )}
           </div>
 
           <Side
@@ -539,7 +536,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
           <AnimatePresence>
             {promptType === "MULLIGAN" && prompt?.actionable && (
-              <MulliganPanel prompt={prompt} hand={me.zones.hand} objects={objects} mulligan={mulligan} pending={state.pending} onCard={onObject} />
+              <MulliganPanel hand={me.zones.hand} objects={objects} mulligan={mulligan} pending={state.pending} onCard={onObject} />
             )}
           </AnimatePresence>
 
@@ -580,7 +577,6 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
                 pick={pick}
                 step={currentStep}
                 choices={stepChoices}
-                peers={peers.length}
                 otherActions={pickOtherActions}
                 onOtherAction={(a) => start(a)}
                 extraPower={(dest) => Number(pick.action.candidate.metadata?.powerPerExtraUnitByDestination?.[dest] ?? 0) * pick.group.length}
@@ -628,7 +624,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
           )}
         </div>
 
-        <Rail state={state} snapshot={snapshot} prompt={prompt} objects={objects} mulligan={mulligan} onHover={hoverCard} />
+        <Rail state={state} snapshot={snapshot} prompt={prompt} objects={objects} onHover={hoverCard} />
 
         <ChainArrows snapshot={snapshot} meId={meId} />
         <EventFx meId={meId} />

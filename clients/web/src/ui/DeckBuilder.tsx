@@ -231,7 +231,6 @@ export function DeckBuilder({ initial, onClose }: { initial: CustomDeck; onClose
           )}
           {tab === "fields" && (
             <>
-              <p className="muted small">选 {FIELDS} 张不同的战场，点击切换。</p>
               <div className="db__grid db__grid--wide">
                 {fields.map((no) => tile(no, { on: deck.battlefields.includes(no), dim: !deck.battlefields.includes(no) && deck.battlefields.length >= FIELDS, onClick: () => toggleField(no) }))}
               </div>
@@ -239,7 +238,6 @@ export function DeckBuilder({ initial, onClose }: { initial: CustomDeck; onClose
           )}
           {tab === "runes" && (
             <>
-              <p className="muted small">共 {RUNES} 张，点击添加，右键或点「−」移除。</p>
               <div className="db__grid">
                 {runes.map((no) =>
                   tile(no, {

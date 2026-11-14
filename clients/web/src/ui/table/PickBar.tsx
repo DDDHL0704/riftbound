@@ -8,7 +8,6 @@ type PickBarProps = {
   pick: Pick;
   step?: ActionStep;
   choices: Choice[];
-  peers: number;
   otherActions: ObjectAction[];
   onOtherAction: (a: ObjectAction) => void;
   extraPower: (destinationId: string) => number;
@@ -76,7 +75,7 @@ function BoonStepper({ group, chosen, objects, onChange }: { group: BoonCostGrou
   );
 }
 
-export function PickBar({ pick, step, choices, peers, otherActions, onOtherAction, extraPower, objects, onChoose, onSkip, onToggleCost, onSetCosts, onConfirm, onCancel }: PickBarProps) {
+export function PickBar({ pick, step, choices, otherActions, onOtherAction, extraPower, objects, onChoose, onSkip, onToggleCost, onSetCosts, onConfirm, onCancel }: PickBarProps) {
   const src = objects[pick.action.sourceObjectId];
   const info = cardInfo(src?.cardNo);
   const moving = pick.action.cmdType === "MOVE_UNIT";
@@ -101,12 +100,8 @@ export function PickBar({ pick, step, choices, peers, otherActions, onOtherActio
         </p>
         {step ? (
           <>
-            <p className="pickbar__hint">{moving ? "点发光的战场或基地完成移动，也可以把单位直接拖过去。" : `${step.label}：点场上发光的卡牌或区域，或下方选项。`}</p>
-            {moving && peers > 0 && (
-              <p className="pickbar__hint pickbar__hint--group">
-                {pick.group.length ? `将一起移动 ${pick.group.length + 1} 个单位，再点单位可加入或取消。` : `一起移动：再点其他发光的单位（还有 ${peers} 个可以一起走）。`}
-              </p>
-            )}
+            {!moving && <p className="pickbar__hint">{step.label}</p>}
+            {moving && pick.group.length > 0 && <p className="pickbar__hint pickbar__hint--group">{pick.group.length + 1} 个单位一起移动</p>}
             <div className="pickbar__choices">
               {choices
                 .filter((c) => !pick.sel.targets.includes(c.id) && !(step.role === "cost" && pick.sel.optionalCosts.includes(c.id)))
@@ -139,11 +134,9 @@ export function PickBar({ pick, step, choices, peers, otherActions, onOtherActio
           <>
             {neededPower(pick) > 0 ? (
               <p className={`pickbar__hint${providedPower(pick, pick.sel.optionalCosts) < neededPower(pick) ? " pickbar__hint--warn" : ""}`}>
-                还差 {neededPower(pick)} 点符能，需要回收符文支付（已选可提供 {providedPower(pick, pick.sel.optionalCosts)} 点）。
+                需回收符文支付 {neededPower(pick)} 符能 · 已选 {providedPower(pick, pick.sel.optionalCosts)}
               </p>
-            ) : (
-              <p className="pickbar__hint">可选附加费用：</p>
-            )}
+            ) : null}
             {pick.action.variablePower && (
               <VariablePower prefix={pick.action.variablePower} chosen={pick.sel.optionalCosts} onChange={onSetCosts} />
             )}

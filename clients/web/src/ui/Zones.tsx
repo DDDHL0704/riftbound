@@ -121,12 +121,10 @@ export function Side({ player, side, render, onZone, legal, onOpenZone, heroActi
     <section className={`side side--${side}`} aria-label={side === "me" ? "你的区域" : "对手区域"}>
       <div className="heroes">
         {heroes.map((id) => {
-          const isLegend = z.legendZone.includes(id);
           const acts = side === "me" ? heroActions(id) : [];
           return (
             <div className="hero" key={id}>
               {render(id, "hero")}
-              <span className="hero__label">{isLegend ? "传奇" : "英雄"}</span>
               {acts.length > 0 && (
                 <div className="hero__acts">
                   {acts.map((a) => (
@@ -151,10 +149,8 @@ export function Side({ player, side, render, onZone, legal, onOpenZone, heroActi
       </div>
 
       <div className={`base${baseLegal ? " is-legal" : ""}`} onClick={onZone(["BASE", `BASE:${player.id}`])} data-drop="BASE" data-drop-owner={player.id} aria-label="基地">
-        <span className="zone-label">{side === "me" ? "我的基地" : "对手基地"}</span>
         <Crowd className="base__units">
           {units.map((id) => render(id))}
-          {units.length === 0 && <span className="base__empty">{side === "me" ? "打出的单位会进入这里" : ""}</span>}
         </Crowd>
       </div>
 
@@ -273,10 +269,9 @@ export function Battlefield({ bf, meId, oppId, objects, render, onZone, legal, h
               <span className="field__fallback">{info?.name ?? bf.cardNo}</span>
             )}
           </div>
-          <span className="field__status">
-            {status}
-            {bf.scoredThisTurn && " · 本回合已得分"}
-          </span>
+          {(bf.contested || bf.scoredThisTurn) && (
+            <span className="field__status">{[bf.contested && status, bf.scoredThisTurn && "本回合已得分"].filter(Boolean).join(" · ")}</span>
+          )}
         </div>
         {mySlots.length > 0 && <div className="field__standby field__standby--me">{mySlots.map(renderSlot)}</div>}
       </div>
