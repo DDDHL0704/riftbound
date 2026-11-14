@@ -134,7 +134,8 @@ public sealed record PublicMatchDto(
     string Format = MatchFormats.Constructed,
     string? SetCode = null,
     int BestOf = 1,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SealedPackChoiceDto>? SealedPacks = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SealedPackChoiceDto>? SealedPacks = null,
+    string OpeningRule = OpeningRules.Standard);
 
 public sealed record CreatePublicMatchResultDto(
     PublicMatchDto Match,
@@ -180,7 +181,9 @@ public sealed record SubmitDeckCommand(
     IReadOnlyList<string> RuneDeck,
     IReadOnlyList<string> Battlefields,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    IReadOnlyList<string>? AdditionalLegendCardNos = null) : GameCommand("SUBMIT_DECK");
+    IReadOnlyList<string>? AdditionalLegendCardNos = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<string>? Sideboard = null) : GameCommand("SUBMIT_DECK");
 
 public sealed record MulliganCommand(
     IReadOnlyList<string> HandObjectIds) : GameCommand("MULLIGAN");
@@ -414,7 +417,9 @@ public sealed record SnapshotDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] MatchSeriesDto? Series = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SealedPoolDto? SealedPool = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? SideboardCounts = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SealedPackChoiceDto>? SealedPacks = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SealedPackChoiceDto>? SealedPacks = null,
+    string OpeningRule = OpeningRules.Standard,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] OpeningSetupDto? OpeningSetup = null);
 
 public static class PromptTypes
 {

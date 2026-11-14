@@ -178,7 +178,7 @@ public sealed partial class MatchSession
             .OrderBy(entry => entry.Value, StringComparer.Ordinal)
             .Select(entry => entry.Key)
             .ToArray();
-        var firstPlayer = RoomMatchSeries.Current(readyState)?.FirstPlayerId;
+        var firstPlayer = readyState.CityOpening?.FirstPlayerId ?? RoomMatchSeries.Current(readyState)?.FirstPlayerId;
         var turnOrder = firstPlayer is null ? RandomizeStable(seatOrder, seed, rngCursor, "TURN_ORDER")
             : new[] { firstPlayer }.Concat(seatOrder.Where(player => player != firstPlayer)).ToArray();
         if (firstPlayer is null && seatOrder.Length > 1)
@@ -217,7 +217,8 @@ public sealed partial class MatchSession
                 cardsByNo,
                 seed,
                 rngCursor,
-                SealedSeriesDecks.ForcedBattlefield(readyState, playerId));
+                readyState.CityOpening?.Battlefields?.GetValueOrDefault(playerId)
+                    ?? SealedSeriesDecks.ForcedBattlefield(readyState, playerId), CityOpeningRules.Enabled(readyState));
             rngCursor = playerOpening.RngCursor;
             selectedBattlefields[playerId] = playerOpening.SelectedBattlefieldCardNo;
             playerZones[playerId] = playerOpening.Zones;
@@ -235,6 +236,15 @@ public sealed partial class MatchSession
 
         var runePools = seatOrder.ToDictionary(playerId => playerId, _ => RunePool.Empty, StringComparer.Ordinal);
         var playerScores = seatOrder.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal);
+        if (CityOpeningRules.Rule(readyState) == OpeningRules.S5CityMode3 && secondActionPlayerId is not null)
+            playerScores[secondActionPlayerId] = 1;
+        if (CityOpeningRules.Enabled(readyState))
+        {
+            var selectionEvents = events.Where(e => e.Kind == "OFFICIAL_BATTLEFIELD_SELECTED").ToArray();
+            var handEvents = events.Where(e => e.Kind == "OPENING_HAND_DRAWN").ToArray();
+            events = [events[0], new("S5_BATTLEFIELDS_REVEALED", "备牌更换结束，双方展示战场",
+                new Dictionary<string, object?> { ["openingRule"] = CityOpeningRules.Rule(readyState) }), .. selectionEvents, .. handEvents];
+        }
         var playerExperience = seatOrder.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal);
         var nextState = readyState with
         {
@@ -279,7 +289,7 @@ public sealed partial class MatchSession
         IReadOnlyDictionary<string, OfficialCard> cardsByNo,
         long seed,
         long rngCursor,
-        string? forcedBattlefieldCardNo = null)
+        string? forcedBattlefieldCardNo = null, bool cityOpening = false)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal);
         var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
@@ -380,7 +390,8 @@ public sealed partial class MatchSession
         {
             new(
                 "OFFICIAL_BATTLEFIELD_SELECTED",
-                forcedBattlefieldCardNo is not null ? $"{playerId} 沿用上一局的战场"
+                cityOpening ? $"{playerId} 展示备牌更换前已随机选定的战场"
+                    : forcedBattlefieldCardNo is not null ? $"{playerId} 沿用上一局的战场"
                     : decklist.Battlefields.Count == 1 ? $"{playerId} 选定 1 张战场进入本局"
                     : $"{playerId} 随机选择 1 张战场进入本局",
                 new Dictionary<string, object?>

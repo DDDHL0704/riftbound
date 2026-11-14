@@ -103,11 +103,20 @@ public sealed partial class CoreRuleEngine
                     state = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, TurnStartStep = "DRAW" };
                     break;
                 case "DRAW":
-                    if (ActiveFieldCardBehaviors(zones, cards, player).Any(b => b.SkipsDrawPhase)) {
+                case "S5_DRAW":
+                    if (state.TurnStartStep == "DRAW" && ActiveFieldCardBehaviors(zones, cards, player).Any(b => b.SkipsDrawPhase)) {
                         events.Add(new("DRAW_PHASE_SKIPPED", "卡牌效果跳过抽牌阶段", new Dictionary<string, object?> { ["playerId"] = player }));
                         state = state with { TurnStartStep = "MAIN" }; break;
                     }
-                    var draw = DrawCards(state, cards, player, zones[player], 1);
+                    var secondOpeningDraw = state.TurnNumber == 2 && player == state.OpeningSecondActionPlayerId;
+                    if (state.TurnStartStep == "DRAW" && secondOpeningDraw
+                        && CityOpeningRules.Rule(state) == OpeningRules.S5CityMode2)
+                    {
+                        state = BeginCityOpeningInsight(state, events);
+                        break;
+                    }
+                    var draw = DrawCards(state, cards, player, zones[player], secondOpeningDraw
+                        && CityOpeningRules.Rule(state) == OpeningRules.S5CityMode1 ? 2 : 1);
                     zones[player] = zones[player] with { MainDeck = draw.MainDeck, Graveyard = draw.Graveyard,
                         Hand = zones[player].Hand.Concat(draw.DrawnCards).ToArray() };
                     events.AddRange(BuildTurnStartEvents(state, 0, draw, []).Where(e => e.Kind is not
@@ -146,6 +155,8 @@ TurnStartStep = null, Phase = MatchPhases.Main,
             collected = QueueUnitEvents(stepStart, collected);
             collected = QueueSelfActionObservers(stepStart, collected);
             collected = QueueSourceUnitTokens(stepStart, collected);
+            collected = QueueOwnedBanishObservers(collected);
+            collected = AdvanceObservedDeckPlays(CollectObservedDeckPlays(collected));
             events.RemoveRange(stepEventIndex, events.Count - stepEventIndex); events.AddRange(collected.Events);
             var published = PrepareTriggerConfirmation(PublishPendingTriggers(collected with { Events = [] }));
             state = published.State; events.AddRange(published.Events);

@@ -5914,6 +5914,7 @@ public sealed partial class MatchSession : IMatchSession
         if (!Enum.IsDefined(this.options.DeckFormat))
             throw new ArgumentOutOfRangeException(nameof(options), "Unknown room deck format.");
         SealedRoomPools.RequireOptions(this.options);
+        CityOpeningRules.RequireOptions(this.options);
         state = MatchState.Create(roomId) with
         {
             Seed = CreatePrivateOpeningSeed(),
@@ -5976,6 +5977,8 @@ public sealed partial class MatchSession : IMatchSession
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "match recovery room deck format is invalid");
         if (SealedRoomPools.OptionError(this.options) is { } optionsError)
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, optionsError);
+        if (CityOpeningRules.OptionError(this.options) is { } openingError)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, openingError);
         var recordedOptions = this.options == MatchSessionOptions.Default ? null : this.options;
         state = restoredState.SessionOptions == recordedOptions
             ? restoredState : restoredState with { SessionOptions = recordedOptions };
@@ -6388,7 +6391,9 @@ public sealed partial class MatchSession : IMatchSession
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
                 var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat,
                     SealedContextFor(normalizedPlayerId));
-                var errors = validation.Errors.Concat(SealedSeriesDecks.SubmissionErrors(state, normalizedPlayerId, decklist)).ToArray();
+                var sideboard = (command.Sideboard ?? []).Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToArray();
+                var errors = validation.Errors.Concat(SealedSeriesDecks.SubmissionErrors(state, normalizedPlayerId, decklist))
+                    .Concat(CityOpeningRules.SubmissionErrors(state, normalizedPlayerId, decklist, sideboard, catalog)).ToArray();
                 if (errors.Length > 0)
                 {
                     result = ResolutionResult.Rejected(
@@ -6397,7 +6402,9 @@ public sealed partial class MatchSession : IMatchSession
                         ErrorCodes.InvalidDeck);
                 }
                 else if (state.PlayerDecklists.TryGetValue(normalizedPlayerId, out var existingDecklist)
-                    && OfficialDecklistsEqual(existingDecklist, decklist))
+                    && OfficialDecklistsEqual(existingDecklist, decklist)
+                    && (!CityOpeningRules.Enabled(state) || state.CityOpening?.Sideboards.GetValueOrDefault(normalizedPlayerId) is { } currentReserve
+                        && CityOpeningRules.SamePool(currentReserve, sideboard)))
                 {
                     result = ResolutionResult.Rejected(
                         state,
@@ -6413,7 +6420,8 @@ public sealed partial class MatchSession : IMatchSession
                         Tick = state.Tick + 1,
                         PlayerDecklists = decklists
                     };
-                    var events = new[] { BuildDeckSubmittedEvent(normalizedPlayerId, decklist) };
+                    var events = new List<GameEvent> { BuildDeckSubmittedEvent(normalizedPlayerId, decklist) };
+                    nextState = RegisterCityDeck(nextState, normalizedPlayerId, decklist, sideboard, events);
                     result = new ResolutionResult(
                         true,
                         null,
@@ -6541,6 +6549,13 @@ public sealed partial class MatchSession : IMatchSession
                     ResolutionResult.BuildPrompts(state));
                 intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, current);
                 return current;
+            }
+
+            if (CityOpeningRules.Enabled(state) && state.CityOpening?.FirstPlayerId is null)
+            {
+                var rejected = ResolutionResult.Rejected(state, "请等待双方登记卡组，确定先后手与随机战场后再完成备牌。", ErrorCodes.PhaseNotAllowed);
+                intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
+                return rejected;
             }
 
             if (!state.PlayerDecklists.ContainsKey(normalizedPlayerId)
