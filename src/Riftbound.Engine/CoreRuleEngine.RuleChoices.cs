@@ -64,6 +64,8 @@ public sealed partial class CoreRuleEngine
     {
         if (!RuleInputIdentity.IsCurrentState(state))
             return RejectWithCorePrompts(state, "对局规则输入身份与当前规则、目录或实现不匹配。", ErrorCodes.RecoveryInconsistent);
+        if (!ValidCombatDamageOrder(state))
+            return RejectWithCorePrompts(state, "战斗伤害替换顺序与当前单位或战斗不一致。", ErrorCodes.RecoveryInconsistent);
         var pending = state.PendingRuleChoice;
         if (!TryGetCommittedRuleChoiceResources(state, out var committedResources))
             return RejectWithCorePrompts(state, "结算选择与已提交资源记录不一致。", ErrorCodes.RecoveryInconsistent);

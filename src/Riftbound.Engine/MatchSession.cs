@@ -1265,6 +1265,7 @@ public sealed partial record MatchState
             || effectId.StartsWith(CoreRuleEngine.BoonAmplifierPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(CoreRuleEngine.CombatDamageOrderPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattlefieldTaskMarkers.BattleSkippedPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattlefieldContestRules.InitiatorPrefix, StringComparison.Ordinal);
     }

@@ -875,8 +875,8 @@
       "text": "选择一名单位。",
       "scope": "选择一名单位。",
       "status": "route",
-      "reason": "选择任意公开在场单位并授予本回合独立7点伤害防止预算，跨多次伤害逐次消耗；战斗分配与致死需求会计入未用预算，结束时清除，重复授予各自独立",
-      "rules": "核心伤害防止、466–468 战斗分配、回合结束；VEN·126 官方中文牌面",
+      "reason": "选择任意公开在场单位并授予本回合独立7点抵挡预算，跨多次伤害逐次消耗；战斗按接收者汇总原始伤害，由受影响控制者先排序，再反算含翻倍与剩余抵挡的最小原始致死分配量；重复授予各自独立，回合结束清除",
+      "rules": "中国区核心438.5.a、467.2.c.4.a／c.5、370.2、372；VEN·126官方中文牌面与化神争锋FAQ气合盾／莲花陷阱例",
       "runtime": {
         "behaviors": [
           {
@@ -894,8 +894,30 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.LethalDamage.cs",
+          "member": "RequiredLethalDamage",
           "contains": [
-            "TemporaryUnitEffectRules.RemainingPrevention(target)"
+            "OriginalCombatDamageNeeded(state, target, beforePrevention)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CombatDamageReplacements.cs",
+          "member": "OriginalCombatDamageNeeded",
+          "contains": [
+            "TemporaryUnitEffectRules.PreventionBudgets(target)",
+            "CombatDamageOrderFor(state, target)",
+            "foreach (var effect in order.Reverse())",
+            "needed = (needed + 1) / 2",
+            "needed += budget.Remaining"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CombatDamageReplacements.cs",
+          "member": "ApplyPooledCombatDamage",
+          "contains": [
+            "GroupBy(e => e.Assignment.TargetObjectId)",
+            "ApplyDamageToCardObject(",
+            "replacementOrder: CombatDamageOrderFor(state, target)",
+            "OriginalDamageAmount = entry.Assignment.Damage"
           ]
         }
       ],
@@ -906,6 +928,15 @@
             "ASevenPointShieldSpendsOneFiniteBudgetAcrossSmallOrLargeHits",
             "CombatPromptsAndBothManualAssignmentsUseTheUnspentShieldBudget",
             "TwoShieldGrantsRetainTheirIndependentBudgetsAndBothExpireAtTurnEnd"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/CombatOriginalDamageBudgetTests.cs",
+          "methods": [
+            "TheRecipientChoosesReplacementOrderBeforeAllocationAndTheCapturedOrderSurvivesRecovery",
+            "IdenticalFiniteShieldsKeepTheChosenSourceAndOneBudgetAcrossAllCombatContributors",
+            "FinitePreventionMayBeBeforeBetweenOrAfterTwoIndependentDoublers",
+            "AutomaticBattleWaitsForTheRecipientThenAppliesItsChosenOrderOnce"
           ]
         }
       ]
@@ -917,8 +948,8 @@
       "text": "抵挡该单位在本回合内将受到的7点伤害。（对手可以分配额外战斗伤害来摧毁该单位。）",
       "scope": "抵挡该单位在本回合内将受到的7点伤害。（对手可以分配额外战斗伤害来摧毁该单位。）",
       "status": "route",
-      "reason": "选择任意公开在场单位并授予本回合独立7点伤害防止预算，跨多次伤害逐次消耗；战斗分配与致死需求会计入未用预算，结束时清除，重复授予各自独立",
-      "rules": "核心伤害防止、466–468 战斗分配、回合结束；VEN·126 官方中文牌面",
+      "reason": "选择任意公开在场单位并授予本回合独立7点抵挡预算，跨多次伤害逐次消耗；战斗按接收者汇总原始伤害，由受影响控制者先排序，再反算含翻倍与剩余抵挡的最小原始致死分配量；重复授予各自独立，回合结束清除",
+      "rules": "中国区核心438.5.a、467.2.c.4.a／c.5、370.2、372；VEN·126官方中文牌面与化神争锋FAQ气合盾／莲花陷阱例",
       "runtime": {
         "behaviors": [
           {
@@ -936,8 +967,30 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.LethalDamage.cs",
+          "member": "RequiredLethalDamage",
           "contains": [
-            "TemporaryUnitEffectRules.RemainingPrevention(target)"
+            "OriginalCombatDamageNeeded(state, target, beforePrevention)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CombatDamageReplacements.cs",
+          "member": "OriginalCombatDamageNeeded",
+          "contains": [
+            "TemporaryUnitEffectRules.PreventionBudgets(target)",
+            "CombatDamageOrderFor(state, target)",
+            "foreach (var effect in order.Reverse())",
+            "needed = (needed + 1) / 2",
+            "needed += budget.Remaining"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CombatDamageReplacements.cs",
+          "member": "ApplyPooledCombatDamage",
+          "contains": [
+            "GroupBy(e => e.Assignment.TargetObjectId)",
+            "ApplyDamageToCardObject(",
+            "replacementOrder: CombatDamageOrderFor(state, target)",
+            "OriginalDamageAmount = entry.Assignment.Damage"
           ]
         }
       ],
@@ -948,6 +1001,15 @@
             "ASevenPointShieldSpendsOneFiniteBudgetAcrossSmallOrLargeHits",
             "CombatPromptsAndBothManualAssignmentsUseTheUnspentShieldBudget",
             "TwoShieldGrantsRetainTheirIndependentBudgetsAndBothExpireAtTurnEnd"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/CombatOriginalDamageBudgetTests.cs",
+          "methods": [
+            "TheRecipientChoosesReplacementOrderBeforeAllocationAndTheCapturedOrderSurvivesRecovery",
+            "IdenticalFiniteShieldsKeepTheChosenSourceAndOneBudgetAcrossAllCombatContributors",
+            "FinitePreventionMayBeBeforeBetweenOrAfterTwoIndependentDoublers",
+            "AutomaticBattleWaitsForTheRecipientThenAppliesItsChosenOrderOnce"
           ]
         }
       ]
