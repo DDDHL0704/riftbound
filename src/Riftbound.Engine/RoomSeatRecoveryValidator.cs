@@ -1,10 +1,12 @@
 using System.Text.Json;
+using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
 internal static class RoomSeatRecoveryValidator
 {
-    public static void Validate(IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events, List<string> errors)
+    public static void Validate(IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events, List<string> errors,
+        string openingRule = OpeningRules.Standard)
     {
         var registeredPlayers = new HashSet<string>(StringComparer.Ordinal);
         var registeredSeats = new HashSet<string>(StringComparer.Ordinal);
@@ -29,7 +31,8 @@ internal static class RoomSeatRecoveryValidator
             var span = events.Where(e => e.Sequence > command.StartedEventSequence && e.Sequence <= command.CompletedEventSequence).ToArray();
             if (span.Length != 1 || span[0].Sequence != command.CompletedEventSequence || span[0].Tick != command.CompletedTick
                 || span[0].Order != 0 || span[0].Event.Kind != "PLAYER_SEATED"
-                || span[0].Event.Payload.Count != 2
+                || span[0].Event.Payload.Count != (openingRule == OpeningRules.Standard ? 2 : 3)
+                || openingRule != OpeningRules.Standard && Text(span[0].Event.Payload.GetValueOrDefault("openingRule")) != openingRule
                 || Text(span[0].Event.Payload.GetValueOrDefault("playerId")) != command.PlayerId
                 || Text(span[0].Event.Payload.GetValueOrDefault("seat")) != slot)
                 errors.Add(label + " event does not match the original input");

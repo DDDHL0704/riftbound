@@ -234,9 +234,12 @@ public sealed class GameHub(
                         ? MatchSessionOptions.ForSealed(packs, normalizedOptions.BestOf)
                         : MatchSessionOptions.ForSealed(normalizedOptions.SetCode!, normalizedOptions.BestOf),
                     Context.ConnectionAborted)
-                : await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
+                : normalizedOptions.OpeningRule != OpeningRules.Standard
+                    ? await sessions.GetOrCreateAsync(roomId, MatchSessionOptions.ForOpeningRule(normalizedOptions.OpeningRule),
+                        Context.ConnectionAborted)
+                    : await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
             playerSession = await session.EnsurePlayerAsync(normalizedPlayerId, Context.ConnectionAborted);
-            match = normalizedOptions.Format == MatchFormats.Sealed
+            match = normalizedOptions.Format == MatchFormats.Sealed || normalizedOptions.OpeningRule != OpeningRules.Standard
                 ? await publicMatches.CreateAsync(roomId, normalizedPlayerId, normalizedOptions, Context.ConnectionAborted)
                 : await publicMatches.CreateAsync(roomId, normalizedPlayerId, Context.ConnectionAborted);
             playerConnections?.EnterRoom(Context.ConnectionId, normalizedPlayerId, roomId);

@@ -897,6 +897,15 @@ public sealed partial record ResolutionResult
         if (state.PendingRuleChoice is not null) return CoreRuleEngine.BuildRuleChoicePrompts(state);
         if (state.Status != MatchStatuses.InProgress)
         {
+            if (CityOpeningRules.Enabled(state) && state.Status != MatchStatuses.Finished)
+                return state.Seats.Keys.ToDictionary(player => player, player =>
+                {
+                    var ready = state.ReadyPlayerIds.Contains(player, StringComparer.Ordinal);
+                    var sideboarding = state.CityOpening?.FirstPlayerId is not null;
+                    return ActionPromptBuilder.Build(state, player, !ready,
+                        ready ? "已确认备牌，等待对手" : sideboarding ? "私下查看己方战场，更换备牌后准备" : "登记卡组与备牌，等待确定先后手和随机战场",
+                        ready ? ["WAIT"] : sideboarding ? ["SUBMIT_DECK", "READY"] : ["SUBMIT_DECK"]);
+                });
             var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
             return state.Seats.Keys.ToDictionary(playerId => playerId, playerId =>
             {

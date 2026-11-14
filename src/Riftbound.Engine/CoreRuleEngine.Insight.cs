@@ -54,9 +54,8 @@ public sealed partial class CoreRuleEngine
             RunePools = effect.RunePools, PlayerScores = effect.PlayerScores, PlayerExperience = effect.PlayerExperience,
             UntilEndOfTurnEffects = effect.UntilEndOfTurnEffects, StackItems = stack, RngCursor = effect.RngCursor,
             ObjectLocations = effect.ObjectLocations ?? ReconcileObjectLocations(state.ObjectLocations, effect.PlayerZones) };
-        var viewed = current.PlayerZones[item.ControllerId].MainDeck.Take(count).ToArray();
         var observationZones=NormalizeZonesForSeats(current);var observationCards=current.CardObjects.ToDictionary();var observationEvents=new List<GameEvent>();
-        viewed=ObserveDeckCards(current,observationZones,observationCards,item,item.ControllerId,viewed,"LOOK",item.CompletedDeckExecutions,observationEvents);
+        var viewed=LookForInsight(current,observationZones,observationCards,item,count,observationEvents);
         current=current with {PlayerZones=observationZones,CardObjects=observationCards,ObjectLocations=ReconcileObjectLocations(current.ObjectLocations,observationZones)};
         effect=effect with {PlayerZones=current.PlayerZones,CardObjects=current.CardObjects,ObjectLocations=current.ObjectLocations,
             Events=effect.Events.Concat(observationEvents).ToArray()};
@@ -165,15 +164,9 @@ public sealed partial class CoreRuleEngine
         var rng = state.RngCursor;
         if (choice.ChoiceWindow == "INSIGHT")
         {
-            var retained = choice.ContextObjectIds.Where(id => !selected.Contains(id)).ToArray();
-            var recycled = RandomizeForMainDeckBottom(selected, state.Seed, rng, item!.SourceObjectId);
-            if (selected.Count > 1) rng++;
-            zones[player] = zones[player] with { MainDeck = retained.Concat(deck.Skip(choice.ContextObjectIds.Count)).Concat(recycled).ToArray() };
-            if (selected.Count > 0) {
-                var recycledEvent = new GameEvent("CARDS_RECYCLED", $"洞察回收 {selected.Count} 张牌", new Dictionary<string, object?>
-                    { ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["count"] = selected.Count });
-                events.Add(CaptureRecycleObservers(recycledEvent, zones, cards, selected));
-            }
+            var recycled = RecycleInsightSelection(state, zones, cards, player, choice.ContextObjectIds, selected,
+                item!.SourceObjectId, events);
+            var retained = recycled.Retained; rng = recycled.Cursor;
             if (retained.Length > 1)
             {
                 var order = new PendingCardChoiceState(InsightChoiceId("INSIGHT-ORDER:", item), "INSIGHT_ORDER", player,

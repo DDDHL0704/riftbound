@@ -153,6 +153,9 @@ public sealed partial class CoreRuleEngine
             }
             else stack.Insert(parentIndex<0?detachedInsertIndex++:parentIndex,slot);
         }
+        // Collection also runs between turn-start instructions. Consume each
+        // newly observed permission once before that sequence can continue.
+        frame.ObservedPlays.Clear();
         var next=result.State with {PlayerZones=zones,CardObjects=cards,StackItems=stack,ObservedDeckPlays=contexts,
             ObjectLocations=ReconcileObjectLocations(result.State.ObjectLocations,zones)};
         foreach(var c in contexts)if(next.StackItems.Any(s=>s.ObservedDeckPlay?.Id==c.Id))
@@ -229,7 +232,7 @@ public sealed partial class CoreRuleEngine
         try
         {
             var i=c.Instruction;var parent=i.Parent;
-            var count=i.BeforeReveal is not null ? 1 : TryGetEffectPlayDefinition(parent,out var play)&&play.DeckPlayKind.Length>0?DeckPlayLookCount(play)
+            var count=i.BeforeReveal is not null || parent.EffectKind == OpeningInsightWindow ? 1 : TryGetEffectPlayDefinition(parent,out var play)&&play.DeckPlayKind.Length>0?DeckPlayLookCount(play)
                 : TryGetDeckChoiceBehavior(state,parent,out var choice)?choice.MainDeckLookCount
                 : parent.InsightContext is { } insight?insight.Count
                 : parent.BeginningDraw?.Kind == "LOWEST_DECK_TOP_MANA" ? 1
@@ -271,7 +274,8 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool ValidObservationParent(MatchState state,StackItemState parent)
-        => parent.BeginningDraw is { Kind: "LOWEST_DECK_TOP_MANA" } beginning
+        => parent.EffectKind == OpeningInsightWindow ? ValidCityObservationParent(state, parent)
+            : parent.BeginningDraw is { Kind: "LOWEST_DECK_TOP_MANA" } beginning
                 ? ValidBeginningDraw(state, beginning, parent.EffectKind, parent.ControllerId, parent.SourceObjectId, parent.CardNo)
             : IsGuessedDeckTopObservation(parent) ? parent.BorrowedExhaust is not null
                 ? BorrowedExhaustRules.Valid(state, parent) : ValidSimpleActivation(state,parent)

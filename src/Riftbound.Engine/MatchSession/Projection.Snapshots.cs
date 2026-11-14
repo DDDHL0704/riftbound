@@ -545,8 +545,10 @@ public sealed partial record ResolutionResult
             BestOf: state.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed ? state.SessionOptions.SealedBestOf : 1,
             Series: RoomMatchSeries.ViewFor(state, includePrivatePool ? viewerPlayerId : null),
             SealedPool: includePrivatePool ? SealedRoomPools.ViewFor(state, viewerPlayerId) : null,
-            SideboardCounts: SealedRoomPools.SideboardCountsFor(state),
-            SealedPacks: state.SessionOptions?.SealedPacks);
+            SideboardCounts: CityOpeningRules.SideboardCounts(state) ?? SealedRoomPools.SideboardCountsFor(state),
+            SealedPacks: state.SessionOptions?.SealedPacks,
+            OpeningRule: CityOpeningRules.Rule(state),
+            OpeningSetup: CityOpeningRules.View(state, includePrivatePool ? viewerPlayerId : null));
     }
 
     private static SnapshotTableDto BuildTableSnapshotView(MatchState state, string viewerPlayerId)
