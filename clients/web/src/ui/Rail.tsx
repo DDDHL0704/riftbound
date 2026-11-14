@@ -15,7 +15,6 @@ type RailProps = {
   snapshot: Snapshot;
   prompt: Prompt | null;
   objects: Record<string, GameObject>;
-  mulligan: string[];
   onHover: HoverHandler;
 };
 
@@ -46,12 +45,8 @@ function linkNames(text: string, byName: Map<string, { cardNo: string; objectId:
   });
 }
 
-function nameOf(id: string, objects: Record<string, GameObject>, fallback?: string) {
-  const o = objects[id];
-  return o?.cardNo ? cardName(o.cardNo) : fallback ?? id;
-}
 
-export function Rail({ state, snapshot, prompt, objects, mulligan, onHover }: RailProps) {
+export function Rail({ state, snapshot, prompt, objects, onHover }: RailProps) {
   const meId = state.handle;
   const view = prompt?.view;
   const type = view?.type ?? "WAIT";
@@ -75,11 +70,10 @@ export function Rail({ state, snapshot, prompt, objects, mulligan, onHover }: Ra
           第 {snapshot.turnNumber} 回合，{myTurn ? "你的回合" : "对手回合"}
         </p>
         <h2 className="rail__title">{actionable || type === "MATCH_RESULT" ? view?.title ?? "行动" : "等待对手"}</h2>
-        <p className="rail__msg">{view?.message || prompt?.reason}</p>
+        {type !== "MAIN_ACTION" && <p className="rail__msg">{view?.message || prompt?.reason}</p>}
       </header>
 
       <div className="rail__panel">
-        {type === "MULLIGAN" && actionable && <MulliganPanel prompt={prompt!} selected={mulligan} objects={objects} />}
         {/* Battles usually come from the start-battle prompt, but the server may also offer one as a main action. */}
         {enabledCandidate(prompt, "DECLARE_BATTLE") && <BattlePanel prompt={prompt} objects={objects} />}
         {type === "ASSIGN_COMBAT_DAMAGE" && <DamagePanel prompt={prompt} objects={objects} kind="combat" />}
@@ -122,16 +116,6 @@ export function Rail({ state, snapshot, prompt, objects, mulligan, onHover }: Ra
           ))}
       </footer>
     </aside>
-  );
-}
-
-function MulliganPanel({ prompt, selected, objects }: { prompt: Prompt; selected: string[]; objects: Record<string, GameObject> }) {
-  const max = prompt.view?.maxSelection ?? 2;
-  return (
-    <div className="panel">
-      <p>在桌面中央点选至多 {max} 张想换掉的牌，再点「保留起手」或「换掉」。</p>
-      {selected.length > 0 && <p className="muted">已选：{selected.map((id) => nameOf(id, objects)).join("、")}</p>}
-    </div>
   );
 }
 
@@ -315,11 +299,11 @@ function DamagePanel({ prompt, objects, kind }: { prompt: Prompt | null; objects
 function TriggerPanel({ prompt, objects }: { prompt: Prompt | null; objects: Record<string, GameObject> }) {
   const cand = enabledCandidate(prompt, "ORDER_TRIGGERS");
   const md = cand?.metadata;
-  const [order, setOrder] = useState<string[]>([]);
-  useEffect(() => {
-    setOrder(md?.orderedTriggerIds ?? md?.triggerIds ?? []);
-  }, [prompt?.promptId]); // eslint-disable-line react-hooks/exhaustive-deps
+  // The order belongs to one prompt: a fresh prompt starts from the server's order, never an empty or stale list.
+  const [saved, setSaved] = useState<{ promptId?: string; ids: string[] }>({ ids: [] });
   if (!cand || !md) return null;
+  const order: string[] = saved.promptId === prompt?.promptId ? saved.ids : (md.orderedTriggerIds ?? md.triggerIds ?? []);
+  const setOrder = (f: (cur: string[]) => string[]) => setSaved({ promptId: prompt?.promptId, ids: f(order) });
   const triggers: Record<string, { sourceObjectId?: string; effectKind?: string }> = Object.fromEntries(
     (md.triggers ?? []).map((t: any) => [t.triggerId, t]),
   );

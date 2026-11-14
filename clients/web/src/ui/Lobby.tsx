@@ -11,6 +11,8 @@ import { LEVEL_LABEL, startPractice, usePractice } from "../ai/practice";
 import type { Level } from "../ai/policy";
 import { Showcase } from "./Ambient";
 
+const LEVEL_HINT: Record<Level, string> = { easy: "随意出牌和移动，适合第一次上手", normal: "优先铺场，往能赢下的战场推进" };
+
 export function ConnectScreen({ state }: { state: ClientState }) {
   const [handle, setHandle] = useState(state.handle);
   const [server, setServer] = useState(state.server);
@@ -20,7 +22,6 @@ export function ConnectScreen({ state }: { state: ClientState }) {
     <main className="gate">
       <div className="gate__mark" aria-hidden />
       <h1 className="gate__title">符文战场</h1>
-      <p className="gate__lede">先到 8 分者获胜。占领战场、守住它，每回合都能得分。</p>
       <form
         className="gate__form"
         onSubmit={(e) => {
@@ -29,11 +30,11 @@ export function ConnectScreen({ state }: { state: ClientState }) {
         }}
       >
         <label className="formfield">
-          <span>玩家名</span>
           <input
             value={handle}
             onChange={(e) => setHandle(e.target.value)}
-            placeholder="字母、数字或下划线"
+            placeholder="玩家名"
+            aria-label="玩家名"
             autoFocus
             maxLength={24}
           />
@@ -41,8 +42,7 @@ export function ConnectScreen({ state }: { state: ClientState }) {
         <details className="gate__advanced">
           <summary>服务器地址</summary>
           <label className="formfield">
-            <span>地址</span>
-            <input value={server} onChange={(e) => setServer(e.target.value)} />
+            <input value={server} onChange={(e) => setServer(e.target.value)} aria-label="服务器地址" />
           </label>
         </details>
         <button className="btn btn--primary" type="submit" disabled={busy || !handle.trim()}>
@@ -108,13 +108,12 @@ export function LobbyScreen({ state }: { state: ClientState }) {
         <Showcase />
         <h1 className="gate__title gate__title--small">符文战场</h1>
         <p className="lobby__who">
-          以 <strong>{state.handle}</strong> 的身份登录
+          <strong>{state.handle}</strong>
         </p>
       </header>
       <section className="lobby__grid">
         <div className="lobby__block">
           <h2>快速匹配</h2>
-          <p>与下一位排队的玩家自动配对。</p>
           {matching ? (
             <div className="lobby__matching">
               <span className="pulse" aria-hidden /> 正在寻找对手…
@@ -130,7 +129,6 @@ export function LobbyScreen({ state }: { state: ClientState }) {
         </div>
         <div className="lobby__block">
           <h2>好友对战</h2>
-          <p>创建房间后把房间号发给对手，或输入对手的房间号加入。</p>
           <div className="lobby__row">
             <button className="btn" disabled={matching} onClick={() => void client.createRoom()}>
               创建房间
@@ -159,12 +157,7 @@ export function LobbyScreen({ state }: { state: ClientState }) {
         {sets.length > 0 && (
           <div className="lobby__block lobby__block--wide">
             <h2>现开赛</h2>
-            <p>
-              {mixing
-                ? `自由组合（非官方玩法）：每个系列选几包，合计 ${MIX_MIN_PACKS}–${MIX_MAX_PACKS} 包，双方开同样的组合。`
-                : "每人开 6 包同系列卡包，"}
-              只用开出的牌组一副至少 25 张的卡组。没开到传奇或英雄也能打，缺任何一个都会在首回合多抽一张。
-            </p>
+            {mixing && <p className="muted small">非官方玩法 · 合计 {MIX_MIN_PACKS}–{MIX_MAX_PACKS} 包，双方相同</p>}
             <div className="lobby__options">
               <div className="lobby__option" role="radiogroup" aria-label="卡包">
                 <span className="muted small">卡包</span>
@@ -229,7 +222,7 @@ export function LobbyScreen({ state }: { state: ClientState }) {
         <div className="lobby__block lobby__block--wide">
           <h2>等待中的房间</h2>
           {rooms.length === 0 ? (
-            <p className="muted">现在没有公开房间。创建一个，或开始快速匹配。</p>
+            <p className="muted">暂无</p>
           ) : (
             <ul className="rooms">
               {rooms.map((r) => (
@@ -293,7 +286,7 @@ function Records({ server, handle }: { server: string; handle: string }) {
             <b>{Math.round(profile.winRate * 100)}%</b>
           </p>
         ) : (
-          <p className="muted">还没有完成的对局。</p>
+          <p className="muted">暂无</p>
         )}
         {matches.length > 0 && (
           <ul className="records__list">
@@ -317,7 +310,7 @@ function Records({ server, handle }: { server: string; handle: string }) {
       <div className="lobby__block">
         <h2>排行榜</h2>
         {board.length === 0 ? (
-          <p className="muted">还没有记录。</p>
+          <p className="muted">暂无</p>
         ) : (
           <ol className="records__board">
             {board.map((r) => (
@@ -397,7 +390,6 @@ export function SetupScreen({ state, snapshot, prompt }: { state: ClientState; s
     <main className="gate gate--setup">
       <header className="setup__head">
         <div>
-          <p className="muted">房间号</p>
           <button
             className="setup__code"
             title="复制房间号"
@@ -480,7 +472,6 @@ export function SetupScreen({ state, snapshot, prompt }: { state: ClientState; s
         </div>
         {importing !== null && (
           <div className="import">
-            <p className="small">粘贴在卡组编辑器里「导出」得到的卡组列表：</p>
             <textarea className="input import__text" rows={8} value={importing} onChange={(e) => setImporting(e.target.value)} placeholder={"# 卡组名\n传奇 UNL-181/219 戏命师\n主牌 3 …"} />
             {importErrors.length > 0 && (
               <ul className="db__problems">
@@ -649,12 +640,11 @@ function PracticeBlock({ server, disabled }: { server: string; disabled: boolean
   return (
     <div className="lobby__block lobby__block--wide lobby__practice">
       <h2>人机练习</h2>
-      <p>和电脑打一局，熟悉卡组和规则。电脑和真人一样由服务端裁定，只是替你坐在对面。</p>
       <div className="lobby__options">
         <div className="lobby__option" role="radiogroup" aria-label="难度">
           <span className="muted small">难度</span>
           {(Object.keys(LEVEL_LABEL) as Level[]).map((l) => (
-            <button key={l} role="radio" aria-checked={level === l} className={`chip${level === l ? " chip--on" : ""}`} onClick={() => setLevel(l)}>
+            <button key={l} role="radio" aria-checked={level === l} className={`chip${level === l ? " chip--on" : ""}`} onClick={() => setLevel(l)} title={LEVEL_HINT[l]}>
               {LEVEL_LABEL[l]}
             </button>
           ))}
@@ -681,7 +671,6 @@ function PracticeBlock({ server, disabled }: { server: string; disabled: boolean
           {starting ? "正在准备…" : "开始练习"}
         </button>
       </div>
-      <p className="muted small">{level === "easy" ? "简单：随意出牌和移动，适合第一次上手。" : "普通：优先铺场，往能赢下的战场推进，伤害和削弱打向你。"}</p>
     </div>
   );
 }

@@ -55,7 +55,6 @@ export function ZoneViewer({
             );
           })}
         </div>
-        <p className="muted small">最新进入的牌排在最前。</p>
       </motion.div>
     </div>
   );

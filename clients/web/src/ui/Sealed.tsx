@@ -96,7 +96,7 @@ export function SealedScreen({ state, snapshot, prompt }: { state: ClientState; 
       <header className="sealed__head">
         <div>
           <p className="muted small">
-            房间号 · 现开{snapshot.sealedPacks?.length ? ` · ${snapshot.sealedPacks.map((p) => `${p.setCode}×${p.count}`).join(" + ")}` : ""}
+            现开{snapshot.sealedPacks?.length ? ` · ${snapshot.sealedPacks.map((p) => `${p.setCode}×${p.count}`).join(" + ")}` : ""}
             {bestOf === 3 ? " · 三局两胜" : " · 单局"}
           </p>
           <button className="setup__code" title="复制房间号" onClick={() => void navigator.clipboard?.writeText(state.roomId)}>
@@ -187,8 +187,6 @@ function PackOpening({ pool, opened, onOpened }: { pool: SealedPool; opened: num
       ) : (
         <div className="packs__intro">
           <h2>{opened > 0 ? "继续开包" : "开包"}</h2>
-          {mixed && <p className="muted small">自由组合：每包按所属系列（包号下方）开出。</p>}
-          <p className="muted">开出的牌组成你的卡池。稀有槽、闪卡槽和符文槽的牌带闪面；符文 / 指示物槽只用于展示，不进卡池。</p>
         </div>
       )}
       <div className="lobby__row packs__actions">
@@ -466,7 +464,7 @@ function SealedBuilder({ pool, bestOf, deck, lock, onChange, prompt, pending, su
 
         {tab === "roles" && (
           <div className="sealed__roles">
-            <p className="muted small">传奇和英雄都可以不选，也不需要是同一位英雄。{missing > 0 ? `现在缺 ${missing} 个，你每局的首回合开始阶段会额外抽 1 张牌。` : ""}</p>
+            {missing > 0 && <p className="muted small">缺 {missing} 个 · 每局首回合多抽 1 张</p>}
             <h3>传奇</h3>
             <div className="db__grid db__grid--wide sealed__grid">
               {legends.length === 0 && <p className="muted">这次没有开到传奇。</p>}
