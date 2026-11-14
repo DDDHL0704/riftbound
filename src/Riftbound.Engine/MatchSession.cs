@@ -3850,6 +3850,10 @@ internal static partial class ActionPromptBuilder
         }
 
         var hasAbility = P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var ability);
+        if (hasAbility && ability.UsesSharedPayment)
+            return CanPaySharedAbilityFee(state, playerId, requirement.SourceObjectId,
+                CoreRuleEngine.BattlefieldAdjustedAbility(state, playerId, requirement.SourceObjectId, ability),
+                requirement.PowerCost, requirement.PowerCostByTrait);
         var manaPurpose = CoreRuleEngine.ManaPurposeForActivatedAbility(state, requirement.SourceObjectId);
         if (AbilityAvailableManaWithRuneTaps(state, playerId, runePool, manaPurpose) < requirement.ManaCost)
         {
@@ -5289,6 +5293,11 @@ internal static partial class ActionPromptBuilder
         }
         if (requirement.PaymentResourceChoices.Count > 0)
             view["paymentResourceOrderMatters"] = true;
+        if (P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var sharedPaymentAbility)
+            && sharedPaymentAbility.UsesSharedPayment
+            && (requirement.PowerCost > 0 || requirement.PowerCostByTrait.Count > 0
+                || requirement.SpellshieldTaxPowerByTargetObjectId?.Values.Any(value => value > 0) == true))
+            view["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata;
         if (requirement.AbilityInstanceId is not null)
         {
             view["abilityInstanceId"] = requirement.AbilityInstanceId;

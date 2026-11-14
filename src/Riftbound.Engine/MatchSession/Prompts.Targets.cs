@@ -952,11 +952,9 @@ internal static partial class ActionPromptBuilder
         P4ActivatedAbilityDefinition ability,
         string targetObjectId)
     {
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        return AbilityAvailableManaWithRuneTaps(state, playerId, runePool, CoreRuleEngine.ManaPurposeForActivatedAbility(state, sourceObjectId)) >= ability.ManaCost
-            && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
+        return CanPaySharedAbilityFee(state, playerId, sourceObjectId, ability,
+            ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId),
+            P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability));
     }
 
     private static bool IsPromptShadowStunTarget(
@@ -1221,9 +1219,7 @@ internal static partial class ActionPromptBuilder
     }
 
     private static bool SupportsInlineRenektonAbilityPayment(P4ActivatedAbilityDefinition ability)
-        => ability.AbilityId is P4ActivatedAbilityCatalog.ViDoublePowerAbilityId
-            or P4ActivatedAbilityCatalog.NextSpellEchoAbilityId or P4ActivatedAbilityCatalog.ScryingBlossomAbilityId
-            or P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId or P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId;
+        => ability.UsesSharedPayment;
 
     private static IReadOnlyList<ActionPromptChoiceDto> RecycleRunePaymentResourceChoices(
         MatchState state, string playerId, string reason)

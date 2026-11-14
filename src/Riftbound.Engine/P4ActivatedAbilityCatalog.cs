@@ -48,7 +48,8 @@ public sealed record P4ActivatedAbilityDefinition(
     bool BorrowedSourceAlias = false,
     bool BindsUnitSource = false,
     bool ModifiesUnitSource = false,
-    int? MaximumTargetCount = null);
+    int? MaximumTargetCount = null,
+    bool UsesSharedPayment = false);
 
 public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
@@ -470,10 +471,12 @@ public static class P4ActivatedAbilityCatalog
             SimpleEffect: new(GrantsNextUnitReady: true, RequiresEncouraged: true)),
         new(ScryingBlossomAbilityId, "UNL-136/219", "INSIGHT_TRIGGER", "占卜花朵 · 洞察 2 后抽牌",
             1, 0, 0, RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, 0,
-            AppliesSpellshieldTargetTax: false, "支付 1 法力、横置并摧毁此牌：洞察 2，然后抽一张牌并获得 1 经验", RequiresBaseEquipmentSource: true),
+            AppliesSpellshieldTargetTax: false, "支付 1 法力、横置并摧毁此牌：洞察 2，然后抽一张牌并获得 1 经验", RequiresBaseEquipmentSource: true,
+            UsesSharedPayment: true),
         new(NextSpellEchoAbilityId, "SFD·078/221", NextSpellEchoEffectKind, "预时之门 · 下个法术获得回响",
             0, 1, 0, RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, 0,
-            AppliesSpellshieldTargetTax: false, "支付任意符能并横置，结算后授予本回合下个法术回响", RequiresBaseEquipmentSource: true),
+            AppliesSpellshieldTargetTax: false, "支付任意符能并横置，结算后授予本回合下个法术回响", RequiresBaseEquipmentSource: true,
+            UsesSharedPayment: true),
         new(
             ViDoublePowerAbilityId,
             ViCardNo,
@@ -488,7 +491,7 @@ public static class P4ActivatedAbilityCatalog
             AppliesSpellshieldTargetTax: false,
             "支付2法力和1红色符能：让我本回合内战力翻倍。",
             PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = ViDoublePowerAbilityPowerCost },
-            BindsUnitSource: true, ModifiesUnitSource: true),
+            BindsUnitSource: true, ModifiesUnitSource: true, UsesSharedPayment: true),
         new(
             XerathDamageAbilityId,
             XerathCardNo,
@@ -620,7 +623,7 @@ public static class P4ActivatedAbilityCatalog
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 [RuneTrait.Blue] = RenataGlascDrawBluePowerCost
-            }),
+            }, UsesSharedPayment: true),
         new(
             RenataGlascScoreAbilityId,
             RenataGlascCardNo,
@@ -637,7 +640,7 @@ public static class P4ActivatedAbilityCatalog
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 [RuneTrait.Blue] = RenataGlascScoreBluePowerCost
-            }),
+            }, UsesSharedPayment: true),
         new(
             AzirSwiftSwapAbilityId,
             AzirCardNo,
@@ -731,7 +734,7 @@ public static class P4ActivatedAbilityCatalog
             0,
             AppliesSpellshieldTargetTax: true,
             "Shadow's printed Swift skill chooses an enemy attacking here through an ordinary or spell-duel focus window.",
-            SwiftSpeed: true),
+            SwiftSpeed: true, UsesSharedPayment: true),
         new(
             EnergyChannelResourceAbilityId,
             EnergyChannelCardNo,
