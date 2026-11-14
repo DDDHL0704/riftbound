@@ -65,11 +65,14 @@ public sealed class CombatOriginalDamageBudgetTests
 
     [Theory]
     [InlineData(1)] [InlineData(2)]
-    public async Task AutomaticBattleCommandsUseTheSameMinimumOriginalBudget(int doubles)
+    public async Task AutomaticBattleCommandsKeepTheirRawBudgetAndApplyReplacementsOnce(int doubles)
     {
         var game = await Opening(doubles, shield: false, manual: false);
-        Assert.Equal(4, Damage(game.Events().Select(e => e.Event), "ENEMY"));
-        Assert.Equal(doubles == 1 ? 6 : 7, Damage(game.Events().Select(e => e.Event), "ENEMY2"));
+        Assert.Equal(doubles == 1 ? 8 : 16, Damage(game.Events().Select(e => e.Event), "ENEMY"));
+        var damage = Assert.Single(game.Events(), e => e.Event.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), "ENEMY")).Event.Payload;
+        Assert.Equal(4, Convert.ToInt32(damage["combatPower"]));
+        Assert.DoesNotContain(game.Commands(), c => c.CommandType == CommandTypes.AssignCombatDamage);
         Assert.Null(game.State.PendingRuleChoice);
         Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, e => e.StartsWith(Order));
         await game.Replay();
@@ -84,8 +87,7 @@ public sealed class CombatOriginalDamageBudgetTests
         Assert.Equal("P2", pending.Request.PlayerId);
         var selected = doubleFirst ? "DOUBLE" : pending.Request.Options.Single(o => o.Id.StartsWith("DAMAGE_PREVENTION_THIS_TURN:")).Id;
         await game.Act("P2", new PayCostCommand(pending.Request.Id, "RULE_REPLACEMENT", [selected]));
-        Assert.Equal(doubleFirst ? 5 : 2, Damage(game.Events().Select(e => e.Event), "ENEMY"));
-        Assert.Equal(doubleFirst ? 2 : 0, Damage(game.Events().Select(e => e.Event), "ENEMY2"));
+        Assert.Equal(doubleFirst ? 1 : 0, Damage(game.Events().Select(e => e.Event), "ENEMY"));
         Assert.Null(game.State.PendingRuleChoice);
         Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, e => e.StartsWith(Order));
         await game.Replay();
@@ -201,16 +203,18 @@ public sealed class CombatOriginalDamageBudgetTests
     {
         var state = Put(Create("OGN·297/298"), "OTHER", "OGN·297/298", "P2", "BATTLEFIELD", "OTHER");
         state = RadUnitEffectTestFixture.Place(state, "ENEMY", "P2", "BATTLEFIELD", "OTHER");
-        state = Put(Put(state, "A2", "OGN·219/298", "P1", "BASE"), "ENEMY2", "OGN·219/298", "P2", "BATTLEFIELD", "OTHER");
+        if (manual)
+            state = Put(Put(state, "A2", "OGN·219/298", "P1", "BASE"), "ENEMY2", "OGN·219/298", "P2", "BATTLEFIELD", "OTHER");
         for (var i = 1; i <= doubles; i++) state = Put(state, "LOTUS" + i, "UNL-013/219", "P1", "HAND");
         if (shield) for (var i = 0; i < shieldCopies; i++) state = Put(state, "SHIELD" + i, "VEN·126", "P1", "HAND");
         var game = new Driver(state);
         if (shield) for (var i = 0; i < shieldCopies; i++) { await game.Act("P1", new PlayCardCommand("SHIELD" + i, "VEN·126", ["ENEMY"])); await game.Top(); }
         for (var i = 1; i <= doubles; i++) { await game.Act("P1", new PlayCardCommand("LOTUS" + i, "UNL-013/219", ["ENEMY"])); await game.Top(); }
-        await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:OTHER", [], ["ALLY", "A2"]));
+        await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:OTHER", [], manual ? ["ALLY", "A2"] : []));
         await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
         await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
-        await game.Act("P1", new DeclareBattleCommand("OTHER", ["ALLY", "A2"], ["ENEMY", "ENEMY2"], manual ? ["COMBAT_ASSIGNMENT"] : []));
+        await game.Act("P1", new DeclareBattleCommand("OTHER", manual ? ["ALLY", "A2"] : ["ALLY"],
+            manual ? ["ENEMY", "ENEMY2"] : ["ENEMY"], ["COMBAT_ASSIGNMENT"]));
         return game;
     }
     private static Task Defender(Driver game) => game.Act("P2", new AssignCombatDamageCommand("battle:OTHER", "OTHER",
