@@ -295,6 +295,28 @@ public sealed partial class GameHubJoinTests
     private static int CityRunes(MatchState state, string player)
         => state.PlayerZones[player].Base.Count(id => state.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard));
 
+    [Fact]
+    public void CityOpeningPublicRuleMetadataDoesNotExemptTheSameHiddenIdentityElsewhere()
+    {
+        var state = MightyExperienceFrameTests.HandUnit(OfficialHoldSequenceTests.State("OGN·278/298"),
+            OpeningRules.Standard, "UNL-003/219");
+        var result = new ResolutionResult(true, null, state, [], ResolutionResult.BuildSnapshots(state),
+            ResolutionResult.BuildPrompts(state));
+        FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
+        Assert.Equal(OpeningRules.Standard, result.Snapshots["P2"].OpeningRule);
+        foreach (var branch in new[] { "leaked-identity", "wrong-rule", "unknown-rule" })
+        {
+            var views = result.Snapshots.ToDictionary();
+            var view = views["P2"];
+            views["P2"] = branch == "leaked-identity" ? view with
+            {
+                Lanes = new Dictionary<string, object?>(view.Lanes) { ["unrelatedPrivateIdentity"] = OpeningRules.Standard }
+            } : view with { OpeningRule = branch == "wrong-rule" ? OpeningRules.S5CityMode1 : "UNKNOWN" };
+            Assert.IsAssignableFrom<Xunit.Sdk.XunitException>(Record.Exception(() =>
+                FullGameEndToEndTests.AssertNoHiddenZoneLeak(result with { Snapshots = views })));
+        }
+    }
+
     private static void AssertCitySetupPrivate(CityRun run, string viewer)
     {
         var snapshot = run.Live.SnapshotFor(viewer);

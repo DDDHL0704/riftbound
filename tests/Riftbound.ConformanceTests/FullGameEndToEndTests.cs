@@ -25603,6 +25603,12 @@ public sealed partial class FullGameEndToEndTests
         {
             var snapshot = JsonNode.Parse(JsonSerializer.Serialize(result.Snapshots[viewerId],
                 new JsonSerializerOptions(JsonSerializerDefaults.Web)))!;
+            // A public rule enum may equal a private object's arbitrary ID.
+            // Check this exact metadata field, then scan every other occurrence.
+            var openingRule = snapshot["openingRule"]!.GetValue<string>();
+            Assert.True(OpeningRules.IsValid(openingRule));
+            Assert.Equal(CityOpeningRules.Rule(result.State), openingRule);
+            snapshot["openingRule"] = null;
             CheckHistoricalMovementDiscardSources(snapshot, result.State);
             CheckHistoricalBattlefieldReferences(snapshot, result.State);
             CheckHistoricalBattleReferences(snapshot, result.State);
