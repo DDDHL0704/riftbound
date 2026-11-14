@@ -109,6 +109,36 @@ public sealed class CombatOriginalDamageBudgetTests
         await game.Replay();
     }
 
+    [Theory]
+    [InlineData("DOUBLE,DOUBLE:2", 3, 5)]
+    [InlineData("DOUBLE,FINITE", 5, 6)]
+    [InlineData("FINITE", 8, 4)]
+    public async Task FinitePreventionMayBeBeforeBetweenOrAfterTwoIndependentDoublers(string choices, int minimum, int marked)
+    {
+        var game = await Opening(2, shield: true);
+        foreach (var requested in choices.Split(','))
+        {
+            var choice = game.State.PendingRuleChoice!;
+            var option = requested == "FINITE" ? choice.Request.Options.Single(o => o.Id.StartsWith("DAMAGE_PREVENTION_THIS_TURN:")).Id : requested;
+            await game.Act("P2", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", [option]));
+        }
+        Assert.Null(game.State.PendingRuleChoice);
+        Assert.Equal(minimum, Threshold(game.State, "ENEMY"));
+        var assignments = new List<CombatDamageAssignmentDto>();
+        var remaining = minimum;
+        foreach (var source in new[] { "ALLY", "A2" })
+        {
+            var amount = Math.Min(4, remaining); remaining -= amount;
+            if (amount > 0) assignments.Add(new(source, "ENEMY", amount));
+            if (amount < 4) assignments.Add(new(source, "ENEMY2", 4 - amount));
+        }
+        await game.Act("P1", new AssignCombatDamageCommand("battle:OTHER", "OTHER", assignments));
+        await Defender(game);
+        Assert.Equal(marked, Damage(game.Events().Select(e => e.Event), "ENEMY"));
+        Assert.Equal(8 - minimum, Damage(game.Events().Select(e => e.Event), "ENEMY2"));
+        await game.Replay();
+    }
+
     [Fact]
     public async Task IdenticalFiniteShieldsKeepTheChosenSourceAndOneBudgetAcrossAllCombatContributors()
     {
