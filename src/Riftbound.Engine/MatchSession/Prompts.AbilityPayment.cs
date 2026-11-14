@@ -20,6 +20,38 @@ internal static partial class ActionPromptBuilder
         return checked(available + gain);
     }
 
+    private sealed record AbilityPaymentWallet(int Mana, RunePaymentReachability Power);
+
+    private static IReadOnlyList<AbilityPaymentWallet> SharedAbilityPaymentWallets(
+        MatchState state, string playerId, string sourceObjectId, P4ActivatedAbilityDefinition ability)
+    {
+        var manaPurpose = CoreRuleEngine.ManaPurposeForActivatedAbility(state, sourceObjectId);
+        var powerPurpose = CoreRuleEngine.PowerPurposeForActivatedAbility(ability);
+        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
+        var wallets = new List<AbilityPaymentWallet> {
+            new(AbilityAvailableManaWithRuneTaps(state, playerId, pool, manaPurpose),
+                new(PaymentCostRules.PowerPoolForPurpose(pool, powerPurpose),
+                    ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability))) };
+        if (ability.ManaCost == 0 && ability.PowerCost == 0
+            && P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability).Values.All(amount => amount == 0)) return wallets;
+        // Consider the legend even when ordinary mana is sufficient: paying
+        // its own cost may free rune-pool capacity for a later recycle.
+        foreach (var choice in PromptRenektonPaymentChoices(state, playerId))
+        {
+            var remaining = choice.RemainingPool with {
+                UnitPlayOrUnitAbilityOnlyMana = choice.RemainingPool.UnitPlayOrUnitAbilityOnlyMana + 2 };
+            wallets.Add(new(AbilityAvailableManaWithRuneTaps(state, playerId, remaining, manaPurpose),
+                new(PaymentCostRules.PowerPoolForPurpose(remaining, powerPurpose),
+                    choice.RemainingRunePower, choice.RemainingRuneCapacity)));
+        }
+        return wallets;
+    }
+
+    private static bool CanPaySharedAbilityFee(MatchState state, string playerId, string sourceObjectId,
+        P4ActivatedAbilityDefinition ability, int genericPower, IReadOnlyDictionary<string, int> typedPower)
+        => SharedAbilityPaymentWallets(state, playerId, sourceObjectId, ability)
+            .Any(wallet => wallet.Mana >= ability.ManaCost && wallet.Power.CanPay(genericPower, typedPower));
+
     private static ActivateAbilityPromptRequirement WithAbilityRunePaymentResources(
         MatchState state, string playerId, ActivateAbilityPromptRequirement requirement)
     {
@@ -35,7 +67,7 @@ internal static partial class ActionPromptBuilder
             ? PaymentCostRules.PowerPoolForPurpose(pool, CoreRuleEngine.PowerPurposeForActivatedAbility(ability))
             : PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Other);
         var powerByTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, choices);
-        return requirement with {
+        var result = requirement with {
             OptionalCostChoices = requirement.OptionalCostChoices.Concat(taps).Concat(recycles)
                 .DistinctBy(choice => choice.Id, StringComparer.Ordinal).ToArray(),
             PaymentResourceChoices = choices,
@@ -44,6 +76,17 @@ internal static partial class ActionPromptBuilder
             AvailablePowerByTraitWithPaymentResources = PlayCardAvailablePowerByTrait(powerPool, powerByTrait),
             AvailableMana = PaymentCostRules.AvailableMana(pool, purpose, state),
             AvailableManaWithPaymentResources = AbilityAvailableManaWithRuneTaps(state, playerId, pool, purpose)
+        };
+        if (ability is not { UsesSharedPayment: true }) return result;
+        ability = CoreRuleEngine.BattlefieldAdjustedAbility(state, playerId, requirement.SourceObjectId, ability);
+        var wallets = SharedAbilityPaymentWallets(state, playerId, requirement.SourceObjectId, ability);
+        var payable = wallets.Where(wallet => wallet.Mana >= requirement.ManaCost).ToArray();
+        return result with {
+            AvailableManaWithPaymentResources = wallets.Max(wallet => wallet.Mana),
+            AvailablePowerWithPaymentResources = payable.Select(wallet => wallet.Power.MaximumTotal).DefaultIfEmpty(0).Max(),
+            AvailablePowerByTraitWithPaymentResources = payable.SelectMany(wallet => wallet.Power.TraitUpperBounds())
+                .GroupBy(pair => pair.Key, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.Max(pair => pair.Value), StringComparer.Ordinal)
         };
     }
 
