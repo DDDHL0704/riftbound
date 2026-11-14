@@ -78,6 +78,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidCombatDamageOrder(MatchState state)
     {
+        if (state.UntilEndOfTurnEffects is null || state.UntilEndOfTurnEffects.Any(e => e is null)) return false;
         var markers = state.UntilEndOfTurnEffects.Where(e => e.StartsWith(CombatDamageOrderPrefix, StringComparison.Ordinal)).ToArray();
         if (markers.Length == 0) return true;
         if (markers.Length != 1 || ReadCombatDamageOrder(state) is not { Targets: { } targets } order
