@@ -303,12 +303,14 @@ export class GameClient {
     await this.connection!.invoke("JoinRoom", roomId, this.state.handle, null);
   }
 
-  async createRoom() {
+  async createRoom(openingRule?: string) {
     this.set({ snapshot: null, prompt: null, log: [], tally: {} });
-    const result = await this.connection!.invoke<{ match: { roomId: string } } | null>(
-      "CreatePublicMatch",
-      this.state.handle,
-    );
+    const result = await (openingRule
+      ? this.connection!.invoke<{ match: { roomId: string } } | null>("CreatePublicMatchWithOptions", this.state.handle, {
+          format: "constructed",
+          openingRule,
+        })
+      : this.connection!.invoke<{ match: { roomId: string } } | null>("CreatePublicMatch", this.state.handle));
     return result?.match.roomId ?? null;
   }
 

@@ -168,6 +168,18 @@ export type Snapshot = {
   /** Ordered custom pack mix (unofficial); absent for a single-set room. */
   sealedPacks?: SealedPackChoice[] | null;
   sideboardCounts?: Record<string, number> | null;
+  openingRule?: string;
+  /** Present only under a city-challenge opening rule; battlefield and sideboard are the viewer's own. */
+  openingSetup?: OpeningSetup | null;
+};
+
+/** Mirrors OpeningSetupDto. */
+export type OpeningSetup = {
+  stage: "REGISTER_DECKS" | "SIDEBOARD" | "PLAYING";
+  firstPlayerId: string;
+  secondPlayerId: string;
+  ownBattlefieldCardNo?: string | null;
+  sideboard?: string[] | null;
 };
 
 export type Choice = { id: string; label: string; reason?: string | null; objectIds?: string[] };
@@ -249,6 +261,7 @@ export type PublicMatch = {
   setCode?: string | null;
   bestOf?: number;
   sealedPacks?: SealedPackChoice[] | null;
+  openingRule?: string;
 };
 
 export type SealedSet = { setCode: string; name: string };

@@ -299,7 +299,10 @@ async function login(page, handle) {
 }
 
 // Default setup: a constructed room, each seat picks a preconstructed deck and readies.
+// SOAK_OPENING picks the friend-room opening by its chip label (e.g. 后手洞察); a city room confirms
+// only after both decks are in, so every seat submits before any seat readies.
 async function constructedSetup(pages, [a, b]) {
+  if (process.env.SOAK_OPENING) await pages[0].click(`.lobby__block [role=radio]:text-is("${process.env.SOAK_OPENING}")`);
   await pages[0].click("button:text-is(\"创建房间\")");
   await pages[0].waitForSelector(".setup__code");
   const code = await pages[0].textContent(".setup__code");
@@ -310,6 +313,8 @@ async function constructedSetup(pages, [a, b]) {
     await p.waitForSelector(".deck");
     await p.locator(".deck").nth(deck).click();
     await p.click("button:text-is(\"使用此卡组\")");
+  }
+  for (const p of pages) {
     await p.waitForSelector("button:text-is(\"准备开战\")");
     await p.click("button:text-is(\"准备开战\")");
   }

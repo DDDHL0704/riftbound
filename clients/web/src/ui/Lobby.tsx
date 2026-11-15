@@ -10,6 +10,8 @@ import { enabledCandidate } from "../game/actions";
 import { LEVEL_LABEL, startPractice, usePractice } from "../ai/practice";
 import type { Level } from "../ai/policy";
 import { Showcase } from "./Ambient";
+import { CitySetup } from "./CitySetup";
+import { cityDeckProblem, citySplit, isCityRule, OPENING_HINT, OPENING_LABEL, OPENING_RULES, openingTag, type OpeningRule } from "../game/opening";
 
 const LEVEL_HINT: Record<Level, string> = { easy: "随意出牌和移动，适合第一次上手", normal: "优先铺场，往能赢下的战场推进" };
 
@@ -57,6 +59,7 @@ export function ConnectScreen({ state }: { state: ClientState }) {
 export function LobbyScreen({ state }: { state: ClientState }) {
   const [code, setCode] = useState("");
   const [rooms, setRooms] = useState<PublicMatch[]>([]);
+  const [roomRule, setRoomRule] = useState<OpeningRule>("STANDARD");
   const [sets, setSets] = useState<SealedSet[]>([]);
   const [sealedSet, setSealedSet] = useState("");
   const [bestOf, setBestOf] = useState<1 | 3>(1);
@@ -96,7 +99,7 @@ export function LobbyScreen({ state }: { state: ClientState }) {
   const roomRules = (r: PublicMatch) =>
     r.format === "sealed"
       ? `现开 · ${r.sealedPacks?.length ? packMixLabel(r.sealedPacks, sets) : (sets.find((s) => s.setCode === r.setCode)?.name ?? r.setCode)} · ${r.bestOf === 3 ? "三局两胜" : "单局"}`
-      : null;
+      : openingTag(r.openingRule);
   const packs: SealedPackChoice[] = sets.flatMap((s) => ((mix[s.setCode] ?? 0) > 0 ? [{ setCode: s.setCode, count: mix[s.setCode] }] : []));
   const mixTotal = packs.reduce((a, p) => a + p.count, 0);
   const mixOk = mixTotal >= MIX_MIN_PACKS && mixTotal <= MIX_MAX_PACKS;
@@ -129,8 +132,9 @@ export function LobbyScreen({ state }: { state: ClientState }) {
         </div>
         <div className="lobby__block">
           <h2>好友对战</h2>
+          <RulePicker value={roomRule} onChange={setRoomRule} />
           <div className="lobby__row">
-            <button className="btn" disabled={matching} onClick={() => void client.createRoom()}>
+            <button className="btn" disabled={matching} onClick={() => void client.createRoom(roomRule)}>
               创建房间
             </button>
           </div>
@@ -332,7 +336,15 @@ function Records({ server, handle }: { server: string; handle: string }) {
 
 export function SetupScreen({ state, snapshot, prompt }: { state: ClientState; snapshot: Snapshot | null; prompt: Prompt | null }) {
   const [decks, setDecks] = useState<PreconstructedDeck[]>([]);
-  const [deckId, setDeckId] = useState<string>("");
+  // The deck a room was registered with survives a reload, so a city room can still swap from the same pool.
+  const deckKey = `riftbound.web.roomDeck.${state.roomId}`;
+  const [deckId, setDeckId] = useState<string>(() => {
+    try {
+      return sessionStorage.getItem(deckKey) ?? "";
+    } catch {
+      return "";
+    }
+  });
   const [copied, setCopied] = useState(false);
   const custom = useCustomDecks();
   const [editing, setEditing] = useState<CustomDeck | null>(null);
@@ -360,15 +372,25 @@ export function SetupScreen({ state, snapshot, prompt }: { state: ClientState; s
   useEffect(() => {
     if (deck) preloadArt([deck.legendCardNo, deck.championCardNo, ...deck.battlefields, ...deck.mainDeck, ...deck.runeDeck]);
   }, [deck]);
-  const deckIssues = deck && "custom" in deck ? deckProblems(deck) : [];
+  const city = isCityRule(snapshot?.openingRule);
+  const setup = snapshot?.openingSetup;
+  const cityProblem = city && deck ? cityDeckProblem(deck) : null;
+  const deckIssues = [...(deck && "custom" in deck ? deckProblems(deck) : []), ...(cityProblem ? [cityProblem] : [])];
 
   const submitDeck = () => {
     if (!deck) return;
+    try {
+      sessionStorage.setItem(deckKey, deck.id);
+    } catch {
+      /* without storage a reload falls back to the first deck */
+    }
+    const split = city ? citySplit(deck) : null;
     void client.submit({
       cmdType: "SUBMIT_DECK",
       legendCardNo: deck.legendCardNo,
       championCardNo: deck.championCardNo,
-      mainDeck: deck.mainDeck,
+      mainDeck: split?.mainDeck ?? deck.mainDeck,
+      ...(split ? { sideboard: split.sideboard } : {}),
       runeDeck: deck.runeDeck,
       battlefields: deck.battlefields,
       ...(deck.additionalLegendCardNos?.length ? { additionalLegendCardNos: deck.additionalLegendCardNos } : {}),
@@ -400,6 +422,11 @@ export function SetupScreen({ state, snapshot, prompt }: { state: ClientState; s
             {state.roomId}
           </button>
           {copied && <span className="muted">已复制</span>}
+          {openingTag(snapshot?.openingRule) && (
+            <span className="setup__rule" title={OPENING_HINT[snapshot!.openingRule as OpeningRule]}>
+              {openingTag(snapshot?.openingRule)}
+            </span>
+          )}
         </div>
         <div className="setup__seats">
           <Seat name={me?.name ?? state.handle} deck={me?.deckSubmitted} ready={me?.ready} self />
@@ -415,6 +442,18 @@ export function SetupScreen({ state, snapshot, prompt }: { state: ClientState; s
         </button>
       </header>
 
+      {city && setup?.stage === "SIDEBOARD" && deck ? (
+        <CitySetup
+          deck={deck}
+          setup={setup}
+          me={state.handle}
+          rule={snapshot!.openingRule as OpeningRule}
+          ready={!!me?.ready}
+          canSubmit={canSubmit}
+          canReady={canReady}
+          pending={state.pending}
+        />
+      ) : (
       <section className="setup__body">
         <div className="setup__pick">
         <h2>{me?.deckSubmitted ? "卡组已提交" : "选择卡组"}</h2>
@@ -506,6 +545,7 @@ export function SetupScreen({ state, snapshot, prompt }: { state: ClientState; s
         </div>
         {deck && <DeckPreview deck={deck} />}
       </section>
+      )}
     </main>
   );
 }
@@ -518,7 +558,7 @@ const SECTIONS: [string, (category: string) => boolean][] = [
 ];
 
 /** The chosen deck at a glance: its key cards, the main deck by type and cost, the cost curve and runes. */
-function DeckPreview({ deck }: { deck: PreconstructedDeck }) {
+export function DeckPreview({ deck }: { deck: PreconstructedDeck }) {
   useCards(); // re-render once card names and images arrive
   const [peek, setPeek] = useState<string | null>(null);
   const rows = useMemo(() => {
@@ -631,6 +671,7 @@ function PracticeBlock({ server, disabled }: { server: string; disabled: boolean
   const [deckId, setDeckId] = useState("random");
   const [decks, setDecks] = useState<PreconstructedDeck[]>([]);
   const [starting, setStarting] = useState(false);
+  const [rule, setRule] = useState<OpeningRule>("STANDARD");
   useEffect(() => {
     fetch(`${server.replace(/\/$/, "")}/decks/preconstructed`)
       .then((r) => r.json())
@@ -660,17 +701,32 @@ function PracticeBlock({ server, disabled }: { server: string; disabled: boolean
             ))}
           </select>
         </label>
+        <RulePicker value={rule} onChange={setRule} />
         <button
           className="btn btn--primary"
           disabled={disabled || starting}
           onClick={() => {
             setStarting(true);
-            void startPractice(level, deckId).finally(() => setStarting(false));
+            void startPractice(level, deckId, rule).finally(() => setStarting(false));
           }}
         >
           {starting ? "正在准备…" : "开始练习"}
         </button>
       </div>
+    </div>
+  );
+}
+
+/** The opening a new constructed room uses; the three test modes say what they change on hover. */
+function RulePicker({ value, onChange }: { value: OpeningRule; onChange: (rule: OpeningRule) => void }) {
+  return (
+    <div className="lobby__option" role="radiogroup" aria-label="开局规则">
+      <span className="muted small">开局</span>
+      {OPENING_RULES.map((r) => (
+        <button key={r} role="radio" aria-checked={value === r} className={`chip${value === r ? " chip--on" : ""}`} onClick={() => onChange(r)} title={OPENING_HINT[r]}>
+          {OPENING_LABEL[r]}
+        </button>
+      ))}
     </div>
   );
 }

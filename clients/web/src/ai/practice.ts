@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import { client, GameClient } from "../net/client";
 import type { PreconstructedDeck } from "../game/types";
 import { decide, type Level } from "./policy";
+import { citySplit, isCityRule } from "../game/opening";
 
 /*
  * Practice mode: the computer takes the other seat through its own hub connection in this tab.
@@ -98,11 +99,14 @@ class PracticeBot {
     try {
       const promptId = prompt.promptId ?? "";
       if (prompt.candidates?.some((c) => c.action === "SUBMIT_DECK" && c.enabled) && this.deck && !this.submittedDeck) {
+        // A city-challenge room takes exactly 40 main cards; the rest is registered as the sideboard and kept there.
+        const city = isCityRule(snapshot.openingRule) ? citySplit(this.deck) : null;
         const receipt = await this.client.submit({
           cmdType: "SUBMIT_DECK",
           legendCardNo: this.deck.legendCardNo,
           championCardNo: this.deck.championCardNo,
-          mainDeck: this.deck.mainDeck,
+          mainDeck: city?.mainDeck ?? this.deck.mainDeck,
+          ...(city ? { sideboard: city.sideboard } : {}),
           runeDeck: this.deck.runeDeck,
           battlefields: this.deck.battlefields,
           ...(this.deck.additionalLegendCardNos?.length ? { additionalLegendCardNos: this.deck.additionalLegendCardNos } : {}),
@@ -155,7 +159,7 @@ async function fetchDecks(server: string): Promise<PreconstructedDeck[]> {
 }
 
 /** Creates a room for the player and seats the computer in it with a preconstructed deck. */
-export async function startPractice(level: Level, deckId: string | "random") {
+export async function startPractice(level: Level, deckId: string | "random", openingRule?: string) {
   const server = client.state.server;
   const decks = await fetchDecks(server);
   const deck = deckId === "random" ? decks[Math.floor(Math.random() * decks.length)] : decks.find((d) => d.id === deckId);
@@ -163,7 +167,7 @@ export async function startPractice(level: Level, deckId: string | "random") {
     client.toast("无法读取电脑使用的卡组");
     return;
   }
-  const roomId = await client.createRoom();
+  const roomId = await client.createRoom(openingRule);
   if (!roomId) return;
   await stopPractice();
   const meta = { roomId, level, deckId: deck.id };
