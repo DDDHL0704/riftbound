@@ -157,6 +157,10 @@ public static class SealedRoomPools
 
     internal static string? ViewError(MatchState state, SnapshotDto snapshot, string? viewerPlayerId)
     {
+        if (snapshot.OpeningRule != CityOpeningRules.Rule(state)
+            || MatchStateHasher.HashValue(snapshot.OpeningSetup) != MatchStateHasher.HashValue(
+                CityOpeningRules.View(state, viewerPlayerId)))
+            return "snapshot opening rule or private city setup disagrees with its viewer";
         var sealedRoom = state.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed;
         var expectedPool = viewerPlayerId is null ? null : ViewFor(state, viewerPlayerId);
         return snapshot.Format != (sealedRoom ? MatchFormats.Sealed : MatchFormats.Constructed)
@@ -164,7 +168,8 @@ public static class SealedRoomPools
             || MatchStateHasher.HashValue(snapshot.SealedPacks) != MatchStateHasher.HashValue(state.SessionOptions?.SealedPacks)
             || snapshot.BestOf != (sealedRoom ? state.SessionOptions!.SealedBestOf : 1)
             || MatchStateHasher.HashValue(snapshot.Series) != MatchStateHasher.HashValue(RoomMatchSeries.ViewFor(state, viewerPlayerId))
-            || MatchStateHasher.HashValue(snapshot.SideboardCounts) != MatchStateHasher.HashValue(SideboardCountsFor(state))
+            || MatchStateHasher.HashValue(snapshot.SideboardCounts) != MatchStateHasher.HashValue(
+                CityOpeningRules.SideboardCounts(state) ?? SideboardCountsFor(state))
             || (snapshot.SealedPool is not null || expectedPool is not null)
                 && MatchStateHasher.HashValue(snapshot.SealedPool) != MatchStateHasher.HashValue(expectedPool)
             ? "snapshot room format, sideboard counts or private sealed pool disagrees with its viewer" : null;

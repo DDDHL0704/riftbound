@@ -53,6 +53,8 @@ public sealed partial class MatchSession
 
             var raw = JsonSerializer.SerializeToElement(new { cmdType = RoomSeatCommandType, playerId = player.PlayerId, seat = player.Seat });
             var events = new[] { new GameEvent("PLAYER_SEATED", "玩家加入房间", new Dictionary<string, object?> { ["playerId"] = player.PlayerId, ["seat"] = player.Seat }) };
+            if (CityOpeningRules.Enabled(nextState))
+                ((Dictionary<string, object?>)events[0].Payload)["openingRule"] = CityOpeningRules.Rule(nextState);
             var result = new ResolutionResult(true, null, nextState, events, ResolutionResult.BuildSnapshots(nextState), ResolutionResult.BuildPrompts(nextState));
             var intentId = RoomSeatIntentId(player.Seat);
             var entry = new MatchJournalEntry(RoomId, player.PlayerId, intentId, RoomSeatCommandType, raw,

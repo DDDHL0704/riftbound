@@ -141,6 +141,8 @@ public static class MatchActionLogReplayer
         var inputErrors = new List<string>();
         if (recovery.AuthoritativeState is { } poolFinal) inputErrors.AddRange(SealedRoomPools.Validate(poolFinal));
         if (recovery.ReplayInitialState is { } poolInitial) inputErrors.AddRange(SealedRoomPools.Validate(poolInitial));
+        if (recovery.AuthoritativeState is { } cityFinal) inputErrors.AddRange(CityOpeningRules.Validate(cityFinal));
+        if (recovery.ReplayInitialState is { } cityInitial) inputErrors.AddRange(CityOpeningRules.Validate(cityInitial));
         if (recovery.AuthoritativeState is { } seriesFinal) inputErrors.AddRange(RoomMatchSeries.Validate(seriesFinal));
         if (recovery.ReplayInitialState is { } seriesInitial) inputErrors.AddRange(RoomMatchSeries.Validate(seriesInitial));
         if (recovery.AuthoritativeState?.SessionOptions is { } finalOptions && !Enum.IsDefined(finalOptions.DeckFormat)
@@ -1171,7 +1173,8 @@ public static partial class MatchRecoveryValidator
         if (commands.Any(command => !RuleInputIdentity.IsCurrent(command.RuleInputs)))
             errors.Add("command rule input identity is missing or differs from running inputs");
 
-        RoomSeatRecoveryValidator.Validate(commands, events, errors);
+        RoomSeatRecoveryValidator.Validate(commands, events, errors,
+            authoritativeState is null ? OpeningRules.Standard : CityOpeningRules.Rule(authoritativeState));
         if (authoritativeState is not null)
         {
             ValidateTemporaryNumericUnitEffects(authoritativeState, events, requireAcceptedBattleHistory, errors);
@@ -3846,6 +3849,7 @@ public static partial class MatchRecoveryValidator
         ValidateTurnSequenceState(authoritativeState, errors);
         if (!CoreRuleEngine.ValidBoundLegends(authoritativeState)) errors.Add("invalid bound legend provenance");
         ValidateOpeningRoleDraw(authoritativeState, errors);
+        errors.AddRange(CityOpeningRules.Validate(authoritativeState));
         ValidateAuthoritativeStateScalars(authoritativeState, errors);
         errors.AddRange(SealedRoomPools.Validate(authoritativeState));
         errors.AddRange(RoomMatchSeries.Validate(authoritativeState));
@@ -5104,8 +5108,11 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidBeginningDraw(state, item.BeginningDraw, item.EffectKind, item.ControllerId, item.SourceObjectId)
                 || item.BeginningDraw is not null && item.TriggeredByEventKind != "TURN_START_BEGAN")
                 errors.Add("invalid captured beginning draw trigger");
-        if (state.TurnStartStep is { } step && (step is not ("READY" or "START" or "SCORE" or "CHANNEL" or "DRAW" or "MAIN")
+        if (state.TurnStartStep is { } step && (step is not ("READY" or "START" or "SCORE" or "CHANNEL" or "DRAW" or "S5_DRAW" or "MAIN")
             || state.Phase != MatchPhases.TurnStart)) errors.Add("invalid turn-start continuation");
+        if (state.TurnStartStep == "S5_DRAW" && (CityOpeningRules.Rule(state) != OpeningRules.S5CityMode2
+            || state.TurnNumber != 2 || state.TurnPlayerId != state.OpeningSecondActionPlayerId))
+            errors.Add("invalid city opening draw continuation");
         if (state.EndStep is { } ending && (state.Phase != MatchPhases.TurnEnd || ending.PlayerId != state.TurnPlayerId
             || ending.TurnNumber != state.TurnNumber || !state.Seats.ContainsKey(ending.PlayerId))) errors.Add("invalid end-step continuation");
         var ids = new HashSet<string>(StringComparer.Ordinal);

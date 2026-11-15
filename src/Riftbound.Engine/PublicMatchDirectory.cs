@@ -11,10 +11,14 @@ public static class PublicMatchCreation
 {
     public static CreatePublicMatchOptionsDto Normalize(CreatePublicMatchOptionsDto? options)
     {
+        var openingRule = options is null ? OpeningRules.Standard : options.OpeningRule;
+        if (!OpeningRules.IsValid(openingRule)) throw new ArgumentException("未知的开局规则。");
         var format = (options?.Format ?? MatchFormats.Constructed).Trim().ToLowerInvariant();
         if (format == MatchFormats.Constructed && string.IsNullOrWhiteSpace(options?.SetCode)
             && options?.Packs is null && (options?.BestOf ?? 1) == 1)
-            return new();
+            return new(OpeningRule: openingRule);
+        if (openingRule != OpeningRules.Standard)
+            throw new ArgumentException("城市挑战赛测试开局只支持构筑单局制。");
         if (format == MatchFormats.Sealed && options?.Packs is { } packs)
         {
             if (!string.IsNullOrWhiteSpace(options.SetCode))
@@ -175,7 +179,7 @@ public sealed class InMemoryPublicMatchDirectory : IPublicMatchDirectory
                 Capacity: 2,
                 PublicMatchStatuses.Waiting,
                 CreatedAt,
-                Options.Format, Options.SetCode, Options.BestOf, Options.Packs);
+                Options.Format, Options.SetCode, Options.BestOf, Options.Packs, Options.OpeningRule);
         }
     }
 }

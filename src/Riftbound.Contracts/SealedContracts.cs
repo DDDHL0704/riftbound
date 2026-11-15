@@ -12,7 +12,8 @@ public sealed record CreatePublicMatchOptionsDto(
     string Format = MatchFormats.Constructed,
     string? SetCode = null,
     int BestOf = 1,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SealedPackChoiceDto>? Packs = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SealedPackChoiceDto>? Packs = null,
+    string OpeningRule = OpeningRules.Standard);
 
 public sealed record SealedPackChoiceDto(string SetCode, int Count);
 

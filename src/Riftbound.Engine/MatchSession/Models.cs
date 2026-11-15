@@ -742,6 +742,7 @@ public sealed record PendingCardChoiceState
 public interface IMatchSession
 {
     string RoomId { get; }
+    string OpeningRule => OpeningRules.Standard;
 
     PlayerSessionDto EnsurePlayer(string playerId);
 
@@ -805,6 +806,19 @@ public sealed record MatchSessionOptions(
 {
     public static MatchSessionOptions Default { get; } = new();
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? OpeningRule { get; init; }
+
+    public static MatchSessionOptions ForOpeningRule(string openingRule)
+    {
+        if (!OpeningRules.IsValid(openingRule)) throw new ArgumentException("未知的开局规则。", nameof(openingRule));
+        return new(false, OfficialDeckFormat.ChinaStandard20260724)
+        {
+            OpeningRule = openingRule == OpeningRules.Standard ? null : openingRule,
+            HideSubmittedDeckIdentities = openingRule != OpeningRules.Standard
+        };
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool HideSubmittedDeckIdentities { get; init; }
 
@@ -849,6 +863,7 @@ public sealed record MatchSessionOptions(
         && AllowLegacyReadyWithoutDeck == other.AllowLegacyReadyWithoutDeck
         && DeckFormat == other.DeckFormat
         && HideSubmittedDeckIdentities == other.HideSubmittedDeckIdentities
+        && OpeningRule == other.OpeningRule
         && SealedSetCode == other.SealedSetCode
         && SealedBestOf == other.SealedBestOf
         && (SealedPacks ?? []).SequenceEqual(other.SealedPacks ?? []);
@@ -859,6 +874,7 @@ public sealed record MatchSessionOptions(
         hash.Add(AllowLegacyReadyWithoutDeck);
         hash.Add(DeckFormat);
         hash.Add(HideSubmittedDeckIdentities);
+        hash.Add(OpeningRule, StringComparer.Ordinal);
         hash.Add(SealedSetCode, StringComparer.Ordinal);
         hash.Add(SealedBestOf);
         foreach (var pack in SealedPacks ?? []) hash.Add(pack);
@@ -920,23 +936,32 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
     }
 
     public ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken) =>
-        GetOrCreateAsync(roomId, sessionOptions, cancellationToken);
+        GetOrCreateCoreAsync(roomId, sessionOptions, false, cancellationToken);
 
-    public async ValueTask<IMatchSession> GetOrCreateAsync(string roomId, MatchSessionOptions creationOptions,
-        CancellationToken cancellationToken)
+    public ValueTask<IMatchSession> GetOrCreateAsync(string roomId, MatchSessionOptions creationOptions,
+        CancellationToken cancellationToken) => GetOrCreateCoreAsync(roomId, creationOptions, true, cancellationToken);
+
+    private async ValueTask<IMatchSession> GetOrCreateCoreAsync(string roomId, MatchSessionOptions creationOptions,
+        bool explicitCreation, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(creationOptions);
         if (!Enum.IsDefined(creationOptions.DeckFormat))
             throw new ArgumentOutOfRangeException(nameof(creationOptions), "Unknown room deck format.");
         SealedRoomPools.RequireOptions(creationOptions);
+        CityOpeningRules.RequireOptions(creationOptions);
         await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             if (!sessions.TryGetValue(roomId, out var session))
             {
                 session = await CreateSessionAsync(roomId, creationOptions, cancellationToken).ConfigureAwait(false);
+                if (explicitCreation && session.OpeningRule != (creationOptions.OpeningRule ?? OpeningRules.Standard))
+                    throw new MatchSessionException(ErrorCodes.InvalidPayload, "已创建对局的开局规则不可更改。");
                 sessions.Add(roomId, session);
             }
+
+            if (explicitCreation && session.OpeningRule != (creationOptions.OpeningRule ?? OpeningRules.Standard))
+                throw new MatchSessionException(ErrorCodes.InvalidPayload, "已创建对局的开局规则不可更改。");
 
             return session;
         }
