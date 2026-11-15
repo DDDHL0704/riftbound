@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { OPENING_HINT, openingTag, type OpeningRule } from "../game/opening";
 import { client, type ClientState } from "../net/client";
 import { cardName, paymentChoiceLabel } from "../game/cards";
 import { enabledCandidate, isRecycle, isTap } from "../game/actions";
@@ -68,6 +69,9 @@ export function Rail({ state, snapshot, prompt, objects, onHover }: RailProps) {
       <header className={`rail__head${actionable ? " is-active" : ""}`}>
         <p className="rail__turn">
           第 {snapshot.turnNumber} 回合，{myTurn ? "你的回合" : "对手回合"}
+          {openingTag(snapshot.openingRule) && (
+            <span title={OPENING_HINT[snapshot.openingRule as OpeningRule]}> · {openingTag(snapshot.openingRule)}</span>
+          )}
         </p>
         <h2 className="rail__title">{actionable || type === "MATCH_RESULT" ? view?.title ?? "行动" : "等待对手"}</h2>
         {type !== "MAIN_ACTION" && <p className="rail__msg">{view?.message || prompt?.reason}</p>}
@@ -359,14 +363,17 @@ function ChoicePanel({ prompt, objects, onHover }: { prompt: Prompt | null; obje
   return (
     <div className="panel">
       {md.reason && typeof md.reason === "string" && !/^[A-Z_]+$/.test(md.reason) && <p className="small">{md.reason}</p>}
-      <div className={`choices${choices.some((c) => objects[c.id]) ? " choices--cards" : ""}`}>
+      <div className={`choices${choices.some((c) => objects[c.id] || cardInfo(c.label)) ? " choices--cards" : ""}`}>
         {choices.map((c) => {
           const o = objects[c.id];
           const on = picked.includes(c.id);
-          return o ? (
+          // A privately revealed card (e.g. the top of the deck) is not on the table; its label is the card number.
+          const cardNo = o ? undefined : cardInfo(c.label) ? c.label : undefined;
+          return o || cardNo ? (
             <Card
               key={c.id}
               object={o}
+              cardNo={cardNo}
               size="board"
               marks={on ? ["selected"] : ["legal"]}
               onClick={() => toggle(c.id)}
