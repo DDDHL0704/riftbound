@@ -532,16 +532,17 @@
       "cardNos": [
         "RAD·081/167"
       ],
-      "text": "当你打出我时，给予另一名友方单位在本回合内{{S}}+3，然后，如果我从正面朝下的状态被打出，则将我回收。",
-      "scope": "当你打出我时，给予另一名友方单位在本回合内{{S}}+3，然后，如果我从正面朝下的状态被打出，则将我回收。",
+      "text": "当你打出我时，给予一名友方单位在本回合内{{S}}+3，然后，如果我从正面朝下的状态被打出，则将我回收。",
+      "scope": "当你打出我时，给予一名友方单位在本回合内{{S}}+3，然后，如果我从正面朝下的状态被打出，则将我回收。",
       "status": "route",
-      "reason": "来源先入场再选择另一名友方单位，响应后+3；只有由背面打出的同一代际来源被回收，响应返手再重放的物理同牌不被旧技能回收，目标指示仍独立执行",
-      "rules": "核心383.4.a.2、359.3.e.4 代际、417 回收、811 待命；RAD·081 官方中文牌面",
+      "reason": "来源先入场再选择包括自身的一名友方单位，响应后+3；只有由背面打出的同一代际来源被回收，自选后回收清除临时战力，放逐再重放的物理同牌不受旧技能的目标或回收指示影响",
+      "rules": "中国区《符文战场》勘误汇总（2026-10-16 生效）p1 厄努克牛群；核心383.4.a.2、359.3.e.4 代际、417 回收、811 待命",
       "runtime": {
         "behaviors": [
           {
             "powerModifierAmount": 3,
-            "recyclesSourceIfPlayedFromStandby": true
+            "recyclesSourceIfPlayedFromStandby": true,
+            "playTargetsIncludeSource": true
           }
         ]
       },
@@ -552,6 +553,22 @@
             "behavior.RecyclesSourceIfPlayedFromStandby && item.PlayedFromStandby is not null",
             "card.ObjectGeneration != source.Generation"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayTargets.cs",
+          "member": "PermanentPlayTargetChoices",
+          "contains": [
+            "behavior.PlayTargetsIncludeSource",
+            "OfficialPrintedTimingRules.PlayTargetsExcludeSource(item.CardNo)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayTargets.cs",
+          "member": "ValidPermanentPlayTargetSelection",
+          "contains": [
+            "behavior.PlayTargetsIncludeSource",
+            "OfficialPrintedTimingRules.PlayTargetsExcludeSource(item.CardNo)"
+          ]
         }
       ],
       "tests": [
@@ -559,7 +576,7 @@
           "path": "tests/Riftbound.ConformanceTests/RadEntryUnitTests.cs",
           "methods": [
             "PermanentEntersBeforeItsIndependentPlaySkillResolves",
-            "PrintedOtherFriendlyUnitRestrictionRejectsIllegalTargets",
+            "PrintedFriendlyUnitRestrictionsRejectIllegalTargets",
             "StandbyPlayUsesTheEnteredSourceAndLeavesIndependentTargetInstructionsIntact"
           ]
         },
@@ -567,6 +584,14 @@
           "path": "tests/Riftbound.ConformanceTests/RadElnukHerdFaqTests.cs",
           "methods": [
             "AReplayedHerdIsNotRecycledByItsOlderStandbySkill"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadElnukHerdErrataTests.cs",
+          "methods": [
+            "RuntimeUsesTheChineseErratumWithoutChangingTheAcquiredFace",
+            "AFaceUpHerdCanChooseItselfAndItsMightExpiresAfterColdRecoveryAndRawReplay",
+            "AStandbyHerdCanChooseItselfAndRecyclingDoesNotBuffItsNewGeneration"
           ]
         }
       ]

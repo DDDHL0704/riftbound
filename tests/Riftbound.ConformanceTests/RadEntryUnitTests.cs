@@ -39,7 +39,9 @@ public sealed class RadEntryUnitTests
         Assert.Equal(initial.CardObjects["UNIT"].Power, driver.State.CardObjects["UNIT"].Power);
         if (no == "RAD·031/167" && destination != "BASE" || no == "RAD·081/167") {
             var choice = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
-            Assert.DoesNotContain("UNIT", choice.LegalObjectIds); Assert.Contains("ALLY", choice.LegalObjectIds);
+            if (no == "RAD·081/167") Assert.Contains("UNIT", choice.LegalObjectIds);
+            else Assert.DoesNotContain("UNIT", choice.LegalObjectIds);
+            Assert.Contains("ALLY", choice.LegalObjectIds);
             await driver.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]));
         }
         if (driver.State.StackItems.Count > 0) await driver.Top();
@@ -81,9 +83,9 @@ public sealed class RadEntryUnitTests
     [Theory]
     [InlineData("RAD·031/167", "UNIT")] [InlineData("RAD·031/167", "ENEMY")]
     [InlineData("RAD·031/167", "GEAR")] [InlineData("RAD·031/167", "GRAVE")]
-    [InlineData("RAD·081/167", "UNIT")] [InlineData("RAD·081/167", "ENEMY")]
+    [InlineData("RAD·081/167", "ENEMY")]
     [InlineData("RAD·081/167", "GEAR")] [InlineData("RAD·081/167", "GRAVE")]
-    public async Task PrintedOtherFriendlyUnitRestrictionRejectsIllegalTargets(string no, string target)
+    public async Task PrintedFriendlyUnitRestrictionsRejectIllegalTargets(string no, string target)
     {
         var driver = new Driver(Position(no));
         await driver.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: "BATTLEFIELD:BF"));
