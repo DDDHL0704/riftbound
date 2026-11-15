@@ -61,6 +61,11 @@ internal static class ReviewedCardErrata
             ? printedText.Replace("{{反应}}（可在你的回合或法术对决中打出。）", "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）", StringComparison.Ordinal)
         : id == 37773 && cardNo == "VEN·079"
             ? printedText.Replace("选择此处一名战力大于我的单位", "选择此处的一名单位", StringComparison.Ordinal)
+        // CN Radiance errata, p. 1, effective 2026-10-16; acquired 2026-11-15.
+        // https://cdn.playloltcg.com/lol/2026/10/2026-10-10/ade3c71d000c4dd0abf978d5d48b24ef.pdf
+        // SHA256 8643a1f637346c94bc2b716c8773611136af30338cc0b49a87c1126b2e31de73.
+        : id == 39580 && cardNo == "RAD·081/167"
+            ? printedText.Replace("给予另一名友方单位", "给予一名友方单位", StringComparison.Ordinal)
         // Official Radiance erratum and its localized text, acquired 2026-10-28:
         // radiance-rule-authorities/source-snapshot.json, sources[3].localizedBodyHtml
         // (GLOBAL-SUPPLEMENT-14; supplemental to the prevailing CN rules).

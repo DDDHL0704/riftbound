@@ -10,8 +10,10 @@ public sealed class RadElnukHerdFaqTests
     private const string Herd = "RAD·081/167";
     private const string Fissure = "VEN·066";
 
-    [Fact]
-    public async Task AReplayedHerdIsNotRecycledByItsOlderStandbySkill()
+    [Theory]
+    [InlineData("HOST", "SHADOW-INSIDE")]
+    [InlineData("SHADOW", "SHADOW")]
+    public async Task AReplayedHerdIsNotRecycledByItsOlderStandbySkill(string oldTarget, string newTarget)
     {
         var initial = StandbySourceRulesTests.Position(Herd);
         initial = AttackDamageDistributionTests.Spell(initial, "FISSURE", Fissure, "P1");
@@ -33,7 +35,7 @@ public sealed class RadElnukHerdFaqTests
         await game.Act("P1", new PlayCardCommand("SHADOW", Herd, []));
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         await Reject(game.State, "P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["HOST"]));
-        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["HOST"]));
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [oldTarget]));
         var oldSkill = Assert.Single(game.State.StackItems, item => item.SourceObjectId == "SHADOW");
         Assert.NotNull(oldSkill.PlayedFromStandby);
         var oldGeneration = game.State.CardObjects["SHADOW"].ObjectGeneration;
@@ -52,8 +54,8 @@ public sealed class RadElnukHerdFaqTests
         await game.Act("P1", replay);
         Assert.Equal(oldGeneration + 2, game.State.CardObjects["SHADOW"].ObjectGeneration);
         choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
-        var targetPower = game.State.CardObjects["SHADOW-INSIDE"].Power;
-        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["SHADOW-INSIDE"]));
+        var targetPower = game.State.CardObjects[newTarget].Power;
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [newTarget]));
         var newSkill = Assert.Single(game.State.StackItems, item => item.SourceObjectId == "SHADOW"
             && item.StackItemId != oldSkill.StackItemId);
         Assert.Null(newSkill.PlayedFromStandby);
@@ -61,9 +63,10 @@ public sealed class RadElnukHerdFaqTests
         await game.ColdCheckpoint();
 
         await game.Top();
-        Assert.Equal(targetPower + 3, game.State.CardObjects["SHADOW-INSIDE"].Power);
+        Assert.Equal(targetPower + 3, game.State.CardObjects[newTarget].Power);
         Assert.Equal(oldSkill.StackItemId, game.State.StackItems[^1].StackItemId);
         await game.Top();
+        Assert.Equal(targetPower + 3, game.State.CardObjects[newTarget].Power);
         // DOC-17 Q2 is unambiguous. Q1's instruction for the old target HOST
         // conflicts with the printed text and remains pending in BACKLOG.
         Assert.Equal(oldGeneration + 2, game.State.CardObjects["SHADOW"].ObjectGeneration);

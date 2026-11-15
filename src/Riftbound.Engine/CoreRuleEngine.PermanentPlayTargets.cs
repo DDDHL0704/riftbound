@@ -25,7 +25,8 @@ public sealed partial class CoreRuleEngine
         var behavior = PermanentPlayTargetBehavior(item);
         var maximum = MaxResolvedTargetCount(behavior, item, TargetCountConditionApplies(behavior, item));
         var scope = PlayCardTargetScopeForBehavior(behavior);
-        return state.CardObjects.Keys.Where(id => (!OfficialPrintedTimingRules.PlayTargetsExcludeSource(item.CardNo) || id != item.SourceObjectId)
+        return state.CardObjects.Keys.Where(id => (behavior.PlayTargetsIncludeSource
+                || !OfficialPrintedTimingRules.PlayTargetsExcludeSource(item.CardNo) || id != item.SourceObjectId)
             && PermanentPlayHereTargetAllowed(state, item, behavior, id)
             && (!behavior.TargetRequiredTag.Split('|').Contains(CardObjectTags.UnitCard) || !state.CardObjects[id].IsFaceDown)
             && (!behavior.SwapsSourceWithFirstTargetLocation || CanSwapTargetLocations(state, item.SourceObjectId, id))
@@ -52,7 +53,8 @@ public sealed partial class CoreRuleEngine
         var behavior = PermanentPlayTargetBehavior(item);
         var candidate = item with { TargetObjectIds = selected };
         return HasValidResolvedTargetCount(behavior, candidate)
-            && (!OfficialPrintedTimingRules.PlayTargetsExcludeSource(item.CardNo) || !selected.Contains(item.SourceObjectId))
+            && (behavior.PlayTargetsIncludeSource || !OfficialPrintedTimingRules.PlayTargetsExcludeSource(item.CardNo)
+                || !selected.Contains(item.SourceObjectId))
             && PlayCardTargetsExposeKnownCardNumbers(state, selected)
             && HasValidTargetGroup(state, behavior, selected) && HasRequiredAnyTargetTag(state, behavior, selected)
             && selected.All(id => PermanentPlayHereTargetAllowed(state, item, behavior, id))
