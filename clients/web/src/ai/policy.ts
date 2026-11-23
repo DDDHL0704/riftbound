@@ -16,8 +16,12 @@ export type Option = {
   /** Stable within a prompt, so a refused option is not tried again. */
   key: string;
   cmd: Record<string, unknown>;
-  /** A card play is quoted first; runes it may tap cover mana the quote says is missing. */
-  play?: { taps: string[] };
+  /**
+   * A card play is quoted first; runes it may tap cover mana the quote says is missing. A plain play (no
+   * target, no chosen place, nothing beyond its preset rune taps, no power shortfall) already knows its cost
+   * and goes straight to the server, as the table does.
+   */
+  play?: { taps: string[]; plain: boolean };
   /** How long to wait before acting, so the player can follow the opponent's turn. */
   pause: number;
 };
@@ -170,7 +174,20 @@ function boardOptions(ctx: Ctx): Option[] {
         option: {
           key: `${action.key}|${sel.targets.join(",")}|${sel.destination ?? ""}`,
           cmd,
-          play: action.cmdType === "PLAY_CARD" ? { taps: action.taps.filter((t) => !sel.optionalCosts.includes(t)) } : undefined,
+          play:
+            action.cmdType === "PLAY_CARD"
+              ? {
+                  taps: action.taps.filter((t) => !sel.optionalCosts.includes(t)),
+                  plain:
+                    sel.targets.length === 0 &&
+                    !sel.destination &&
+                    sel.optionalCosts.length === action.presetCosts.length &&
+                    sel.optionalCosts.every((c) => action.presetCosts.includes(c)) &&
+                    action.powerShortfall === 0 &&
+                    !action.variablePower &&
+                    !action.requirement?.costsByChoice,
+                }
+              : undefined,
           pause: 900,
         },
       });
