@@ -4291,14 +4291,15 @@ internal static partial class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null,
-        ICollection<CoreRuleEngine.OptionalCostReductionGroup>? reductionGroups = null)
+        ICollection<CoreRuleEngine.OptionalCostReductionGroup>? reductionGroups = null,
+        IReadOnlyList<ActionPromptChoiceDto>? paymentResourceChoices = null)
     {
         var ignoresAllCosts = CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId);
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
-        var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior, sourceObjectId);
+        paymentResourceChoices ??= PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
+        var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTrait(state, paymentResourceChoices);
         var effectivePowerWithRecycle = new RunePaymentReachability(runePool, paymentResourcePowerByTrait).MaximumTotal;
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
@@ -4813,10 +4814,14 @@ internal static partial class ActionPromptBuilder
             return new Dictionary<string, int>(StringComparer.Ordinal);
         }
 
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
+        return PlayCardPaymentResourcePowerByTrait(
+            state, PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId));
+    }
+
+    private static IReadOnlyDictionary<string, int> PlayCardPaymentResourcePowerByTrait(
+        MatchState state,
+        IReadOnlyList<ActionPromptChoiceDto> paymentResourceChoices)
+    {
         if (paymentResourceChoices.Count == 0)
         {
             return new Dictionary<string, int>(StringComparer.Ordinal);
@@ -5512,8 +5517,8 @@ internal static partial class ActionPromptBuilder
         var showPowerSources = runePool.UnitOrEquipmentPlayOnlyPower > 0 || sourceBalances.Count > 1;
         runePool = PaymentCostRules.PowerPoolForPurpose(runePool, powerPurpose);
         var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
-        var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior, sourceObjectId);
-        var paymentResourcePowerByChoice = PlayCardPaymentResourcePowerByChoiceForBehavior(state, playerId, behavior, sourceObjectId);
+        var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTrait(state, paymentResourceChoices);
+        var paymentResourcePowerByChoice = PlayCardPaymentResourcePowerByChoice(state, playerId, paymentResourceChoices);
         var availablePowerByTrait = PlayCardAvailablePowerByTrait(
             runePool,
             new Dictionary<string, int>(StringComparer.Ordinal));
@@ -5543,7 +5548,8 @@ internal static partial class ActionPromptBuilder
         }
         var printedPowerShortfall = PaymentCostRules.PowerDeficit(runePool, printedGenericCost, printedTypedCost);
         var reductionGroups = new List<CoreRuleEngine.OptionalCostReductionGroup>();
-        var optionalCostChoices = PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior, sourceObjectId, reductionGroups);
+        var optionalCostChoices = PlayCardOptionalCostChoicesForBehavior(
+            state, playerId, behavior, sourceObjectId, reductionGroups, paymentResourceChoices);
 
         var requirement = new Dictionary<string, object?>
         {
@@ -5664,21 +5670,11 @@ internal static partial class ActionPromptBuilder
         return WithPowerCapacity(requirement, new RunePaymentReachability(runePool, paymentResourcePowerByTrait));
     }
 
-    private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PlayCardPaymentResourcePowerByChoiceForBehavior(
+    private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PlayCardPaymentResourcePowerByChoice(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior,
-        string? sourceObjectId = null)
+        IReadOnlyList<ActionPromptChoiceDto> paymentResourceChoices)
     {
-        if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId))
-        {
-            return new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal);
-        }
-
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
         if (paymentResourceChoices.Count == 0)
         {
             return new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal);
