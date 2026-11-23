@@ -4316,6 +4316,15 @@ internal static partial class ActionPromptBuilder
             choices.Add(new(CoreRuleEngine.ReadyRestrictedEntryChoice, "以活跃状态进场", "本回合无法移动"));
         foreach (var cost in CoreRuleEngine.OptionalLegendPlayCostChoices(state, playerId, behavior))
             choices.Add(new(cost, "休眠你的传奇", "可选额外费用；打出后选择友方单位及一处开放战场"));
+        if (behavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost > 0)
+        {
+            foreach (var unitId in CoreRuleEngine.ExhaustibleFriendlyFieldUnitIds(state, playerId))
+            {
+                var unitName = OfficialCardSourceIdentityGroups.DisplayName(state.CardObjects[unitId].CardNo ?? unitId);
+                choices.Add(new(CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix + unitId,
+                    $"让{unitName}变为休眠状态", "可选额外费用，可选择一名友方单位", [unitId]));
+            }
+        }
         if (!ignoresAllCosts && behavior.MayDestroyFriendlyPermanentAdditionalCost)
             foreach (var cost in CoreRuleEngine.OptionalPermanentDestructionChoices(state, playerId, behavior))
             {

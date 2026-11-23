@@ -20,9 +20,11 @@ public sealed class RadJudgeEchoFaqTests
         await game.Top();
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·048/298", out var meditation));
         var echo = Assert.Single(EchoCostRules.Available(game.State, "P1", meditation));
+        var candidate = Assert.Single(game.PromptFor("P1").Candidates!, c => c.Action == CommandTypes.PlayCard);
+        Assert.Contains(candidate.OptionalCosts!, choice => choice.Id == echo.Id);
+        var exhaust = Assert.Single(candidate.OptionalCosts!, choice => choice.Id == "EXHAUST_FRIENDLY_UNIT:ALLY");
         var deck = game.State.PlayerZones["P1"].MainDeck.ToArray();
-        await game.Act("P1", new PlayCardCommand("SPELL", "OGN·048/298", [],
-            OptionalCosts: [echo.Id, "EXHAUST_FRIENDLY_UNIT:ALLY"]));
+        await game.Act("P1", new PlayCardCommand("SPELL", "OGN·048/298", [], OptionalCosts: [echo.Id, exhaust.Id]));
         Assert.True(game.State.CardObjects["ALLY"].IsExhausted);
         Assert.Empty(game.State.PlayerZones["P1"].Hand);
         await game.Top();

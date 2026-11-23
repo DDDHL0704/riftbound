@@ -163,10 +163,21 @@ public sealed class RadLegendPlayDiscountTests
     {
         const string meditation = "OGN·048/298";
         var initial = Position(units: 4, spell: meditation);
-        var costs = Payment(initial, units: ["U0", "U1", "U2"])
-            .Append("EXHAUST_FRIENDLY_UNIT:" + (distinct ? "U3" : "U2")).ToArray();
-        if (!distinct) { await Reject(initial, Play(costs, meditation)); return; }
-        var game = new Driver(initial); await game.Act("P1", Play(costs, meditation)); await game.Top();
+        var exhaust = "EXHAUST_FRIENDLY_UNIT:" + (distinct ? "U3" : "U2");
+        var choices = Requirement(initial)!.Value.GetProperty("optionalCostChoices").EnumerateArray();
+        Assert.Contains(choices, choice => choice.GetProperty("id").GetString() == exhaust);
+        var costs = Payment(initial, units: ["U0", "U1", "U2"]).Append(exhaust).ToArray();
+        var command = Play(costs, meditation);
+        var quote = new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
+        if (!distinct)
+        {
+            Assert.Equal(ErrorCodes.InvalidTarget, quote.ErrorCode);
+            await Reject(initial, command);
+            return;
+        }
+        Assert.True(quote.CanPay, quote.Message);
+        Assert.Equal(0, quote.Cost!.Mana);
+        var game = new Driver(initial); await game.Act("P1", command); await game.Top();
         Assert.All(new[] { "U0", "U1", "U2", "U3" }, id => Assert.True(game.State.CardObjects[id].IsExhausted));
         Assert.Equal(2, game.Events().Where(e => e.Event.Kind == "CARD_DRAWN").Sum(e => Convert.ToInt32(e.Event.Payload["count"])));
         await game.Replay();
