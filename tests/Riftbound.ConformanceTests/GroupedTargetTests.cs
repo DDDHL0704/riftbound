@@ -88,11 +88,19 @@ public sealed class GroupedTargetTests
         }
     }
     [Fact]
-    public async Task CasterMayChooseEmptySubsetAndEffectDoesNotRetarget()
+    public async Task CasterCannotConfirmEmptySubsetWhileOriginalTargetsRemainLegal()
     {
-        var s=(await ChangedGroup()).State;Assert.NotNull(s.PendingRuleChoice);
-        foreach(var id in Ids(4))s=(await Select(s,"REMOVE:"+id)).State;
-        var done=await Select(s,"CONFIRM");Assert.Empty(done.State.PlayerZones["P2"].Graveyard);Assert.Empty(done.State.StackItems);Restore(done.State);
+        var state = (await ChangedGroup()).State;
+        foreach (var id in Ids(4))
+            state = (await Select(state, "REMOVE:" + id)).State;
+
+        var request = state.PendingRuleChoice!.Request;
+        Assert.DoesNotContain(request.Options, option => option.Id == "CONFIRM");
+        Assert.DoesNotContain(request.Options, option => option.Id == "RESTORE:A");
+        var rejected = await new CoreRuleEngine().ResolveAsync(state, new("empty-subset", "P1", CommandTypes.PayCost),
+            new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["CONFIRM"]), default);
+        Assert.False(rejected.Accepted);
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(rejected.State));
     }
     [Fact]
     public async Task RealPowerBindResponseOpensSubsetChoiceBeforeAnyDestruction()

@@ -12,12 +12,12 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·080/221 风箱炎息",
-      "note": "官方卡面：费用 1；迅捷；回响 1 蓝色；对同一位置的最多三名单位各造成 1 点伤害。当前 fixture 锁定不支付有色回响，并在 P2 preflight 单战场区域模型中覆盖三名单位的基础伤害路径。"
+      "note": "官方卡面：费用 1；迅捷；回响 1 蓝色；对同一位置的最多三名单位各造成 1 点伤害。当前 fixture 锁定不支付有色回响，并在 P2 preflight 同一处战场中覆盖三名单位的基础伤害路径。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算；回响为可选额外费用。当前引擎暂未建模有色回响费用和精确同一位置筛选，因此仅验证不支付回响且目标在当前单战场区域的路径。"
+      "note": "打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算；回响为可选额外费用。本用例验证不支付回响，并将三名单位明确放在同一处战场。"
     }
   ],
   "roomId": "p2-preflight-bellows-breath-room",
@@ -63,14 +63,21 @@
         "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-BATTLEFIELD-UNIT-001", "P2-BATTLEFIELD-UNIT-002"],
+        "battlefields": ["P2-BATTLEFIELD-UNIT-001", "P2-BATTLEFIELD-UNIT-002", "SAME-FIELD"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
         "championZone": ["P2-CHAMPION-001"]
       }
     },
+    "objectLocations": {
+      "P1-BATTLEFIELD-UNIT-001": { "playerId": "P1", "zone": "BATTLEFIELD", "battlefieldObjectId": "SAME-FIELD" },
+      "P2-BATTLEFIELD-UNIT-001": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "SAME-FIELD" },
+      "P2-BATTLEFIELD-UNIT-002": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "SAME-FIELD" },
+      "SAME-FIELD": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "SAME-FIELD" }
+    },
     "cardObjects": {
+      "SAME-FIELD": { "cardNo": "OGN·282/298", "ownerId": "P2", "tags": ["CARD_TYPE:BATTLEFIELD"] },
       "P1-BASE-UNIT-001": {
         "damage": 0,
         "power": 3,
@@ -218,7 +225,7 @@
           "battlefields": ["P1-BATTLEFIELD-UNIT-001"]
         },
         "P2": {
-          "battlefields": ["P2-BATTLEFIELD-UNIT-001", "P2-BATTLEFIELD-UNIT-002"],
+          "battlefields": ["P2-BATTLEFIELD-UNIT-001", "P2-BATTLEFIELD-UNIT-002", "SAME-FIELD"],
           "graveyard": []
         }
       },

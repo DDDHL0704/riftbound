@@ -2871,7 +2871,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             ],
             result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
-        Assert.Equal(["P2-BATTLEFIELD-UNIT-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-UNIT-001", "SAME-FIELD"], result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(
             3,
             result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));

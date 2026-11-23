@@ -360,8 +360,11 @@ public sealed class SwitcherooGuardTests
         Assert.Equal(2, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
         Assert.Equal(2, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
         Assert.False(Assert.IsType<bool>(sourceRequirement["allowsRepeatedTargets"]));
-        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(
-            sourceRequirement["legalTargetSelections"]));
+        var legalSelections = Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(
+            sourceRequirement["legalTargetSelections"]);
+        Assert.Collection(legalSelections.OrderBy(selection => selection[0], StringComparer.Ordinal),
+            selection => Assert.Equal(legalUnitTargetIds, selection),
+            selection => Assert.Equal(legalUnitTargetIds.Reverse(), selection));
     }
 
     [Theory]
