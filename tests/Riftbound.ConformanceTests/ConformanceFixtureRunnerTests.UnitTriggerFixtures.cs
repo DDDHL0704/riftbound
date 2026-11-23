@@ -2147,7 +2147,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         };
     }
 
-    private static MatchState BattlefieldBattleDestroyedRecallState(int mana)
+    private static MatchState BattlefieldBattleDestroyedRecallState(int power)
     {
         return PunishmentState(mana: 0) with
         {
@@ -2155,7 +2155,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = RunePool.Empty,
-                ["P2"] = new(mana, 0)
+                ["P2"] = new(0, power)
             },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {

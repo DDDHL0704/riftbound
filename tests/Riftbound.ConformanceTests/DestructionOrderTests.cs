@@ -119,16 +119,16 @@ public sealed class DestructionOrderTests
         }
         Restore(done.State);
     }
-    internal static async Task<ResolutionResult> AltarBattle(MatchState? initial = null)
+    internal static async Task<ResolutionResult> AltarBattle(MatchState? initial = null, bool expectChoice = true)
     {
-        var s = initial ?? NoReplacement();
+        var s = initial ?? AltarPlayerPool(new RunePool(0, 3));
         s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
             ["BF"] = s.CardObjects["BF"] with { CardNo = "UNL-206/219" } } };
         var moved = await Act(s, "P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:BF", []));
         var first = await Act(moved.State, "P1", new PassFocusCommand());
         var second = await Act(first.State, "P2", new PassFocusCommand());
         var battle = await Act(second.State, "P1", new DeclareBattleCommand("BF", ["A"], ["D"], ["COMBAT_ASSIGNMENT"]));
-        Assert.NotNull(battle.State.PendingRuleChoice);
+        if (expectChoice) Assert.NotNull(battle.State.PendingRuleChoice);
         return battle;
     }
     [Theory]
@@ -136,29 +136,124 @@ public sealed class DestructionOrderTests
     [InlineData(false)]
     public async Task AltarLetsTheDyingUnitsControllerPayOrDecline(bool accept)
     {
-        var opened = await AltarBattle(); var before = opened.State.RunePools["P2"].Mana;
-        Assert.Equal("P2", opened.State.PendingRuleChoice!.Request.PlayerId);
+        var state = AltarPlayerPool(new RunePool(4, 1, new Dictionary<string, int>
+        {
+            [RuneTrait.Red] = 1,
+            [RuneTrait.Blue] = 1
+        }));
+        var opened = await AltarBattle(state);
+        var request = opened.State.PendingRuleChoice!.Request;
+        Assert.Equal("P2", request.PlayerId);
+        Assert.Contains(request.Options, option => option.Id == "ALTAR:D:BF" && option.Label.Contains("3 点任意符能"));
         var done = await Select(OfficialInsightAndSpellLockTests.Restore(opened.State), accept ? "ALTAR:D:BF" : "DECLINE");
-        Assert.Equal(before - (accept ? 3 : 0), done.State.RunePools["P2"].Mana);
+        Assert.Equal(4, done.State.RunePools["P2"].Mana);
+        Assert.Equal(accept ? 0 : 3, done.State.RunePools["P2"].TotalPower);
+        Assert.Equal(accept ? 3 : 0, done.State.RunePools["P2"].PaidPowerThisTurn);
         Assert.Equal(accept, done.State.PlayerZones["P2"].Base.Contains("D"));
         Assert.Equal(!accept, done.State.PlayerZones["P2"].Graveyard.Contains("D"));
         Assert.Empty(done.State.BattleResolutions[0].SurvivingDefenderObjectIds);
         Restore(done.State);
     }
-    [Fact]
-    public async Task AltarCanGenerateManaBeforePayingAndKeepsItAfterDeclining()
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(2, 0)]
+    [InlineData(2, 1)]
+    public async Task AltarDoesNotOfferPaymentWithOnlyManaOrInsufficientUnrestrictedPower(int power, int restricted)
     {
-        var s = NoReplacement() with { RunePools = new Dictionary<string, RunePool> { ["P1"] = new(20,20), ["P2"] = new(2,0) } };
-        s = ReplacementResourceTests.AddResource(s, P4ActivatedAbilityCatalog.EnergyChannelCardNo);
-        var opened = await AltarBattle(s);
-        var resource = opened.State.PendingRuleChoice!.Request.Options.Single(o => o.Id.StartsWith("RESOURCE:"));
-        var generated = await Select(opened.State, resource.Id);
-        Assert.Contains(generated.State.PendingRuleChoice!.Request.Options, o => o.Id == "ALTAR:D:BF");
-        var done = await Select(generated.State, "DECLINE");
+        var state = AltarPlayerPool(new RunePool(3, power, unitOrEquipmentPlayOnlyPower: restricted));
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["D"] = state.CardObjects["D"] with { Tags = [CardObjectTags.UnitCard] }
+        } };
+        var done = await AltarBattle(state, expectChoice: false);
+        Assert.Null(done.State.PendingRuleChoice);
+        Assert.Contains("D", done.State.PlayerZones["P2"].Graveyard);
         Assert.Equal(3, done.State.RunePools["P2"].Mana);
-        Assert.True(done.State.CardObjects["RESOURCE"].IsExhausted);
+        Assert.Equal(power, done.State.RunePools["P2"].TotalPower);
+        Assert.Equal(restricted, done.State.RunePools["P2"].UnitOrEquipmentPlayOnlyPower);
+    }
+
+    [Fact]
+    public async Task AltarCanGeneratePowerBeforePayingAndKeepsItAfterDeclining()
+    {
+        var state = ReplacementResourceTests.AddResource(AltarPlayerPool(new RunePool(0, 2)),
+            P4ActivatedAbilityCatalog.GoldTokenUnlCardNo);
+        var opened = await AltarBattle(state);
+        var request = Assert.IsType<RuleChoiceContinuation>(opened.State.PendingRuleChoice).Request;
+        Assert.DoesNotContain(request.Options, option => option.Id == "ALTAR:D:BF");
+        await RadGearTestPosition.Reject(opened.State, request.PlayerId,
+            new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["ALTAR:D:BF"]));
+        var resource = request.Options.Single(option => option.Id.StartsWith("RESOURCE:", StringComparison.Ordinal));
+        var generated = await Select(opened.State, resource.Id);
+        Assert.Contains(generated.State.PendingRuleChoice!.Request.Options, option => option.Id == "ALTAR:D:BF");
+        var done = await Select(generated.State, "DECLINE");
+        Assert.Equal(3, done.State.RunePools["P2"].TotalPower);
+        Assert.False(done.State.CardObjects.ContainsKey("RESOURCE"));
         Restore(done.State);
     }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task AltarLetsTheControllerConfirmOrCancelItsPowerAllocation(bool confirm)
+    {
+        var state = AltarPlayerPool(new RunePool(4, 2, new Dictionary<string, int> { [RuneTrait.Blue] = 2 }));
+        var opened = await AltarBattle(state);
+        var allocation = await Select(opened.State, "ALTAR:D:BF");
+        var allocationRequest = Assert.IsType<RuleChoiceContinuation>(allocation.State.PendingRuleChoice).Request;
+        var chooseOneUnrestricted = Assert.Single(allocationRequest.Options, option =>
+            option.Id.StartsWith("QUANTITY:", StringComparison.Ordinal) && option.Id.EndsWith(":1:1", StringComparison.Ordinal));
+        var selected = await Select(OfficialInsightAndSpellLockTests.Restore(allocation.State), chooseOneUnrestricted.Id);
+        Assert.Equal(4, selected.State.RunePools["P2"].TotalPower);
+        Assert.Equal(0, selected.State.RunePools["P2"].PaidPowerThisTurn);
+
+        var decision = confirm ? "CONFIRM_DESTRUCTION_REPLACEMENT_POWER" : "CANCEL_DESTRUCTION_REPLACEMENT_POWER";
+        var done = await Select(OfficialInsightAndSpellLockTests.Restore(selected.State), decision);
+        if (!confirm)
+        {
+            var replacement = Assert.IsType<RuleChoiceContinuation>(done.State.PendingRuleChoice).Request;
+            Assert.Contains(replacement.Options, option => option.Id == "ALTAR:D:BF");
+            Assert.Equal(4, done.State.RunePools["P2"].TotalPower);
+            done = await Select(done.State, "DECLINE");
+        }
+
+        var pool = done.State.RunePools["P2"];
+        Assert.Equal(4, pool.Mana);
+        Assert.Equal(confirm ? 1 : 2, pool.Power);
+        Assert.Equal(confirm ? 0 : 2, pool.PowerByTrait.GetValueOrDefault(RuneTrait.Blue));
+        Assert.Equal(confirm ? 3 : 0, pool.PaidPowerThisTurn);
+        Assert.Equal(confirm, done.State.PlayerZones["P2"].Base.Contains("D"));
+        Assert.Equal(!confirm, done.State.PlayerZones["P2"].Graveyard.Contains("D"));
+        Restore(done.State);
+    }
+
+    [Fact]
+    public async Task AltarLetsTheControllerRecycleARuneBeforePaying()
+    {
+        var state = RadGearTestPosition.Put(AltarPlayerPool(new RunePool(4, 2)), "ALTAR-RUNE", "UNL-R03", "P2", "BASE");
+        var opened = await AltarBattle(state);
+        var request = Assert.IsType<RuleChoiceContinuation>(opened.State.PendingRuleChoice).Request;
+        Assert.DoesNotContain(request.Options, option => option.Id == "ALTAR:D:BF");
+        Assert.Contains(request.Options, option => option.Id == "RECYCLE_RUNE:ALTAR-RUNE");
+
+        var generated = await Select(OfficialInsightAndSpellLockTests.Restore(opened.State), "RECYCLE_RUNE:ALTAR-RUNE");
+        var payment = Assert.IsType<RuleChoiceContinuation>(generated.State.PendingRuleChoice).Request;
+        Assert.Contains(payment.Options, option => option.Id == "ALTAR:D:BF");
+        var done = await Select(OfficialInsightAndSpellLockTests.Restore(generated.State), "ALTAR:D:BF");
+        Assert.Contains("ALTAR-RUNE", done.State.PlayerZones["P2"].RuneDeck);
+        Assert.DoesNotContain("ALTAR-RUNE", done.State.PlayerZones["P2"].Base);
+        Assert.Contains("D", done.State.PlayerZones["P2"].Base);
+        Assert.Equal(4, done.State.RunePools["P2"].Mana);
+        Assert.Equal(0, done.State.RunePools["P2"].TotalPower);
+        Assert.Equal(3, done.State.RunePools["P2"].PaidPowerThisTurn);
+        Restore(done.State);
+    }
+
+    private static MatchState AltarPlayerPool(RunePool pool)
+    {
+        var state = NoReplacement();
+        return state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P2"] = pool } };
+    }
+
     [Fact]
     public async Task ProtectedObserverSurvivesTheBatchAndSeesTheOtherDeath()
     {
@@ -189,13 +284,14 @@ public sealed class DestructionOrderTests
         s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
             ["OTHER"] = s.CardObjects["BF"] with { ObjectId = "OTHER", CardNo = "UNL-206/219" },
             ["D"] = s.CardObjects["D"] with { Power = 9, Damage = 0 },
+            ["D2"] = s.CardObjects["D2"] with { Tags = [CardObjectTags.UnitCard] },
             ["AOE"] = s.CardObjects["AOE"] with { OwnerId = "P2", ControllerId = "P2" }
         }, PlayerZones = new Dictionary<string, PlayerZones>(s.PlayerZones) {
             ["P1"] = s.PlayerZones["P1"] with { Hand = [] },
             ["P2"] = s.PlayerZones["P2"] with { Battlefields = ["BF", "D", "OTHER", "D2"], Hand = ["AOE"] }
         }, ObjectLocations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations) {
             ["OTHER"] = new("P2", "BATTLEFIELD"), ["D2"] = new("P2", "BATTLEFIELD", "OTHER"), ["AOE"] = new("P2", "HAND")
-        } };
+        }, RunePools = new Dictionary<string, RunePool>(s.RunePools) { ["P2"] = new RunePool(20, 3) } };
         var moved = await Act(s, "P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:BF", []));
         var first = await Act(moved.State, "P1", new PassFocusCommand());
         var spell = await Act(first.State, "P2", new PlayCardCommand("AOE", "OGN·133/298", []));

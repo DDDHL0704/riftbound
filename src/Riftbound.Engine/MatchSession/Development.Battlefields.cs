@@ -1031,7 +1031,7 @@ public sealed partial class MatchSession
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 [seed.P1] = RunePool.Empty,
-                [seed.P2] = new(3, 0)
+                [seed.P2] = new(0, 3)
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {

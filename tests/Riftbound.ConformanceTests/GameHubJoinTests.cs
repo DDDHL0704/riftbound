@@ -12739,7 +12739,8 @@ public sealed partial class GameHubJoinTests
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal)
-            && Equals(gameEvent.Payload["mana"], 3));
+            && Equals(gameEvent.Payload["mana"], 0)
+            && Equals(gameEvent.Payload["power"], 3));
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-BLOOD-DEFENDER", StringComparison.Ordinal));
@@ -12755,6 +12756,7 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
         var p2RunePool = Assert.IsType<Dictionary<string, object?>>(p2["runePool"]);
         Assert.Equal(0, Assert.IsType<int>(p2RunePool["mana"]));
+        Assert.Equal(0, Assert.IsType<int>(p2RunePool["power"]));
         Assert.Null(battleSnapshot.Timing["winnerPlayerId"]);
         Assert.Equal(MatchStatuses.InProgress, battleSnapshot.Timing["roomStatus"]);
     }

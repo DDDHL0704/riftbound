@@ -8652,7 +8652,9 @@ public sealed partial class FullGameEndToEndTests
             readyOnly: true)
             ?? throw new InvalidOperationException("B0 Blood Altar assertion could not locate Watchful Sentinel before battle.");
 
-        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P2"]);
+        Assert.Equal(0, result.State.RunePools["P2"].Mana);
+        Assert.Equal(0, result.State.RunePools["P2"].TotalPower);
+        Assert.Equal(3, result.State.RunePools["P2"].PaidPowerThisTurn);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, defenderObjectId, StringComparison.Ordinal));
@@ -8667,7 +8669,8 @@ public sealed partial class FullGameEndToEndTests
                 StaticAbilityKinds.BattlefieldDestroyedInBattlePayRecallReplacement,
                 StringComparison.Ordinal));
         Assert.Equal("P2", costPaid.Payload["playerId"]);
-        Assert.Equal(3, costPaid.Payload["mana"]);
+        Assert.Equal(0, costPaid.Payload["mana"]);
+        Assert.Equal(3, costPaid.Payload["power"]);
 
         var recalledEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal)
@@ -18396,6 +18399,19 @@ public sealed partial class FullGameEndToEndTests
         var payment = new PayCostCommand(choice.Id, "RULE_REPLACEMENT", [selection]);
         result = await session.SubmitAsync(defendingPlayerId, $"{intentId}-accept-altar", payment, RawCommand(payment), CancellationToken.None);
         AssertAccepted(result);
+        // Another dying unit can still start a resource action after the first
+        // recall consumes the pool. Decline and keep both choices in the replay.
+        if (result.State.PendingRuleChoice is { Request: var followUp })
+        {
+            Assert.Equal("DESTRUCTION_REPLACEMENT", followUp.Kind);
+            Assert.Equal(defendingPlayerId, followUp.PlayerId);
+            Assert.DoesNotContain(followUp.Options, option => option.Id.StartsWith("ALTAR:", StringComparison.Ordinal));
+            Assert.Contains(followUp.Options, option => option.Id == "DECLINE");
+            var decline = new PayCostCommand(followUp.Id, "RULE_REPLACEMENT", ["DECLINE"]);
+            result = await session.SubmitAsync(followUp.PlayerId, $"{intentId}-decline-another-recall",
+                decline, RawCommand(decline), CancellationToken.None);
+            AssertAccepted(result);
+        }
         Assert.Null(result.State.PendingRuleChoice);
         Assert.Null(result.State.PendingPayment);
         AssertNoHiddenZoneLeak(result);
@@ -29627,7 +29643,7 @@ public sealed partial class FullGameEndToEndTests
                     new RunePool(mana: 0, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
                 ["P2"] = (
                     [WatchfulSentinelCardNo],
-                    new RunePool(mana: 3, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+                    new RunePool(mana: 0, power: 3, new Dictionary<string, int>(StringComparer.Ordinal)))
             });
         var battlefieldId = BattlefieldObjectIdForCardNo(
             midgameState,

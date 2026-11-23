@@ -9,7 +9,7 @@ public sealed partial class CoreRuleEngine
     private const string AllocateImposedMovementPowerChoice = "ALLOCATE_IMPOSED_MOVEMENT_POWER";
     private const string ConfirmImposedMovementPowerChoice = "CONFIRM_IMPOSED_MOVEMENT_POWER";
     private const string CancelImposedMovementPowerChoice = "CANCEL_IMPOSED_MOVEMENT_POWER";
-    private sealed record ImposedMovementPowerAllocation(int Wildcard, IReadOnlyDictionary<string, int> PowerByTrait);
+    private sealed record FixedPowerAllocation(int Wildcard, IReadOnlyDictionary<string, int> PowerByTrait);
 
     // CN 204.4.b / 430.3: pause this movement instruction, not the ordinary
     // priority flow. Re-execution uses the existing authoritative choice journal.
@@ -38,8 +38,7 @@ public sealed partial class CoreRuleEngine
                 genericPowerCost: amount, totalPowerCost: amount,
                 reason: mana == 0 ? "MAGESEEKER_PATROL_MOVE_TAX_STATIC" : "IMPOSED_MOVEMENT_COST", sourceObjectId: sourceId);
             var canPay = PaymentCostRules.AuthorizePayment(plan, pool, state: state).Accepted;
-            var multipleAllocations = canPay && amount < pool.TotalPower
-                && pool.PowerByTrait.Values.Count(value => value > 0) + (pool.Power > 0 ? 1 : 0) > 1;
+            var multipleAllocations = canPay && HasMultipleFixedPowerAllocations(pool, amount);
             // A uniquely funded standard intent still completes directly.
             if (canPay && standardMove && !acquired && !multipleAllocations) { Commit(plan); return ImposedMovementPaymentResult.Paid; }
 
@@ -78,7 +77,8 @@ public sealed partial class CoreRuleEngine
             if (selected == "PAY") { Commit(plan); return ImposedMovementPaymentResult.Paid; }
             if (selected == AllocateImposedMovementPowerChoice)
             {
-                var allocation = ChooseImposedMovementPowerAllocation(context, player, movers[0], pool, amount, mana);
+                var allocation = ChooseFixedPowerAllocation(context, player, movers[0], pool, amount, mana,
+                    ImposedMovementPaymentKind, ConfirmImposedMovementPowerChoice, CancelImposedMovementPowerChoice);
                 if (allocation is null) continue;
                 var exactPlan = new PaymentCostRules.PaymentPlan(plan.PaymentId, plan.PaymentWindow, player,
                     baseManaCost: mana, totalManaCost: mana,
@@ -121,8 +121,13 @@ public sealed partial class CoreRuleEngine
         }
     }
 
-    private static ImposedMovementPowerAllocation? ChooseImposedMovementPowerAllocation(MatchState context,
-        string player, string anchorId, RunePool pool, int amount, int mana)
+    private static bool HasMultipleFixedPowerAllocations(RunePool pool, int amount)
+        => amount < pool.TotalPower
+            && pool.PowerByTrait.Values.Count(value => value > 0) + (pool.Power > 0 ? 1 : 0) > 1;
+
+    private static FixedPowerAllocation? ChooseFixedPowerAllocation(MatchState context,
+        string player, string anchorId, RunePool pool, int amount, int mana, string kind,
+        string confirmChoiceId, string cancelChoiceId)
     {
         var buckets = new List<(string Trait, int Available)>();
         if (pool.Power > 0) buckets.Add((string.Empty, pool.Power));
@@ -145,22 +150,24 @@ public sealed partial class CoreRuleEngine
             else if (selected.Value > 0) typed.Add(trait, selected.Value);
             remaining -= selected.Value;
         }
-        if (remaining != 0) throw new InvalidOperationException("Incomplete imposed movement power allocation.");
+        if (remaining != 0) throw new InvalidOperationException("Incomplete fixed power allocation.");
         var parts = new List<string>();
         if (wildcard > 0) parts.Add($"通用符能 {wildcard}");
         parts.AddRange(typed.Select(pair => $"{RuneTraitLabel(pair.Key)}符能 {pair.Value}"));
-        var confirmation = RuleChoices.Value!.Choose(player, $"确认支付 {mana} 点法力和 {amount} 点符能：{string.Join("、", parts)}。",
-            [new(ConfirmImposedMovementPowerChoice, "确认分配并支付"),
-             new(CancelImposedMovementPowerChoice, "返回支付菜单，不扣除符能")],
-            powerCost: amount, kind: ImposedMovementPaymentKind, preview: context with { PendingPayment = null }, manaCost: mana);
-        return confirmation == CancelImposedMovementPowerChoice ? null : new(wildcard, typed);
+        var costLabel = kind == ImposedMovementPaymentKind ? $"{mana} 点法力和 {amount} 点符能" : $"{amount} 点符能";
+        var confirmation = RuleChoices.Value!.Choose(player, $"确认支付 {costLabel}：{string.Join("、", parts)}。",
+            [new(confirmChoiceId, "确认分配并支付"),
+             new(cancelChoiceId, "返回支付菜单，不扣除符能")],
+            powerCost: amount, kind: kind, preview: context with { PendingPayment = null }, manaCost: mana);
+        return confirmation == cancelChoiceId ? null : new(wildcard, typed);
 
         int? Quantity(string bucket, int minimum, int maximum, string reason)
         {
-            // The moving unit is public; do not expose an instruction's possibly hidden physical source.
+            // Use the public unit affected by the payment as its authority anchor.
             var generation = context.CardObjects[anchorId].ObjectGeneration.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            var purpose = "IMPOSED_MOVEMENT_POWER_ALLOCATION:" + amount + ":" + bucket;
-            var authority = $"QUANTITY:{Uri.EscapeDataString(anchorId)}:{generation}:{ImposedMovementPaymentKind}:{Uri.EscapeDataString(purpose)}";
+            var purpose = (kind == ImposedMovementPaymentKind ? "IMPOSED_MOVEMENT_POWER_ALLOCATION" : kind + "_POWER_ALLOCATION")
+                + ":" + amount + ":" + bucket;
+            var authority = $"QUANTITY:{Uri.EscapeDataString(anchorId)}:{generation}:{kind}:{Uri.EscapeDataString(purpose)}";
             while (minimum < maximum)
             {
                 var midpoint = (int)((long)minimum + ((long)maximum - minimum) / 2);
@@ -169,9 +176,9 @@ public sealed partial class CoreRuleEngine
                 var selected = RuleChoices.Value!.Choose(player, reason,
                     [new(left, $"{minimum}–{midpoint}", [anchorId]),
                      new(right, $"{midpoint + 1}–{maximum}", [anchorId]),
-                     new(CancelImposedMovementPowerChoice, "返回支付菜单，不扣除符能")],
-                    powerCost: amount, kind: ImposedMovementPaymentKind, preview: context with { PendingPayment = null }, manaCost: mana);
-                if (selected == CancelImposedMovementPowerChoice) return null;
+                     new(cancelChoiceId, "返回支付菜单，不扣除符能")],
+                    powerCost: amount, kind: kind, preview: context with { PendingPayment = null }, manaCost: mana);
+                if (selected == cancelChoiceId) return null;
                 if (selected == left) maximum = midpoint;
                 else minimum = midpoint + 1;
             }
