@@ -9,6 +9,7 @@ import { Card, EffectText, type HoverHandler } from "./Card";
 import { TEMPO_ACTIONS } from "./Overlay";
 import { cardInfo } from "../game/cards";
 import { guideSeen, SettingsPanel, TableGuide } from "./Guide";
+import { canRequestRewind, RewindPicker, RewindRequestBar } from "./Rewind";
 import { practiceHandle, usePractice } from "../ai/practice";
 
 type RailProps = {
@@ -71,7 +72,7 @@ export function Rail({ state, snapshot, prompt, objects, onHover, plays }: RailP
   const [confirmSurrender, setConfirmSurrender] = useState(false);
   // The tour opens once per browser on the first table; both can be reopened from the footer.
   // It waits until the opening hands are settled, so it never covers the mulligan.
-  const [panel, setPanel] = useState<"settings" | "guide" | null>(null);
+  const [panel, setPanel] = useState<"settings" | "guide" | "rewind" | null>(null);
   const toured = useRef(guideSeen());
   useEffect(() => {
     if (toured.current || type === "MULLIGAN" || snapshot.timing.phase === "MULLIGAN" || snapshot.timing.roomStatus !== "IN_PROGRESS") return;
@@ -93,6 +94,7 @@ export function Rail({ state, snapshot, prompt, objects, onHover, plays }: RailP
       </header>
 
       <div className="rail__panel">
+        <RewindRequestBar snapshot={snapshot} prompt={prompt} meId={meId} />
         {plays}
         {/* Battles usually come from the start-battle prompt, but the server may also offer one as a main action. */}
         {enabledCandidate(prompt, "DECLARE_BATTLE") && <BattlePanel prompt={prompt} objects={objects} />}
@@ -119,7 +121,13 @@ export function Rail({ state, snapshot, prompt, objects, onHover, plays }: RailP
         <button className="btn btn--ghost btn--small" onClick={() => setPanel(panel === "settings" ? null : "settings")} aria-expanded={panel === "settings"}>
           设置
         </button>
+        {canRequestRewind(snapshot, prompt) && (
+          <button className="btn btn--ghost btn--small" onClick={() => setPanel(panel === "rewind" ? null : "rewind")} aria-expanded={panel === "rewind"}>
+            回退
+          </button>
+        )}
         {panel === "settings" && <SettingsPanel onClose={() => setPanel(null)} onGuide={() => setPanel("guide")} />}
+        {panel === "rewind" && canRequestRewind(snapshot, prompt) && <RewindPicker snapshot={snapshot} meId={meId} onClose={() => setPanel(null)} />}
         {panel === "guide" && <TableGuide onClose={() => setPanel(null)} />}
         {snapshot.timing.roomStatus === "IN_PROGRESS" &&
           (confirmSurrender ? (

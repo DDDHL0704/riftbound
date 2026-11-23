@@ -63,6 +63,8 @@ class PracticeBot {
   private submittedDeck = false;
   /** A prompt whose every option was refused; the opponent waits for the next prompt. */
   private exhausted = "";
+  /** The rewind request this computer already agreed to, so a repeated prompt doesn't answer it twice. */
+  private acceptedRewind: number | null = null;
 
   constructor(
     readonly meta: Meta,
@@ -88,6 +90,13 @@ class PracticeBot {
     if (this.busy) return;
     clearTimeout(this.timer);
     const { prompt, snapshot } = this.client.state;
+    // The computer agrees to any rewind the player asks for (ADR 0007), whatever window it is waiting in.
+    const accept = prompt?.rewindCandidates?.find((c) => c.action === "ACCEPT_REWIND");
+    if (accept?.requestStep != null && accept.requestStep !== this.acceptedRewind && !this.client.state.pending) {
+      this.acceptedRewind = accept.requestStep;
+      void this.client.submit({ cmdType: "ACCEPT_REWIND", requestStep: accept.requestStep });
+      return;
+    }
     if (!prompt?.actionable || !snapshot || this.client.state.pending || prompt.promptId === this.exhausted) return;
     this.timer = setTimeout(() => void this.act(), 300);
   }
