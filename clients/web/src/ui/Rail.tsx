@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { OPENING_HINT, openingTag, type OpeningRule } from "../game/opening";
 import { client, type ClientState } from "../net/client";
-import { cardName, paymentChoiceLabel } from "../game/cards";
+import { cardName, choiceCardNo, paymentChoiceLabel } from "../game/cards";
 import { enabledCandidate, isRecycle, isTap } from "../game/actions";
 import { fillByIndex, suggestCombat, suggestEffect, type Assignment, type Required } from "../game/decisions";
 import type { Candidate, Choice, GameObject, Prompt, Snapshot } from "../game/types";
@@ -363,12 +363,12 @@ function ChoicePanel({ prompt, objects, onHover }: { prompt: Prompt | null; obje
   return (
     <div className="panel">
       {md.reason && typeof md.reason === "string" && !/^[A-Z_]+$/.test(md.reason) && <p className="small">{md.reason}</p>}
-      <div className={`choices${choices.some((c) => objects[c.id] || cardInfo(c.label)) ? " choices--cards" : ""}`}>
+      <div className={`choices${choices.some((c) => objects[c.id] || choiceCardNo(c.label, c.id)) ? " choices--cards" : ""}`}>
         {choices.map((c) => {
           const o = objects[c.id];
           const on = picked.includes(c.id);
-          // A privately revealed card (e.g. the top of the deck) is not on the table; its label is the card number.
-          const cardNo = o ? undefined : cardInfo(c.label) ? c.label : undefined;
+          // A privately viewed card (e.g. the top of the deck) is not on the table; its label names it.
+          const cardNo = o ? undefined : choiceCardNo(c.label, c.id);
           return o || cardNo ? (
             <Card
               key={c.id}
