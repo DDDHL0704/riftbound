@@ -1543,13 +1543,10 @@ internal static partial class ActionPromptBuilder
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
         CardBehaviorDefinition behavior)
     {
-        if (behavior.TargetEffectAdditionalPowerCost <= 0)
-        {
-            return false;
-        }
-
-        var targetEffectPowerTrait = RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait);
-        if (string.IsNullOrWhiteSpace(targetEffectPowerTrait))
+        var targetEffectPowerTrait = behavior.TargetEffectAdditionalPowerCost > 0
+            ? RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait)
+            : string.Empty;
+        if (behavior.TargetEffectAdditionalPowerCost > 0 && string.IsNullOrWhiteSpace(targetEffectPowerTrait))
         {
             return false;
         }
