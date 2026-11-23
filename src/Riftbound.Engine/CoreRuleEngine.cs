@@ -20645,10 +20645,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : IsBattlefieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
             CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => targetIndex == 0
                 ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
-                : IsEnemyBattlefieldObject(state, playerId, objectId),
+                : IsEnemyBattlefieldUnitObject(state, playerId, objectId),
             CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => targetIndex == 0
-                ? IsPlayerControlledBattlefieldObject(state, playerId, objectId)
-                : IsEnemyBattlefieldObject(state, playerId, objectId),
+                ? IsPlayerControlledBattlefieldObject(state, playerId, objectId) && IsVisibleFieldUnitObject(state.CardObjects, objectId)
+                : IsEnemyBattlefieldUnitObject(state, playerId, objectId),
             CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => targetIndex == 0
                 ? IsPlayerControlledBattlefieldObject(state, playerId, objectId)
                     && IsPlayerControlledFieldUnitObject(state, playerId, objectId)
