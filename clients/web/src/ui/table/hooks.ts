@@ -90,7 +90,8 @@ export function useOpponentArrivals(snapshot: Snapshot, meId: string) {
 
 /** The one orchestrated moment: announce whose turn just began. Returns the banner text, if showing. */
 export function useTurnBanner(snapshot: Snapshot, meId: string) {
-  const [banner, setBanner] = useState<string | null>(null);
+  // Each announcement is a new object, so the timer below restarts even when the text repeats.
+  const [banner, setBanner] = useState<{ text: string } | null>(null);
   const lastTurn = useRef<string>("");
   useEffect(() => {
     const turnPlayer = snapshot.timing.turnPlayerId || snapshot.activePlayerId;
@@ -99,13 +100,18 @@ export function useTurnBanner(snapshot: Snapshot, meId: string) {
     const first = lastTurn.current === "";
     lastTurn.current = key;
     if (first && snapshot.turnNumber > 1) return;
-    setBanner(turnPlayer === meId ? "你的回合" : "对手回合");
+    setBanner({ text: turnPlayer === meId ? "你的回合" : "对手回合" });
     if (turnPlayer === meId) cue("turn");
+  }, [snapshot.turnNumber, snapshot.activePlayerId, snapshot.timing.turnPlayerId, snapshot.timing.phase, meId]);
+  // The timer belongs to the banner, not to the turn check above: a phase change within the turn reruns
+  // that check, and clearing its timer there left the banner up for the rest of the turn.
+  useEffect(() => {
+    if (!banner) return;
     // Short: a start-of-turn prompt often needs an answer right away and the strip sits over the fields.
     const t = setTimeout(() => setBanner(null), 1100);
     return () => clearTimeout(t);
-  }, [snapshot.turnNumber, snapshot.activePlayerId, snapshot.timing.turnPlayerId, snapshot.timing.phase, meId]);
-  return banner;
+  }, [banner]);
+  return banner?.text ?? null;
 }
 
 const AUTO_PASS_KEY = "riftbound.web.autoPass";
