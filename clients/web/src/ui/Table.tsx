@@ -277,6 +277,21 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   // Targets can add costs (e.g. spellshield), so quote the exact play before sending it.
   const submitPlay = async (p: Pick) => {
     let sel = p.sel;
+    // A plain play — no target, no chosen place, nothing picked beyond the preset rune taps, no power or
+    // per-option cost — costs what its requirement already says, so it goes straight to the server instead
+    // of waiting on a quote first. Targets (spellshield taxes), places and extra costs still get quoted.
+    const plain =
+      sel.targets.length === 0 &&
+      !sel.destination &&
+      sel.optionalCosts.length === p.action.presetCosts.length &&
+      sel.optionalCosts.every((c) => p.action.presetCosts.includes(c)) &&
+      p.action.powerShortfall === 0 &&
+      !p.action.variablePower &&
+      !p.action.requirement?.costsByChoice;
+    if (plain) {
+      void client.submit(buildCommand(p.action, sel), p.action.promptId);
+      return;
+    }
     let quote = await client.previewPlayCard(buildCommand(p.action, sel));
     const missingMana = quote?.isValid ? quote.cost?.missingMana ?? 0 : 0;
     const taps = p.action.taps.filter((t) => !sel.optionalCosts.includes(t)).slice(0, missingMana);
