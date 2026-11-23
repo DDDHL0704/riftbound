@@ -54,6 +54,93 @@ public sealed class GroupedTargetTests
         var bad=await new CoreRuleEngine().ResolveAsync(s,new("bad","P1",CommandTypes.PlayCard),new PlayCardCommand("AOE",Spell,["D","D2"]),default);
         Assert.False(bad.Accepted);Assert.Equal(hash,MatchStateHasher.Hash(bad.State));
     }
+    [Fact]
+    public async Task PlayPromptProvidesSharedBattlefieldForEveryCandidate()
+    {
+        var state = At(OtherField(Group(5, 2), "D3", "D4"), "D5", "P2", "BASE");
+        var requirement = Assert.Single(TargetRequirements(state, CommandTypes.PlayCard, "AOE"));
+        var badBase = await new CoreRuleEngine().ResolveAsync(state, new("bad-base", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("AOE", Spell, ["D5"]), default);
+        Assert.False(badBase.Accepted);
+        Assert.Empty(badBase.Events);
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(badBase.State));
+        Assert.True(Quote(state, "D", "D2").IsValid);
+        Assert.True(Quote(state, "D3", "D4").IsValid);
+
+        Assert.Equal(new[] { "D", "D2" }, CompatibleTargets(requirement, "D"));
+        Assert.Equal(new[] { "D3", "D4" }, CompatibleTargets(requirement, "D3"));
+        Assert.Equal(JsonValueKind.Null, requirement.GetProperty("destinationChoices").ValueKind);
+    }
+
+    // The web picker intersects these choices after each target is selected.
+    private static string[] CompatibleTargets(JsonElement requirement, string firstTarget)
+    {
+        var byTarget = requirement.GetProperty("destinationChoicesByTargetObjectId");
+        Assert.Equal(JsonValueKind.Object, byTarget.ValueKind);
+        var field = Assert.Single(byTarget.GetProperty(firstTarget).EnumerateArray()).GetProperty("id").GetString();
+        return requirement.GetProperty("targetChoicesByIndex").GetProperty("1").EnumerateArray()
+            .Select(choice => choice.GetProperty("id").GetString()!)
+            .Where(id => byTarget.GetProperty(id).EnumerateArray().Any(group => group.GetProperty("id").GetString() == field))
+            .Order(StringComparer.Ordinal).ToArray();
+    }
+
+    [Fact]
+    public async Task StandbyRevealOnlyOffersAndAcceptsUnitsAtItsOwnBattlefield()
+    {
+        var initial = StandbySourceRulesTests.Position(Spell);
+        initial = OfficialHoldSequenceTests.AddUnit(initial, "REMOTE", "OGN·001/298", "OTHER", "P2");
+        initial = AttackDamageDistributionTests.Spell(initial, "REPLY", "OGN·048/298", "P2");
+        var game = new VenBasicFlowSpellTests.Driver(initial);
+        await game.Act("P1", new HideCardCommand("SHADOW", Spell, "BATTLEFIELD:F", ["STANDBY_A"]));
+        await game.Act("P1", new EndTurnCommand());
+        await game.TapRunes("P2", ["SHADOW-P2-RUNE-1", "SHADOW-P2-RUNE-2", "SHADOW-P2-RUNE-3"]);
+        await game.Act("P2", new RecycleRuneCommand("SHADOW-P2-RUNE-4", ["SHADOW-P2-RUNE-4", "SHADOW-P2-RUNE-5"]));
+        await game.Act("P2", new PlayCardCommand("REPLY", "OGN·048/298", []));
+        await game.Act("P2", new PassPriorityCommand());
+
+        var requirement = Assert.Single(TargetRequirements(game.State, CommandTypes.RevealCard, "SHADOW"));
+        var choices = requirement.GetProperty("targetChoicesByIndex").GetProperty("0").EnumerateArray()
+            .Select(choice => choice.GetProperty("id").GetString()).ToArray();
+        Assert.Contains("SHADOW-INSIDE", choices);
+        Assert.DoesNotContain("REMOTE", choices);
+        Assert.DoesNotContain("SHADOW-OUTSIDE", choices);
+
+        var before = MatchStateHasher.Hash(game.State);
+        foreach (var targets in new[] { new[] { "SHADOW-INSIDE", "REMOTE" }, new[] { "REMOTE" }, new[] { "SHADOW-OUTSIDE" } })
+        {
+            var bad = await new CoreRuleEngine().ResolveAsync(game.State, new("reveal-invalid", "P1", CommandTypes.RevealCard),
+                Reveal(targets), default);
+            Assert.False(bad.Accepted);
+            Assert.Empty(bad.Events);
+            Assert.Equal(before, MatchStateHasher.Hash(bad.State));
+        }
+
+        await game.Act("P1", Reveal(["SHADOW-INSIDE"]));
+        await game.Top();
+        Assert.Contains("SHADOW-INSIDE", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("REMOTE", game.State.PlayerZones["P2"].Battlefields);
+        await game.Replay();
+
+        Assert.True(requirement.TryGetProperty("destinationChoicesByTargetObjectId", out var byTarget));
+        var groups = byTarget.EnumerateObject().ToArray();
+        Assert.Equal(choices.Order(StringComparer.Ordinal), groups.Select(group => group.Name).Order(StringComparer.Ordinal));
+        Assert.All(groups, group => Assert.Equal("BATTLEFIELD:F",
+            Assert.Single(group.Value.EnumerateArray()).GetProperty("id").GetString()));
+
+        static RevealCardCommand Reveal(string[] targets)
+            => new("SHADOW", Spell, targets, "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK");
+    }
+
+    private static JsonElement[] TargetRequirements(MatchState state, string action, string source)
+    {
+        var prompt = JsonSerializer.SerializeToElement(ResolutionResult.BuildPrompts(state)["P1"],
+            new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        return prompt.GetProperty("candidates").EnumerateArray()
+            .Where(candidate => candidate.GetProperty("action").GetString() == action)
+            .SelectMany(candidate => candidate.GetProperty("metadata").GetProperty("sourceRequirements").EnumerateArray())
+            .Where(requirement => requirement.GetProperty("sourceObjectId").GetString() == source).ToArray();
+    }
+
     [Theory]
     [InlineData(false)] [InlineData(true)]
     public async Task IncreasedTotalLetsCasterChooseEitherOfficialExampleSubset(bool twoLarge)
