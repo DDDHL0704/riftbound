@@ -179,5 +179,8 @@ export function colorOf(tags: string[] | undefined) {
 export function paymentChoiceLabel(id: string, label: string, objects: Record<string, GameObject>) {
   const tail = id.split(":").pop() ?? id;
   const o = objects[id] ?? objects[tail];
-  return o ? `${label.split(/[：:]/)[0]}：${cardName(o.cardNo)}` : nameCardNumbers(label);
+  if (!o) return nameCardNumbers(label);
+  // A label that already names the card ("让学徒铁匠变为休眠状态") reads as it is.
+  const name = cardName(o.cardNo);
+  return label.includes(name) ? label : `${label.split(/[：:]/)[0]}：${name}`;
 }
