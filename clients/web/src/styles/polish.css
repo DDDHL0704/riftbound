@@ -166,9 +166,8 @@
     opacity: 0;
   }
 }
-.hand__card .card-slot--hand {
-  transform-style: preserve-3d;
-}
+/* The tilt carries its own perspective, so the slot stays flat: with preserve-3d the half of the card
+   tipping away sank behind the slot's plane, and a click there hit the slot instead of the card. */
 .hand__card:hover .card-slot--hand .card {
   transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   transition: transform 0.08s linear, box-shadow 0.2s var(--ease-out);
