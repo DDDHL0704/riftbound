@@ -2882,10 +2882,28 @@ internal static partial class ActionPromptBuilder
             var destination = behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment
                 ? "BATTLEFIELD:" + behavior.StandbyPlayFrom!.Battlefield.ObjectId : StandbyReactionDestination;
             var mode = string.IsNullOrEmpty(behavior.Mode) ? StandbyReactionMode : behavior.Mode;
+            var targetChoices = Enumerable.Range(0, count).ToDictionary(i => i.ToString(),
+                i => PromptTargetChoicesForIndex(state, playerId, behavior, i, source));
+            if (behavior.TargetReferencedMovement is not null && !behavior.AnyNumberOfTargets)
+            {
+                // The standby battlefield can fix the movement reference. List only
+                // choices that still participate in a legal target combination.
+                var legalSelections = PlayCardLegalTargetSelections(state, playerId, behavior, source);
+                if (legalSelections.Count == 0)
+                    continue;
+
+                for (var i = 0; i < count; i++)
+                {
+                    var legalIds = legalSelections.Where(selection => selection.Count > i)
+                        .Select(selection => selection[i]).ToHashSet(StringComparer.Ordinal);
+                    var key = i.ToString();
+                    targetChoices[key] = targetChoices[key].Where(choice => legalIds.Contains(choice.Id)).ToArray();
+                }
+            }
             result.Add(new(source, behavior.CardNo, behavior.DisplayName, mode, "从待命打出",
                 [new(destination, destination == StandbyReactionDestination ? "结算链" : "待命原战场")],
                 [new(StandbyRevealOptionalCost, "免基础费用；额外费用请使用完整出牌面板")],
-                Enumerable.Range(0,count).ToDictionary(i=>i.ToString(),i=>(IReadOnlyList<ActionPromptChoiceDto>)PromptTargetChoicesForIndex(state,playerId,behavior,i,source)),
+                targetChoices,
                 PromptMinTargetCount(behavior,condition,CoreRuleEngine.ActiveLevelAdditionalTargetCount(state,playerId,behavior)), count, PromptTargetScopeForBehavior(behavior), [StandbyRevealOptionalCost],
                 !CoreRuleEngine.UsesDeclaredMovementDestination(behavior), CoreRuleEngine.UsesDeclaredMovementDestination(behavior) ? "请使用完整出牌面板选择移动计划" : null));
         }
