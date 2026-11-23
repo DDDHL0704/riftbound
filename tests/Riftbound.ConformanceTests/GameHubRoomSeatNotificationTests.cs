@@ -142,6 +142,8 @@ public sealed partial class GameHubJoinTests
         var initial = journal.Entries[^1].AuthoritativeState;
         Assert.NotEmpty(initial.PlayerZones["alice"].Hand);
         Assert.NotEmpty(initial.PlayerZones["alice"].MainDeck);
+        var snapshotBeforeReconnect = MatchStateHasher.HashValue(peer.Snapshots[^1].Payload);
+        var promptBeforeReconnect = MatchStateHasher.HashValue(peer.Prompts[^1].Payload);
         var count = journal.Entries.Count;
         peer.Snapshots.Clear();
         peer.Prompts.Clear();
@@ -151,8 +153,8 @@ public sealed partial class GameHubJoinTests
         var prompt = Assert.Single(peer.Prompts);
         Assert.Equal("bob", snapshot.PlayerId);
         Assert.Equal("bob", prompt.PlayerId);
-        Assert.Equal(MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(initial)["bob"]), MatchStateHasher.HashValue(snapshot.Payload));
-        Assert.Equal(MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(initial)["bob"]), MatchStateHasher.HashValue(prompt.Payload));
+        Assert.Equal(snapshotBeforeReconnect, MatchStateHasher.HashValue(snapshot.Payload));
+        Assert.Equal(promptBeforeReconnect, MatchStateHasher.HashValue(prompt.Payload));
         var serialized = JsonSerializer.Serialize(new[] { snapshot, prompt });
         foreach (var hidden in initial.PlayerZones["alice"].Hand.Concat(initial.PlayerZones["alice"].MainDeck))
             Assert.DoesNotContain('"' + hidden + '"', serialized, StringComparison.Ordinal);

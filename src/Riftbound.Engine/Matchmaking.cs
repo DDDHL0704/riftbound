@@ -79,8 +79,8 @@ public sealed class InMemoryMatchmakingQueue : IMatchmakingQueue
 
                 var roomId = NormalizeRoomId(roomIdFactory());
                 var session = await sessions.GetOrCreateAsync(roomId, cancellationToken).ConfigureAwait(false);
-                if (session.OpeningRule != OpeningRules.Standard)
-                    throw new InvalidOperationException("快速匹配仅使用 STANDARD 开局规则。");
+                if (session.OpeningRule != OpeningRules.Standard || session.RewindAllowed)
+                    throw new InvalidOperationException("快速匹配仅使用关闭回退的 STANDARD 房间。");
                 var opponentSession = await session.EnsurePlayerAsync(opponentPlayerId, cancellationToken)
                     .ConfigureAwait(false);
                 var playerSession = await session.EnsurePlayerAsync(normalizedPlayerId, cancellationToken)

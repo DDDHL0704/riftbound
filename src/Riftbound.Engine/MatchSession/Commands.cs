@@ -106,7 +106,7 @@ public sealed partial class MatchSession
                     allowAbsentDeckRoles: options.DeckFormat == OfficialDeckFormat.Sealed)
                 && typedInput.MatchesWire(rawCommand.Value));
 
-    private static bool TryRejectStalePrompt(
+    private bool TryRejectStalePrompt(
         MatchState state,
         string playerId,
         JsonElement? rawCommand,
@@ -149,7 +149,7 @@ public sealed partial class MatchSession
         return false;
     }
 
-    private static bool TryRejectUnavailablePromptAction(
+    private bool TryRejectUnavailablePromptAction(
         MatchState state,
         string playerId,
         GameCommand command,
@@ -201,9 +201,9 @@ public sealed partial class MatchSession
         return true;
     }
 
-    private static IReadOnlyList<ActionPromptDto> BuildPromptFreshnessCandidates(MatchState state, string playerId)
+    private IReadOnlyList<ActionPromptDto> BuildPromptFreshnessCandidates(MatchState state, string playerId)
     {
-        var currentPrompt = ResolutionResult.BuildPrompts(state)[playerId];
+        var currentPrompt = ProjectRewindPrompt(ResolutionResult.BuildPrompts(state)[playerId], rewindFrame);
         if (!IsOrdinaryMainOpenPromptState(state, playerId))
         {
             return [currentPrompt];
@@ -216,6 +216,7 @@ public sealed partial class MatchSession
             "当前玩家普通开环行动",
             WithSurrender(ImplementedMainOpenActions(state, playerId)));
 
+        implementedPrompt = ProjectRewindPrompt(implementedPrompt, rewindFrame);
         return string.Equals(currentPrompt.PromptId, implementedPrompt.PromptId, StringComparison.Ordinal)
             ? [currentPrompt]
             : [currentPrompt, implementedPrompt];

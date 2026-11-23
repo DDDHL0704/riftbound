@@ -230,14 +230,16 @@ public sealed class GameHub(
         {
             session = normalizedOptions.Format == MatchFormats.Sealed
                 ? await sessions.GetOrCreateAsync(roomId,
-                    normalizedOptions.Packs is { } packs
+                    (normalizedOptions.Packs is { } packs
                         ? MatchSessionOptions.ForSealed(packs, normalizedOptions.BestOf)
-                        : MatchSessionOptions.ForSealed(normalizedOptions.SetCode!, normalizedOptions.BestOf),
+                        : MatchSessionOptions.ForSealed(normalizedOptions.SetCode!, normalizedOptions.BestOf))
+                    with { RewindAllowed = true },
                     Context.ConnectionAborted)
                 : normalizedOptions.OpeningRule != OpeningRules.Standard
-                    ? await sessions.GetOrCreateAsync(roomId, MatchSessionOptions.ForOpeningRule(normalizedOptions.OpeningRule),
+                    ? await sessions.GetOrCreateAsync(roomId,
+                        MatchSessionOptions.ForOpeningRule(normalizedOptions.OpeningRule) with { RewindAllowed = true },
                         Context.ConnectionAborted)
-                    : await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
+                    : await sessions.GetOrCreatePlayerRoomAsync(roomId, Context.ConnectionAborted);
             playerSession = await session.EnsurePlayerAsync(normalizedPlayerId, Context.ConnectionAborted);
             match = normalizedOptions.Format == MatchFormats.Sealed || normalizedOptions.OpeningRule != OpeningRules.Standard
                 ? await publicMatches.CreateAsync(roomId, normalizedPlayerId, normalizedOptions, Context.ConnectionAborted)
@@ -287,7 +289,7 @@ public sealed class GameHub(
         PlayerSessionDto playerSession;
         try
         {
-            session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
+            session = await sessions.GetOrCreatePlayerRoomAsync(roomId, Context.ConnectionAborted);
             playerSession = await session.EnsurePlayerAsync(normalizedPlayerId, Context.ConnectionAborted);
             playerConnections?.EnterRoom(Context.ConnectionId, normalizedPlayerId, roomId);
             if (publicMatches is not null)
@@ -500,7 +502,7 @@ public sealed class GameHub(
                 MessageType.EVENTS,
                 roomId,
                 normalizedPlayerId,
-                result.State.Tick,
+                result.ServerTick,
                 events));
         }
 
@@ -520,7 +522,7 @@ public sealed class GameHub(
                 MessageType.PROMPT,
                 roomId,
                 promptPlayerId,
-                result.State.Tick,
+                result.ServerTick,
                 prompt));
         }
     }
@@ -611,7 +613,7 @@ public sealed class GameHub(
                 MessageType.ERROR,
                 roomId,
                 normalizedPlayerId,
-                result.State.Tick,
+                result.ServerTick,
                 new ErrorDto(
                     errorCode,
                     errorMessage)));
@@ -622,13 +624,13 @@ public sealed class GameHub(
                 command,
                 rawCommand,
                 accepted: false,
-                serverTick: result.State.Tick,
+                serverTick: result.ServerTick,
                 state: "REJECTED",
                 message: errorMessage,
                 errorCode: errorCode,
                 followup: CommandReceiptFollowups.Create(
                     accepted: false,
-                    serverTick: result.State.Tick,
+                    serverTick: result.ServerTick,
                     eventCount: 0,
                     snapshotCount: 0,
                     promptCount: 0,
@@ -651,34 +653,37 @@ public sealed class GameHub(
                 Context.ConnectionAborted);
         }
 
-        if (projectedEvents.Count > 0)
+        if (!result.IsDuplicate || command is not RewindCommand)
         {
-            await Clients.Group(RoomGroup(roomId)).Events(new WsServerMessage(
-                EventMessageType(command, result),
-                roomId,
-                normalizedPlayerId,
-                result.State.Tick,
-                projectedEvents));
-        }
+            if (projectedEvents.Count > 0)
+            {
+                await Clients.Group(RoomGroup(roomId)).Events(new WsServerMessage(
+                    EventMessageType(command, result),
+                    roomId,
+                    normalizedPlayerId,
+                    result.ServerTick,
+                    projectedEvents));
+            }
 
-        foreach (var (snapshotPlayerId, snapshot) in result.Snapshots)
-        {
-            await Clients.Group(PlayerGroup(roomId, snapshotPlayerId)).Snapshot(new WsServerMessage(
-                MessageType.SNAPSHOT,
-                roomId,
-                snapshotPlayerId,
-                snapshot.Tick,
-                snapshot));
-        }
+            foreach (var (snapshotPlayerId, snapshot) in result.Snapshots)
+            {
+                await Clients.Group(PlayerGroup(roomId, snapshotPlayerId)).Snapshot(new WsServerMessage(
+                    MessageType.SNAPSHOT,
+                    roomId,
+                    snapshotPlayerId,
+                    snapshot.Tick,
+                    snapshot));
+            }
 
-        foreach (var (promptPlayerId, prompt) in result.Prompts)
-        {
-            await Clients.Group(PlayerGroup(roomId, promptPlayerId)).Prompt(new WsServerMessage(
-                MessageType.PROMPT,
-                roomId,
-                promptPlayerId,
-                result.State.Tick,
-                prompt));
+            foreach (var (promptPlayerId, prompt) in result.Prompts)
+            {
+                await Clients.Group(PlayerGroup(roomId, promptPlayerId)).Prompt(new WsServerMessage(
+                    MessageType.PROMPT,
+                    roomId,
+                    promptPlayerId,
+                    result.ServerTick,
+                    prompt));
+            }
         }
 
         return CommandReceipt(
@@ -688,18 +693,18 @@ public sealed class GameHub(
             command,
             rawCommand,
             accepted: true,
-            serverTick: result.State.Tick,
+            serverTick: result.ServerTick,
             state: "ACCEPTED",
             message: "服务端已接受命令，后续以快照和规则事件为准。",
             followup: CommandReceiptFollowups.Create(
                 accepted: true,
-                serverTick: result.State.Tick,
+                serverTick: result.ServerTick,
                 eventCount: projectedEvents.Count,
                 snapshotCount: result.Snapshots.Count,
                 promptCount: result.Prompts.Count,
                 receiptState: "ACCEPTED",
                 eventKinds: projectedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
-                eventRefs: CommandReceiptFollowups.EventRefs(projectedEvents, result.State.Tick)));
+                eventRefs: CommandReceiptFollowups.EventRefs(projectedEvents, result.ServerTick)));
     }
 
     private static MessageType EventMessageType(GameCommand command, ResolutionResult result)

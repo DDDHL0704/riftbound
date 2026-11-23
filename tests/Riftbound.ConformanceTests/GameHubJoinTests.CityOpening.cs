@@ -416,12 +416,16 @@ public sealed partial class GameHubJoinTests
         public async Task Cold()
         {
             var frame = Frame();
+            var liveTargets = tokens.Keys.ToDictionary(player => player, player => Live.SnapshotFor(player).RewindTargets?.ToArray());
             Registry = new(new CoreRuleEngine(), Journal, new CityRecovery(frame), players);
             Live = await Registry.GetOrCreateAsync(frame.RoomId, default);
             foreach (var player in tokens.Keys.ToArray())
             {
                 tokens[player] = (await Live.ReconnectPlayerAsync(player, tokens[player], default)).ReconnectToken;
-                Assert.Equal(MatchStateHasher.HashValue(frame.PlayerViews[player].Snapshot), MatchStateHasher.HashValue(Live.SnapshotFor(player)));
+                var snapshot = Live.SnapshotFor(player);
+                Assert.Equal(MatchStateHasher.HashValue(frame.PlayerViews[player].Snapshot),
+                    MatchStateHasher.HashValue(snapshot with { RewindTargets = null }));
+                Assert.Equal(liveTargets[player], snapshot.RewindTargets?.ToArray());
                 var expected = JsonSerializer.SerializeToElement(frame.PlayerViews[player].Prompt, CityJson);
                 var actual = JsonSerializer.SerializeToElement(Live.PromptFor(player), CityJson);
                 Assert.True(MatchStateHasher.HashValue(expected) == MatchStateHasher.HashValue(actual),

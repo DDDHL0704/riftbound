@@ -4077,8 +4077,8 @@ public sealed partial class GameHubJoinTests
         var seedJournalCount = journal.Entries.Count;
         var seededEntry = SingleClientEntryAfterRoomSeats(journal);
         var seededStateHash = MatchStateHasher.Hash(seededEntry.AuthoritativeState);
-        var seededPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(seededEntry.AuthoritativeState));
-        var seededSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(seededEntry.AuthoritativeState));
+        var seededPromptsHash = MatchStateHasher.HashValue(seededEntry.Prompts);
+        var seededSnapshotsHash = MatchStateHasher.HashValue(seededEntry.Snapshots);
 
         var stalePromptClients = new RecordingHubClients();
         var stalePromptId = $"{prompt.PromptId}:stale";
@@ -5676,8 +5676,8 @@ public sealed partial class GameHubJoinTests
         var seedJournalCount = journal.Entries.Count;
         var seededEntry = SingleClientEntryAfterRoomSeats(journal);
         var seededStateHash = MatchStateHasher.Hash(seededEntry.AuthoritativeState);
-        var seededPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(seededEntry.AuthoritativeState));
-        var seededSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(seededEntry.AuthoritativeState));
+        var seededPromptsHash = MatchStateHasher.HashValue(seededEntry.Prompts);
+        var seededSnapshotsHash = MatchStateHasher.HashValue(seededEntry.Snapshots);
 
         var staleClients = new RecordingHubClients();
         var stalePromptId = $"{prompt.PromptId}:stale";
@@ -5805,8 +5805,8 @@ public sealed partial class GameHubJoinTests
         var seedJournalCount = journal.Entries.Count;
         var seededEntry = SingleClientEntryAfterRoomSeats(journal);
         var seededStateHash = MatchStateHasher.Hash(seededEntry.AuthoritativeState);
-        var seededPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(seededEntry.AuthoritativeState));
-        var seededSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(seededEntry.AuthoritativeState));
+        var seededPromptsHash = MatchStateHasher.HashValue(seededEntry.Prompts);
+        var seededSnapshotsHash = MatchStateHasher.HashValue(seededEntry.Snapshots);
 
         var staleClients = new RecordingHubClients();
         var staleSnapshotTick = prompt.SnapshotTick.Value + 1;
@@ -16744,7 +16744,6 @@ public sealed partial class GameHubJoinTests
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildValidDeck(catalog);
         var p2Deck = BuildValidDeck(catalog);
-        var replayInitialState = MatchState.Create(roomId);
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
@@ -16760,7 +16759,12 @@ public sealed partial class GameHubJoinTests
         await CreateHub(p2SubmitClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", $"{roomId}-submit-deck-p2", SubmitDeckJson(p2Deck));
         Assert.Empty(p2SubmitClients.CallerClient.Errors);
-        replayInitialState = replayInitialState with { Seed = journal.Entries[0].OpeningSeed };
+        var firstEntry = journal.Entries[0];
+        var replayInitialState = MatchState.Create(roomId) with
+        {
+            Seed = firstEntry.OpeningSeed,
+            SessionOptions = firstEntry.AuthoritativeState.SessionOptions
+        };
 
         var p1ReadyClients = new RecordingHubClients();
         await CreateHub(p1ReadyClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")

@@ -12,6 +12,7 @@ public static partial class MatchRecoveryValidator
         string roomId,
         long lastEventSequence,
         long? currentTick,
+        long tickOffset,
         MatchState? authoritativeState,
         MatchReplayFrame? spectatorReplayFrame,
         List<string> errors)
@@ -38,10 +39,10 @@ public static partial class MatchRecoveryValidator
                 $"spectator replay frame event sequence {spectatorReplayFrame.EventSequence} does not match recovery sequence {lastEventSequence}");
         }
 
-        if (spectatorReplayFrame.Tick != authoritativeState.Tick)
+        if (spectatorReplayFrame.Tick != authoritativeState.Tick + tickOffset)
         {
             errors.Add(
-                $"spectator replay frame tick {spectatorReplayFrame.Tick} does not match authoritative state tick {authoritativeState.Tick}");
+                $"spectator replay frame tick {spectatorReplayFrame.Tick} does not match authoritative state tick {authoritativeState.Tick + tickOffset}");
         }
 
         if (currentTick is { } expectedTick && spectatorReplayFrame.Tick != expectedTick)

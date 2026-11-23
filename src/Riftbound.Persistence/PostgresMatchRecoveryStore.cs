@@ -67,7 +67,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             ? null
             : MatchReplayRedactor.BuildSpectatorFrame(
                 metadata.RoomId,
-                authoritativeState.Tick,
+                metadata.CurrentTick,
                 metadata.LastEventSequence,
                 events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
                 authoritativeState);

@@ -301,7 +301,7 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchRo
             """;
         await using var command = new NpgsqlCommand(sql, connection, transaction);
         command.Parameters.AddWithValue("match_id", entry.RoomId);
-        command.Parameters.AddWithValue("state_tick", entry.AuthoritativeState.Tick);
+        command.Parameters.AddWithValue("state_tick", entry.CompletedTick);
         command.Parameters.AddWithValue("last_event_sequence", entry.CompletedEventSequence);
         AddRulesetParameters(command, entry);
         AddJson(command, "payload", entry.AuthoritativeState);

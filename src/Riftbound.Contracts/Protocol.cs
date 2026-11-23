@@ -99,6 +99,10 @@ public static class CommandTypes
     public const string OrderTriggers = "ORDER_TRIGGERS";
     public const string ChooseHandCards = "CHOOSE_HAND_CARDS";
     public const string ChooseCards = "CHOOSE_CARDS";
+    public const string RequestRewind = "REQUEST_REWIND";
+    public const string AcceptRewind = "ACCEPT_REWIND";
+    public const string RejectRewind = "REJECT_REWIND";
+    public const string CancelRewind = "CANCEL_REWIND";
 }
 
 public sealed record ErrorDto(
@@ -419,7 +423,16 @@ public sealed record SnapshotDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? SideboardCounts = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SealedPackChoiceDto>? SealedPacks = null,
     string OpeningRule = OpeningRules.Standard,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] OpeningSetupDto? OpeningSetup = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] OpeningSetupDto? OpeningSetup = null)
+{
+    public bool RewindAllowed { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IEnumerable<RewindTargetDto>? RewindTargets { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public RewindRequestDto? RewindRequest { get; init; }
+}
 
 public static class PromptTypes
 {
@@ -595,7 +608,11 @@ public sealed record ActionPromptDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptContractDto? Contract = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptObjectContextDto>? ObjectContexts = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptInspectionDto? Inspection = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptServerFlowDto? ServerFlow = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptServerFlowDto? ServerFlow = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<RewindCandidateDto>? RewindCandidates { get; init; }
+}
 
 public sealed record ActionPromptInspectionDto(
     string Source,
