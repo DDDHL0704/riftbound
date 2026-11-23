@@ -74,6 +74,9 @@ def _guard_class_names(test_files):
 def _source_identifiers(path, text):
     """Build conservative type/file tokens for tests that depend on a source file."""
     stem = path.rsplit('/', 1)[-1]
+    if stem.endswith('.csproj'):
+        # Project prefixes such as Riftbound appear in every test namespace.
+        return {stem, stem.removesuffix('.csproj')}
     if stem.endswith('.cs'):
         stem = stem[:-3]
     parts = re.split(r'[._-]', stem)
