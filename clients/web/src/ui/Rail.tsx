@@ -361,11 +361,13 @@ function ChoicePanel({ prompt, objects, onHover }: { prompt: Prompt | null; obje
     void client.submit({ cmdType: cand.action, choiceId: md.choiceId, choiceWindow: md.choiceWindow, chosenObjectIds: picked });
   // Some choices are an order (insight puts the kept cards back top first in the order picked); number the picks.
   const ordered = max > 1 && /ORDER/.test(String(md.choiceWindow ?? ""));
+  const viewed: Choice[] = Array.isArray(md.viewedCards) ? md.viewedCards : [];
+  const seenOnly = viewed.filter((v) => !choices.some((c) => c.id === v.id));
 
   return (
     <div className="panel">
       {md.reason && typeof md.reason === "string" && !/^[A-Z_]+$/.test(md.reason) && <p className="small">{md.reason}</p>}
-      <div className={`choices${choices.some((c) => objects[c.id] || choiceCardNo(c.label, c.id)) ? " choices--cards" : ""}`}>
+      <div className={`choices${[...choices, ...seenOnly].some((c) => objects[c.id] || choiceCardNo(c.label, c.id)) ? " choices--cards" : ""}`}>
         {choices.map((c) => {
           const o = objects[c.id];
           const on = picked.includes(c.id);
@@ -389,6 +391,19 @@ function ChoicePanel({ prompt, objects, onHover }: { prompt: Prompt | null; obje
               {order ? `${order}. ` : ""}
               {c.label}
             </button>
+          );
+        })}
+        {/* The rest of what the effect looked at (e.g. the four non-units under 增援): seen, not choosable. */}
+        {seenOnly.map((v) => {
+          const cardNo = choiceCardNo(v.label, v.id);
+          return cardNo ? (
+            <span key={v.id} className="choices__slot choices__slot--seen">
+              <Card cardNo={cardNo} size="board" onHover={onHover} title={v.reason ?? undefined} />
+            </span>
+          ) : (
+            <span key={v.id} className="chip chip--seen" title={v.reason ?? undefined}>
+              {v.label}
+            </span>
           );
         })}
       </div>

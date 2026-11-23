@@ -358,6 +358,11 @@
 .choices__slot {
   position: relative;
 }
+.choices__slot--seen,
+.chip--seen {
+  opacity: 0.55;
+  cursor: default;
+}
 .choices__slot[data-order]::after {
   content: attr(data-order);
   /* Centred, so it never reads as the printed cost in the card's corner. */
