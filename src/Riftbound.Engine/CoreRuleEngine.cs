@@ -30159,9 +30159,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var primaryAmount = behavior.PowerModifierAmountAtLevel is { } levelAmount
             && ControllerMeetsLevelExperienceThreshold(behavior, controllerId, state.PlayerExperience)
                 ? levelAmount : behavior.PowerModifierAmount;
-        return targetIndex == 1 && behavior.SecondaryPowerModifierAmount != 0
+        var amount = targetIndex == 1 && behavior.SecondaryPowerModifierAmount != 0
             ? behavior.SecondaryPowerModifierAmount
             : primaryAmount;
+        if (behavior.AdditionalPowerModifierForOnlyFriendlyUnitAtLocation != 0
+            && cardObjects.TryGetValue(targetObjectId, out var target)
+            && IsFaceUpNonStandbyUnit(target)
+            && FindFieldObjectLocation(playerZones, targetObjectId) is not null
+            && EffectiveFieldControllerId(playerZones, targetObjectId, target) == controllerId
+            && !HasOtherFriendlyUnitAtSamePosition(playerZones, cardObjects, state.ObjectLocations, targetObjectId, controllerId))
+        {
+            amount += behavior.AdditionalPowerModifierForOnlyFriendlyUnitAtLocation;
+        }
+
+        return amount;
     }
 
     private static int CountEnemyBattlefieldUnits(
