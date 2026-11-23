@@ -163,9 +163,19 @@ public sealed class VenActivatedEquipmentTests
             await game.Top();
             await NextOwnTurn(game);
         }
+        var expectedGain = empowered ? 2 : 1;
+        var prompt = ResolutionResult.BuildPrompts(game.State)["P1"];
+        var choices = (prompt.Candidates ?? [])
+            .Where(candidate => candidate.Action == CommandTypes.ActivateAbility && candidate.Enabled)
+            .SelectMany(candidate => candidate.Metadata?.GetValueOrDefault("sourceRequirements")
+                as IEnumerable<IReadOnlyDictionary<string, object?>> ?? []);
+        var egg = Assert.Single(choices, choice => Equals(choice["sourceObjectId"], "UNIT")
+            && Equals(choice["abilityId"], "EGG_REACTION_GAIN_MANA"));
+        Assert.Equal(expectedGain, Assert.IsType<int>(egg["generatedMana"]));
+
         var mana = game.State.RunePools["P1"].Mana;
         await game.Act("P1", new ActivateAbilityCommand("UNIT", "EGG_REACTION_GAIN_MANA", []));
-        Assert.Equal(mana + (empowered ? 2 : 1), game.State.RunePools["P1"].Mana);
+        Assert.Equal(mana + expectedGain, game.State.RunePools["P1"].Mana);
         Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
         Assert.Empty(game.State.StackItems);
         await Reject(game.State, new ActivateAbilityCommand("UNIT", "EGG_REACTION_GAIN_MANA", []));

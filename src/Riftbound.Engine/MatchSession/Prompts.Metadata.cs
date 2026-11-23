@@ -167,7 +167,7 @@ internal static partial class ActionPromptBuilder
     private static IReadOnlyDictionary<string, object?> ActivateAbilityMetadataFor(MatchState state, string playerId)
     {
         var sourceRequirements = ActivateAbilitySourceRequirements(state, playerId)
-            .Select(ActivateAbilitySourceRequirementView)
+            .Select(requirement => ActivateAbilitySourceRequirementView(state, requirement))
             .ToArray();
         return new Dictionary<string, object?>
         {
