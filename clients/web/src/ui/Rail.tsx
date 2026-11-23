@@ -21,6 +21,19 @@ type RailProps = {
   plays?: ReactNode;
 };
 
+/** A rule choice midway through an action arrives as a payment; its own label says what is being chosen. */
+function ruleChoiceLabel(prompt: Prompt | null): string | undefined {
+  const pay = enabledCandidate(prompt, "PAY_COST");
+  return pay?.metadata?.paymentWindow === "RULE_REPLACEMENT" && pay.label ? pay.label : undefined;
+}
+
+/** A choice naming something on the table (a battlefield, a unit) reads as that card; a base as 基地. */
+function choiceText(c: Choice, objects: Record<string, GameObject>) {
+  if (c.id === "BASE" || c.id.startsWith("BASE:")) return "基地";
+  const o = [...(c.objectIds ?? []), c.id, c.id.split(":").pop() ?? ""].map((id) => objects[id]).find((x) => x?.cardNo);
+  return o ? cardName(o.cardNo) : c.label;
+}
+
 /** A card's name that previews the card on hover (see the delegated listener in Table). */
 function Named({ id, objects, fallback }: { id: string; objects: Record<string, GameObject>; fallback?: string }) {
   const o = objects[id];
@@ -75,8 +88,8 @@ export function Rail({ state, snapshot, prompt, objects, onHover, plays }: RailP
             <span title={OPENING_HINT[snapshot.openingRule as OpeningRule]}> · {openingTag(snapshot.openingRule)}</span>
           )}
         </p>
-        <h2 className="rail__title">{actionable || type === "MATCH_RESULT" ? view?.title ?? "行动" : "等待对手"}</h2>
-        {type !== "MAIN_ACTION" && <p className="rail__msg">{view?.message || prompt?.reason}</p>}
+        <h2 className="rail__title">{actionable || type === "MATCH_RESULT" ? ruleChoiceLabel(prompt) ?? view?.title ?? "行动" : "等待对手"}</h2>
+        {type !== "MAIN_ACTION" && !(actionable && ruleChoiceLabel(prompt)) && <p className="rail__msg">{view?.message || prompt?.reason}</p>}
       </header>
 
       <div className="rail__panel">
@@ -487,7 +500,7 @@ function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: R
               disabled={!/DECLINE/.test(c.id) && !canPay}
               onClick={() => void (/DECLINE/.test(c.id) ? decline(c.id) : pay([c.id]))}
             >
-              {/DECLINE/.test(c.id) ? c.label : payLabel(c.label)}
+              {/DECLINE/.test(c.id) ? c.label : payLabel(choiceText(c, objects))}
             </button>
           ))}
         </div>

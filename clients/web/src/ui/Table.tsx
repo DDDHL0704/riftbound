@@ -84,12 +84,29 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     () => setHover(null),
   );
 
+  // A choice the server asks midway through an action (where Yasuo's unit goes, which unit moves) names
+  // things on the table: they light up and answer it when clicked, like a pick.
+  const ruleChoice = useMemo(() => {
+    const cand = enabledCandidate(prompt, "PAY_COST");
+    const md = cand?.metadata;
+    const first = cand?.selectionSteps?.[0];
+    if (!cand || !md || md.paymentWindow !== "RULE_REPLACEMENT" || !first || md.cost?.mana || md.cost?.power) return null;
+    const map = new Map<string, string>();
+    for (const c of first.choices) for (const id of choiceObjectIds(c)) map.set(id, c.id);
+    return { md, map };
+  }, [prompt]);
+  const answerRule = (choiceId: string) =>
+    void client.submit({ cmdType: "PAY_COST", paymentId: ruleChoice!.md.paymentId, paymentWindow: ruleChoice!.md.paymentWindow, paymentChoiceIds: [choiceId] });
+  // What the last submitted action chose stays marked while the server asks the rest of it.
+  const [committed, setCommitted] = useState<string[]>([]);
+
   // Any new prompt invalidates half-built selections.
   useEffect(() => {
     setMenuFor(null);
     setPick(null);
     setRuneSel([]);
-  }, [prompt?.promptId]);
+    if (!ruleChoice) setCommitted([]);
+  }, [prompt?.promptId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (promptType !== "MULLIGAN") setMulligan([]);
@@ -191,6 +208,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     );
   }, [grouping, actions, pick, stepChoices]); // eslint-disable-line react-hooks/exhaustive-deps
   const legal = useMemo(() => {
+    if (!pick && ruleChoice) return ruleChoice.map;
     const map = new Map<string, string>();
     for (const choice of stepChoices) {
       if (pick?.sel.targets.includes(choice.id) || pick?.sel.optionalCosts.includes(choice.id)) continue;
@@ -198,10 +216,11 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     }
     for (const id of peers) map.set(id, GROUP + id);
     return map;
-  }, [stepChoices, peers, pick]);
+  }, [stepChoices, peers, pick, ruleChoice]);
 
   const submitPick = (picked: Pick) => {
     setPick(null);
+    setCommitted([picked.action.sourceObjectId, ...picked.sel.targets, ...picked.group]);
     const p = { ...picked, sel: offeredSelection(picked) };
     if (p.action.cmdType === "MOVE_UNIT" && p.group.length && p.sel.destination) {
       // A group move names its units and destination; each unit keeps its own origin.
@@ -341,6 +360,10 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       if (choiceId) choose(choiceId);
       return;
     }
+    if (ruleChoice?.map.has(id)) {
+      answerRule(ruleChoice.map.get(id)!);
+      return;
+    }
     if (isRune(id) && (tapIds.has(id) || recycleIds.has(id))) {
       setRuneSel((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
       return;
@@ -360,6 +383,12 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   };
 
   const onZone = (zoneIds: string[]) => (e: MouseEvent) => {
+    const rule = !pick ? zoneIds.map((z) => ruleChoice?.map.get(z)).find(Boolean) : undefined;
+    if (rule) {
+      e.stopPropagation();
+      answerRule(rule);
+      return;
+    }
     if (!pick) {
       setMenuFor(null);
       return;
@@ -387,7 +416,8 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     const inGroup = Boolean(pick?.group.includes(id));
     if (menuFor === id || pick?.action.sourceObjectId === id || mulligan.includes(id) || pick?.sel.targets.includes(id) || inGroup || runeSel.includes(id))
       marks.push("selected");
-    if (pick && legal.has(id) && !inGroup) marks.push("legal");
+    if ((pick || ruleChoice) && legal.has(id) && !inGroup) marks.push("legal");
+    if (!pick && committed.includes(id)) marks.push("selected");
     if (!pick && actions.has(id)) marks.push(autoTapOf(id) != null ? "autopay" : "playable");
     if (o?.isAttacking) marks.push("attacking");
     if (o?.isDefending) marks.push("defending");
@@ -412,7 +442,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
         ? inHand
         : pick
           ? legal.has(id)
-          : actions.has(id) || (isRune(id) && (tapIds.has(id) || recycleIds.has(id)));
+          : legal.has(id) || actions.has(id) || (isRune(id) && (tapIds.has(id) || recycleIds.has(id)));
     const draggable = inHand ? canDragHand(id) : canDragUnit(id);
     return (
       <div className="obj" key={id} data-oid={id}>
