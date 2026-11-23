@@ -27,7 +27,8 @@
 
 .side {
   display: grid;
-  grid-template-columns: auto minmax(160px, 1fr) fit-content(30%) auto;
+  /* The runes overlap to fit, so their column gives way to the legend and champion buttons. */
+  grid-template-columns: auto minmax(160px, 1fr) fit-content(24%) auto;
   gap: 16px;
   align-items: center;
   padding: 8px 18px;
@@ -39,14 +40,14 @@
   border-top: 1px solid var(--line);
 }
 
+/* Not a scroll box: overflow-x: auto also turns overflow-y into auto, which clipped the action menu a
+   legend or champion opens above itself and hid the champion's button past the right edge. When the row
+   is tight the button columns narrow instead. */
 .heroes {
   display: flex;
   gap: 12px;
-  max-width: 44vw;
-  overflow-x: auto;
-  overflow-y: visible;
+  min-width: 0;
   padding-top: 10px;
-  scrollbar-width: none;
 }
 .hero {
   position: relative;
@@ -57,8 +58,8 @@
 .hero__acts {
   display: grid;
   gap: 6px;
-  width: 150px;
-  flex: none;
+  flex: 0 1 150px;
+  min-width: 72px;
 }
 .hero__act {
   display: grid;

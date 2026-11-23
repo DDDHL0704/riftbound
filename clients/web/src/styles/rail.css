@@ -50,7 +50,7 @@
     --dock-w: 136px;
   }
   .hero__acts {
-    width: 124px;
+    flex-basis: 124px;
   }
 }
 
