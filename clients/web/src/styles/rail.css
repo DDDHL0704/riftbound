@@ -355,6 +355,27 @@
 .choices--cards {
   gap: 12px;
 }
+.choices__slot {
+  position: relative;
+}
+.choices__slot[data-order]::after {
+  content: attr(data-order);
+  /* Centred, so it never reads as the printed cost in the card's corner. */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--brass-hi);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  color: var(--ink);
+  font: 700 18px/30px var(--font-num);
+  text-align: center;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
 .tempo {
   display: grid;
   gap: 8px;

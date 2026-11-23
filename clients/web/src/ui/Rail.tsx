@@ -359,6 +359,8 @@ function ChoicePanel({ prompt, objects, onHover }: { prompt: Prompt | null; obje
 
   const submit = () =>
     void client.submit({ cmdType: cand.action, choiceId: md.choiceId, choiceWindow: md.choiceWindow, chosenObjectIds: picked });
+  // Some choices are an order (insight puts the kept cards back top first in the order picked); number the picks.
+  const ordered = max > 1 && /ORDER/.test(String(md.choiceWindow ?? ""));
 
   return (
     <div className="panel">
@@ -367,21 +369,24 @@ function ChoicePanel({ prompt, objects, onHover }: { prompt: Prompt | null; obje
         {choices.map((c) => {
           const o = objects[c.id];
           const on = picked.includes(c.id);
+          const order = ordered && on ? picked.indexOf(c.id) + 1 : undefined;
           // A privately viewed card (e.g. the top of the deck) is not on the table; its label names it.
           const cardNo = o ? undefined : choiceCardNo(c.label, c.id);
           return o || cardNo ? (
-            <Card
-              key={c.id}
-              object={o}
-              cardNo={cardNo}
-              size="board"
-              marks={on ? ["selected"] : ["legal"]}
-              onClick={() => toggle(c.id)}
-              onHover={onHover}
-              title={c.reason ?? undefined}
-            />
+            <span key={c.id} className="choices__slot" data-order={order}>
+              <Card
+                object={o}
+                cardNo={cardNo}
+                size="board"
+                marks={on ? ["selected"] : ["legal"]}
+                onClick={() => toggle(c.id)}
+                onHover={onHover}
+                title={c.reason ?? undefined}
+              />
+            </span>
           ) : (
             <button key={c.id} className={`chip${on ? " chip--on" : ""}`} onClick={() => toggle(c.id)} title={c.reason ?? undefined}>
+              {order ? `${order}. ` : ""}
               {c.label}
             </button>
           );
