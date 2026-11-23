@@ -110,7 +110,7 @@ public sealed class PlayRuneTapPaymentTests
     }
 
     private static readonly string[] Taps = ["TAP_RUNE:TAP-PAY-R1", "TAP_RUNE:TAP-PAY-R2", "TAP_RUNE:TAP-PAY-R3", "TAP_RUNE:TAP-PAY-R4"];
-    private static MatchState Position()
+    internal static MatchState Position()
     {
         var state = PlayCostPreviewTests.Position(new(0, 1)) with { Tick = 0 };
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
