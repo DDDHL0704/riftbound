@@ -38,7 +38,6 @@ public sealed partial class MatchSession : IMatchTournamentAdjudicator
                     ? ResolutionResult.Rejected(state, ClientIntentConflictMessage, ErrorCodes.ClientIntentConflict)
                     : cached.Result;
 
-            var startedSequence = lastEventSequence;
             ResolutionResult result;
             var series = RoomMatchSeries.Current(state);
             if (options.DeckFormat != OfficialDeckFormat.Sealed || series is null)
@@ -63,13 +62,8 @@ public sealed partial class MatchSession : IMatchTournamentAdjudicator
                 result = FinalizeSeriesGame(new ResolutionResult(true, null, terminal, events,
                     new Dictionary<string, SnapshotDto>(), new Dictionary<string, ActionPromptDto>()), series, completed);
             }
-            var completedSequence = startedSequence + result.Events.Count;
-            await journal.RecordAsync(new MatchJournalEntry(RoomId, playerId, intentId, TournamentGameLossDecision.CommandType,
-                null, state.Tick, result.State.Tick, startedSequence, completedSequence, result.Accepted, result.ErrorMessage,
-                result.State, result.Events, result.Snapshots, result.Prompts, DateTimeOffset.UtcNow)
-                { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = input }, cancellationToken).ConfigureAwait(false);
-            if (result.Accepted) state = result.State;
-            lastEventSequence = completedSequence;
+            result = await RecordCommandAsync(playerId, intentId, TournamentGameLossDecision.CommandType,
+                null, input, result, cancellationToken).ConfigureAwait(false);
             tournamentDecisions[intentId] = new(TournamentGameLossDecision.CommandType, fingerprint, result);
             return result;
         }

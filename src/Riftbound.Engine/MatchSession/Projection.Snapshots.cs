@@ -548,7 +548,10 @@ public sealed partial record ResolutionResult
             SideboardCounts: CityOpeningRules.SideboardCounts(state) ?? SealedRoomPools.SideboardCountsFor(state),
             SealedPacks: state.SessionOptions?.SealedPacks,
             OpeningRule: CityOpeningRules.Rule(state),
-            OpeningSetup: CityOpeningRules.View(state, includePrivatePool ? viewerPlayerId : null));
+            OpeningSetup: CityOpeningRules.View(state, includePrivatePool ? viewerPlayerId : null))
+        {
+            RewindAllowed = state.SessionOptions?.RewindAllowed == true
+        };
     }
 
     private static SnapshotTableDto BuildTableSnapshotView(MatchState state, string viewerPlayerId)

@@ -68,6 +68,8 @@ public sealed partial class MatchSession
                 seats.Add(player.PlayerId, player.Seat);
                 reconnectTokens.Add(player.PlayerId, player.ReconnectToken);
                 state = nextState;
+                if (rewindFrame is { } frame)
+                    Volatile.Write(ref rewindFrame, frame with { State = nextState });
                 lastEventSequence++;
                 intentCache[$"{player.PlayerId}:{intentId}"] = new CachedResolution(RoomSeatCommandType, InputFingerprint(raw, null), result);
             }

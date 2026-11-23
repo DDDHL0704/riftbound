@@ -1669,6 +1669,10 @@ public sealed partial record ResolutionResult(
     IReadOnlyDictionary<string, ActionPromptDto> Prompts,
     string? ErrorCode = null)
 {
+    internal long? TimelineTick { get; init; }
+    public long ServerTick => TimelineTick ?? State.Tick;
+    public bool IsDuplicate { get; init; }
+
     private const int BaseWinningScore = 8;
     private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
 
@@ -5930,6 +5934,7 @@ public sealed partial class MatchSession : IMatchSession
             SessionOptions = this.options == MatchSessionOptions.Default ? null : this.options
         };
         openingSeed = state.Seed;
+        if (RewindAllowed) rewindFrame = RewindFrame.Start(state);
     }
 
     public MatchSession(MatchState initialState, IRuleEngine ruleEngine, IMatchJournal journal)
@@ -5999,6 +6004,7 @@ public sealed partial class MatchSession : IMatchSession
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, string.Join("; ", seriesErrors));
         this.openingSeed = openingSeed;
         lastEventSequence = restoredLastEventSequence;
+        if (RewindAllowed) rewindFrame = RewindFrame.Start(state);
         foreach (var (playerId, seat) in restoredSeats)
         {
             seats[playerId] = seat;
@@ -6050,6 +6056,15 @@ public sealed partial class MatchSession : IMatchSession
         IMatchJournal journal,
         IMatchPlayerStore playerStore,
         MatchSessionOptions options)
+        => Restore(recovery, ruleEngine, journal, playerStore, options, null);
+
+    internal static MatchSession Restore(
+        MatchRecoveryFrame recovery,
+        IRuleEngine ruleEngine,
+        IMatchJournal journal,
+        IMatchPlayerStore playerStore,
+        MatchSessionOptions options,
+        MatchSession? replayed)
     {
         if (recovery.ReplayInitialState is { } replayInitialState)
             RuleInputIdentity.RequireCurrentState(replayInitialState);
@@ -6074,21 +6089,35 @@ public sealed partial class MatchSession : IMatchSession
                 || command.CommandType.StartsWith("DEV_SEED_SCENARIO:", StringComparison.Ordinal)))
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
                 "match recovery state seed differs from recorded opening seed");
-        return new MatchSession(
+        if (state.SessionOptions?.RewindAllowed == true && recovery.Commands.Count != 0 && replayed is null)
+        {
+            if (recovery.ReplayInitialState is not { } initial)
+                throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "rewind recovery requires a replay initial state");
+            var verification = MatchActionLogReplayer.VerifyFinalStateAsync(initial, recovery.Commands, state,
+                ruleEngine, CancellationToken.None, recovery.Events, session => replayed = session)
+                .AsTask().GetAwaiter().GetResult();
+            if (!verification.IsMatch)
+                throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, string.Join("; ", verification.Errors));
+        }
+
+        var restored = new MatchSession(
             state,
             recovery.LastEventSequence,
             state.Seats,
-            recovery.Commands,
+            state.SessionOptions?.RewindAllowed == true && replayed is not null ? [] : recovery.Commands,
             recovery.OpeningSeed,
             ruleEngine,
             journal,
             playerStore,
             state.SessionOptions ?? MatchSessionOptions.Default);
+        if (restored.RewindAllowed && replayed is not null)
+            restored.RestoreRewindFrame(recovery, replayed);
+        return restored;
     }
 
     public PlayerSessionDto EnsurePlayer(string playerId)
     {
-        if (options.DeckFormat == OfficialDeckFormat.Sealed)
+        if (RewindAllowed || options.DeckFormat == OfficialDeckFormat.Sealed)
             return EnsurePlayerAsync(playerId, CancellationToken.None).AsTask().GetAwaiter().GetResult();
         var normalizedPlayerId = NormalizePlayerId(playerId);
         lock (seatGate)
@@ -6178,14 +6207,16 @@ public sealed partial class MatchSession : IMatchSession
     {
         var normalizedPlayerId = NormalizePlayerId(playerId);
         RequirePlayer(normalizedPlayerId);
-        return ResolutionResult.BuildSnapshots(state)[normalizedPlayerId];
+        var frame = Volatile.Read(ref rewindFrame);
+        return ProjectRewindSnapshot(ResolutionResult.BuildSnapshots(frame?.State ?? state)[normalizedPlayerId], frame, includeTargets: true);
     }
 
     public ActionPromptDto PromptFor(string playerId)
     {
         var normalizedPlayerId = NormalizePlayerId(playerId);
         RequirePlayer(normalizedPlayerId);
-        return ResolutionResult.BuildPrompts(state)[normalizedPlayerId];
+        var frame = Volatile.Read(ref rewindFrame);
+        return ProjectRewindPrompt(ResolutionResult.BuildPrompts(frame?.State ?? state)[normalizedPlayerId], frame);
     }
 
     public async ValueTask<PlayCostQuoteDto> PreviewPlayCardAsync(
@@ -6197,14 +6228,14 @@ public sealed partial class MatchSession : IMatchSession
         try
         {
             if (request.Command is null || string.IsNullOrWhiteSpace(request.RequestId))
-                return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.InvalidTarget, "费用预览请求不完整。");
+                return PlayCostQuoteDto.Rejected(request, ServerTick, ErrorCodes.InvalidTarget, "费用预览请求不完整。");
             var prompts = BuildPromptFreshnessCandidates(state, normalizedPlayerId);
             var prompt = prompts.FirstOrDefault(p => p.PromptId == request.PromptId && p.SnapshotTick == request.SnapshotTick);
             if (prompt is null)
-                return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.PromptExpired, "行动窗口已更新，请重新选择。");
+                return PlayCostQuoteDto.Rejected(request, ServerTick, ErrorCodes.PromptExpired, "行动窗口已更新，请重新选择。");
             if (!prompt.Actionable || !prompt.Actions.Contains(CommandTypes.PlayCard, StringComparer.Ordinal))
-                return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.PhaseNotAllowed, "当前不能打出卡牌。");
-            return ruleEngine.PreviewPlayCard(state, normalizedPlayerId, request);
+                return PlayCostQuoteDto.Rejected(request, ServerTick, ErrorCodes.PhaseNotAllowed, "当前不能打出卡牌。");
+            return ruleEngine.PreviewPlayCard(state, normalizedPlayerId, request) with { SnapshotTick = ServerTick };
         }
         finally { serialGate.Release(); }
     }
@@ -6242,19 +6273,17 @@ public sealed partial class MatchSession : IMatchSession
                 }
 
                 if (!MatchesPresentInput(rawCommand, commandType, typedInput))
-                    return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
+                    return Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
-                return cached.Result;
+                return RewindAllowed ? cached.Result with { IsDuplicate = true } : cached.Result;
             }
 
             if (!HasCanonicalPresentRawEnvelope(rawCommand, "DEV_SEED_SCENARIO"))
-                return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+                return Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
 
             if (!MatchesPresentInput(rawCommand, commandType, typedInput))
-                return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
+                return Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
-            var startedTick = state.Tick;
-            var startedEventSequence = lastEventSequence;
             var nextState = BuildDevScenarioState(state, normalizedScenarioId) with
             {
                 Tick = state.Tick + 1,
@@ -6286,28 +6315,8 @@ public sealed partial class MatchSession : IMatchSession
                 ResolutionResult.BuildSnapshots(nextState),
                 ResolutionResult.BuildPrompts(nextState));
 
-            var completedEventSequence = startedEventSequence + events.Length;
-            await journal.RecordAsync(new MatchJournalEntry(
-                    RoomId,
-                    normalizedPlayerId,
-                    normalizedIntentId,
-                    commandType,
-                    rawCommand,
-                    startedTick,
-                    nextState.Tick,
-                    startedEventSequence,
-                    completedEventSequence,
-                    true,
-                    null,
-                    nextState,
-                    events,
-                    result.Snapshots,
-                    result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
-                cancellationToken).ConfigureAwait(false);
-            lastEventSequence = completedEventSequence;
-
-            state = nextState;
+            result = await RecordCommandAsync(normalizedPlayerId, normalizedIntentId, commandType, rawCommand, typedInput,
+                result, cancellationToken).ConfigureAwait(false);
             intentCache[cacheKey] = new CachedResolution(commandType, rawCommandHash, result);
             return result;
         }
@@ -6348,23 +6357,21 @@ public sealed partial class MatchSession : IMatchSession
                 }
 
                 if (!MatchesPresentInput(rawCommand, "SUBMIT_DECK", typedInput))
-                    return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
+                    return Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
-                return cached.Result;
+                return RewindAllowed ? cached.Result with { IsDuplicate = true } : cached.Result;
             }
 
             if (!HasCanonicalPresentRawEnvelope(rawCommand, "SUBMIT_DECK"))
-                return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+                return Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
 
             if (!MatchesPresentInput(rawCommand, "SUBMIT_DECK", typedInput))
-                return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
+                return Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
-            var startedTick = state.Tick;
-            var startedEventSequence = lastEventSequence;
             ResolutionResult result;
             if (state.Status == MatchStatuses.Finished)
             {
-                result = ResolutionResult.Rejected(
+                result = Rejected(
                     state,
                     "对局已经结束，不能提交卡组。",
                     ErrorCodes.MatchFinished);
@@ -6375,7 +6382,7 @@ public sealed partial class MatchSession : IMatchSession
             }
             else if (state.Status == MatchStatuses.InProgress)
             {
-                result = ResolutionResult.Rejected(
+                result = Rejected(
                     state,
                     "对局开始后不能更改卡组。",
                     ErrorCodes.PhaseNotAllowed);
@@ -6383,11 +6390,11 @@ public sealed partial class MatchSession : IMatchSession
             else if (options.DeckFormat == OfficialDeckFormat.Sealed
                 && RoomMatchSeries.Current(state)?.Phase != MatchSeriesPhase.SubmittingDecks)
             {
-                result = ResolutionResult.Rejected(state, "请先等待双方入座并完成先后手选择。", ErrorCodes.PhaseNotAllowed);
+                result = Rejected(state, "请先等待双方入座并完成先后手选择。", ErrorCodes.PhaseNotAllowed);
             }
             else if (state.ReadyPlayerIds.Contains(normalizedPlayerId, StringComparer.Ordinal))
             {
-                result = ResolutionResult.Rejected(
+                result = Rejected(
                     state,
                     "玩家准备后不能更改卡组。",
                     ErrorCodes.PhaseNotAllowed);
@@ -6409,7 +6416,7 @@ public sealed partial class MatchSession : IMatchSession
                     .Concat(CityOpeningRules.SubmissionErrors(state, normalizedPlayerId, decklist, sideboard, catalog)).ToArray();
                 if (errors.Length > 0)
                 {
-                    result = ResolutionResult.Rejected(
+                    result = Rejected(
                         state,
                         $"卡组不合法：{string.Join("；", errors)}",
                         ErrorCodes.InvalidDeck);
@@ -6419,7 +6426,7 @@ public sealed partial class MatchSession : IMatchSession
                     && (!CityOpeningRules.Enabled(state) || state.CityOpening?.Sideboards.GetValueOrDefault(normalizedPlayerId) is { } currentReserve
                         && CityOpeningRules.SamePool(currentReserve, sideboard)))
                 {
-                    result = ResolutionResult.Rejected(
+                    result = Rejected(
                         state,
                         "玩家已经提交相同卡组。",
                         ErrorCodes.PhaseNotAllowed);
@@ -6445,31 +6452,8 @@ public sealed partial class MatchSession : IMatchSession
                 }
             }
 
-            var completedEventSequence = startedEventSequence + result.Events.Count;
-            await journal.RecordAsync(new MatchJournalEntry(
-                    RoomId,
-                    normalizedPlayerId,
-                    normalizedIntentId,
-                    "SUBMIT_DECK",
-                    rawCommand,
-                    startedTick,
-                    result.State.Tick,
-                    startedEventSequence,
-                    completedEventSequence,
-                    result.Accepted,
-                    result.ErrorMessage,
-                    result.State,
-                    result.Events,
-                    result.Snapshots,
-                    result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
-                cancellationToken).ConfigureAwait(false);
-
-            if (result.Accepted)
-            {
-                state = result.State;
-            }
-            lastEventSequence = completedEventSequence;
+            result = await RecordCommandAsync(normalizedPlayerId, normalizedIntentId, "SUBMIT_DECK", rawCommand, typedInput,
+                result, cancellationToken).ConfigureAwait(false);
             intentCache[cacheKey] = new CachedResolution("SUBMIT_DECK", rawCommandHash, result);
             return result;
         }
@@ -6507,46 +6491,26 @@ public sealed partial class MatchSession : IMatchSession
                 }
 
                 if (!MatchesPresentInput(rawCommand, "READY", typedInput))
-                    return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
+                    return Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
-                return cached.Result;
+                return RewindAllowed ? cached.Result with { IsDuplicate = true } : cached.Result;
             }
 
             if (!HasCanonicalPresentRawEnvelope(rawCommand, "READY"))
-                return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+                return Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
 
             if (!MatchesPresentInput(rawCommand, "READY", typedInput))
-                return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
+                return Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
             if (state.Status == MatchStatuses.Finished)
             {
                 throw new MatchSessionException(ErrorCodes.MatchFinished, "对局已经结束，不能准备。");
             }
 
-            var startedTick = state.Tick;
-            var startedEventSequence = lastEventSequence;
             if (TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var promptRejection))
             {
-                var completedEventSequence = startedEventSequence + promptRejection.Events.Count;
-                await journal.RecordAsync(new MatchJournalEntry(
-                        RoomId,
-                        normalizedPlayerId,
-                        normalizedIntentId,
-                        "READY",
-                        rawCommand,
-                        startedTick,
-                        promptRejection.State.Tick,
-                        startedEventSequence,
-                        completedEventSequence,
-                        promptRejection.Accepted,
-                        promptRejection.ErrorMessage,
-                        promptRejection.State,
-                        promptRejection.Events,
-                        promptRejection.Snapshots,
-                        promptRejection.Prompts,
-                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = promptRejection.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
-                    cancellationToken).ConfigureAwait(false);
-                lastEventSequence = completedEventSequence;
+                promptRejection = await RecordCommandAsync(normalizedPlayerId, normalizedIntentId, "READY", rawCommand,
+                    typedInput, promptRejection, cancellationToken).ConfigureAwait(false);
                 intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, promptRejection);
                 return promptRejection;
             }
@@ -6560,13 +6524,14 @@ public sealed partial class MatchSession : IMatchSession
                     [],
                     ResolutionResult.BuildSnapshots(state),
                     ResolutionResult.BuildPrompts(state));
+                current = ProjectRewindResult(current, rewindFrame, includeTargets: true);
                 intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, current);
                 return current;
             }
 
             if (CityOpeningRules.Enabled(state) && state.CityOpening?.FirstPlayerId is null)
             {
-                var rejected = ResolutionResult.Rejected(state, "请等待双方登记卡组，确定先后手与随机战场后再完成备牌。", ErrorCodes.PhaseNotAllowed);
+                var rejected = Rejected(state, "请等待双方登记卡组，确定先后手与随机战场后再完成备牌。", ErrorCodes.PhaseNotAllowed);
                 intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
                 return rejected;
             }
@@ -6574,7 +6539,7 @@ public sealed partial class MatchSession : IMatchSession
             if (!state.PlayerDecklists.ContainsKey(normalizedPlayerId)
                 && (!options.AllowLegacyReadyWithoutDeck || state.PlayerDecklists.Count > 0))
             {
-                var rejected = ResolutionResult.Rejected(
+                var rejected = Rejected(
                     state,
                     "正式卡组房间需要先提交合法卡组才能准备。",
                     ErrorCodes.InvalidDeck);
@@ -6585,7 +6550,7 @@ public sealed partial class MatchSession : IMatchSession
             if (options.DeckFormat == OfficialDeckFormat.Sealed
                 && RoomMatchSeries.Current(state)?.Phase != MatchSeriesPhase.SubmittingDecks)
             {
-                var rejected = ResolutionResult.Rejected(state, "请先完成先后手选择。", ErrorCodes.PhaseNotAllowed);
+                var rejected = Rejected(state, "请先完成先后手选择。", ErrorCodes.PhaseNotAllowed);
                 intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
                 return rejected;
             }
@@ -6600,7 +6565,7 @@ public sealed partial class MatchSession : IMatchSession
                     var errors = validation.Errors.Concat(SealedSeriesDecks.SubmissionErrors(state, owner, submitted)).ToArray();
                     if (errors.Length > 0)
                     {
-                        var rejected = ResolutionResult.Rejected(state,
+                        var rejected = Rejected(state,
                             options.DeckFormat == OfficialDeckFormat.Sealed && owner != normalizedPlayerId
                                 ? "有玩家的现开卡组需要更新。"
                                 : $"卡组需要更新：{string.Join("；", errors)}", ErrorCodes.InvalidDeck);
@@ -6675,30 +6640,8 @@ public sealed partial class MatchSession : IMatchSession
                 ResolutionResult.BuildPrompts(nextState));
 
             if (events.Count > 0)
-            {
-                var completedEventSequence = startedEventSequence + events.Count;
-                await journal.RecordAsync(new MatchJournalEntry(
-                        RoomId,
-                        normalizedPlayerId,
-                        normalizedIntentId,
-                        "READY",
-                        rawCommand,
-                        startedTick,
-                        nextState.Tick,
-                        startedEventSequence,
-                        completedEventSequence,
-                        true,
-                        null,
-                        nextState,
-                        events,
-                        result.Snapshots,
-                        result.Prompts,
-                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
-                    cancellationToken).ConfigureAwait(false);
-                lastEventSequence = completedEventSequence;
-            }
-
-            state = nextState;
+                result = await RecordCommandAsync(normalizedPlayerId, normalizedIntentId, "READY", rawCommand, typedInput,
+                    result, cancellationToken).ConfigureAwait(false);
             intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, result);
             return result;
         }
@@ -6729,25 +6672,25 @@ public sealed partial class MatchSession : IMatchSession
         try
         {
             if (command.CmdType == TournamentGameLossDecision.CommandType)
-                return ResolutionResult.Rejected(state, "单局判负只能由服务端可信裁定入口执行。", ErrorCodes.UnsupportedCommand);
+                return Rejected(state, "单局判负只能由服务端可信裁定入口执行。", ErrorCodes.UnsupportedCommand);
             if (intentCache.TryGetValue(cacheKey, out var cached))
             {
                 if (IntentConflicts(cached, command.CmdType, rawCommandHash))
                 {
-                    return ResolutionResult.Rejected(
+                    return Rejected(
                         state,
                         ClientIntentConflictMessage,
                         ErrorCodes.ClientIntentConflict);
                 }
 
                 if (!MatchesPresentInput(rawCommand, command.CmdType, typedInput))
-                    return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
+                    return Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
-                return cached.Result;
+                return RewindAllowed ? cached.Result with { IsDuplicate = true } : cached.Result;
             }
 
             if (!HasCanonicalPresentRawEnvelope(rawCommand, command.CmdType))
-                return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+                return Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
 
             // Both accepted and rejected journal rows undergo independent raw
             // recovery validation. Reject malformed arrays before any path can
@@ -6755,24 +6698,28 @@ public sealed partial class MatchSession : IMatchSession
             if (command is (PlayCardCommand or RefusePlayPaymentCommand)
                 && rawCommand is { ValueKind: JsonValueKind.Object } playRaw
                 && !HasCanonicalRequiredStringArray(playRaw, "targetObjectIds"))
-                return ResolutionResult.Rejected(state, "出牌目标格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+                return Rejected(state, "出牌目标格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
             if (!HasCanonicalOptionalCosts(command, rawCommand))
-                return ResolutionResult.Rejected(state, "可选费用格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+                return Rejected(state, "可选费用格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
             if (command is RefusePlayPaymentCommand && rawCommand is { ValueKind: JsonValueKind.Object } refusalRaw
                 && (!HasCanonicalRequiredText(refusalRaw, "sourceObjectId") || !HasCanonicalRequiredText(refusalRaw, "cardNo")))
-                return ResolutionResult.Rejected(state, "拒付的出牌来源格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+                return Rejected(state, "拒付的出牌来源格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
             if (command is DeclareBattleCommand
                 && rawCommand is { ValueKind: JsonValueKind.Object } raw
                 && !HasCanonicalOptionalStringArray(raw, "battlefieldTargetObjectIds"))
-                return ResolutionResult.Rejected(state, "战场目标选项格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+                return Rejected(state, "战场目标选项格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
 
             if (!MatchesPresentInput(rawCommand, command.CmdType, typedInput))
-                return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
+                return Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
-            var startedTick = state.Tick;
-            var startedEventSequence = lastEventSequence;
             ResolutionResult result;
-            if (command is ChoosePlayOrderCommand choice)
+            RewindRequestDto? nextRequest = null;
+            if (command is RewindCommand rewindCommand)
+            {
+                result = TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var staleRewind)
+                    ? staleRewind : ResolveRewind(normalizedPlayerId, rewindCommand, out nextRequest);
+            }
+            else if (command is ChoosePlayOrderCommand choice)
             {
                 if (TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var staleChoice))
                     result = staleChoice;
@@ -6810,31 +6757,8 @@ public sealed partial class MatchSession : IMatchSession
                     .ConfigureAwait(false);
                 result = CompleteSeriesGame(result);
             }
-            var completedEventSequence = startedEventSequence + result.Events.Count;
-            await journal.RecordAsync(new MatchJournalEntry(
-                    RoomId,
-                    normalizedPlayerId,
-                    normalizedIntentId,
-                    command.CmdType,
-                    rawCommand,
-                    startedTick,
-                    result.State.Tick,
-                    startedEventSequence,
-                    completedEventSequence,
-                    result.Accepted,
-                    result.ErrorMessage,
-                    result.State,
-                    result.Events,
-                    result.Snapshots,
-                    result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
-                cancellationToken).ConfigureAwait(false);
-
-            if (result.Accepted)
-            {
-                state = result.State;
-            }
-            lastEventSequence = completedEventSequence;
+            result = await RecordCommandAsync(normalizedPlayerId, normalizedIntentId, command.CmdType, rawCommand, typedInput,
+                result, cancellationToken, nextRequest).ConfigureAwait(false);
 
             intentCache[cacheKey] = new CachedResolution(command.CmdType, rawCommandHash, result);
             return result;

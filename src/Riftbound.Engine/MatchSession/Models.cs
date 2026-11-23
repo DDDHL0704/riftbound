@@ -743,6 +743,7 @@ public interface IMatchSession
 {
     string RoomId { get; }
     string OpeningRule => OpeningRules.Standard;
+    bool RewindAllowed => false;
 
     PlayerSessionDto EnsurePlayer(string playerId);
 
@@ -791,6 +792,9 @@ public interface IMatchSession
 
 public interface IMatchSessionRegistry
 {
+    ValueTask<IMatchSession> GetOrCreatePlayerRoomAsync(string roomId, CancellationToken cancellationToken) =>
+        GetOrCreateAsync(roomId, cancellationToken);
+
     ValueTask<IMatchSession?> FindAsync(string roomId, CancellationToken cancellationToken);
 
     ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken);
@@ -805,6 +809,9 @@ public sealed record MatchSessionOptions(
     OfficialDeckFormat DeckFormat = OfficialDeckFormat.CoreRules)
 {
     public static MatchSessionOptions Default { get; } = new();
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool RewindAllowed { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? OpeningRule { get; init; }
@@ -862,6 +869,7 @@ public sealed record MatchSessionOptions(
     public bool Equals(MatchSessionOptions? other) => other is not null
         && AllowLegacyReadyWithoutDeck == other.AllowLegacyReadyWithoutDeck
         && DeckFormat == other.DeckFormat
+        && RewindAllowed == other.RewindAllowed
         && HideSubmittedDeckIdentities == other.HideSubmittedDeckIdentities
         && OpeningRule == other.OpeningRule
         && SealedSetCode == other.SealedSetCode
@@ -873,6 +881,7 @@ public sealed record MatchSessionOptions(
         var hash = new HashCode();
         hash.Add(AllowLegacyReadyWithoutDeck);
         hash.Add(DeckFormat);
+        hash.Add(RewindAllowed);
         hash.Add(HideSubmittedDeckIdentities);
         hash.Add(OpeningRule, StringComparer.Ordinal);
         hash.Add(SealedSetCode, StringComparer.Ordinal);
@@ -935,6 +944,9 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
         finally { gate.Release(); }
     }
 
+    public ValueTask<IMatchSession> GetOrCreatePlayerRoomAsync(string roomId, CancellationToken cancellationToken) =>
+        GetOrCreateCoreAsync(roomId, sessionOptions with { RewindAllowed = true }, false, cancellationToken);
+
     public ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken) =>
         GetOrCreateCoreAsync(roomId, sessionOptions, false, cancellationToken);
 
@@ -955,13 +967,11 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
             if (!sessions.TryGetValue(roomId, out var session))
             {
                 session = await CreateSessionAsync(roomId, creationOptions, cancellationToken).ConfigureAwait(false);
-                if (explicitCreation && session.OpeningRule != (creationOptions.OpeningRule ?? OpeningRules.Standard))
-                    throw new MatchSessionException(ErrorCodes.InvalidPayload, "已创建对局的开局规则不可更改。");
+                CheckExplicitRoomRules(session, creationOptions, explicitCreation);
                 sessions.Add(roomId, session);
             }
 
-            if (explicitCreation && session.OpeningRule != (creationOptions.OpeningRule ?? OpeningRules.Standard))
-                throw new MatchSessionException(ErrorCodes.InvalidPayload, "已创建对局的开局规则不可更改。");
+            CheckExplicitRoomRules(session, creationOptions, explicitCreation);
 
             return session;
         }
@@ -969,6 +979,15 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
         {
             gate.Release();
         }
+    }
+
+    private static void CheckExplicitRoomRules(IMatchSession session, MatchSessionOptions creationOptions, bool explicitCreation)
+    {
+        if (!explicitCreation) return;
+        if (session.OpeningRule != (creationOptions.OpeningRule ?? OpeningRules.Standard))
+            throw new MatchSessionException(ErrorCodes.InvalidPayload, "已创建对局的开局规则不可更改。");
+        if (session.RewindAllowed != creationOptions.RewindAllowed)
+            throw new MatchSessionException(ErrorCodes.InvalidPayload, "已创建对局的回退规则不可更改。");
     }
 
     private async ValueTask<IMatchSession> CreateSessionAsync(string roomId, MatchSessionOptions creationOptions,
@@ -1003,12 +1022,14 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
                 $"match recovery validation failed: {string.Join("; ", validationErrors)}");
         }
 
+        MatchSession? replayed = null;
         if (recovery.IsConsistent)
         {
             var replayErrors = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(
                     recovery,
                     ruleEngine,
-                    cancellationToken)
+                    cancellationToken,
+                    session => replayed = session)
                 .ConfigureAwait(false);
             if (replayErrors.Count > 0)
             {
@@ -1018,7 +1039,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
             }
         }
 
-        return MatchSession.Restore(recovery, ruleEngine, journal, playerStore);
+        return MatchSession.Restore(recovery, ruleEngine, journal, playerStore, MatchSessionOptions.Default, replayed);
     }
 }
 

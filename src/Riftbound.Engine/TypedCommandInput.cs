@@ -16,6 +16,8 @@ public sealed record TypedCommandInput(
     {
         ["READY"] = typeof(ReadyCommand), ["SUBMIT_DECK"] = typeof(SubmitDeckCommand),
         ["CHOOSE_PLAY_ORDER"] = typeof(ChoosePlayOrderCommand),
+        ["REQUEST_REWIND"] = typeof(RequestRewindCommand), ["ACCEPT_REWIND"] = typeof(AcceptRewindCommand),
+        ["REJECT_REWIND"] = typeof(RejectRewindCommand), ["CANCEL_REWIND"] = typeof(CancelRewindCommand),
         ["MULLIGAN"] = typeof(MulliganCommand), ["PASS_PRIORITY"] = typeof(PassPriorityCommand),
         ["PASS_FOCUS"] = typeof(PassFocusCommand), ["PASS"] = typeof(PassCommand),
         ["END_TURN"] = typeof(EndTurnCommand), ["SURRENDER"] = typeof(SurrenderCommand),

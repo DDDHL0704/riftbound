@@ -4,6 +4,10 @@ namespace Riftbound.Contracts;
 
 public static class GameCommandJsonMapper
 {
+    private static long RewindStep(JsonElement cmd, string field)
+        => cmd.TryGetProperty(field, out var value) && value.ValueKind == JsonValueKind.Number
+            && value.TryGetInt64(out var step) ? step : 0;
+
     public static GameCommand Map(JsonElement cmd)
     {
         var cmdType = "UNKNOWN";
@@ -18,6 +22,10 @@ public static class GameCommandJsonMapper
         return cmdType switch
         {
             "READY" => new ReadyCommand(),
+            CommandTypes.RequestRewind => new RequestRewindCommand(RewindStep(cmd, "targetStep")),
+            CommandTypes.AcceptRewind => new AcceptRewindCommand(RewindStep(cmd, "requestStep")),
+            CommandTypes.RejectRewind => new RejectRewindCommand(RewindStep(cmd, "requestStep")),
+            CommandTypes.CancelRewind => new CancelRewindCommand(RewindStep(cmd, "requestStep")),
             CommandTypes.ChoosePlayOrder => cmd.TryGetProperty("goFirst", out var goFirst)
                 && goFirst.ValueKind is JsonValueKind.True or JsonValueKind.False
                     ? new ChoosePlayOrderCommand(goFirst.GetBoolean())

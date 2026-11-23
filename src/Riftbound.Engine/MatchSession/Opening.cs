@@ -15,10 +15,9 @@ public sealed partial class MatchSession
     {
         if (recovery.AuthoritativeState is not null)
         {
-            return recovery.AuthoritativeState with
-            {
-                Tick = recovery.CurrentTick
-            };
+            return recovery.AuthoritativeState.SessionOptions?.RewindAllowed == true
+                ? recovery.AuthoritativeState
+                : recovery.AuthoritativeState with { Tick = recovery.CurrentTick };
         }
 
         throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,

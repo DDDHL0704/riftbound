@@ -111,7 +111,7 @@ public static class MatchReplayRedactor
             eventSequence,
             events,
             MatchStateHasher.Hash(authoritativeState),
-            ResolutionResult.BuildSpectatorSnapshot(authoritativeState));
+            ResolutionResult.BuildSpectatorSnapshot(authoritativeState) with { Tick = tick });
     }
 }
 
@@ -134,6 +134,13 @@ public static class MatchActionLogReplayer
         MatchRecoveryFrame recovery,
         IRuleEngine ruleEngine,
         CancellationToken cancellationToken)
+        => await ValidateRecoveryFrameAsync(recovery, ruleEngine, cancellationToken, null).ConfigureAwait(false);
+
+    internal static async ValueTask<IReadOnlyList<string>> ValidateRecoveryFrameAsync(
+        MatchRecoveryFrame recovery,
+        IRuleEngine ruleEngine,
+        CancellationToken cancellationToken,
+        Action<MatchSession>? captureReplayedSession)
     {
         ArgumentNullException.ThrowIfNull(recovery);
         ArgumentNullException.ThrowIfNull(ruleEngine);
@@ -164,19 +171,22 @@ public static class MatchActionLogReplayer
             inputErrors.Add("action-log command rule input identity is missing or differs from running inputs");
         if (inputErrors.Count > 0) return inputErrors;
 
+        var branch = RewindRecoveryHistory.RetainedBranch(recovery.Commands, recovery.Events, inputErrors);
+        if (inputErrors.Count > 0) return inputErrors;
+        var retained = recovery with { Commands = branch.Commands, Events = branch.Events };
         if (recovery.AuthoritativeState is { } paymentState)
         {
-            var paymentErrors = SpellManaPaymentHistoryRules.ValidateOriginalPayments(paymentState, recovery.Commands, recovery.Events);
+            var paymentErrors = SpellManaPaymentHistoryRules.ValidateOriginalPayments(paymentState, retained.Commands, retained.Events);
             if (paymentErrors.Count > 0) return paymentErrors;
         }
 
-        var drawErrors = DrawHandThresholdRecoveryRules.ValidateOriginalTriggers(recovery);
+        var drawErrors = DrawHandThresholdRecoveryRules.ValidateOriginalTriggers(retained);
         if (drawErrors.Count > 0) return drawErrors;
-        var deathErrors = DravenBattleDeathRecoveryRules.ValidateOriginalTriggers(recovery);
+        var deathErrors = DravenBattleDeathRecoveryRules.ValidateOriginalTriggers(retained);
         if (deathErrors.Count > 0) return deathErrors;
-        var battleResultErrors = BattleResultRecoveryRules.ValidateOriginalTriggers(recovery);
+        var battleResultErrors = BattleResultRecoveryRules.ValidateOriginalTriggers(retained);
         if (battleResultErrors.Count > 0) return battleResultErrors;
-        var startErrors = BattlefieldStartRecoveryRules.ValidateOriginalTriggers(recovery);
+        var startErrors = BattlefieldStartRecoveryRules.ValidateOriginalTriggers(retained);
         if (startErrors.Count > 0) return startErrors;
 
         if (recovery.Commands.Count == 0)
@@ -422,7 +432,8 @@ public static class MatchActionLogReplayer
                 recovery.AuthoritativeState!,
                 ruleEngine,
                 cancellationToken,
-                recovery.Events)
+                recovery.Events,
+                captureReplayedSession)
             .ConfigureAwait(false);
         return replay.IsMatch
             ? []
@@ -610,6 +621,17 @@ public static class MatchActionLogReplayer
         IRuleEngine ruleEngine,
         CancellationToken cancellationToken,
         IReadOnlyList<RecoveredEvent>? events = null)
+        => await VerifyFinalStateAsync(initialState, commands, expectedFinalState, ruleEngine, cancellationToken,
+            events, null).ConfigureAwait(false);
+
+    internal static async ValueTask<MatchActionLogReplayResult> VerifyFinalStateAsync(
+        MatchState initialState,
+        IReadOnlyList<RecoveredCommand> commands,
+        MatchState expectedFinalState,
+        IRuleEngine ruleEngine,
+        CancellationToken cancellationToken,
+        IReadOnlyList<RecoveredEvent>? events,
+        Action<MatchSession>? captureReplayedSession)
     {
         ArgumentNullException.ThrowIfNull(initialState);
         ArgumentNullException.ThrowIfNull(commands);
@@ -676,10 +698,10 @@ public static class MatchActionLogReplayer
                     $"command {command.ClientIntentId} error code {FormatReplayError(result.ErrorCode)} but recovered error code {FormatReplayError(command.ErrorCode)}");
             }
 
-            if (result.State.Tick != command.CompletedTick)
+            if (result.ServerTick != command.CompletedTick)
             {
                 errors.Add(
-                    $"command {command.ClientIntentId} completed tick {result.State.Tick} but recovered tick {command.CompletedTick}");
+                    $"command {command.ClientIntentId} completed tick {result.ServerTick} but recovered tick {command.CompletedTick}");
             }
 
             var expectedEventCount = command.CompletedEventSequence - command.StartedEventSequence;
@@ -711,6 +733,7 @@ public static class MatchActionLogReplayer
             errors.Add($"replayed final state hash {replayedHash} does not match expected {expectedHash}");
         }
 
+        if (errors.Count == 0) captureReplayedSession?.Invoke(session);
         return new MatchActionLogReplayResult(
             errors.Count == 0,
             replayedHash,
@@ -1183,11 +1206,14 @@ public static partial class MatchRecoveryValidator
 
         RoomSeatRecoveryValidator.Validate(commands, events, errors,
             authoritativeState is null ? OpeningRules.Standard : CityOpeningRules.Rule(authoritativeState));
+        var (tickOffset, ruleCommands, ruleEvents) = RewindRecoveryHistory.RetainedBranch(commands, events, errors);
+        if (tickOffset != 0 && authoritativeState?.SessionOptions?.RewindAllowed != true)
+            errors.Add("rewind commands require an enabled room");
         if (authoritativeState is not null)
         {
-            ValidateTemporaryNumericUnitEffects(authoritativeState, events, requireAcceptedBattleHistory, errors);
+            ValidateTemporaryNumericUnitEffects(authoritativeState, ruleEvents, requireAcceptedBattleHistory, errors);
             if (!CoreRuleEngine.ValidCombatDamageOrder(authoritativeState)) errors.Add("invalid combat damage replacement order");
-            ValidateOriginalEffectPlayLocation(authoritativeState, events, requireAcceptedBattleHistory, errors);
+            ValidateOriginalEffectPlayLocation(authoritativeState, ruleEvents, requireAcceptedBattleHistory, errors);
         }
         if (authoritativeState is not null && requireAcceptedBattleHistory)
         {
@@ -1197,11 +1223,11 @@ public static partial class MatchRecoveryValidator
                 errors.Add("original event payload is required");
             else
             {
-                ValidateBattlefieldConquestHistory(authoritativeState, commands, events, errors);
-                ValidateBattlefieldHoldHistory(authoritativeState, commands, events, errors);
-                ValidateStartPhaseUnitDeathHistory(authoritativeState, commands, events, errors);
-                ValidateScheduledUnitEventHistory(authoritativeState, commands, events, errors);
-                ValidateUnitEventMovementDeclarations(authoritativeState, commands, events, errors);
+                ValidateBattlefieldConquestHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+                ValidateBattlefieldHoldHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+                ValidateStartPhaseUnitDeathHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+                ValidateScheduledUnitEventHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+                ValidateUnitEventMovementDeclarations(authoritativeState, ruleCommands, ruleEvents, errors);
             }
         }
 
@@ -1241,57 +1267,58 @@ public static partial class MatchRecoveryValidator
         var visibleState = authoritativeState is null ? null : CoreRuleEngine.VisibleRuleChoiceState(authoritativeState);
         ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors, visibleState);
         ValidatePlayerViewAgreement(playerViews, errors);
-        ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
+        ValidateAuthoritativeState(roomId, currentTick - tickOffset, authoritativeState, playerViews, errors);
         if (requireAcceptedBattleHistory && authoritativeState is not null)
         {
-            errors.AddRange(SpellManaPaymentHistoryRules.ValidateOriginalPayments(authoritativeState, commands, events));
-            ValidateLinkedExileHistory(authoritativeState, commands, events, errors);
-            ValidateArmamentLinkedExileHistory(authoritativeState, commands, events, errors);
-            ValidateBoundLegendHistory(authoritativeState, commands, events, errors);
-            ValidateBattlefieldPermanentPlayUses(authoritativeState, commands, events, errors);
-            ValidateNextUnitPlayGrantHistory(authoritativeState, commands, events, errors);
-            ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
-            ValidatePerPlayerActivationUseHistory(authoritativeState, commands, events, errors);
-            ValidateUnitEventModeUseHistory(authoritativeState, commands, events, errors);
-            ValidateArmamentUnitEventHistory(authoritativeState, commands, events, errors);
-            ValidateArmamentDamageBonusHistory(authoritativeState, commands, events, errors);
-            ValidateInstructionCostHistory(authoritativeState, commands, events, errors);
-            ValidateActivationBanishHistory(authoritativeState, commands, events, errors);
-            ValidateEquipmentSkillObservationHistory(authoritativeState, commands, events, errors);
-            ValidateObservedUnitEventHistory(authoritativeState, commands, events, errors);
-            ValidateBattlefieldUnitPlayHistory(authoritativeState, commands, events, errors);
-            ValidateUnitEventOpponentHistory(authoritativeState, commands, events, errors);
-            ValidatePlayAttributeDeclarationHistory(authoritativeState, commands, events, errors);
-            ValidateOptionalExperiencePlayHistory(authoritativeState, commands, events, errors);
-            ValidateTurnBattleWinRewardHistory(authoritativeState, commands, events, errors);
-            ValidatePowerPaymentHistory(authoritativeState, commands, events, errors);
-            ValidateSnapshotKeywordGrantHistory(authoritativeState, commands, events, errors);
-            ValidateArmamentAttachmentTurnHistory(authoritativeState, commands, events, errors);
-            ValidatePaidPermanentPlayHistory(authoritativeState, commands, events, errors);
-            ValidatePermanentPlayOrderingHistory(authoritativeState, commands, events, errors);
-            ValidateLegendPlayCostHistory(authoritativeState, commands, events, errors);
-            ValidateEquipmentControlHistory(authoritativeState, commands, events, errors);
-            ValidateUnitControlHistory(authoritativeState, commands, events, errors);
-            ValidateLevelTargetHistory(authoritativeState, commands, events, errors);
-            ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors);
-            ValidateUnitEventTurnPlayHistory(authoritativeState, commands, events, errors);
-            ValidateUnitEventTargetHistory(authoritativeState, commands, events, errors);
-            ValidateFirstConquestUseHistory(authoritativeState, commands, events, errors);
-            ValidateObservedDeckPlayHistory(authoritativeState, commands, events, errors);
-            ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
-            ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
-            ValidateStandbyUnitObserverHistory(authoritativeState, commands, events, errors);
-            ValidateStunSourceMovementHistory(authoritativeState, commands, events, errors);
-            ValidateNamedConquestActivationHistory(authoritativeState, commands, events, errors);
-            ValidateLastBreathRecycleCostHistory(authoritativeState, commands, events, errors);
-            ValidateBattlefieldConquestChoiceHistory(authoritativeState, commands, events, errors);
-            ValidateStandbyHandPlayPaymentHistory(authoritativeState, commands, events, errors);
-            errors.AddRange(BattleResultRecoveryRules.ValidateClosedCleanupRecalls(authoritativeState, commands, events));
+            errors.AddRange(SpellManaPaymentHistoryRules.ValidateOriginalPayments(authoritativeState, ruleCommands, ruleEvents));
+            ValidateLinkedExileHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateArmamentLinkedExileHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateBoundLegendHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateBattlefieldPermanentPlayUses(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateNextUnitPlayGrantHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateBattleLimitedHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidatePerPlayerActivationUseHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateUnitEventModeUseHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateArmamentUnitEventHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateArmamentDamageBonusHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateInstructionCostHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateActivationBanishHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateEquipmentSkillObservationHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateObservedUnitEventHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateBattlefieldUnitPlayHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateUnitEventOpponentHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidatePlayAttributeDeclarationHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateOptionalExperiencePlayHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateTurnBattleWinRewardHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidatePowerPaymentHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateSnapshotKeywordGrantHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateArmamentAttachmentTurnHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidatePaidPermanentPlayHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidatePermanentPlayOrderingHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateLegendPlayCostHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateEquipmentControlHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateUnitControlHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateLevelTargetHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateBattlefieldTimingHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateUnitEventTurnPlayHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateUnitEventTargetHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateFirstConquestUseHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateObservedDeckPlayHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateBattlefieldConquestMillHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateUnitConquestReturnHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateStandbyUnitObserverHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateStunSourceMovementHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateNamedConquestActivationHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateLastBreathRecycleCostHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateBattlefieldConquestChoiceHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            ValidateStandbyHandPlayPaymentHistory(authoritativeState, ruleCommands, ruleEvents, errors);
+            errors.AddRange(BattleResultRecoveryRules.ValidateClosedCleanupRecalls(authoritativeState, ruleCommands, ruleEvents));
         }
         ValidateSpectatorReplayFrame(
             roomId,
             lastEventSequence,
             currentTick,
+            tickOffset,
             authoritativeState,
             spectatorReplayFrame,
             errors);

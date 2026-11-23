@@ -512,6 +512,15 @@ public static partial class MatchRecoveryValidator
 
         switch (normalizedCommandType)
         {
+            case CommandTypes.RequestRewind:
+            case CommandTypes.AcceptRewind:
+            case CommandTypes.RejectRewind:
+            case CommandTypes.CancelRewind:
+                var field = normalizedCommandType == CommandTypes.RequestRewind ? "targetStep" : "requestStep";
+                if (!rawCommand.TryGetProperty(field, out var step) || step.ValueKind != JsonValueKind.Number
+                    || !step.TryGetInt64(out var number) || number <= 0)
+                    errors.Add($"command {command.ClientIntentId} raw {normalizedCommandType} {field} must be a positive integer");
+                break;
             case CommandTypes.ChoosePlayOrder:
                 if (!rawCommand.TryGetProperty("goFirst", out var goFirst)
                     || goFirst.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
