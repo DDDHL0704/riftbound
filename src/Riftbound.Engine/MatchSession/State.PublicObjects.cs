@@ -33,7 +33,7 @@ public sealed partial record MatchState
             [],
             null,
             [],
-            null);
+            null) { RecycleShuffleVersion = MainDeckRecycleShuffleVersion.FisherYates };
     }
 
     private static string InferStatus(IReadOnlyDictionary<string, string> seats)

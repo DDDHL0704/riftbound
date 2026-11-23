@@ -309,8 +309,7 @@ public sealed class OpeningRandomizationTests
         // 2^64 mod 2 = 0, mod 3 = 1, mod 39 = 16; independent integer references.
         var count = 0;
         ulong Next() { count++; return count == 1 ? first : (ulong)expected; }
-        var method = typeof(MatchSession).GetMethod("NextOpeningIndex", BindingFlags.NonPublic | BindingFlags.Static)!;
-        Assert.Equal(expected, (int)method.Invoke(null, [bound, (Func<ulong>)Next])!);
+        Assert.Equal(expected, DeterministicShuffle.NextIndex(bound, Next));
         Assert.Equal(calls, count);
     }
 

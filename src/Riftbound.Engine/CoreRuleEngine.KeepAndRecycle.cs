@@ -93,7 +93,7 @@ public sealed partial class CoreRuleEngine
             }
             else
             {
-                ids = RandomizeForMainDeckBottom(ids, state.Seed, rngCursor, source).ToArray();
+                ids = MainDeckRecycleShuffle.Shuffle(state, ids, rngCursor, source).ToArray();
                 if (ids.Length > 1) rngCursor++;
             }
             destinations.Add((batch.Owner, batch.Rune, ids));
