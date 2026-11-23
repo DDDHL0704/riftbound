@@ -892,6 +892,9 @@ public sealed partial record ResolutionResult
     }
 
     public static IReadOnlyDictionary<string, ActionPromptDto> BuildPrompts(MatchState state)
+        => DeferredResolutionViews.Build(state, BuildPromptsCore);
+
+    private static IReadOnlyDictionary<string, ActionPromptDto> BuildPromptsCore(MatchState state)
     {
         if (RoomMatchSeries.ChoosingPrompts(state) is { } seriesPrompts) return seriesPrompts;
         if (state.PendingRuleChoice is not null) return CoreRuleEngine.BuildRuleChoicePrompts(state);
