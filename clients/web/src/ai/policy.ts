@@ -156,7 +156,8 @@ function boardOptions(ctx: Ctx): Option[] {
   const out: { value: number; option: Option }[] = [];
   for (const list of objectActions(ctx.prompt).values()) {
     for (const action of list) {
-      if (action.cmdType === "TAP_RUNE" || action.cmdType === "RECYCLE_RUNE") continue;
+      // Refusing an effect's play is the player's call; the computer always makes the play.
+      if (action.cmdType === "TAP_RUNE" || action.cmdType === "RECYCLE_RUNE" || action.cmdType === "REFUSE_PLAY_PAYMENT") continue;
       const sel = select(ctx, action);
       if (!sel) continue;
       // Power the preset recycles cannot cover makes the play unaffordable for an unattended opponent.

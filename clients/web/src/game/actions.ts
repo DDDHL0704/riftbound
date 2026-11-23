@@ -105,6 +105,8 @@ const ONE_OF_COST_PREFIXES = ["RECYCLE_GRAVEYARD_CARD:", "CONVERT_MANA_TO_GENERI
 
 const ANCHORED = new Set([
   "PLAY_CARD",
+  // An effect's required play (增援 and the like) may decline the leftover cost with the same declaration.
+  "REFUSE_PLAY_PAYMENT",
   "MOVE_UNIT",
   "TAP_RUNE",
   "RECYCLE_RUNE",
@@ -117,6 +119,7 @@ const ANCHORED = new Set([
 
 const VERB: Record<string, string> = {
   PLAY_CARD: "打出",
+  REFUSE_PLAY_PAYMENT: "拒绝支付费用",
   MOVE_UNIT: "移动",
   TAP_RUNE: "横置 +1 法力",
   RECYCLE_RUNE: "回收 +1 符能",
@@ -185,6 +188,7 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
 
   switch (action) {
     case "PLAY_CARD":
+    case "REFUSE_PLAY_PAYMENT":
     case "REVEAL_CARD":
       steps = [...targetSteps(req, req.targetScopeLabel ? `选择${req.targetScopeLabel}` : "选择目标")];
       if ((req.destinationChoices?.length ?? 0) > 1) steps.push(...destinationStep(req.destinationChoices, req.destinationLabel || "选择位置"));
@@ -257,12 +261,13 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
     optional = pickOne ? [] : extras;
   }
   required = [...variant, ...required];
-  // With a cost per option the shortfall is only known once the option is chosen.
-  const perOption = Boolean(req.costsByChoice);
+  // With a cost per option the shortfall is only known once the option is chosen. A refusal pays nothing.
+  const perOption = Boolean(req.costsByChoice) || action === "REFUSE_PLAY_PAYMENT";
   const manaCost = Number(req.minimumManaCost ?? req.manaCost ?? 0);
   const manaShortfall = !perOption && typeof req.availableMana === "number" ? Math.min(taps.length, Math.max(0, manaCost - req.availableMana)) : 0;
   const shortfall = perOption ? 0 : Math.max(0, Number(req.minimumPrintedPowerShortfall ?? (typeof req.availablePower === "number" && req.powerCost ? req.powerCost - req.availablePower : 0)));
   if (manaShortfall > 0) detail = `${detail ? `${detail} · ` : ""}自动横置 ${manaShortfall} 枚符文`;
+  if (action === "REFUSE_PLAY_PAYMENT") detail = undefined;
   return {
     key: `${action}:${sourceObjectId}:${index}`,
     cmdType: action,

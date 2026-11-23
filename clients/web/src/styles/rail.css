@@ -358,6 +358,10 @@
 .choices__slot {
   position: relative;
 }
+.effectplay {
+  display: grid;
+  gap: 10px;
+}
 .choices__slot--seen,
 .chip--seen {
   opacity: 0.55;

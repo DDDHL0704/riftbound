@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { OPENING_HINT, openingTag, type OpeningRule } from "../game/opening";
 import { client, type ClientState } from "../net/client";
 import { cardName, choiceCardNo, paymentChoiceLabel } from "../game/cards";
@@ -17,6 +17,8 @@ type RailProps = {
   prompt: Prompt | null;
   objects: Record<string, GameObject>;
   onHover: HoverHandler;
+  /** Cards an effect makes the player play from outside the table, with their play controls. */
+  plays?: ReactNode;
 };
 
 /** A card's name that previews the card on hover (see the delegated listener in Table). */
@@ -47,7 +49,7 @@ function linkNames(text: string, byName: Map<string, { cardNo: string; objectId:
 }
 
 
-export function Rail({ state, snapshot, prompt, objects, onHover }: RailProps) {
+export function Rail({ state, snapshot, prompt, objects, onHover, plays }: RailProps) {
   const meId = state.handle;
   const view = prompt?.view;
   const type = view?.type ?? "WAIT";
@@ -78,12 +80,16 @@ export function Rail({ state, snapshot, prompt, objects, onHover }: RailProps) {
       </header>
 
       <div className="rail__panel">
+        {plays}
         {/* Battles usually come from the start-battle prompt, but the server may also offer one as a main action. */}
         {enabledCandidate(prompt, "DECLARE_BATTLE") && <BattlePanel prompt={prompt} objects={objects} />}
         {type === "ASSIGN_COMBAT_DAMAGE" && <DamagePanel prompt={prompt} objects={objects} kind="combat" />}
         {enabledCandidate(prompt, "ASSIGN_EFFECT_DAMAGE") && <DamagePanel prompt={prompt} objects={objects} kind="effect" />}
         {type === "ORDER_TRIGGERS" && <TriggerPanel prompt={prompt} objects={objects} />}
-        {(type === "HAND_CHOICE" || type === "CARD_CHOICE") && <ChoicePanel prompt={prompt} objects={objects} onHover={onHover} />}
+        {/* Usually its own prompt, but an effect's optional play offers its decline as a card choice inside another one. */}
+        {(type === "HAND_CHOICE" || type === "CARD_CHOICE" || enabledCandidate(prompt, "CHOOSE_CARDS")) && (
+          <ChoicePanel prompt={prompt} objects={objects} onHover={onHover} />
+        )}
         {enabledCandidate(prompt, "PAY_COST") && <PayPanel prompt={prompt} objects={objects} pool={snapshot.players[meId]?.runePool} />}
         <GenericPanel prompt={prompt} />
       </div>
@@ -408,7 +414,7 @@ function ChoicePanel({ prompt, objects, onHover }: { prompt: Prompt | null; obje
         })}
       </div>
       <button className="btn btn--primary btn--wide" disabled={picked.length < min} onClick={submit}>
-        {picked.length === 0 && min === 0 ? "不选择，继续" : `确认（${picked.length}）`}
+        {choices.length === 0 && !/^(HAND|CARD)_CHOICE$/.test(prompt?.view?.type ?? "") ? cand.label : picked.length === 0 && min === 0 ? "不选择，继续" : `确认（${picked.length}）`}
       </button>
     </div>
   );
@@ -496,7 +502,7 @@ function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: R
 
 const HANDLED = new Set([
   "PLAY_CARD", "MOVE_UNIT", "TAP_RUNE", "RECYCLE_RUNE", "ACTIVATE_ABILITY", "LEGEND_ACT", "HIDE_CARD", "REVEAL_CARD",
-  "ASSEMBLE_EQUIPMENT", "DECLARE_BATTLE", "ASSIGN_COMBAT_DAMAGE", "ORDER_TRIGGERS", "CHOOSE_HAND_CARDS", "CHOOSE_CARDS",
+  "ASSEMBLE_EQUIPMENT", "DECLARE_BATTLE", "ASSIGN_COMBAT_DAMAGE", "ORDER_TRIGGERS", "CHOOSE_HAND_CARDS", "CHOOSE_CARDS", "REFUSE_PLAY_PAYMENT",
   "PAY_COST", "MULLIGAN", "SURRENDER", "WAIT", "SUBMIT_DECK", "READY", ...TEMPO_ACTIONS,
 ]);
 

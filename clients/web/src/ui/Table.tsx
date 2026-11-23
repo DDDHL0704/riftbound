@@ -14,7 +14,7 @@ import {
   type ObjectAction,
   type Selection,
 } from "../game/actions";
-import { cardName } from "../game/cards";
+import { cardName, choiceCardNo } from "../game/cards";
 import { preloadArt } from "../game/art";
 import type { Choice, GameObject, Prompt, Snapshot, TableBattlefield } from "../game/types";
 import { Ambient, tiltHandlers } from "./Ambient";
@@ -452,6 +452,42 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     );
   };
 
+  // A card an effect makes this player play from outside the table (增援 banishes one from the deck top and
+  // plays it): it has no object to click, so it is offered in the rail with its play and refusal.
+  const effectPlays = [...actions].filter(
+    ([id, list]) => !objects[id] && list.some((a) => a.cmdType === "PLAY_CARD" || a.cmdType === "REFUSE_PLAY_PAYMENT"),
+  );
+  const effectPlayCardNo = (id: string, list: ObjectAction[]) =>
+    (snapshot.stack?.find((item) => item.sourceObjectId === id)?.cardNo as string | undefined) ??
+    list.map((a) => a.candidate.sources?.find((c) => c.id === id)).map((c) => c && choiceCardNo(c.label, c.id)).find(Boolean);
+  const effectPlayPanel = effectPlays.length ? (
+    <div className="panel">
+      {effectPlays.map(([id, list]) => {
+        const play = list.find((a) => a.cmdType === "PLAY_CARD");
+        return (
+          <div key={id} className="effectplay">
+            <Card
+              cardNo={effectPlayCardNo(id, list)}
+              size="board"
+              marks={pick?.action.sourceObjectId === id ? ["selected"] : ["playable"]}
+              onClick={play ? () => start(play) : undefined}
+              onHover={hoverCard}
+              animate={false}
+            />
+            <div className="tempo">
+              {list.map((a) => (
+                <button key={a.key} className={`btn btn--wide${a.cmdType === "PLAY_CARD" ? " btn--primary" : ""}`} disabled={state.pending} onClick={() => start(a)}>
+                  {a.label}
+                  {a.detail ? ` · ${a.detail}` : ""}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  ) : null;
+
   const battlefields: TableBattlefield[] = snapshot.table?.battlefields ?? [];
   const zoneIds = zoneView ? snapshot.players[zoneView.playerId]?.zones[zoneView.zone] ?? [] : [];
   const winner = snapshot.timing.winnerPlayerId;
@@ -629,7 +665,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
           )}
         </div>
 
-        <Rail state={state} snapshot={snapshot} prompt={prompt} objects={objects} onHover={hoverCard} />
+        <Rail state={state} snapshot={snapshot} prompt={prompt} objects={objects} onHover={hoverCard} plays={effectPlayPanel} />
 
         <ChainArrows snapshot={snapshot} meId={meId} />
         <EventFx meId={meId} />
