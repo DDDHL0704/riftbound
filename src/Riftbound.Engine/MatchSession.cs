@@ -4545,28 +4545,30 @@ internal static partial class ActionPromptBuilder
         }
 
         choices.AddRange(PlayCardDiscardHandManaReductionOptionalCostChoices(state, playerId, behavior, sourceObjectId));
-        choices.AddRange(PlayCardDiscardHandDamageOptionalCostChoices(state, playerId, behavior, sourceObjectId));
+        choices.AddRange(PlayCardDiscardHandEffectOptionalCostChoices(state, playerId, behavior, sourceObjectId));
 
         choices.AddRange(PrintedPowerChoices(behavior));
         choices.AddRange(paymentResourceChoices);
         return ignoresAllCosts ? choices.Select(choice => choice with { Label = choice.Label + "（费用已忽略）" }).ToArray() : choices;
     }
 
-    private static IReadOnlyList<ActionPromptChoiceDto> PlayCardDiscardHandDamageOptionalCostChoices(
+    private static IReadOnlyList<ActionPromptChoiceDto> PlayCardDiscardHandEffectOptionalCostChoices(
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
         string? sourceObjectId)
     {
         var createsTokens = behavior.CreatedBaseUnitTokenConditionKind == CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid;
-        if (behavior.DamageAmountIfDiscardHandCardOptionalCost <= 0 && !createsTokens
+        var repeatsEffect = behavior.EffectRepeatCountIfDiscardHandCardOptionalCost > 1;
+        if (!repeatsEffect && behavior.DamageAmountIfDiscardHandCardOptionalCost <= 0 && !createsTokens
             || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
 
         return zones.Hand
             .Where(objectId => CanPromptDiscardHandCardAsOptionalCost(state, playerId, sourceObjectId, objectId))
             .Select(objectId => new ActionPromptChoiceDto(
                 $"DISCARD_HAND_CARD:{objectId}",
-                createsTokens ? $"弃置 {PromptHandCardLabel(state, objectId)}：打出时创建 {behavior.CreatedBaseUnitTokenCount} 名{behavior.CreatedBaseUnitTokenName}"
+                repeatsEffect ? $"弃置 {PromptHandCardLabel(state, objectId)}：回响"
+                    : createsTokens ? $"弃置 {PromptHandCardLabel(state, objectId)}：打出时创建 {behavior.CreatedBaseUnitTokenCount} 名{behavior.CreatedBaseUnitTokenName}"
                     : $"弃置 {PromptHandCardLabel(state, objectId)}：改为造成 {behavior.DamageAmountIfDiscardHandCardOptionalCost} 点伤害",
                 $"{behavior.DisplayName}的可选额外费用"))
             .ToArray();

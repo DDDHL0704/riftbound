@@ -62,6 +62,54 @@ public sealed class PrintedAssaultGrantTests
         await FinishBattle(game, 8 + amount); Assert.Equal(8, Might(game)); await game.Replay();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task DiscardEchoAppearsOnlyWhenAnotherHandCardCanPay(bool hasFodder)
+    {
+        const string card = "UNL-017/219";
+        const string fodder = "DISCARD_HAND_CARD:FODDER";
+        var state = Position(card, hasFodder);
+        var play = Assert.Single(ResolutionResult.BuildPrompts(state)["P1"].Candidates!,
+            candidate => candidate.Action == CommandTypes.PlayCard && candidate.Enabled);
+        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            play.Metadata!["sourceRequirements"]);
+        var source = Assert.Single(requirements, requirement => Equals(requirement["sourceObjectId"], "UNIT"));
+        var costChoices = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(source["optionalCostChoices"]);
+        var command = Spell(card) with { OptionalCosts = [fodder] };
+
+        if (hasFodder)
+        {
+            var game = new Driver(state);
+            await game.Act("P1", command);
+            Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard);
+            await game.Top();
+            Assert.Equal(2, game.State.CardObjects["ALLY"].UntilEndOfTurnEffects
+                .Count(effect => effect.StartsWith("COMBAT_KEYWORD:强攻4:", StringComparison.Ordinal)));
+            Assert.Contains(play.OptionalCosts ?? [], choice => choice.Id == fodder);
+            Assert.Contains(costChoices, choice => choice.Id == fodder);
+        }
+        else
+        {
+            await RadGearTestPosition.Reject(state, "P1", command);
+            Assert.DoesNotContain(play.OptionalCosts ?? [], choice => choice.Id == fodder);
+            Assert.DoesNotContain(costChoices, choice => choice.Id == fodder);
+        }
+
+        Assert.DoesNotContain(play.OptionalCosts ?? [], choice => choice.Id == "DISCARD_HAND_CARD:UNIT");
+    }
+
+    [Fact]
+    public async Task PayingTheSameDiscardEchoWithTwoLegalCardsIsRejectedAtomically()
+    {
+        const string card = "UNL-017/219";
+        var state = MightyExperienceFrameTests.HandUnit(Position(card, repeat: true), "OTHER-FODDER", "UNL-092/219");
+        await RadGearTestPosition.Reject(state, "P1", Spell(card) with
+        {
+            OptionalCosts = ["DISCARD_HAND_CARD:FODDER", "DISCARD_HAND_CARD:OTHER-FODDER"]
+        });
+    }
+
     [Fact]
     public async Task ARecalledTargetDoesNotGiveItsNewPrivateIncarnationTheOldAssault()
     {
