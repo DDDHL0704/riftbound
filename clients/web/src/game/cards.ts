@@ -39,6 +39,45 @@ export function cardName(cardNo: string | null | undefined) {
   return cardInfo(cardNo)?.name ?? cardNo ?? "未知卡牌";
 }
 
+// Server labels name cards by number ("横置友方单位：UNL-053/219", "OGN·042b/298"); read them as names.
+const CARD_NO = /[A-Z]{2,4}[·-][A-Za-z0-9*]+(?:\/\d+)?(?:·[A-Z])?/g;
+
+/** A label with every catalog card number in it replaced by that card's name. */
+export function nameCardNumbers(text: string) {
+  return text.replace(CARD_NO, (no) => cards[no]?.name ?? no);
+}
+
+// Legends, battlefields, runes and tokens never sit in a deck or hand, so a name never stands for them there.
+const OFF_DECK = /^(传奇|战场|符文|指示物)/;
+let printings: Map<string, string[]> | null = null;
+let printingsFor: Record<string, CardInfo> | null = null;
+
+function printingsByName() {
+  if (printingsFor !== cards) {
+    printings = new Map();
+    const entries = Object.entries(cards)
+      .filter(([, info]) => !OFF_DECK.test(info.category))
+      .sort(([, a], [, b]) => (a.sort ?? 0) - (b.sort ?? 0));
+    for (const [no, info] of entries) printings.set(info.name, [...(printings.get(info.name) ?? []), no]);
+    printingsFor = cards;
+  }
+  return printings!;
+}
+
+/**
+ * The card behind a choice that is not on the table, such as the top of the deck during insight. Choices
+ * label such a card by number, or by name when it comes from a deck or hand. A name can belong to several
+ * printings (蔚 has four different units), so the printing the object id names wins (the server builds deck
+ * ids from the number, e.g. "p1-MAIN-UNL-053-219-35"), then the first printing of that name.
+ */
+export function choiceCardNo(label: string, objectId?: string): string | undefined {
+  if (cards[label]) return label;
+  const named = printingsByName().get(label);
+  if (!named?.length) return undefined;
+  const key = (no: string) => `-${no.replace(/[^A-Za-z0-9]/g, "-").replace(/^-+|-+$/g, "")}-`;
+  return named.find((no) => objectId?.includes(key(no))) ?? named[0];
+}
+
 /** Colourless and neutral cards fit any legend and add no trait (server: MatchSession/Models.cs IsNeutral). */
 export const isNeutralColor = (c: string) => c === "colorless" || c === "neutral";
 
@@ -140,5 +179,8 @@ export function colorOf(tags: string[] | undefined) {
 export function paymentChoiceLabel(id: string, label: string, objects: Record<string, GameObject>) {
   const tail = id.split(":").pop() ?? id;
   const o = objects[id] ?? objects[tail];
-  return o ? `${label.split(/[：:]/)[0]}：${cardName(o.cardNo)}` : label;
+  if (!o) return nameCardNumbers(label);
+  // A label that already names the card ("让学徒铁匠变为休眠状态") reads as it is.
+  const name = cardName(o.cardNo);
+  return label.includes(name) ? label : `${label.split(/[：:]/)[0]}：${name}`;
 }

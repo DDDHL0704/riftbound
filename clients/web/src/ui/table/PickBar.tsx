@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import { motion, useIsPresent } from "motion/react";
 import type { ActionStep, ObjectAction } from "../../game/actions";
 import { cardInfo, cardName, paymentChoiceLabel } from "../../game/cards";
@@ -19,6 +20,9 @@ type PickBarProps = {
   onConfirm: () => void;
   onCancel: () => void;
 };
+
+/** The bar's usual distance from the top of the board (see .pickbar). */
+const TOP = 42;
 
 /** Hover-preview attributes for a choice that stands for a card on the table. */
 function cardRefAttrs(id: string, objects: Record<string, GameObject>) {
@@ -81,8 +85,28 @@ export function PickBar({ pick, step, choices, otherActions, onOtherAction, extr
   const moving = pick.action.cmdType === "MOVE_UNIT";
   // While it fades out after the prompt changed, its choices belong to a prompt that is gone.
   const leaving = !useIsPresent();
+  // The bar sits over the opponent's row; when a card to pick is under it there, it moves down above
+  // the player's own row instead, so every lit card stays clickable on the board.
+  const ref = useRef<HTMLDivElement>(null);
+  const [lowTop, setLowTop] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    const bar = ref.current;
+    const board = bar?.offsetParent;
+    const mine = board?.querySelector(".side--me");
+    if (!bar || !board || !mine) return;
+    const b = board.getBoundingClientRect();
+    const { left, right } = bar.getBoundingClientRect();
+    const h = bar.offsetHeight;
+    const legal = [...board.querySelectorAll(".card--legal")].map((el) => el.getBoundingClientRect());
+    const covers = (top: number) => legal.some((c) => c.right > left && c.left < right && c.bottom > b.top + top && c.top < b.top + top + h);
+    const low = mine.getBoundingClientRect().top - b.top - h - 12;
+    const next = covers(TOP) && low > TOP && !covers(low) ? low : null;
+    if (next !== lowTop) setLowTop(next);
+  });
   return (
     <motion.div
+      ref={ref}
+      style={lowTop != null ? { top: lowTop } : undefined}
       className={leaving ? "pickbar pickbar--leaving" : "pickbar"}
       onClick={(e) => e.stopPropagation()}
       role="dialog"
@@ -97,6 +121,7 @@ export function PickBar({ pick, step, choices, otherActions, onOtherAction, extr
         <p className="pickbar__title">
           <strong>{info?.name ?? cardName(src?.cardNo)}</strong>
           <span>{pick.action.label}</span>
+          {pick.action.detail && <em className="pickbar__detail">{pick.action.detail}</em>}
         </p>
         {step ? (
           <>

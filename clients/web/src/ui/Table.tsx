@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { AnimatePresence, LayoutGroup } from "motion/react";
 import { client, readableError, type ClientState } from "../net/client";
 import {
@@ -14,13 +14,14 @@ import {
   type ObjectAction,
   type Selection,
 } from "../game/actions";
-import { cardName } from "../game/cards";
+import { cardName, choiceCardNo } from "../game/cards";
 import { preloadArt } from "../game/art";
+import { cue } from "../game/sound";
 import type { Choice, GameObject, Prompt, Snapshot, TableBattlefield } from "../game/types";
 import { Ambient, tiltHandlers } from "./Ambient";
 import { Card, HoverPreview, type CardMark, type HoverHandler } from "./Card";
 import { ChainArrows, Dock, EventFx, Spotlight } from "./Overlay";
-import { Stage, StackShow } from "./Stage";
+import { LastPlayed, Stage, StackShow } from "./Stage";
 import { Rail } from "./Rail";
 import { Battlefield, OpponentHand, ScoreSpine, Side, type RenderObject, type ZoneView } from "./Zones";
 import { ActionMenu } from "./table/ActionMenu";
@@ -84,12 +85,29 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     () => setHover(null),
   );
 
+  // A choice the server asks midway through an action (where Yasuo's unit goes, which unit moves) names
+  // things on the table: they light up and answer it when clicked, like a pick.
+  const ruleChoice = useMemo(() => {
+    const cand = enabledCandidate(prompt, "PAY_COST");
+    const md = cand?.metadata;
+    const first = cand?.selectionSteps?.[0];
+    if (!cand || !md || md.paymentWindow !== "RULE_REPLACEMENT" || !first || md.cost?.mana || md.cost?.power) return null;
+    const map = new Map<string, string>();
+    for (const c of first.choices) for (const id of choiceObjectIds(c)) map.set(id, c.id);
+    return { md, map };
+  }, [prompt]);
+  const answerRule = (choiceId: string) =>
+    void client.submit({ cmdType: "PAY_COST", paymentId: ruleChoice!.md.paymentId, paymentWindow: ruleChoice!.md.paymentWindow, paymentChoiceIds: [choiceId] });
+  // What the last submitted action chose stays marked while the server asks the rest of it.
+  const [committed, setCommitted] = useState<string[]>([]);
+
   // Any new prompt invalidates half-built selections.
   useEffect(() => {
     setMenuFor(null);
     setPick(null);
     setRuneSel([]);
-  }, [prompt?.promptId]);
+    if (!ruleChoice) setCommitted([]);
+  }, [prompt?.promptId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (promptType !== "MULLIGAN") setMulligan([]);
@@ -118,6 +136,15 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   // pass after a short beat. Any playable card or ability stops it.
   const respondable = [...actions.values()].flat().some((a) => a.cmdType !== "TAP_RUNE" && a.cmdType !== "RECYCLE_RUNE");
   useAutoPass(autoPass, prompt, respondable, Boolean(pick || menuFor));
+  // A response window the player must answer: the table edge and the pass button breathe, and a soft
+  // chime sounds as it opens. Windows auto-pass will answer stay quiet.
+  const awaitingResponse =
+    Boolean(prompt?.actionable) && (promptType === "STACK_PRIORITY" || promptType === "SPELL_DUEL_FOCUS") && !(autoPass && !respondable);
+  const wasAwaiting = useRef(false);
+  useEffect(() => {
+    if (awaitingResponse && !wasAwaiting.current) cue("respond");
+    wasAwaiting.current = awaitingResponse;
+  }, [awaitingResponse]);
 
   const runRuneCommand = async (cmdType: "TAP_RUNE" | "RECYCLE_RUNE", ids: string[]) => {
     if (!ids.length) return null;
@@ -190,7 +217,17 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       (id) => id !== pick!.action.sourceObjectId && moveOf(id) && (pick!.group.includes(id) || destinationsOf(id).some((d) => shared.has(d))),
     );
   }, [grouping, actions, pick, stepChoices]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Once targets are set, an optional cost that names a unit (冥想: exhaust a friendly unit to draw again)
+  // lights that unit; clicking it toggles the cost, like the cost's chip in the pick bar.
+  const costUnits = useMemo(() => {
+    const map = new Map<string, string>();
+    if (!pick || currentStep) return map;
+    for (const c of offeredCosts(pick)) for (const id of choiceObjectIds(c)) if (objects[id]) map.set(id, c.id);
+    return map;
+  }, [pick, currentStep, objects]);
   const legal = useMemo(() => {
+    if (!pick && ruleChoice) return ruleChoice.map;
+    if (costUnits.size) return costUnits;
     const map = new Map<string, string>();
     for (const choice of stepChoices) {
       if (pick?.sel.targets.includes(choice.id) || pick?.sel.optionalCosts.includes(choice.id)) continue;
@@ -198,10 +235,11 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     }
     for (const id of peers) map.set(id, GROUP + id);
     return map;
-  }, [stepChoices, peers, pick]);
+  }, [stepChoices, peers, pick, ruleChoice, costUnits]);
 
   const submitPick = (picked: Pick) => {
     setPick(null);
+    setCommitted([picked.action.sourceObjectId, ...picked.sel.targets, ...picked.group]);
     const p = { ...picked, sel: offeredSelection(picked) };
     if (p.action.cmdType === "MOVE_UNIT" && p.group.length && p.sel.destination) {
       // A group move names its units and destination; each unit keeps its own origin.
@@ -276,6 +314,10 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   };
 
   const choose = (choiceId: string) => {
+    if (pick && !currentStep && [...costUnits.values()].includes(choiceId)) {
+      setPick({ ...pick, sel: { ...pick.sel, optionalCosts: toggleCost(pick, choiceId) } });
+      return;
+    }
     if (!pick || !currentStep) return;
     if (choiceId.startsWith(GROUP)) {
       const id = choiceId.slice(GROUP.length);
@@ -306,8 +348,10 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const playCard = (id: string, dropIds: string[] = []) => {
     const list = actions.get(id)?.filter((a) => a.cmdType === "PLAY_CARD") ?? [];
     if (!list.length) client.toast("这张牌现在还不能打出。");
-    else if (list.length > 1) setMenuFor(id);
-    else start(list[0], dropIds);
+    else if (list.length > 1) {
+      setHover(null);
+      setMenuFor(id);
+    } else start(list[0], dropIds);
   };
 
   const moveUnitsTo = (unitIds: string[], dropIds: string[]) => {
@@ -339,6 +383,10 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       if (choiceId) choose(choiceId);
       return;
     }
+    if (ruleChoice?.map.has(id)) {
+      answerRule(ruleChoice.map.get(id)!);
+      return;
+    }
     if (isRune(id) && (tapIds.has(id) || recycleIds.has(id))) {
       setRuneSel((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
       return;
@@ -350,11 +398,20 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       start(move);
       return;
     }
-    if (list.length) setMenuFor(menuFor === id ? null : id);
-    else setMenuFor(null);
+    // The card's own preview sits where its menu opens, so it gives way until the pointer comes back.
+    if (list.length) {
+      setHover(null);
+      setMenuFor(menuFor === id ? null : id);
+    } else setMenuFor(null);
   };
 
   const onZone = (zoneIds: string[]) => (e: MouseEvent) => {
+    const rule = !pick ? zoneIds.map((z) => ruleChoice?.map.get(z)).find(Boolean) : undefined;
+    if (rule) {
+      e.stopPropagation();
+      answerRule(rule);
+      return;
+    }
     if (!pick) {
       setMenuFor(null);
       return;
@@ -382,7 +439,11 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     const inGroup = Boolean(pick?.group.includes(id));
     if (menuFor === id || pick?.action.sourceObjectId === id || mulligan.includes(id) || pick?.sel.targets.includes(id) || inGroup || runeSel.includes(id))
       marks.push("selected");
-    if (pick && legal.has(id) && !inGroup) marks.push("legal");
+    if ((pick || ruleChoice) && legal.has(id) && !inGroup) marks.push("legal");
+    // Units a play's costs use (chosen, or the only legal one taken automatically) show as picked.
+    if (pick && [...pick.action.requiredCosts, ...pick.sel.optionalCosts].some((c) => !isTap(c) && !isRecycle(c) && c.split(":").pop() === id))
+      marks.push("selected");
+    if (!pick && committed.includes(id)) marks.push("selected");
     if (!pick && actions.has(id)) marks.push(autoTapOf(id) != null ? "autopay" : "playable");
     if (o?.isAttacking) marks.push("attacking");
     if (o?.isDefending) marks.push("defending");
@@ -407,7 +468,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
         ? inHand
         : pick
           ? legal.has(id)
-          : actions.has(id) || (isRune(id) && (tapIds.has(id) || recycleIds.has(id)));
+          : legal.has(id) || actions.has(id) || (isRune(id) && (tapIds.has(id) || recycleIds.has(id)));
     const draggable = inHand ? canDragHand(id) : canDragUnit(id);
     return (
       <div className="obj" key={id} data-oid={id}>
@@ -446,6 +507,42 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       </div>
     );
   };
+
+  // A card an effect makes this player play from outside the table (增援 banishes one from the deck top and
+  // plays it): it has no object to click, so it is offered in the rail with its play and refusal.
+  const effectPlays = [...actions].filter(
+    ([id, list]) => !objects[id] && list.some((a) => a.cmdType === "PLAY_CARD" || a.cmdType === "REFUSE_PLAY_PAYMENT"),
+  );
+  const effectPlayCardNo = (id: string, list: ObjectAction[]) =>
+    (snapshot.stack?.find((item) => item.sourceObjectId === id)?.cardNo as string | undefined) ??
+    list.map((a) => a.candidate.sources?.find((c) => c.id === id)).map((c) => c && choiceCardNo(c.label, c.id)).find(Boolean);
+  const effectPlayPanel = effectPlays.length ? (
+    <div className="panel">
+      {effectPlays.map(([id, list]) => {
+        const play = list.find((a) => a.cmdType === "PLAY_CARD");
+        return (
+          <div key={id} className="effectplay">
+            <Card
+              cardNo={effectPlayCardNo(id, list)}
+              size="board"
+              marks={pick?.action.sourceObjectId === id ? ["selected"] : ["playable"]}
+              onClick={play ? () => start(play) : undefined}
+              onHover={hoverCard}
+              animate={false}
+            />
+            <div className="tempo">
+              {list.map((a) => (
+                <button key={a.key} className={`btn btn--wide${a.cmdType === "PLAY_CARD" ? " btn--primary" : ""}`} disabled={state.pending} onClick={() => start(a)}>
+                  {a.label}
+                  {a.detail ? ` · ${a.detail}` : ""}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  ) : null;
 
   const battlefields: TableBattlefield[] = snapshot.table?.battlefields ?? [];
   const zoneIds = zoneView ? snapshot.players[zoneView.playerId]?.zones[zoneView.zone] ?? [] : [];
@@ -560,6 +657,8 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
 
           {!winner && <StackShow snapshot={snapshot} meId={meId} />}
+          {!winner && <LastPlayed snapshot={snapshot} meId={meId} onHover={hoverCard} />}
+          {awaitingResponse && !winner && <div className="respond" aria-hidden />}
           {!winner && (
             <Dock
               prompt={prompt}
@@ -567,6 +666,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
               autoPass={autoPass}
               unused={myMainTurn ? [...actions].filter(([id, list]) => !isRune(id) && list.some((a) => a.cmdType !== "TAP_RUNE" && a.cmdType !== "RECYCLE_RUNE")).length : 0}
               onToggleAutoPass={toggleAutoPass}
+              respond={awaitingResponse}
             />
           )}
 
@@ -624,7 +724,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
           )}
         </div>
 
-        <Rail state={state} snapshot={snapshot} prompt={prompt} objects={objects} onHover={hoverCard} />
+        <Rail state={state} snapshot={snapshot} prompt={prompt} objects={objects} onHover={hoverCard} plays={effectPlayPanel} />
 
         <ChainArrows snapshot={snapshot} meId={meId} />
         <EventFx meId={meId} />

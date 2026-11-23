@@ -1,3 +1,4 @@
+import { nameCardNumbers } from "./cards";
 import type { Candidate, Choice, Prompt } from "./types";
 
 /**
@@ -105,6 +106,8 @@ const ONE_OF_COST_PREFIXES = ["RECYCLE_GRAVEYARD_CARD:", "CONVERT_MANA_TO_GENERI
 
 const ANCHORED = new Set([
   "PLAY_CARD",
+  // An effect's required play (增援 and the like) may decline the leftover cost with the same declaration.
+  "REFUSE_PLAY_PAYMENT",
   "MOVE_UNIT",
   "TAP_RUNE",
   "RECYCLE_RUNE",
@@ -117,6 +120,7 @@ const ANCHORED = new Set([
 
 const VERB: Record<string, string> = {
   PLAY_CARD: "打出",
+  REFUSE_PLAY_PAYMENT: "拒绝支付费用",
   MOVE_UNIT: "移动",
   TAP_RUNE: "横置 +1 法力",
   RECYCLE_RUNE: "回收 +1 符能",
@@ -185,6 +189,7 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
 
   switch (action) {
     case "PLAY_CARD":
+    case "REFUSE_PLAY_PAYMENT":
     case "REVEAL_CARD":
       steps = [...targetSteps(req, req.targetScopeLabel ? `选择${req.targetScopeLabel}` : "选择目标")];
       if ((req.destinationChoices?.length ?? 0) > 1) steps.push(...destinationStep(req.destinationChoices, req.destinationLabel || "选择位置"));
@@ -232,18 +237,22 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
   // Mandatory additional costs: the player picks exactly this many of the listed options.
   const mandatory: Choice[] = uniqueChoices(req.additionalCostChoices ?? []);
   const mandatoryCount = Number(req.requiredAdditionalCostChoiceCount ?? 0);
-  const costLabelText = action === "HIDE_CARD" ? "选择待命费用" : "选择费用";
+  // A cost picked from units reads as what happens to them ("横置友方单位"), not as a generic "选择费用".
+  const costLabelOf = (choices: Choice[]) => {
+    const kinds = new Set(choices.map((c) => c.label.split(/[：:]/)[0]));
+    return kinds.size === 1 && choices[0]?.label.includes("：") ? [...kinds][0] : action === "HIDE_CARD" ? "选择待命费用" : "选择费用";
+  };
   let required: string[];
   let optional: Choice[];
   if (mandatoryCount > 0 && mandatory.length > 0) {
     if (mandatory.length <= mandatoryCount) {
       // The only legal way to pay: taken automatically, but named so it's never a surprise.
       required = mandatory.map((c) => c.id);
-      detail = `${detail ? `${detail} · ` : ""}需${mandatory.map((c) => c.label).join("、")}`;
+      detail = `${detail ? `${detail} · ` : ""}需${mandatory.map((c) => nameCardNumbers(c.label)).join("、")}`;
     } else {
       required = [];
       for (let i = 0; i < mandatoryCount; i++)
-        steps.push({ key: `cost-${i}`, role: "cost", label: mandatoryCount > 1 ? `${costLabelText} ${i + 1}` : costLabelText, required: true, choices: mandatory });
+        steps.push({ key: `cost-${i}`, role: "cost", label: mandatoryCount > 1 ? `${costLabelOf(mandatory)} ${i + 1}` : costLabelOf(mandatory), required: true, choices: mandatory });
     }
     optional = extras.filter((c) => !mandatory.some((m) => m.id === c.id));
   } else {
@@ -252,17 +261,18 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
     // conversion equipment (Ancient Stele, Hextech Anomaly) turns between mana and power.
     const oneOf = ONE_OF_COST_PREFIXES.find((p) => extras.length > 0 && extras.every((c) => c.id.startsWith(p)));
     const pickOne = Number(req.requiredOptionalCostChoiceCount) === 1 || (action === "ACTIVATE_ABILITY" && Boolean(oneOf));
-    if (pickOne && extras.length > 1) steps.push({ key: "cost", role: "cost", label: costLabelText, required: true, choices: extras });
+    if (pickOne && extras.length > 1) steps.push({ key: "cost", role: "cost", label: costLabelOf(extras), required: true, choices: extras });
     required = pickOne && extras.length === 1 ? [extras[0].id] : req.requiredOptionalCosts ?? [];
     optional = pickOne ? [] : extras;
   }
   required = [...variant, ...required];
-  // With a cost per option the shortfall is only known once the option is chosen.
-  const perOption = Boolean(req.costsByChoice);
+  // With a cost per option the shortfall is only known once the option is chosen. A refusal pays nothing.
+  const perOption = Boolean(req.costsByChoice) || action === "REFUSE_PLAY_PAYMENT";
   const manaCost = Number(req.minimumManaCost ?? req.manaCost ?? 0);
   const manaShortfall = !perOption && typeof req.availableMana === "number" ? Math.min(taps.length, Math.max(0, manaCost - req.availableMana)) : 0;
   const shortfall = perOption ? 0 : Math.max(0, Number(req.minimumPrintedPowerShortfall ?? (typeof req.availablePower === "number" && req.powerCost ? req.powerCost - req.availablePower : 0)));
   if (manaShortfall > 0) detail = `${detail ? `${detail} · ` : ""}自动横置 ${manaShortfall} 枚符文`;
+  if (action === "REFUSE_PLAY_PAYMENT") detail = undefined;
   return {
     key: `${action}:${sourceObjectId}:${index}`,
     cmdType: action,

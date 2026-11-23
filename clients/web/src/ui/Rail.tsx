@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { OPENING_HINT, openingTag, type OpeningRule } from "../game/opening";
 import { client, type ClientState } from "../net/client";
-import { cardName, paymentChoiceLabel } from "../game/cards";
+import { cardName, choiceCardNo, paymentChoiceLabel } from "../game/cards";
 import { enabledCandidate, isRecycle, isTap } from "../game/actions";
 import { fillByIndex, suggestCombat, suggestEffect, type Assignment, type Required } from "../game/decisions";
 import type { Candidate, Choice, GameObject, Prompt, Snapshot } from "../game/types";
@@ -17,7 +17,22 @@ type RailProps = {
   prompt: Prompt | null;
   objects: Record<string, GameObject>;
   onHover: HoverHandler;
+  /** Cards an effect makes the player play from outside the table, with their play controls. */
+  plays?: ReactNode;
 };
+
+/** A rule choice midway through an action arrives as a payment; its own label says what is being chosen. */
+function ruleChoiceLabel(prompt: Prompt | null): string | undefined {
+  const pay = enabledCandidate(prompt, "PAY_COST");
+  return pay?.metadata?.paymentWindow === "RULE_REPLACEMENT" && pay.label ? pay.label : undefined;
+}
+
+/** A choice naming something on the table (a battlefield, a unit) reads as that card; a base as 基地. */
+function choiceText(c: Choice, objects: Record<string, GameObject>) {
+  if (c.id === "BASE" || c.id.startsWith("BASE:")) return "基地";
+  const o = [...(c.objectIds ?? []), c.id, c.id.split(":").pop() ?? ""].map((id) => objects[id]).find((x) => x?.cardNo);
+  return o ? cardName(o.cardNo) : c.label;
+}
 
 /** A card's name that previews the card on hover (see the delegated listener in Table). */
 function Named({ id, objects, fallback }: { id: string; objects: Record<string, GameObject>; fallback?: string }) {
@@ -47,7 +62,7 @@ function linkNames(text: string, byName: Map<string, { cardNo: string; objectId:
 }
 
 
-export function Rail({ state, snapshot, prompt, objects, onHover }: RailProps) {
+export function Rail({ state, snapshot, prompt, objects, onHover, plays }: RailProps) {
   const meId = state.handle;
   const view = prompt?.view;
   const type = view?.type ?? "WAIT";
@@ -73,17 +88,21 @@ export function Rail({ state, snapshot, prompt, objects, onHover }: RailProps) {
             <span title={OPENING_HINT[snapshot.openingRule as OpeningRule]}> · {openingTag(snapshot.openingRule)}</span>
           )}
         </p>
-        <h2 className="rail__title">{actionable || type === "MATCH_RESULT" ? view?.title ?? "行动" : "等待对手"}</h2>
-        {type !== "MAIN_ACTION" && <p className="rail__msg">{view?.message || prompt?.reason}</p>}
+        <h2 className="rail__title">{actionable || type === "MATCH_RESULT" ? ruleChoiceLabel(prompt) ?? view?.title ?? "行动" : "等待对手"}</h2>
+        {type !== "MAIN_ACTION" && !(actionable && ruleChoiceLabel(prompt)) && <p className="rail__msg">{view?.message || prompt?.reason}</p>}
       </header>
 
       <div className="rail__panel">
+        {plays}
         {/* Battles usually come from the start-battle prompt, but the server may also offer one as a main action. */}
         {enabledCandidate(prompt, "DECLARE_BATTLE") && <BattlePanel prompt={prompt} objects={objects} />}
         {type === "ASSIGN_COMBAT_DAMAGE" && <DamagePanel prompt={prompt} objects={objects} kind="combat" />}
         {enabledCandidate(prompt, "ASSIGN_EFFECT_DAMAGE") && <DamagePanel prompt={prompt} objects={objects} kind="effect" />}
         {type === "ORDER_TRIGGERS" && <TriggerPanel prompt={prompt} objects={objects} />}
-        {(type === "HAND_CHOICE" || type === "CARD_CHOICE") && <ChoicePanel prompt={prompt} objects={objects} onHover={onHover} />}
+        {/* Usually its own prompt, but an effect's optional play offers its decline as a card choice inside another one. */}
+        {(type === "HAND_CHOICE" || type === "CARD_CHOICE" || enabledCandidate(prompt, "CHOOSE_CARDS")) && (
+          <ChoicePanel prompt={prompt} objects={objects} onHover={onHover} />
+        )}
         {enabledCandidate(prompt, "PAY_COST") && <PayPanel prompt={prompt} objects={objects} pool={snapshot.players[meId]?.runePool} />}
         <GenericPanel prompt={prompt} />
       </div>
@@ -359,36 +378,56 @@ function ChoicePanel({ prompt, objects, onHover }: { prompt: Prompt | null; obje
 
   const submit = () =>
     void client.submit({ cmdType: cand.action, choiceId: md.choiceId, choiceWindow: md.choiceWindow, chosenObjectIds: picked });
+  // Some choices are an order (insight puts the kept cards back top first in the order picked); number the picks.
+  const ordered = max > 1 && /ORDER/.test(String(md.choiceWindow ?? ""));
+  const viewed: Choice[] = Array.isArray(md.viewedCards) ? md.viewedCards : [];
+  const seenOnly = viewed.filter((v) => !choices.some((c) => c.id === v.id));
 
   return (
     <div className="panel">
       {md.reason && typeof md.reason === "string" && !/^[A-Z_]+$/.test(md.reason) && <p className="small">{md.reason}</p>}
-      <div className={`choices${choices.some((c) => objects[c.id] || cardInfo(c.label)) ? " choices--cards" : ""}`}>
+      <div className={`choices${[...choices, ...seenOnly].some((c) => objects[c.id] || choiceCardNo(c.label, c.id)) ? " choices--cards" : ""}`}>
         {choices.map((c) => {
           const o = objects[c.id];
           const on = picked.includes(c.id);
-          // A privately revealed card (e.g. the top of the deck) is not on the table; its label is the card number.
-          const cardNo = o ? undefined : cardInfo(c.label) ? c.label : undefined;
+          const order = ordered && on ? picked.indexOf(c.id) + 1 : undefined;
+          // A privately viewed card (e.g. the top of the deck) is not on the table; its label names it.
+          const cardNo = o ? undefined : choiceCardNo(c.label, c.id);
           return o || cardNo ? (
-            <Card
-              key={c.id}
-              object={o}
-              cardNo={cardNo}
-              size="board"
-              marks={on ? ["selected"] : ["legal"]}
-              onClick={() => toggle(c.id)}
-              onHover={onHover}
-              title={c.reason ?? undefined}
-            />
+            <span key={c.id} className="choices__slot" data-order={order}>
+              <Card
+                object={o}
+                cardNo={cardNo}
+                size="board"
+                marks={on ? ["selected"] : ["legal"]}
+                onClick={() => toggle(c.id)}
+                onHover={onHover}
+                title={c.reason ?? undefined}
+              />
+            </span>
           ) : (
             <button key={c.id} className={`chip${on ? " chip--on" : ""}`} onClick={() => toggle(c.id)} title={c.reason ?? undefined}>
+              {order ? `${order}. ` : ""}
               {c.label}
             </button>
           );
         })}
+        {/* The rest of what the effect looked at (e.g. the four non-units under 增援): seen, not choosable. */}
+        {seenOnly.map((v) => {
+          const cardNo = choiceCardNo(v.label, v.id);
+          return cardNo ? (
+            <span key={v.id} className="choices__slot choices__slot--seen">
+              <Card cardNo={cardNo} size="board" onHover={onHover} title={v.reason ?? undefined} />
+            </span>
+          ) : (
+            <span key={v.id} className="chip chip--seen" title={v.reason ?? undefined}>
+              {v.label}
+            </span>
+          );
+        })}
       </div>
       <button className="btn btn--primary btn--wide" disabled={picked.length < min} onClick={submit}>
-        {picked.length === 0 && min === 0 ? "不选择，继续" : `确认（${picked.length}）`}
+        {choices.length === 0 && !/^(HAND|CARD)_CHOICE$/.test(prompt?.view?.type ?? "") ? cand.label : picked.length === 0 && min === 0 ? "不选择，继续" : `确认（${picked.length}）`}
       </button>
     </div>
   );
@@ -461,7 +500,7 @@ function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: R
               disabled={!/DECLINE/.test(c.id) && !canPay}
               onClick={() => void (/DECLINE/.test(c.id) ? decline(c.id) : pay([c.id]))}
             >
-              {/DECLINE/.test(c.id) ? c.label : payLabel(c.label)}
+              {/DECLINE/.test(c.id) ? c.label : payLabel(choiceText(c, objects))}
             </button>
           ))}
         </div>
@@ -476,7 +515,7 @@ function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: R
 
 const HANDLED = new Set([
   "PLAY_CARD", "MOVE_UNIT", "TAP_RUNE", "RECYCLE_RUNE", "ACTIVATE_ABILITY", "LEGEND_ACT", "HIDE_CARD", "REVEAL_CARD",
-  "ASSEMBLE_EQUIPMENT", "DECLARE_BATTLE", "ASSIGN_COMBAT_DAMAGE", "ORDER_TRIGGERS", "CHOOSE_HAND_CARDS", "CHOOSE_CARDS",
+  "ASSEMBLE_EQUIPMENT", "DECLARE_BATTLE", "ASSIGN_COMBAT_DAMAGE", "ORDER_TRIGGERS", "CHOOSE_HAND_CARDS", "CHOOSE_CARDS", "REFUSE_PLAY_PAYMENT",
   "PAY_COST", "MULLIGAN", "SURRENDER", "WAIT", "SUBMIT_DECK", "READY", ...TEMPO_ACTIONS,
 ]);
 
