@@ -10,6 +10,28 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 public sealed partial class MatchSession
 {
+    private PromptFreshnessCache? promptFreshnessCache;
+
+    private static readonly IReadOnlyList<string> MainOpenSourceDrivenActions =
+    [
+        CommandTypes.PlayCard,
+        CommandTypes.ActivateAbility,
+        CommandTypes.AssembleEquipment,
+        CommandTypes.MoveUnit,
+        CommandTypes.DeclareBattle,
+        CommandTypes.HideCard,
+        CommandTypes.RevealCard,
+        CommandTypes.TapRune,
+        CommandTypes.RecycleRune,
+        CommandTypes.LegendAct
+    ];
+    private static readonly IReadOnlyList<string> MainOpenActions =
+        [.. MainOpenSourceDrivenActions, CommandTypes.EndTurn, CommandTypes.Surrender];
+
+    private sealed record PromptFreshnessCache(MatchState State, RewindFrame? Rewind)
+    {
+        public Dictionary<string, IReadOnlyList<ActionPromptDto>> ByPlayer { get; } = new(StringComparer.Ordinal);
+    }
 
     // Match the existing recovery envelope rules before any uncached request can be journaled.
     // Nullable-absent raw remains a separate typed-caller contract; do not fabricate wire JSON.
@@ -203,20 +225,57 @@ public sealed partial class MatchSession
 
     private IReadOnlyList<ActionPromptDto> BuildPromptFreshnessCandidates(MatchState state, string playerId)
     {
-        var currentPrompt = ProjectRewindPrompt(ResolutionResult.BuildPrompts(state)[playerId], rewindFrame);
+        // The serial gate covers validation and state changes. Rewind can
+        // return to the same state with a new timeline position.
+        var frame = rewindFrame;
+        var cache = promptFreshnessCache;
+        if (cache is null || !ReferenceEquals(cache.State, state) || !ReferenceEquals(cache.Rewind, frame))
+        {
+            cache = new PromptFreshnessCache(state, frame);
+            promptFreshnessCache = cache;
+        }
+
+        if (!cache.ByPlayer.TryGetValue(playerId, out var prompts))
+        {
+            prompts = BuildPromptFreshnessCandidates(state, playerId, frame);
+            cache.ByPlayer.Add(playerId, prompts);
+        }
+        return prompts;
+    }
+
+    private static IReadOnlyList<ActionPromptDto> BuildPromptFreshnessCandidates(
+        MatchState state, string playerId, RewindFrame? frame)
+    {
+        var unprojectedPrompt = ResolutionResult.BuildPrompts(state)[playerId];
+        var currentPrompt = ProjectRewindPrompt(unprojectedPrompt, frame);
         if (!IsOrdinaryMainOpenPromptState(state, playerId))
         {
             return [currentPrompt];
         }
 
-        var implementedPrompt = ActionPromptBuilder.Build(
-            state,
-            playerId,
-            true,
-            "当前玩家普通开环行动",
-            WithSurrender(ImplementedMainOpenActions(state, playerId)));
+        const string mainOpenReason = "当前玩家普通开环行动";
+        ActionPromptDto implementedPrompt;
+        if (unprojectedPrompt.Actionable && unprojectedPrompt.Candidates is { } candidates
+            && candidates.Select(candidate => candidate.Action).SequenceEqual(MainOpenActions, StringComparer.Ordinal))
+        {
+            // The older window ID contains only enabled actions. Candidate
+            // availability depends on the action and state, not its siblings.
+            var enabled = candidates.Where(candidate => candidate.Enabled).ToArray();
+            var actions = enabled.Select(candidate => candidate.Action).ToArray();
+            implementedPrompt = unprojectedPrompt with
+            {
+                PromptId = ActionPromptBuilder.PromptIdFor(state, playerId, actions),
+                Actions = actions,
+                Candidates = enabled
+            };
+        }
+        else
+        {
+            implementedPrompt = ActionPromptBuilder.Build(state, playerId, true, mainOpenReason,
+                ImplementedMainOpenActions(state, playerId, mainOpenReason));
+        }
 
-        implementedPrompt = ProjectRewindPrompt(implementedPrompt, rewindFrame);
+        implementedPrompt = ProjectRewindPrompt(implementedPrompt, frame);
         return string.Equals(currentPrompt.PromptId, implementedPrompt.PromptId, StringComparison.Ordinal)
             ? [currentPrompt]
             : [currentPrompt, implementedPrompt];
@@ -241,23 +300,9 @@ public sealed partial class MatchSession
             && !ResolutionResult.HasBlockingPendingTaskQueue(state);
     }
 
-    private static IReadOnlyList<string> ImplementedMainOpenActions(MatchState state, string playerId)
+    private static IReadOnlyList<string> ImplementedMainOpenActions(MatchState state, string playerId, string reason)
     {
-        var reason = "当前玩家普通开环行动";
-        var implementedSourceDrivenActions = new[]
-        {
-            "PLAY_CARD",
-            "ACTIVATE_ABILITY",
-            "ASSEMBLE_EQUIPMENT",
-            "MOVE_UNIT",
-            "DECLARE_BATTLE",
-            "HIDE_CARD",
-            "REVEAL_CARD",
-            "TAP_RUNE",
-            "RECYCLE_RUNE",
-            "LEGEND_ACT"
-        };
-        var actions = implementedSourceDrivenActions
+        var actions = MainOpenSourceDrivenActions
             .Where(action =>
             {
                 var prompt = ActionPromptBuilder.Build(state, playerId, true, reason, [action]);
@@ -266,15 +311,9 @@ public sealed partial class MatchSession
             })
             .ToList();
 
-        actions.Add("END_TURN");
+        actions.Add(CommandTypes.EndTurn);
+        actions.Add(CommandTypes.Surrender);
         return actions;
-    }
-
-    private static IReadOnlyList<string> WithSurrender(IReadOnlyList<string> actions)
-    {
-        return actions.Contains(CommandTypes.Surrender, StringComparer.Ordinal)
-            ? actions
-            : actions.Concat([CommandTypes.Surrender]).ToArray();
     }
 
     private static bool TryReadStringProperty(JsonElement element, string propertyName, out string value)

@@ -118,7 +118,7 @@ internal static partial class ActionPromptBuilder
             .Where(action => !string.IsNullOrWhiteSpace(action))
             .Select(action => action.Trim())
             .ToArray();
-        var promptId = $"{state.RoomId}:{state.Tick}:{playerId}:{string.Join(",", normalizedActions)}";
+        var promptId = PromptIdFor(state, playerId, normalizedActions);
         var candidates = normalizedActions
             .Select(action => BuildCandidate(state, playerId, action, actionable, reason))
             .ToArray();
@@ -141,6 +141,9 @@ internal static partial class ActionPromptBuilder
             PromptInspectionFor(actionable, normalizedActions, candidates, view, contract, objectContexts),
             serverFlow);
     }
+
+    internal static string PromptIdFor(MatchState state, string playerId, IReadOnlyList<string> actions)
+        => $"{state.RoomId}:{state.Tick}:{playerId}:{string.Join(",", actions)}";
 
     private static ActionPromptServerFlowDto ServerFlowFor(
         MatchState state,
