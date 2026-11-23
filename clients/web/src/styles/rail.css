@@ -241,6 +241,14 @@
   border-top: 1px solid var(--line);
   font-size: 12px;
 }
+/* The room code gives way so the footer buttons stay on one line. */
+.rail__foot > .muted {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .rail__confirm {
   display: flex;
   flex: 1 0 100%;
@@ -475,4 +483,51 @@
   color: var(--brass);
   text-align: center;
   background: linear-gradient(90deg, transparent, rgba(240, 181, 74, 0.12), transparent);
+}
+
+/* ---------- rewind ---------- */
+
+.rewind {
+  max-height: min(60vh, 520px);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.rewind__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  display: grid;
+  gap: 2px;
+}
+.rewind__step {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 10px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  text-align: left;
+  cursor: pointer;
+}
+.rewind__step.is-mine {
+  color: var(--text);
+}
+.rewind__step:hover,
+.rewind__step:focus-visible {
+  background: rgba(240, 181, 74, 0.12);
+  color: var(--text);
+}
+.rewind__turn {
+  font-family: var(--font-num);
+  color: var(--brass);
+}
+.rewind-bar {
+  border-color: rgba(240, 181, 74, 0.55);
+}
+.rewind-bar__to {
+  margin: 0;
+  color: var(--muted);
 }

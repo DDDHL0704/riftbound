@@ -171,7 +171,20 @@ export type Snapshot = {
   openingRule?: string;
   /** Present only under a city-challenge opening rule; battlefield and sideboard are the viewer's own. */
   openingSetup?: OpeningSetup | null;
+  /** The room lets its players rewind the current game by mutual consent (player-made rooms only). */
+  rewindAllowed?: boolean;
+  /** Steps of the current game a rewind can go back before, oldest first; public descriptions only. */
+  rewindTargets?: RewindTarget[];
+  /** A rewind waiting for the other player's answer. */
+  rewindRequest?: RewindRequest | null;
 };
+
+/** Mirrors RewindTargetDto: `step` is the room event sequence of that command's first event. */
+export type RewindTarget = { step: number; gameNumber: number; turnNumber: number; playerId: string; description: string };
+/** Mirrors RewindRequestDto. */
+export type RewindRequest = { requestStep: number; requesterPlayerId: string; targetStep: number };
+/** Mirrors RewindCandidateDto: REQUEST_REWIND, or ACCEPT/REJECT/CANCEL_REWIND for a pending request. */
+export type RewindCandidate = { action: string; requestStep?: number };
 
 /** Mirrors OpeningSetupDto. */
 export type OpeningSetup = {
@@ -233,6 +246,8 @@ export type Prompt = {
   snapshotTick?: number;
   candidates?: Candidate[];
   view?: PromptView;
+  /** Rewind actions, offered in any window alongside (not inside) the rule candidates. */
+  rewindCandidates?: RewindCandidate[];
 };
 
 export type GameEvent = {
