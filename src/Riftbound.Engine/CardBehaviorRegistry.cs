@@ -177,6 +177,7 @@ public sealed partial record CardBehaviorDefinition(
     int MaxTotalTargetPower = 0,
     bool AnyNumberOfTargets = false,
     bool TargetsShareBattlefield = false,
+    bool TargetsShareLocation = false,
     bool TargetsShareController = false,
     bool MovesTargetsToChosenLocation = false,
     bool ReadiesTargetsAfterChosenMovement = false,
@@ -9193,7 +9194,8 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyBattlefieldUnit,
             MinTargetCount: 0,
             MovesTargetToBase: true,
-            UsesFriendlyBattlefieldUnitCountAsMaxTargetCount: true),
+            AnyNumberOfTargets: true,
+            TargetsShareBattlefield: true),
         new(
             "UNL-054/219",
             "顽皮触手",
@@ -9420,7 +9422,8 @@ public static class CardBehaviorRegistry
             1,
             3,
             TargetScope: CardTargetScopes.AnyUnit,
-            MinTargetCount: 0),
+            MinTargetCount: 0,
+            TargetsShareLocation: true),
         new(
             "UNL-044/219",
             "羽毛旋风",

@@ -190,6 +190,7 @@ internal static partial class ActionPromptBuilder
         }
 
         var legalSelections = new List<IReadOnlyList<string>>();
+        var hasGroupConstraint = CoreRuleEngine.HasTargetGroupConstraint(behavior);
         for (var targetCount = minTargetCount; targetCount <= maxTargetCount; targetCount++)
         {
             if (targetCount == 0)
@@ -235,7 +236,8 @@ internal static partial class ActionPromptBuilder
                 }
 
                 currentSelection.Add(choiceId);
-                BuildTargetSelections(targetIndex + 1, targetCount, currentSelection);
+                if (!hasGroupConstraint || CoreRuleEngine.HasValidTargetGroup(state, behavior, currentSelection))
+                    BuildTargetSelections(targetIndex + 1, targetCount, currentSelection);
                 currentSelection.RemoveAt(currentSelection.Count - 1);
             }
         }

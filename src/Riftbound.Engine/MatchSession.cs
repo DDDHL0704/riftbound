@@ -4003,7 +4003,7 @@ internal static partial class ActionPromptBuilder
     {
         if (behavior.AnyNumberOfTargets) return false;
         return behavior.SelectedBattlefieldEffect is not null || behavior.TargetReferencedMovement is not null || behavior.OptionalEquipmentAfterMovement || behavior.TargetPowerComparison is not null
-            || behavior.MaxTotalTargetPower > 0
+            || CoreRuleEngine.HasTargetGroupConstraint(behavior)
             || !string.IsNullOrWhiteSpace(behavior.AnyTargetRequiredTag)
             || behavior.SwapsTargetLocations
             || choicesByIndex
@@ -5620,6 +5620,17 @@ internal static partial class ActionPromptBuilder
             ["composable"] = true,
             ["unsupportedReason"] = string.Empty
         };
+        if (behavior.AnyNumberOfTargets && CoreRuleEngine.HasTargetGroupConstraint(behavior))
+        {
+            // The client can filter a prefix without enumerating all valid target sets.
+            requirement["targetGroupConstraint"] = new
+            {
+                shareBattlefield = behavior.TargetsShareBattlefield,
+                shareLocation = behavior.TargetsShareLocation,
+                shareController = behavior.TargetsShareController,
+                maxTotalPower = behavior.MaxTotalTargetPower
+            };
+        }
         if (behavior.MayPayAnyAdditionalPower && !CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId))
             requirement["variableAdditionalPowerCost"] = VariableAdditionalPowerCostRules.Metadata;
         var requiredAdditionalCosts = CoreRuleEngine.MandatoryPlayAdditionalCostCount(behavior);
