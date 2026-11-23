@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { client } from "../net/client";
 import { cardInfo } from "../game/cards";
 import type { Snapshot } from "../game/types";
+import type { HoverHandler } from "./Card";
 
 /*
  * Staging for the moments that decide a match: a battle being declared, spells and abilities
@@ -155,6 +156,61 @@ export function StackShow({ snapshot, meId }: { snapshot: Snapshot; meId: string
         })}
       </AnimatePresence>
       {items.length > 0 && <span className="stackshow__label">结算链 · {items.length}</span>}
+    </div>
+  );
+}
+
+type Played = { cardNo: string; seq: number };
+let playedSeq = 0;
+
+/**
+ * The last card each player played, kept in the chain's place once the chain is empty, so a play that
+ * resolved while the player looked away can still be read. The opponent's sits above, the player's
+ * below, the newer one in front; hovering previews it.
+ */
+export function LastPlayed({ snapshot, meId, onHover }: { snapshot: Snapshot; meId: string; onHover: HoverHandler }) {
+  const [last, setLast] = useState<Record<string, Played>>({});
+  useEffect(() => {
+    let lastSeq = 0;
+    const take = () => {
+      const fresh = client.state.eventBatches.filter((b) => b.seq > lastSeq);
+      if (!fresh.length) return;
+      lastSeq = fresh[fresh.length - 1].seq;
+      const next: Record<string, Played> = {};
+      for (const e of fresh.flatMap((b) => b.events)) {
+        const p = e.payload ?? {};
+        if (e.kind === "CARD_PLAYED" && typeof p.playerId === "string" && typeof p.cardNo === "string" && cardInfo(p.cardNo))
+          next[p.playerId] = { cardNo: p.cardNo, seq: ++playedSeq };
+      }
+      if (Object.keys(next).length) setLast((cur) => ({ ...cur, ...next }));
+    };
+    take();
+    const unsubscribe = client.subscribe(take);
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+  if (snapshot.stack?.length) return null;
+  const opp = Object.entries(last).find(([id]) => id !== meId)?.[1];
+  const mine = last[meId];
+  const newest = Math.max(opp?.seq ?? 0, mine?.seq ?? 0);
+  return (
+    <div className="lastplayed">
+      {([["opp", opp], ["me", mine]] as const).map(([side, card]) =>
+        card ? (
+          <motion.div
+            key={side + card.seq}
+            className={`lastplayed__card lastplayed__card--${side}${card.seq === newest ? " is-newest" : ""}`}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            onMouseEnter={(e) => onHover(card.cardNo, undefined, e.currentTarget.getBoundingClientRect())}
+            onMouseLeave={() => onHover(null)}
+            data-card-no={card.cardNo}
+          >
+            <img src={cardInfo(card.cardNo)?.image} alt={cardInfo(card.cardNo)?.name ?? ""} />
+          </motion.div>
+        ) : null,
+      )}
     </div>
   );
 }

@@ -21,7 +21,7 @@ import type { Choice, GameObject, Prompt, Snapshot, TableBattlefield } from "../
 import { Ambient, tiltHandlers } from "./Ambient";
 import { Card, HoverPreview, type CardMark, type HoverHandler } from "./Card";
 import { ChainArrows, Dock, EventFx, Spotlight } from "./Overlay";
-import { Stage, StackShow } from "./Stage";
+import { LastPlayed, Stage, StackShow } from "./Stage";
 import { Rail } from "./Rail";
 import { Battlefield, OpponentHand, ScoreSpine, Side, type RenderObject, type ZoneView } from "./Zones";
 import { ActionMenu } from "./table/ActionMenu";
@@ -657,6 +657,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
 
           {!winner && <StackShow snapshot={snapshot} meId={meId} />}
+          {!winner && <LastPlayed snapshot={snapshot} meId={meId} onHover={hoverCard} />}
           {awaitingResponse && !winner && <div className="respond" aria-hidden />}
           {!winner && (
             <Dock
