@@ -306,8 +306,10 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const playCard = (id: string, dropIds: string[] = []) => {
     const list = actions.get(id)?.filter((a) => a.cmdType === "PLAY_CARD") ?? [];
     if (!list.length) client.toast("这张牌现在还不能打出。");
-    else if (list.length > 1) setMenuFor(id);
-    else start(list[0], dropIds);
+    else if (list.length > 1) {
+      setHover(null);
+      setMenuFor(id);
+    } else start(list[0], dropIds);
   };
 
   const moveUnitsTo = (unitIds: string[], dropIds: string[]) => {
@@ -350,8 +352,11 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       start(move);
       return;
     }
-    if (list.length) setMenuFor(menuFor === id ? null : id);
-    else setMenuFor(null);
+    // The card's own preview sits where its menu opens, so it gives way until the pointer comes back.
+    if (list.length) {
+      setHover(null);
+      setMenuFor(menuFor === id ? null : id);
+    } else setMenuFor(null);
   };
 
   const onZone = (zoneIds: string[]) => (e: MouseEvent) => {
