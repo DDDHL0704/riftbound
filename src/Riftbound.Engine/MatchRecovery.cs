@@ -151,6 +151,11 @@ public static class MatchActionLogReplayer
         if (recovery.AuthoritativeState is { } configuredFinal && recovery.ReplayInitialState is { } configuredInitial
             && (configuredFinal.SessionOptions ?? MatchSessionOptions.Default) != (configuredInitial.SessionOptions ?? MatchSessionOptions.Default))
             inputErrors.Add("action-log room configuration changed during the recorded game");
+        if (recovery.AuthoritativeState is { } shuffleFinal && !Enum.IsDefined(shuffleFinal.RecycleShuffleVersion)
+            || recovery.ReplayInitialState is { } shuffleInitial && !Enum.IsDefined(shuffleInitial.RecycleShuffleVersion)
+            || recovery.AuthoritativeState is { } finalVersion && recovery.ReplayInitialState is { } initialVersion
+                && finalVersion.RecycleShuffleVersion != initialVersion.RecycleShuffleVersion)
+            inputErrors.Add("action-log main-deck recycle shuffle version is invalid or changed during the recorded game");
         if (recovery.AuthoritativeState is { } final && !RuleInputIdentity.IsCurrentState(final))
             inputErrors.Add("action-log final rule input identity is missing or differs from running inputs");
         if (recovery.ReplayInitialState is { } initial && !RuleInputIdentity.IsCurrentState(initial))
@@ -617,6 +622,9 @@ public static class MatchActionLogReplayer
             || (initialState.SessionOptions ?? MatchSessionOptions.Default) != (expectedFinalState.SessionOptions ?? MatchSessionOptions.Default))
             return new MatchActionLogReplayResult(false, MatchStateHasher.Hash(initialState),
                 MatchStateHasher.Hash(expectedFinalState), ["action-log room configuration is invalid or changed during the recorded game"]);
+        if (!Enum.IsDefined(initialState.RecycleShuffleVersion) || initialState.RecycleShuffleVersion != expectedFinalState.RecycleShuffleVersion)
+            return new MatchActionLogReplayResult(false, MatchStateHasher.Hash(initialState),
+                MatchStateHasher.Hash(expectedFinalState), ["action-log main-deck recycle shuffle version is invalid or changed during the recorded game"]);
         if (!RuleInputIdentity.IsCurrentState(initialState) || !RuleInputIdentity.IsCurrentState(expectedFinalState)
             || commands.Any(command => !RuleInputIdentity.IsCurrent(command.RuleInputs)))
             return new MatchActionLogReplayResult(false, MatchStateHasher.Hash(initialState),
@@ -5190,6 +5198,10 @@ public static partial class MatchRecoveryValidator
             IsKnownTimingState,
             errors,
             rejectRedactionSentinel: true);
+
+        if (!Enum.IsDefined(authoritativeState.RecycleShuffleVersion)
+            || authoritativeState.PendingRuleChoice?.Origin is { } origin && origin.RecycleShuffleVersion != authoritativeState.RecycleShuffleVersion)
+            errors.Add("authoritative state main-deck recycle shuffle version is invalid or differs from its continuation origin");
 
         if (authoritativeState.RngCursor < 0)
         {

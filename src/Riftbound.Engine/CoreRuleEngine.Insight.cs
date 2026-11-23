@@ -31,7 +31,7 @@ public sealed partial class CoreRuleEngine
     private static string InsightChoiceId(string prefix, StackItemState item)
         => prefix + item.StackItemId + (item.CompletedDeckExecutions == 0 ? "" : ":" + item.CompletedDeckExecutions);
 
-    // CN 436: Insight privately recycles any subset, then orders retained cards on top.
+    // CN 437.1.a / 417.5: Privately recycle any subset in random order, then order the retained cards on top.
     // It is an instruction of the same resolving spell, not a new response window.
     private static StackResolutionResult ResolveInsightSpell(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
     {

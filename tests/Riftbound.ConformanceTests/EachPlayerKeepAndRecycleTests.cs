@@ -53,7 +53,8 @@ public sealed class EachPlayerKeepAndRecycleTests
     [InlineData(0)] [InlineData(1)] [InlineData(2)] [InlineData(3)] [InlineData(4)]
     public async Task EachPlayerKeepsUpToTwoOfEveryCategoryAtResolutionAndRunesUseTheirOwnDeck(int count)
     {
-        var initial = Position(count); var game = new Driver(initial);
+        var initial = Position(count) with { RecycleShuffleVersion = MainDeckRecycleShuffleVersion.FisherYates };
+        var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("UNIT", Judgment, []));
         Assert.Null(game.State.PendingRuleChoice); await game.Top();
         if (count <= 2) Assert.Null(game.State.PendingRuleChoice);

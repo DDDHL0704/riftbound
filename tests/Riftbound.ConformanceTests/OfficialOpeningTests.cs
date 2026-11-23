@@ -18599,6 +18599,14 @@ public sealed class OfficialOpeningTests
             NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
+        Assert.Equal(MainDeckRecycleShuffleVersion.FisherYates, ready.State.RecycleShuffleVersion);
+        var reversed = new MulliganCommand(activeSelectedObjectIds.Reverse().ToArray());
+        var reversedMulligan = await new CoreRuleEngine().ResolveAsync(ready.State,
+            new PlayerIntent("reversed-mulligan", activePlayerId, CommandTypes.Mulligan), reversed, CancellationToken.None);
+        Assert.True(reversedMulligan.Accepted, reversedMulligan.ErrorMessage);
+        Assert.Equal(activeMulligan.State.PlayerZones[activePlayerId].MainDeck,
+            reversedMulligan.State.PlayerZones[activePlayerId].MainDeck);
+        Assert.Equal(ready.State.RngCursor + 1, activeMulligan.State.RngCursor);
         Assert.True(activeMulligan.Accepted, activeMulligan.ErrorMessage);
         var activeMulliganEvent = Assert.Single(
             activeMulligan.Events,

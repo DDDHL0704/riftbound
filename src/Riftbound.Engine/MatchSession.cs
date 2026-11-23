@@ -5968,6 +5968,8 @@ public sealed partial class MatchSession : IMatchSession
         MatchSessionOptions options)
     {
         RuleInputIdentity.RequireCurrentState(restoredState);
+        if (!Enum.IsDefined(restoredState.RecycleShuffleVersion))
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "match recovery main-deck recycle shuffle version is invalid");
         RoomId = restoredState.RoomId;
         this.ruleEngine = ruleEngine;
         this.journal = journal;
@@ -6056,6 +6058,8 @@ public sealed partial class MatchSession : IMatchSession
         if (recovery.ReplayInitialState is { } initialConfiguration
             && (initialConfiguration.SessionOptions ?? MatchSessionOptions.Default) != (state.SessionOptions ?? MatchSessionOptions.Default))
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "match recovery room configuration changed during the recorded game");
+        if (recovery.ReplayInitialState is { } initialShuffle && initialShuffle.RecycleShuffleVersion != state.RecycleShuffleVersion)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "match recovery main-deck recycle shuffle version changed during the recorded game");
         if (recovery.ReplayInitialState is { } original && original.Seed != recovery.OpeningSeed
             || state.Seed != recovery.OpeningSeed && !recovery.Commands.Any(command => command.CommandType == "DEV_SEED_SCENARIO"
                 || command.CommandType.StartsWith("DEV_SEED_SCENARIO:", StringComparison.Ordinal)))

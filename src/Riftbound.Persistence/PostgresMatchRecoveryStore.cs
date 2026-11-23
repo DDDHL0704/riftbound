@@ -55,12 +55,13 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             && !commands.Any(command => command.CommandType == "DEV_SEED_SCENARIO"
                 || command.CommandType.StartsWith("DEV_SEED_SCENARIO:", StringComparison.Ordinal)))
             inputErrors.Add("authoritative state seed differs from recorded opening seed");
-        var roomOptions = authoritativeState is null ? null
-            : await LoadRoomOptionsAsync(connection, roomId, inputErrors, cancellationToken).ConfigureAwait(false);
+        var roomRules = authoritativeState is null ? default
+            : await LoadRoomRulesAsync(connection, roomId, inputErrors, cancellationToken).ConfigureAwait(false);
         var replayInitialState = authoritativeState is not null && commands.Count > 0 && openingSeed is not null
             ? (await LoadReplayInitialStateAsync(connection, roomId, openingSeed.Value, cancellationToken,
                 commands[0].Accepted && commands[0].CommandType == MatchSession.RoomSeatCommandType).ConfigureAwait(false))
-                with { RuleInputs = metadata.RuleInputs, SessionOptions = roomOptions }
+                with { RuleInputs = metadata.RuleInputs, SessionOptions = roomRules.Options,
+                    RecycleShuffleVersion = roomRules.RecycleShuffleVersion }
             : null;
         var spectatorReplayFrame = authoritativeState is null
             ? null
@@ -283,7 +284,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         return MatchReplayInitialStateBuilder.FromSeats(roomId, seats) with { Seed = openingSeed };
     }
 
-    private static async Task<MatchSessionOptions?> LoadRoomOptionsAsync(
+    private static async Task<(MatchSessionOptions? Options, MainDeckRecycleShuffleVersion RecycleShuffleVersion)> LoadRoomRulesAsync(
         NpgsqlConnection connection,
         string roomId,
         List<string> errors,
@@ -293,16 +294,18 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         // Rejected commands may overwrite a checkpoint at the same tick, but cannot
         // change the configuration; all retained checkpoints must agree.
         const string sql = """
-            select coalesce(payload->'sessionOptions', 'null'::jsonb)::text
+            select coalesce(payload->'sessionOptions', 'null'::jsonb)::text,
+                   coalesce(payload->'recycleShuffleVersion', '0'::jsonb)::text
             from state_snapshots
             where match_id = @match_id
-            group by coalesce(payload->'sessionOptions', 'null'::jsonb)
+            group by 1, 2
             order by min(id);
             """;
         await using var command = new NpgsqlCommand(sql, connection);
         command.Parameters.AddWithValue("match_id", roomId);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
         MatchSessionOptions? original = null;
+        var originalShuffle = MainDeckRecycleShuffleVersion.LegacyHashSort;
         var found = false;
         while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -320,11 +323,18 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             {
                 errors.Add("stored room configuration payload is invalid");
             }
+            if (!int.TryParse(reader.GetString(1), NumberStyles.None, CultureInfo.InvariantCulture, out var version)
+                || !Enum.IsDefined((MainDeckRecycleShuffleVersion)version))
+                errors.Add("stored main-deck recycle shuffle version is invalid");
+            else if (!found)
+                originalShuffle = (MainDeckRecycleShuffleVersion)version;
+            else if ((MainDeckRecycleShuffleVersion)version != originalShuffle)
+                errors.Add("stored main-deck recycle shuffle version changed during the recorded game");
             found = true;
         }
         if (!found)
             errors.Add("stored room configuration checkpoint is missing");
-        return original;
+        return (original, originalShuffle);
     }
 
     private static async Task<IReadOnlyDictionary<string, RecoveredPrompt>> LoadLatestPromptsAsync(

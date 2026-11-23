@@ -425,42 +425,8 @@ public sealed partial class MatchSession
         return $"{playerId}-{zone}-{normalized}-{index:00}";
     }
 
-    private static IReadOnlyList<T> RandomizeStable<T>(
-        IReadOnlyList<T> values,
-        long seed,
-        long rngCursor,
-        string scope)
-    {
-        if (values.Count <= 1)
-        {
-            return values.ToArray();
-        }
-
-        var shuffled = values.ToArray();
-        ulong sampleIndex = 0;
-        ulong NextSample()
-        {
-            var input = FormattableString.Invariant($"opening-v1:{seed}:{rngCursor}:{scope}:{sampleIndex++}");
-            return BinaryPrimitives.ReadUInt64BigEndian(SHA256.HashData(Encoding.UTF8.GetBytes(input)));
-        }
-        for (var index = shuffled.Length - 1; index > 0; index--)
-        {
-            var selected = NextOpeningIndex(index + 1, NextSample);
-            (shuffled[index], shuffled[selected]) = (shuffled[selected], shuffled[index]);
-        }
-        return shuffled;
-    }
-
-    private static int NextOpeningIndex(int exclusiveMax, Func<ulong> nextSample)
-    {
-        // Rejection sampling avoids modulo bias. The opening stream excludes
-        // card names/physical IDs and is stable across platforms.
-        var bound = (ulong)exclusiveMax;
-        var threshold = unchecked(0UL - bound) % bound;
-        ulong sample;
-        do { sample = nextSample(); } while (sample < threshold);
-        return (int)(sample % bound);
-    }
+    private static IReadOnlyList<T> RandomizeStable<T>(IReadOnlyList<T> values, long seed, long rngCursor, string scope)
+        => DeterministicShuffle.Shuffle(values, seed, rngCursor, "opening-v1", scope);
 
     private static long CreatePrivateOpeningSeed()
     {

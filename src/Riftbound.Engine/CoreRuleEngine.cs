@@ -4620,9 +4620,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var recycledSet = recycledObjectIds.ToHashSet(StringComparer.Ordinal);
-        var randomizedCardIds = RandomizeForMainDeckBottom(
-            recycledObjectIds,
-            state.Seed,
+        var randomizedCardIds = MainDeckRecycleShuffle.Shuffle(
+            state, recycledObjectIds,
             rngCursor,
             sourceObjectId);
         if (recycledObjectIds.Count > 1)
@@ -19782,9 +19781,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var remainingMainDeck = zones.MainDeck.Skip(drawCount).ToList();
-        var returnedObjectIds = RandomizeForMainDeckBottom(
-            selectedObjectIds,
-            state.Seed,
+        var returnedObjectIds = MainDeckRecycleShuffle.Shuffle(
+            state, selectedObjectIds,
             state.RngCursor,
             $"MULLIGAN:{intent.PlayerId}");
         var rngCursor = state.RngCursor;
@@ -30299,9 +30297,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            var randomizedCardIds = RandomizeForMainDeckBottom(
-                recycledCardIds,
-                state.Seed,
+            var randomizedCardIds = MainDeckRecycleShuffle.Shuffle(
+                state, recycledCardIds,
                 rngCursor,
                 sourceObjectId);
             if (recycledCardIds.Length > 1)
@@ -30326,7 +30323,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = ownerPlayerId,
                     ["sourceObjectId"] = sourceObjectId,
-                    ["cardIds"] = randomizedCardIds,
+                    ["cardIds"] = MainDeckRecycleShuffle.EventCardIds(state, randomizedCardIds),
                     ["count"] = randomizedCardIds.Count
                 }), playerZones, cardObjects));
         }
@@ -30533,9 +30530,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var viewedCardIdSet = viewedCardIds.ToHashSet(StringComparer.Ordinal);
-        var randomizedRecycledCardIds = RandomizeForMainDeckBottom(
-            viewedCardIds,
-            state.Seed,
+        var randomizedRecycledCardIds = MainDeckRecycleShuffle.Shuffle(
+            state, viewedCardIds,
             rngCursor,
             sourceObjectId);
         if (viewedCardIds.Count > 1)
@@ -30558,7 +30554,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = sourceObjectId,
-                ["cardIds"] = randomizedRecycledCardIds,
+                ["cardIds"] = MainDeckRecycleShuffle.EventCardIds(state, randomizedRecycledCardIds),
                 ["count"] = randomizedRecycledCardIds.Count
             }), playerZones, cardObjects));
 
@@ -30604,9 +30600,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return new RecycleResult(events, rngCursor);
         }
 
-        var randomizedRecycledCardIds = RandomizeForMainDeckBottom(
-            recycledCardIds,
-            state.Seed,
+        var randomizedRecycledCardIds = MainDeckRecycleShuffle.Shuffle(
+            state, recycledCardIds,
             rngCursor,
             sourceObjectId);
         if (recycledCardIds.Length > 1)
@@ -30630,7 +30625,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = sourceObjectId,
-                ["cardIds"] = randomizedRecycledCardIds,
+                ["cardIds"] = MainDeckRecycleShuffle.EventCardIds(state, randomizedRecycledCardIds),
                 ["count"] = randomizedRecycledCardIds.Count
             }), playerZones, cardObjects));
 
@@ -30678,9 +30673,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var removedCardIds = selectedCardIds
             .Concat(unselectedCardIds)
             .ToHashSet(StringComparer.Ordinal);
-        var randomizedRecycledCardIds = RandomizeForMainDeckBottom(
-            graveUnselectedCards ? [] : unselectedCardIds,
-            state.Seed,
+        var randomizedRecycledCardIds = MainDeckRecycleShuffle.Shuffle(
+            state, graveUnselectedCards ? [] : unselectedCardIds,
             rngCursor,
             sourceObjectId);
         if (!graveUnselectedCards && unselectedCardIds.Length > 1)
@@ -30736,7 +30730,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = sourceObjectId,
-                    ["cardIds"] = randomizedRecycledCardIds,
+                    ["cardIds"] = MainDeckRecycleShuffle.EventCardIds(state, randomizedRecycledCardIds),
                     ["count"] = randomizedRecycledCardIds.Count
                 }), playerZones, cardObjects));
         }
@@ -30799,45 +30793,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return objectIds.ToArray();
-    }
-
-    private static IReadOnlyList<string> RandomizeForMainDeckBottom(
-        IReadOnlyList<string> cardIds,
-        long seed,
-        long rngCursor,
-        string sourceObjectId)
-    {
-        if (cardIds.Count <= 1)
-        {
-            return cardIds.ToArray();
-        }
-
-        return cardIds
-            .Select((cardId, index) => new
-            {
-                CardId = cardId,
-                Index = index,
-                Order = StableHash($"{seed}:{rngCursor}:{sourceObjectId}:{cardId}:{index}")
-            })
-            .OrderBy(entry => entry.Order)
-            .ThenBy(entry => entry.Index)
-            .Select(entry => entry.CardId)
-            .ToArray();
-    }
-
-    private static ulong StableHash(string value)
-    {
-        const ulong offsetBasis = 14695981039346656037UL;
-        const ulong prime = 1099511628211UL;
-
-        var hash = offsetBasis;
-        foreach (var character in value)
-        {
-            hash ^= character;
-            hash *= prime;
-        }
-
-        return hash;
     }
 
     private static string NonFieldDestinationOwner(IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -33277,9 +33232,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 var recyclableCards = graveyard
                     .Where(objectId => IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, playerId, objectId))
                     .ToArray();
-                var recycledCards = RandomizeForMainDeckBottom(
-                    recyclableCards,
-                    state.Seed,
+                var recycledCards = MainDeckRecycleShuffle.Shuffle(
+                    state, recyclableCards,
                     rngCursor,
                     $"BURNOUT:{playerId}");
                 if (recyclableCards.Length > 1)

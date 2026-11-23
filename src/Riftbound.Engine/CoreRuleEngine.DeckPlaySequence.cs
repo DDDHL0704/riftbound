@@ -312,7 +312,7 @@ public sealed partial class CoreRuleEngine
                 ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, recycleOwner, remaining.Length, cursor, events, deferNormalVictory: true);
             else
             {
-                var recycled = RandomizeForMainDeckBottom(remaining, state.Seed, cursor, item.SourceObjectId);
+                var recycled = MainDeckRecycleShuffle.Shuffle(state, remaining, cursor, item.SourceObjectId);
                 zones[recycleOwner] = zones[recycleOwner] with { MainDeck = zones[recycleOwner].MainDeck.Where(x => !remaining.Contains(x)).Concat(recycled).ToArray() };
                 if (remaining.Length > 0) events.Add(CaptureRecycleObservers(new("CARDS_RECYCLED", "回收未选择的牌", new Dictionary<string,object?> {
                     ["playerId"] = c.Kind == "OPPONENT_REVEAL_PLAY" ? c.ControllerId : recycleOwner, ["ownerPlayerId"] = recycleOwner,

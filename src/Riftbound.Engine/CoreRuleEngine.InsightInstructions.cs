@@ -19,7 +19,7 @@ public sealed partial class CoreRuleEngine
         IReadOnlyList<string> viewed, IReadOnlyList<string> selected, string? source, List<GameEvent> events)
     {
         var retained = viewed.Where(id => !selected.Contains(id)).ToArray();
-        var recycled = RandomizeForMainDeckBottom(selected, state.Seed, state.RngCursor, source ?? OpeningInsightWindow);
+        var recycled = MainDeckRecycleShuffle.Shuffle(state, selected, state.RngCursor, source ?? OpeningInsightWindow);
         var cursor = state.RngCursor + (selected.Count > 1 ? 1 : 0);
         zones[player] = zones[player] with
         {

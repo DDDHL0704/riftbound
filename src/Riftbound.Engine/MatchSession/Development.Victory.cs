@@ -515,6 +515,7 @@ public sealed partial class MatchSession
             WinnerPlayerId = null,
             DestroyedUnitOwnerIdsThisTurn = [],
             Seed = scenarioSeed,
+            RecycleShuffleVersion = current.RecycleShuffleVersion,
             RngCursor = 0,
             UntilEndOfTurnEffects = [],
             ExtraTurnPlayerId = null,

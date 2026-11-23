@@ -164,6 +164,7 @@ public sealed partial class MatchSession
             var fresh = MatchState.Create(next.RoomId) with
             {
                 Tick = next.Tick, Seed = next.Seed, RngCursor = next.RngCursor,
+                RecycleShuffleVersion = next.RecycleShuffleVersion,
                 SessionOptions = next.SessionOptions, PlayerSealedPools = next.PlayerSealedPools,
                 SeriesState = completed.State, LastCompletedSeriesGame = terminal,
                 SealedBattlefieldHistory = next.SealedBattlefieldHistory
