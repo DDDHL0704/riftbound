@@ -49,6 +49,19 @@ class AffectedRuleTests(unittest.TestCase):
         self.assertNotIn('PostgresMatchRecoveryStoreSmokeTests', classes)
         self.assertEqual({'RAD·012/167'}, cards)
 
+    def test_project_reference_change_selects_the_project_consumers_and_fixed_guards(self):
+        files = [
+            ('tests/Riftbound.ConformanceTests/ApiTests.cs',
+             'using Riftbound.Api.Hubs; public class ApiTests {}'),
+            ('tests/Riftbound.ConformanceTests/EngineTests.cs',
+             'using Riftbound.Engine; public class EngineTests {}'),
+            ('tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs',
+             'public class OfficialOpeningTests {}'),
+        ]
+        classes, _ = runner.select_affected_test_classes(
+            ['src/Riftbound.Api/Riftbound.Api.csproj'], '', files)
+        self.assertEqual({'ApiTests', 'OfficialOpeningTests'}, classes)
+
     def test_changed_test_nested_helpers_do_not_become_broad_filters(self):
         files = [
             ('tests/Riftbound.ConformanceTests/RunePrintingTests.cs',

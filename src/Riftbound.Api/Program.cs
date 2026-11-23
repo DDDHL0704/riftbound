@@ -3,8 +3,10 @@ using Riftbound.Api;
 using Riftbound.CardCatalog;
 using Riftbound.Engine;
 using Riftbound.Persistence;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using StackExchange.Redis;
@@ -49,6 +51,7 @@ builder.Services.AddCors(options =>
 
 var signalR = builder.Services.AddSignalR();
 var redisBackplaneConnectionString = RiftboundOperationalStatus.ResolveRedisBackplaneConnectionString(builder.Configuration);
+var redisBackplaneEnabled = !string.IsNullOrWhiteSpace(redisBackplaneConnectionString);
 if (!string.IsNullOrWhiteSpace(redisBackplaneConnectionString))
 {
     var channelPrefix = RiftboundOperationalStatus.ResolveRedisChannelPrefix(builder.Configuration);
@@ -64,6 +67,16 @@ signalR.AddJsonProtocol(options =>
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     PromptWireProjection.Configure(options.PayloadSerializerOptions);
 });
+// A Redis group broadcast encodes every enabled protocol for the backplane.
+var messagePackEnabled = builder.Configuration.GetValue("Riftbound:SignalR:EnableMessagePack", !redisBackplaneEnabled);
+if (messagePackEnabled)
+{
+    signalR.AddMessagePackProtocol();
+    builder.Services.AddOptions<MessagePackHubProtocolOptions>()
+        .Configure<IOptions<JsonHubProtocolOptions>>((options, json) =>
+            options.SerializerOptions = GameMessagePackResolver.Configure(
+                options.SerializerOptions, json.Value.PayloadSerializerOptions));
+}
 builder.Services.AddRiftboundPersistence(builder.Configuration);
 builder.Services.TryAddSingleton<IPlayerIdentityStore, InMemoryPlayerIdentityStore>();
 builder.Services.AddSingleton<PlayerIdentityService>();
@@ -84,6 +97,8 @@ builder.Services.AddSingleton<IPublicMatchDirectory>(services => new InMemoryPub
     () => DateTimeOffset.UtcNow, services.GetRequiredService<PlayerConnections>()));
 
 var app = builder.Build();
+app.Logger.LogInformation("SignalR transport initialized. MessagePackEnabled={MessagePackEnabled} RedisBackplaneEnabled={RedisBackplaneEnabled}",
+    messagePackEnabled, redisBackplaneEnabled);
 
 var devUiDistPath = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "../Riftbound.DevUi/dist"));
 var devUiDistProvider = Directory.Exists(devUiDistPath)
