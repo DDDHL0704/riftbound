@@ -373,6 +373,26 @@ public sealed class GameHub(
         }
     }
 
+    public async Task<PromptDiagnosticsDto?> RequestPromptDiagnostics(string roomId)
+    {
+        if (!Context.Items.TryGetValue(AuthenticatedHandleItemKey, out var bound) || bound is not string playerId)
+            return null;
+
+        var session = await sessions.FindAsync(roomId, Context.ConnectionAborted);
+        if (session is null)
+            return null;
+
+        try
+        {
+            var prompt = session.PromptFor(playerId);
+            return new(prompt.PromptId, prompt.SnapshotTick, prompt.Inspection, prompt.ObjectContexts, prompt.ServerFlow);
+        }
+        catch (MatchSessionException ex) when (ex.Code == ErrorCodes.PlayerNotInRoom)
+        {
+            return null;
+        }
+    }
+
     private async Task SendRoomJoinedViews(IMatchSession session, string roomId, string playerId)
     {
         await SendSnapshotAndPrompt(session, roomId, playerId);
