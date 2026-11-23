@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { AnimatePresence, LayoutGroup } from "motion/react";
 import { client, readableError, type ClientState } from "../net/client";
 import {
@@ -16,6 +16,7 @@ import {
 } from "../game/actions";
 import { cardName, choiceCardNo } from "../game/cards";
 import { preloadArt } from "../game/art";
+import { cue } from "../game/sound";
 import type { Choice, GameObject, Prompt, Snapshot, TableBattlefield } from "../game/types";
 import { Ambient, tiltHandlers } from "./Ambient";
 import { Card, HoverPreview, type CardMark, type HoverHandler } from "./Card";
@@ -135,6 +136,15 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   // pass after a short beat. Any playable card or ability stops it.
   const respondable = [...actions.values()].flat().some((a) => a.cmdType !== "TAP_RUNE" && a.cmdType !== "RECYCLE_RUNE");
   useAutoPass(autoPass, prompt, respondable, Boolean(pick || menuFor));
+  // A response window the player must answer: the table edge and the pass button breathe, and a soft
+  // chime sounds as it opens. Windows auto-pass will answer stay quiet.
+  const awaitingResponse =
+    Boolean(prompt?.actionable) && (promptType === "STACK_PRIORITY" || promptType === "SPELL_DUEL_FOCUS") && !(autoPass && !respondable);
+  const wasAwaiting = useRef(false);
+  useEffect(() => {
+    if (awaitingResponse && !wasAwaiting.current) cue("respond");
+    wasAwaiting.current = awaitingResponse;
+  }, [awaitingResponse]);
 
   const runRuneCommand = async (cmdType: "TAP_RUNE" | "RECYCLE_RUNE", ids: string[]) => {
     if (!ids.length) return null;
@@ -647,6 +657,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
 
           {!winner && <StackShow snapshot={snapshot} meId={meId} />}
+          {awaitingResponse && !winner && <div className="respond" aria-hidden />}
           {!winner && (
             <Dock
               prompt={prompt}
@@ -654,6 +665,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
               autoPass={autoPass}
               unused={myMainTurn ? [...actions].filter(([id, list]) => !isRune(id) && list.some((a) => a.cmdType !== "TAP_RUNE" && a.cmdType !== "RECYCLE_RUNE")).length : 0}
               onToggleAutoPass={toggleAutoPass}
+              respond={awaitingResponse}
             />
           )}
 

@@ -19,6 +19,7 @@ export type Cue =
   | "score-me"
   | "score-opp"
   | "turn"
+  | "respond"
   | "win"
   | "loss";
 
@@ -279,6 +280,11 @@ export function cue(kind: Cue) {
       // A soft gong to mark the player's turn.
       bell(a, now, 220, 1.6, 0.07, 0.8);
       bell(a, now + 0.02, 659, 1.2, 0.03, 0.8);
+      break;
+    case "respond":
+      // A light two-note chime: something waits on the player, quieter than the turn gong.
+      bell(a, now, 880, 0.5, 0.035, 0.5);
+      bell(a, now + 0.11, 1175, 0.6, 0.03, 0.6);
       break;
     case "win":
       [523, 659, 784, 1047, 1319].forEach((f, i) => bell(a, now + i * 0.11, f, 1.6, 0.07, 0.7));

@@ -23,9 +23,11 @@ type DockProps = {
   onToggleAutoPass: () => void;
   /** Cards and units that could still act this turn; ending the turn with some left asks twice. */
   unused: number;
+  /** The player must answer a response window; the pass button calls for attention. */
+  respond?: boolean;
 };
 
-export function Dock({ prompt, pending, autoPass, onToggleAutoPass, unused }: DockProps) {
+export function Dock({ prompt, pending, autoPass, onToggleAutoPass, unused, respond }: DockProps) {
   const tempo = TEMPO.filter((t) => enabledCandidate(prompt, t.action));
   const [armed, setArmed] = useState(false);
   useEffect(() => {
@@ -46,7 +48,7 @@ export function Dock({ prompt, pending, autoPass, onToggleAutoPass, unused }: Do
   const tap = enabledCandidate(prompt, "TAP_RUNE");
   const runes = (tap?.sources ?? []).map((s) => s.id).slice(0, Number(tap?.metadata?.maxBatchSize ?? 12));
   return (
-    <div className="dock" onClick={(e) => e.stopPropagation()}>
+    <div className={`dock${respond ? " dock--respond" : ""}`} onClick={(e) => e.stopPropagation()}>
       <label className="dock__auto" title="对手行动后，如果你没有任何可以响应的牌或技能，自动让过">
         <input type="checkbox" checked={autoPass} onChange={onToggleAutoPass} />
         自动让过
