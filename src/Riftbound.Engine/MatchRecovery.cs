@@ -864,7 +864,8 @@ public static class MatchActionLogReplayer
                     recovered.ClientIntentId,
                     command,
                     rawCommand,
-                    cancellationToken)
+                    cancellationToken,
+                    replayAcceptedCommand: recovered.Accepted)
                 .ConfigureAwait(false)
         };
     }

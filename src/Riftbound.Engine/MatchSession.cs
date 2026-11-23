@@ -6221,7 +6221,8 @@ public sealed partial class MatchSession : IMatchSession
         var normalizedPlayerId = NormalizePlayerId(playerId);
         RequirePlayer(normalizedPlayerId);
         var frame = Volatile.Read(ref rewindFrame);
-        return ProjectRewindSnapshot(ResolutionResult.BuildSnapshots(frame?.State ?? state)[normalizedPlayerId], frame, includeTargets: true);
+        return ProjectRewindSnapshot(ResolutionResult.BuildSnapshots(frame?.State ?? state)[normalizedPlayerId],
+            normalizedPlayerId, frame, includeTargets: true);
     }
 
     public ActionPromptDto PromptFor(string playerId)
@@ -6664,12 +6665,21 @@ public sealed partial class MatchSession : IMatchSession
         }
     }
 
-    public async ValueTask<ResolutionResult> SubmitAsync(
+    public ValueTask<ResolutionResult> SubmitAsync(
         string playerId,
         string clientIntentId,
         GameCommand command,
         JsonElement? rawCommand,
         CancellationToken cancellationToken)
+        => SubmitAsync(playerId, clientIntentId, command, rawCommand, cancellationToken, replayAcceptedCommand: false);
+
+    internal async ValueTask<ResolutionResult> SubmitAsync(
+        string playerId,
+        string clientIntentId,
+        GameCommand command,
+        JsonElement? rawCommand,
+        CancellationToken cancellationToken,
+        bool replayAcceptedCommand)
     {
         var normalizedPlayerId = NormalizePlayerId(playerId);
         RequirePlayer(normalizedPlayerId);
@@ -6730,7 +6740,7 @@ public sealed partial class MatchSession : IMatchSession
             if (command is RewindCommand rewindCommand)
             {
                 result = TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var staleRewind)
-                    ? staleRewind : ResolveRewind(normalizedPlayerId, rewindCommand, out nextRequest);
+                    ? staleRewind : ResolveRewind(normalizedPlayerId, rewindCommand, replayAcceptedCommand, out nextRequest);
             }
             else if (command is ChoosePlayOrderCommand choice)
             {
@@ -6771,7 +6781,7 @@ public sealed partial class MatchSession : IMatchSession
                 result = CompleteSeriesGame(result);
             }
             result = await RecordCommandAsync(normalizedPlayerId, normalizedIntentId, command.CmdType, rawCommand, typedInput,
-                result, cancellationToken, nextRequest).ConfigureAwait(false);
+                result, cancellationToken, nextRequest, command).ConfigureAwait(false);
 
             intentCache[cacheKey] = new CachedResolution(command.CmdType, rawCommandHash, result);
             return result;

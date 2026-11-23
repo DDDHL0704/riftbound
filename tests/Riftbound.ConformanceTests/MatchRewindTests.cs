@@ -27,6 +27,10 @@ public sealed class MatchRewindTests
         var target = session.SnapshotFor(opponent).RewindTargets!.Last();
         Assert.Equal(actor, target.PlayerId);
         Assert.Equal("调整起手牌", target.Description);
+        var chosenName = OfficialCardSourceIdentityGroups.KnownDisplayName(before.State.CardObjects[mulligan.HandObjectIds[0]].CardNo);
+        Assert.NotNull(chosenName);
+        Assert.Contains($"「{chosenName}」", played.Snapshots[actor].RewindTargets!.Last().Description);
+        Assert.Equal(target, played.Snapshots[opponent].RewindTargets!.Last());
 
         var request = await Request(session, opponent, "request", target.Step);
         Assert.Equal(new[] { CommandTypes.AcceptRewind, CommandTypes.RejectRewind },
@@ -92,6 +96,13 @@ public sealed class MatchRewindTests
         var cancelled = Accepted(await Send(session, opponent, "withdraw", new CancelRewindCommand(withdrawn.RequestStep)));
         Assert.Same(before.State, cancelled.State);
         Assert.Equal("REWIND_CANCELLED", Assert.Single(cancelled.Events).Kind);
+        Assert.Equal(target, Assert.Single(session.SnapshotFor(actor).RewindTargets!).Step);
+        foreach (var controlStep in new[] { first.RequestStep, first.RequestStep + 1, withdrawn.RequestStep, withdrawn.RequestStep + 1 })
+        {
+            var excluded = await Send(session, actor, $"excluded-{controlStep}", new RequestRewindCommand(controlStep));
+            Assert.False(excluded.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, excluded.ErrorCode);
+        }
 
         var pending = await Request(session, opponent, "request-again", target);
         var failed = await Send(session, opponent, "wrong-mulligan", new MulliganCommand([]));
@@ -115,7 +126,11 @@ public sealed class MatchRewindTests
         var hidden = Accepted(await session.SeedScenarioAsync("P1", "seed", "standby-reaction", null, default));
         var reveal = new RevealCardCommand(faceDown, cardNo, [], "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK");
         Accepted(await Send(session, "P1", "reveal", reveal));
-        var revealStep = session.SnapshotFor("P2").RewindTargets!.Last().Step;
+        var revealTarget = session.SnapshotFor("P2").RewindTargets!.Last();
+        var revealedName = OfficialCardSourceIdentityGroups.KnownDisplayName(cardNo);
+        Assert.NotNull(revealedName);
+        Assert.Equal($"翻开待命牌「{revealedName}」", revealTarget.Description);
+        var revealStep = revealTarget.Step;
         var open = Accepted(await Send(session, "P1", "pass-p1", new PassPriorityCommand()));
         Assert.NotEmpty(open.State.StackItems);
         Accepted(await Send(session, "P2", "pass-p2", new PassPriorityCommand()));
@@ -221,9 +236,16 @@ public sealed class MatchRewindTests
         var rewound = Accepted(await Send(live, actor, "agree", agreement));
         Assert.Equal(MatchStateHasher.Hash(before.State), MatchStateHasher.Hash(rewound.State));
         Assert.Equal(original, journal.Entries.Take(original.Length));
-        var agreementStep = live.SnapshotFor(actor).RewindTargets!.Last().Step;
+        var visibleTargets = live.SnapshotFor(actor).RewindTargets!.ToArray();
+        Assert.Equal(3, visibleTargets.Length);
+        Assert.DoesNotContain(visibleTargets, item => item.Step == request.RequestStep);
+        var undo = visibleTargets[^1];
+        Assert.Equal($"撤销回到第 {target.TurnNumber} 回合的回退", undo.Description);
 
         live = await Recover(journal, store, engine);
+        Assert.Equal(visibleTargets, live.SnapshotFor(actor).RewindTargets!.ToArray());
+        Assert.Equal(rewound.Snapshots[opponent].RewindTargets!.ToArray(),
+            live.SnapshotFor(opponent).RewindTargets!.ToArray());
         var retry = Accepted(await Send(live, actor, "agree", agreement));
         Assert.True(retry.IsDuplicate);
         Assert.Equal(rewound.ServerTick, retry.ServerTick);
@@ -233,10 +255,100 @@ public sealed class MatchRewindTests
         Assert.NotEqual(MatchStateHasher.Hash(played.State), MatchStateHasher.Hash(alternative.State));
         live = await Recover(journal, store, engine);
 
-        var revisit = await Request(live, opponent, "revisit", agreementStep);
+        var revisit = await Request(live, opponent, "revisit", undo.Step);
         var returned = Accepted(await Send(live, actor, "return", new AcceptRewindCommand(revisit.RequestStep)));
         Assert.Equal(MatchStateHasher.Hash(played.State), MatchStateHasher.Hash(returned.State));
         await Recover(journal, store, engine);
+    }
+
+    [Fact]
+    public async Task PreviouslyAcceptedRequestForAControlStepStillReplays()
+    {
+        var engine = new CoreRuleEngine();
+        var journal = new SealedSubmittedOpeningTests.Journal();
+        var store = new PlayerStore();
+        var session = new MatchSession("rewind-legacy", engine, journal, store, Room);
+        var before = await OpenConstructed(session);
+        var actor = before.State.ActivePlayerId;
+        var opponent = Other(actor);
+        var target = Assert.Single(session.SnapshotFor(actor).RewindTargets!);
+        var first = await Request(session, actor, "request", target.Step);
+        Accepted(await Send(session, opponent, "reject", new RejectRewindCommand(first.RequestStep)));
+
+        // Reproduce a request that was valid before control steps were removed from the menu.
+        var legacy = Accepted(await session.SubmitAsync(actor, "legacy-request",
+            new RequestRewindCommand(first.RequestStep), null, default, replayAcceptedCommand: true));
+        var pending = Assert.IsType<RewindRequestDto>(legacy.Snapshots[opponent].RewindRequest);
+        var recovered = await Recover(journal, store, engine);
+        Assert.Equal(pending, recovered.SnapshotFor(opponent).RewindRequest);
+        Assert.Equal(target, Assert.Single(recovered.SnapshotFor(opponent).RewindTargets!));
+        var result = Accepted(await Send(recovered, opponent, "accept-legacy", new AcceptRewindCommand(pending.RequestStep)));
+        Assert.Equal(MatchStateHasher.Hash(before.State), MatchStateHasher.Hash(result.State));
+        await Recover(journal, store, engine);
+    }
+
+    [Fact]
+    public async Task TargetDescriptionsShowPublicPlayAndHideInsightAndStandbyChoicesFromOpponent()
+    {
+        const string playCard = "UNL-063/219";
+        var initial = OfficialInsightAndSpellLockTests.Position(playCard) with { SessionOptions = Room };
+        var game = new MatchSession(initial, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var play = Accepted(await Send(game, "P1", "play", OfficialInsightAndSpellLockTests.Play(playCard)));
+        var publicName = OfficialCardSourceIdentityGroups.KnownDisplayName(playCard);
+        Assert.NotNull(publicName);
+        Assert.All(play.Snapshots.Values, view => Assert.Equal($"打出「{publicName}」", view.RewindTargets!.Last().Description));
+
+        var pass = Accepted(await Send(game, play.State.PriorityPlayerId!, "pass", new PassPriorityCommand()));
+        var open = Accepted(await Send(game, pass.State.PriorityPlayerId!, "resolve", new PassPriorityCommand()));
+        var choice = Assert.IsType<PendingCardChoiceState>(open.State.PendingCardChoice);
+        var chosenId = Assert.Single(choice.LegalObjectIds);
+        var privateName = OfficialCardSourceIdentityGroups.KnownDisplayName(open.State.CardObjects[chosenId].CardNo);
+        Assert.NotNull(privateName);
+        var chosen = Accepted(await Send(game, "P1", "insight",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [chosenId])));
+        Assert.Equal($"洞察回收「{privateName}」", chosen.Snapshots["P1"].RewindTargets!.Last().Description);
+        Assert.Equal("完成选牌", chosen.Snapshots["P2"].RewindTargets!.Last().Description);
+
+        const string standbyCard = "OGN·057/298";
+        var standby = new MatchSession(StandbySourceRulesTests.Position(standbyCard) with { SessionOptions = Room },
+            new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var hide = Accepted(await Send(standby, "P1", "hide", new HideCardCommand("SHADOW", standbyCard, "BATTLEFIELD:F", ["STANDBY_A"])));
+        var hiddenName = OfficialCardSourceIdentityGroups.KnownDisplayName(standbyCard);
+        Assert.NotNull(hiddenName);
+        Assert.Equal($"设置待命牌「{hiddenName}」", hide.Snapshots["P1"].RewindTargets!.Last().Description);
+        Assert.Equal("设置待命牌", standby.SnapshotFor("P2").RewindTargets!.Last().Description);
+    }
+
+    [Fact]
+    public async Task MovementAndActivationDescribeTheirPublicSources()
+    {
+        var moveState = OfficialInsightSourceTests.Diana() with { SessionOptions = Room };
+        var moveGame = new MatchSession(moveState, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var move = Accepted(await Send(moveGame, "P1", "move",
+            new MoveUnitCommand("UNIT", Destination: "BATTLEFIELD:HILL", SourceObjectIds: ["UNIT"])));
+        var unit = OfficialCardSourceIdentityGroups.KnownDisplayName(moveState.CardObjects["UNIT"].CardNo);
+        var field = OfficialCardSourceIdentityGroups.KnownDisplayName(moveState.CardObjects["HILL"].CardNo);
+        Assert.NotNull(unit);
+        Assert.NotNull(field);
+        Assert.All(move.Snapshots.Values, view => Assert.Equal($"移动「{unit}」到「{field}」", view.RewindTargets!.Last().Description));
+
+        const string card = P4ActivatedAbilityCatalog.BlackMarketCardNo;
+        var abilityGame = new MatchSession(RadGearTestPosition.Create(card) with { SessionOptions = Room },
+            new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var activation = Accepted(await Send(abilityGame, "P1", "activate",
+            new ActivateAbilityCommand("BF", P4ActivatedAbilityCatalog.BlackMarketAbilityId, [])));
+        var source = OfficialCardSourceIdentityGroups.KnownDisplayName(card);
+        Assert.NotNull(source);
+        Assert.All(activation.Snapshots.Values, view => Assert.Equal($"发动「{source}」的能力", view.RewindTargets!.Last().Description));
+    }
+
+    [Fact]
+    public async Task BatchedRuneActionsDescribeThePublicCount()
+    {
+        var game = new MatchSession(RuneBatchTests.Position() with { SessionOptions = Room },
+            new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var tap = Accepted(await Send(game, "P1", "tap", new TapRuneCommand("RED", ["RED", "BLUE"])));
+        Assert.All(tap.Snapshots.Values, view => Assert.Equal("横置 2 枚符文", Assert.Single(view.RewindTargets!).Description));
     }
 
     [Fact]
