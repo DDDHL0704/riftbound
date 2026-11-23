@@ -495,8 +495,6 @@ public sealed class GameHub(
             return;
         }
 
-        if (result.IsDuplicate) return;
-
         if (result.Events.Count > 0)
         {
             var events = ProjectEvents(result.Events, result.State);
@@ -655,7 +653,7 @@ public sealed class GameHub(
                 Context.ConnectionAborted);
         }
 
-        if (!result.IsDuplicate)
+        if (!result.IsDuplicate || command is not RewindCommand)
         {
             if (projectedEvents.Count > 0)
             {
