@@ -1398,7 +1398,8 @@ public static class CardBehaviorRegistry
             0,
             2,
             StatusEffectId: "STUNNED",
-            TargetScope: CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits),
+            TargetScope: CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits,
+            TargetsShareBattlefield: true),
         new(
             "UNL-155/219",
             "英勇冲锋",
@@ -1408,6 +1409,7 @@ public static class CardBehaviorRegistry
             2,
             StatusEffectId: "STUNNED",
             TargetScope: CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits,
+            TargetsShareBattlefield: true,
             PowerModifierAmount: 1,
             PowerModifierTargetIndex: 0,
             StatusEffectTargetIndex: 1),
