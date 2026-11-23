@@ -48,11 +48,10 @@ public sealed partial class CoreRuleEngine
         => left.Source == right.Source && left.CardNo == right.CardNo && left.InstanceId == right.InstanceId
             && left.FaceRevision == right.FaceRevision;
 
-    private static string[] PlayCostReductionUnits(MatchState state, string player)
+    internal static string[] ExhaustibleFriendlyFieldUnitIds(MatchState state, string player)
         => state.PlayerZones.TryGetValue(player, out var zones)
             ? zones.Base.Concat(zones.Battlefields).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal)
-                .Where(id => IsPlayerControlledFieldUnitObject(state, player, id)
-                    && CanExhaustFriendlyUnitAsOptionalCost(state, player, id)).ToArray() : [];
+                .Where(id => CanExhaustFriendlyUnitAsOptionalCost(state, player, id)).ToArray() : [];
 
     private static string PlayCostReductionUnitChoice(OptionalPlayCostReducer source, string unit)
         => PlayCostReductionUnitPrefix + source.ChoiceId[OptionalPlayCostReductionChoicePrefix.Length..]
@@ -79,7 +78,7 @@ public sealed partial class CoreRuleEngine
                         : at.Zone != spec.SourceZone || !IsPlayerControlledFieldUnitObject(state, player, id))
                     || spec.ExhaustSource && source.IsExhausted) continue;
                 var support = spec.SupportingUnitCount > 0
-                    ? PlayCostReductionUnits(state, player).Where(unit => unit != id).ToArray() : [];
+                    ? ExhaustibleFriendlyFieldUnitIds(state, player).Where(unit => unit != id).ToArray() : [];
                 if (support.Length < spec.SupportingUnitCount) continue;
                 var use = new OptionalPlayCostReductionUse(new(source.ObjectId, source.ObjectGeneration), instance.CardNo, instance.Id,
                     instance.Origin?.FaceRevision ?? source.CopyFaceTransitions?.Count ?? 0, state.Tick + 1,
@@ -142,7 +141,7 @@ public sealed partial class CoreRuleEngine
         if (sources.Count == 0) return 0;
         if (sources.All(source => !source.Spec.ExhaustSource && source.Spec.SupportingUnitCount == 0))
             return sources.Sum(source => mana ? source.Spec.Mana : source.Spec.Power);
-        var budget = PlayCostReductionUnits(state, player).Length;
+        var budget = ExhaustibleFriendlyFieldUnitIds(state, player).Length;
         var best = new int[budget + 1];
         // Text copies on one object cannot pay that object's exhaustion twice.
         foreach (var group in sources.GroupBy(source => source.Spec.ExhaustSource
