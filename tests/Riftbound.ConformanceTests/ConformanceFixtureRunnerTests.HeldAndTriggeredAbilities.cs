@@ -1721,7 +1721,7 @@ public sealed partial class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79BattlefieldBattleDestroyedUnitPaysThreeAndRecalls()
     {
-        var state = BattlefieldBattleDestroyedRecallState(mana: 3);
+        var state = BattlefieldBattleDestroyedRecallState(power: 3);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -1737,7 +1737,9 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.NotNull(result.State.PendingRuleChoice);
         result = await DestructionOrderTests.Select(result.State, "ALTAR:P2-BATTLEFIELD-BLOOD-DEFENDER:P2-BATTLEFIELD-BLOOD-ALTAR");
         Assert.True(result.Accepted);
-        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P2"]);
+        Assert.Equal(0, result.State.RunePools["P2"].Mana);
+        Assert.Equal(0, result.State.RunePools["P2"].TotalPower);
+        Assert.Equal(3, result.State.RunePools["P2"].PaidPowerThisTurn);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-BLOOD-DEFENDER", StringComparison.Ordinal));
@@ -1747,7 +1749,8 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal)
-            && Equals(gameEvent.Payload["mana"], 3));
+            && Equals(gameEvent.Payload["mana"], 0)
+            && Equals(gameEvent.Payload["power"], 3));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["replacementEffectId"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal)
@@ -1764,7 +1767,7 @@ public sealed partial class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79BattlefieldBattleDestroyedUnitSkipsOpponentOwnedAltar()
     {
-        var state = BattlefieldBattleDestroyedRecallState(mana: 3);
+        var state = BattlefieldBattleDestroyedRecallState(power: 3);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         cardObjects["P2-BATTLEFIELD-BLOOD-ALTAR"] = cardObjects["P2-BATTLEFIELD-BLOOD-ALTAR"] with
         {
@@ -1784,7 +1787,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
-        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P2"]);
+        Assert.Equal(new RunePool(0, 3), result.State.RunePools["P2"]);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal));
@@ -1796,13 +1799,13 @@ public sealed partial class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P79BattlefieldBattleDestroyedUnitFallsBackToDestroyWhenNoMana()
+    public async Task P79BattlefieldBattleDestroyedUnitFallsBackToDestroyWhenInsufficientPower()
     {
-        var state = BattlefieldBattleDestroyedRecallState(mana: 2);
+        var state = BattlefieldBattleDestroyedRecallState(power: 2);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
-            new PlayerIntent("intent-p7-9-battlefield-battle-destroyed-recall-no-mana", "P1", "DECLARE_BATTLE"),
+            new PlayerIntent("intent-p7-9-battlefield-battle-destroyed-recall-insufficient-power", "P1", "DECLARE_BATTLE"),
             new DeclareBattleCommand(
                 "P2-BATTLEFIELD-BLOOD-ALTAR",
                 ["P1-BATTLEFIELD-BLOOD-ATTACKER"],
@@ -1811,7 +1814,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
-        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P2"]);
+        Assert.Equal(new RunePool(0, 2), result.State.RunePools["P2"]);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal));

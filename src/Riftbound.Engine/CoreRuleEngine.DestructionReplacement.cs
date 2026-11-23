@@ -25,7 +25,7 @@ public sealed partial class CoreRuleEngine
 
     private const string SettRecallEffect = "SETT_BOON_UNIT_DESTROYED_RECALL_EXHAUSTED";
     private sealed record DestructionOption(RuleChoiceOption Choice, string Target, string Source, string Kind,
-        string EffectKey, string SourceCardNo, bool Optional = false, string Payment = "", int Mana = 0,
+        string EffectKey, string SourceCardNo, bool Optional = false, string Payment = "", int GenericPowerCost = 0,
         string? ResponsiblePlayerId = null, SacrificeRecallCost? SacrificeCost = null,
         string? RecallMarker = null, ActivatedPlayGrant? PaidRecall = null);
 
@@ -97,41 +97,64 @@ public sealed partial class CoreRuleEngine
                         .Concat(graveyardGroups.Values.SelectMany(group => group).Where(c => remaining.Contains(c.Option.Target)))
                         .Where(c => !startedLocalSources.Contains(c.Option.EffectKey) || graveyardGroups.ContainsKey(c.Option.EffectKey)).ToArray();
                     var options = new List<DestructionOption>();
-                    var canPayOptional = false;
+                    var hasOptionalPayment = false;
+                    var hasOptionalPowerRecall = false;
                     foreach (var target in remaining.Order(StringComparer.Ordinal)) {
                         if (!cards.TryGetValue(target, out var unit) || EffectiveFieldControllerId(zones, target, unit) != player) continue;
                         IReadOnlyList<DestructionOption> candidatesForTarget = [];
                         if (activeLocalGroup is null) {
                             candidatesForTarget = DestructionOptions(state, zones, cards, pools, target, player,
-                                causesByTarget?.GetValueOrDefault(target) ?? cause, battlefieldId, locations ?? state.ObjectLocations, declinedOptional, out var optionalAvailable);
-                            canPayOptional |= optionalAvailable;
+                                causesByTarget?.GetValueOrDefault(target) ?? cause, battlefieldId, locations ?? state.ObjectLocations, declinedOptional,
+                                out var optionalAvailable, out var optionalPowerRecall);
+                            hasOptionalPayment |= optionalAvailable;
+                            hasOptionalPowerRecall |= optionalPowerRecall;
                         }
                         foreach (var candidate in candidatesForTarget.Concat(localRecalls
                             .Where(c => c.Option.Target == target && c.TargetGeneration == unit.ObjectGeneration).Select(c => c.Option)))
                             if (!frame.AppliedDestructionReplacements.Contains(candidate.EffectKey)
                                 && !declinedPaidRecalls.Contains(candidate.EffectKey)) options.Add(candidate);
                     }
-                    var resources = canPayOptional ? ReplacementResourceActions(ReplacementResourceContext(state, zones, cards, pools, player), player) : [];
-                    if (options.Count + resources.Count == 0) {
+                    var resourceContext = hasOptionalPayment ? ReplacementResourceContext(state, zones, cards, pools, player) : state;
+                    var resources = hasOptionalPayment ? ReplacementResourceActions(resourceContext, player) : [];
+                    var pool = pools.GetValueOrDefault(player, RunePool.Empty);
+                    var recycleChoices = hasOptionalPowerRecall && pool.HasSupportedAmounts && pool.TotalStoredPower < int.MaxValue
+                        ? zones[player].Base.Where(rune => CanRecycleRuneForPayment(resourceContext, player, rune))
+                            .Order(StringComparer.Ordinal).Select(rune => new RuleChoiceOption("RECYCLE_RUNE:" + rune,
+                                "回收符文获得 1 点符能，之后继续选择", [rune])).ToArray()
+                        : [];
+                    if (options.Count + resources.Count + recycleChoices.Length == 0) {
                         if (activeLocalGroup is not null) { activeLocalGroup = null; continue; }
                         break;
                     }
-                    var optional = options.Any(o => o.Optional) || resources.Count > 0;
+                    var optional = options.Any(o => o.Optional) || resources.Count > 0 || recycleChoices.Length > 0;
                     string selected;
                     if (options.Count == 1 && !optional) selected = options[0].Choice.Id;
                     else {
-                        var choices = options.Select(o => o.Choice).Concat(resources.Select(r => r.Choice)).ToList();
+                        var choices = options.Select(o => o.Choice).Concat(resources.Select(r => r.Choice)).Concat(recycleChoices).ToList();
                         if (optional) choices.Add(new("DECLINE", "不使用可选替换；仍需执行适用的强制替换"));
                         selected = frame.Choose(player,
                             $"当前可用 {pools.GetValueOrDefault(player, RunePool.Empty).Mana} 法力、{pools.GetValueOrDefault(player, RunePool.Empty).TotalPower} 符能。选择先执行的摧毁替换及对象；可选支付可先发动资源技能。", choices,
-                            powerCost: options.Any(o => o.Kind is "SETT" or PaidRecallKind) ? 1 : 0);
+                            powerCost: options.Any(o => o.Kind is "SETT" or PaidRecallKind) ? 1
+                                : options.Where(o => o.GenericPowerCost > 0).Select(o => o.GenericPowerCost).DefaultIfEmpty().Min());
                     }
                     if (selected == "DECLINE") { declinedOptional = true; continue; }
                     if (resources.FirstOrDefault(r => r.Choice.Id == selected) is { } resource) {
                         ApplyReplacementResourceAction(ReplacementResourceContext(state, zones, cards, pools, player), zones, cards, pools, player, resource, scope.Events);
                         continue;
                     }
+                    if (recycleChoices.Any(choice => choice.Id == selected)) {
+                        ApplyRuleChoiceRecycleRuneResource(resourceContext, zones, cards, pools, player, selected[13..],
+                            scope.Events, RuleChoiceWindow);
+                        continue;
+                    }
                     var option = options.Single(o => o.Choice.Id == selected);
+                    FixedPowerAllocation? allocation = null;
+                    if (option.GenericPowerCost > 0 && HasMultipleFixedPowerAllocations(pool, option.GenericPowerCost)) {
+                        allocation = ChooseFixedPowerAllocation(resourceContext, player, option.Target, pool,
+                            option.GenericPowerCost, 0, "DESTRUCTION_REPLACEMENT_POWER_PAYMENT",
+                            "CONFIRM_DESTRUCTION_REPLACEMENT_POWER", "CANCEL_DESTRUCTION_REPLACEMENT_POWER");
+                        if (allocation is null) continue;
+                    }
                     if (option.PaidRecall is not null && !ConfirmPaidRecallPayment(state, zones, cards, pools, player, option, scope.Events)) {
                         declinedPaidRecalls.Add(option.EffectKey); continue;
                     }
@@ -145,7 +168,8 @@ public sealed partial class CoreRuleEngine
                     var previousChain = frame.AppliedDestructionReplacements;
                     frame.AppliedDestructionReplacements = new(previousChain, StringComparer.Ordinal) { option.EffectKey };
                     try {
-                        ApplyDestructionOption(state, zones, cards, pools, player, option, scope.Events, causesByTarget?.GetValueOrDefault(option.Target) ?? cause, destructionReason?.Invoke(option.Target));
+                        ApplyDestructionOption(state, zones, cards, pools, player, option, scope.Events,
+                            causesByTarget?.GetValueOrDefault(option.Target) ?? cause, destructionReason?.Invoke(option.Target), allocation);
                     } finally { frame.AppliedDestructionReplacements = previousChain; }
                     scope.Replaced.Add(option.Target); remaining.Remove(option.Target); frame.CurrentDestructions.Remove(option.Target);
                     scope.Controllers[option.Target] = player;
@@ -240,16 +264,19 @@ public sealed partial class CoreRuleEngine
     private static IReadOnlyList<DestructionOption> DestructionOptions(MatchState state,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards, Dictionary<string, RunePool> pools,
         string target, string player, StackItemState? cause, string? battlefieldId,
-        IReadOnlyDictionary<string, ObjectLocationState> locations, bool declinedOptional, out bool optionalAvailable, ISet<string>? appliedReplacements = null)
+        IReadOnlyDictionary<string, ObjectLocationState> locations, bool declinedOptional, out bool optionalAvailable,
+        out bool optionalPowerRecall, ISet<string>? appliedReplacements = null)
     {
         var unit = cards[target]; var pool = pools.GetValueOrDefault(player, RunePool.Empty);
-        var options = new List<DestructionOption>(); optionalAvailable = false;
+        var options = new List<DestructionOption>();
+        optionalAvailable = false;
+        optionalPowerRecall = false;
         var label = CardBehaviorRegistry.TryGetByCardNo(unit.CardNo ?? "", out var behavior) ? behavior.DisplayName : unit.CardNo ?? target;
         string Key(string kind, string source) => $"{kind}:{source}:{cards[source].ObjectGeneration}";
-        void Add(string kind, string source, string text, bool optional = false, string payment = "", int mana = 0)
+        void Add(string kind, string source, string text, bool optional = false, string payment = "", int genericPowerCost = 0)
             => options.Add(new(new($"{kind}:{target}" + (source == target && kind is "BANISH" or "RECALL" ? "" : $":{source}")
                 + (payment.Length > 0 ? ":" + payment : ""), $"{label}（{target}）：{text}", [target, source]),
-                target, source, kind, Key(kind, source), cards[source].CardNo ?? "", optional, payment, mana));
+                target, source, kind, Key(kind, source), cards[source].CardNo ?? "", optional, payment, genericPowerCost));
         if (unit.UntilEndOfTurnEffects.Contains(RecallToBaseExhaustedIfDestroyedThisTurnEffectId))
             Add("RECALL", target, "应用本回合效果，移除伤害并休眠召回");
         if (unit.UntilEndOfTurnEffects.Contains(BanishIfDestroyedThisTurnEffectId))
@@ -299,8 +326,10 @@ public sealed partial class CoreRuleEngine
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldDestroyedInBattlePayRecallReplacementAbility, out var ability) && ability.Amount > 0
             && !(appliedReplacements ?? RuleChoices.Value!.AppliedDestructionReplacements).Contains(Key("ALTAR", fieldId))) {
             optionalAvailable = true;
-            if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) >= ability.Amount)
-                Add("ALTAR", fieldId, $"支付 {ability.Amount} 法力，鲜血祭坛休眠召回", true, mana: ability.Amount);
+            optionalPowerRecall = true;
+            if (CanPayPowerCost(pool, ability.Amount, new Dictionary<string, int>()))
+                Add("ALTAR", fieldId, $"支付 {ability.Amount} 点任意符能，鲜血祭坛休眠召回", true,
+                    genericPowerCost: ability.Amount);
         }
         if (!unit.Tags.Contains(CardObjectTags.Boon)) return options;
         foreach (var source in zones.SelectMany(z => z.Value.LegendZone).Order(StringComparer.Ordinal)) {
@@ -320,7 +349,7 @@ public sealed partial class CoreRuleEngine
 
     private static void ApplyDestructionOption(MatchState state, Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, Dictionary<string, RunePool> pools, string player,
-        DestructionOption option, List<GameEvent> events, StackItemState? cause, string? destructionReason)
+        DestructionOption option, List<GameEvent> events, StackItemState? cause, string? destructionReason, FixedPowerAllocation? allocation)
     {
         if (option.Kind == "SETT") { ApplySettDestructionOption(zones, cards, pools, player, option, events); return; }
         var target = cards[option.Target];
@@ -350,9 +379,11 @@ public sealed partial class CoreRuleEngine
             RuleChoices.Value.NestedDestroyedOwners.UnionWith(nested.DestroyedUnitOwnerIds);
         }
         if (option.Kind == "ALTAR") {
-            pools[player] = PaymentCostRules.SpendMana(pools.GetValueOrDefault(player, RunePool.Empty), option.Mana, state: state);
+            pools[player] = PayPowerCost(pools.GetValueOrDefault(player, RunePool.Empty),
+                allocation?.Wildcard ?? option.GenericPowerCost, allocation?.PowerByTrait ?? new Dictionary<string, int>());
             events.Add(new("COST_PAID", "支付鲜血祭坛替换费用", new Dictionary<string, object?> {
-                ["playerId"] = player, ["mana"] = option.Mana, ["power"] = 0, ["reason"] = BattlefieldDestroyedInBattleRecallEffectId }));
+                ["playerId"] = player, ["mana"] = 0, ["power"] = option.GenericPowerCost,
+                ["reason"] = BattlefieldDestroyedInBattleRecallEffectId }));
         }
         if (legacyPaidRecall)
         {

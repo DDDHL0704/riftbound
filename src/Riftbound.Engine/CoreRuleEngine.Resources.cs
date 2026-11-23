@@ -25,16 +25,17 @@ public sealed partial class CoreRuleEngine
         var cause = new StackItemState($"cost-{state.Tick + 1}-{sourceId}", player, sourceId,
             effectKind, cards[sourceId].CardNo, [targetId]);
         var options = DestructionOptions(state, zones, cards, pools, targetId, player, cause, null,
-            state.ObjectLocations, false, out var optionalAvailable, new HashSet<string>(StringComparer.Ordinal));
+            state.ObjectLocations, false, out var optionalAvailable, out _, new HashSet<string>(StringComparer.Ordinal));
         // DestructionOptions exposes paid replacements only for units. A pure
         // equipment's nested recall/banish choices cannot release power; keep
         // mixed unit/equipment destruction routes conservative.
         if (options.Any(o => (o.Kind is "GEAR" or "ATTACHED_GEAR")
             && cards[o.Source].Tags.Contains(CardObjectTags.UnitCard))) return true;
 
-        // Choosing a replacement is not itself free capacity. Sett can spend
-        // one existing power; a recycled-rune payment has no net power debit.
-        long released = options.Any(o => o.Kind == "SETT" && !o.Payment.StartsWith("RUNE:", StringComparison.Ordinal)) ? 1 : 0;
+        // Only a debit from the existing pool frees capacity for the gain.
+        long released = options.Select(option => option.Kind == "SETT"
+                && !option.Payment.StartsWith("RUNE:", StringComparison.Ordinal) ? 1 : option.GenericPowerCost)
+            .DefaultIfEmpty().Max();
         if (optionalAvailable
             && ReplacementResourceActions(ReplacementResourceContext(state, zones, cards, pools, player), player)
                 .Any(action => action.Ability?.AbilityId == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId))
