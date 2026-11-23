@@ -121,7 +121,7 @@ class PracticeBot {
         if (tried.has(option.key)) continue;
         tried.add(option.key);
         let cmd = option.cmd;
-        if (option.play) {
+        if (option.play && !option.play.plain) {
           // Quote the play like the table does: add rune taps for missing mana, skip what can't be paid.
           let quote = await this.client.previewPlayCard(cmd);
           const missing = quote?.isValid ? quote.cost?.missingMana ?? 0 : 0;
