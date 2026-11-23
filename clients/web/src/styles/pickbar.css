@@ -86,8 +86,9 @@
 }
 .pickbar__title {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 10px;
+  gap: 4px 10px;
 }
 .pickbar__title strong {
   font-family: var(--font-display);
@@ -96,6 +97,11 @@
 .pickbar__title span {
   color: var(--brass);
   font-size: 13px;
+}
+.pickbar__detail {
+  font-style: normal;
+  font-size: 12px;
+  color: var(--muted);
 }
 .pickbar__hint {
   font-size: 12px;

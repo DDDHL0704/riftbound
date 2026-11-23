@@ -39,6 +39,14 @@ export function cardName(cardNo: string | null | undefined) {
   return cardInfo(cardNo)?.name ?? cardNo ?? "未知卡牌";
 }
 
+// Server labels name cards by number ("横置友方单位：UNL-053/219", "OGN·042b/298"); read them as names.
+const CARD_NO = /[A-Z]{2,4}[·-][A-Za-z0-9*]+(?:\/\d+)?(?:·[A-Z])?/g;
+
+/** A label with every catalog card number in it replaced by that card's name. */
+export function nameCardNumbers(text: string) {
+  return text.replace(CARD_NO, (no) => cards[no]?.name ?? no);
+}
+
 // Legends, battlefields, runes and tokens never sit in a deck or hand, so a name never stands for them there.
 const OFF_DECK = /^(传奇|战场|符文|指示物)/;
 let printings: Map<string, string[]> | null = null;
@@ -171,5 +179,5 @@ export function colorOf(tags: string[] | undefined) {
 export function paymentChoiceLabel(id: string, label: string, objects: Record<string, GameObject>) {
   const tail = id.split(":").pop() ?? id;
   const o = objects[id] ?? objects[tail];
-  return o ? `${label.split(/[：:]/)[0]}：${cardName(o.cardNo)}` : label;
+  return o ? `${label.split(/[：:]/)[0]}：${cardName(o.cardNo)}` : nameCardNumbers(label);
 }

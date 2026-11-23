@@ -121,6 +121,7 @@ export function PickBar({ pick, step, choices, otherActions, onOtherAction, extr
         <p className="pickbar__title">
           <strong>{info?.name ?? cardName(src?.cardNo)}</strong>
           <span>{pick.action.label}</span>
+          {pick.action.detail && <em className="pickbar__detail">{pick.action.detail}</em>}
         </p>
         {step ? (
           <>

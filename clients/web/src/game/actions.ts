@@ -1,3 +1,4 @@
+import { nameCardNumbers } from "./cards";
 import type { Candidate, Choice, Prompt } from "./types";
 
 /**
@@ -236,18 +237,22 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
   // Mandatory additional costs: the player picks exactly this many of the listed options.
   const mandatory: Choice[] = uniqueChoices(req.additionalCostChoices ?? []);
   const mandatoryCount = Number(req.requiredAdditionalCostChoiceCount ?? 0);
-  const costLabelText = action === "HIDE_CARD" ? "选择待命费用" : "选择费用";
+  // A cost picked from units reads as what happens to them ("横置友方单位"), not as a generic "选择费用".
+  const costLabelOf = (choices: Choice[]) => {
+    const kinds = new Set(choices.map((c) => c.label.split(/[：:]/)[0]));
+    return kinds.size === 1 && choices[0]?.label.includes("：") ? [...kinds][0] : action === "HIDE_CARD" ? "选择待命费用" : "选择费用";
+  };
   let required: string[];
   let optional: Choice[];
   if (mandatoryCount > 0 && mandatory.length > 0) {
     if (mandatory.length <= mandatoryCount) {
       // The only legal way to pay: taken automatically, but named so it's never a surprise.
       required = mandatory.map((c) => c.id);
-      detail = `${detail ? `${detail} · ` : ""}需${mandatory.map((c) => c.label).join("、")}`;
+      detail = `${detail ? `${detail} · ` : ""}需${mandatory.map((c) => nameCardNumbers(c.label)).join("、")}`;
     } else {
       required = [];
       for (let i = 0; i < mandatoryCount; i++)
-        steps.push({ key: `cost-${i}`, role: "cost", label: mandatoryCount > 1 ? `${costLabelText} ${i + 1}` : costLabelText, required: true, choices: mandatory });
+        steps.push({ key: `cost-${i}`, role: "cost", label: mandatoryCount > 1 ? `${costLabelOf(mandatory)} ${i + 1}` : costLabelOf(mandatory), required: true, choices: mandatory });
     }
     optional = extras.filter((c) => !mandatory.some((m) => m.id === c.id));
   } else {
@@ -256,7 +261,7 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
     // conversion equipment (Ancient Stele, Hextech Anomaly) turns between mana and power.
     const oneOf = ONE_OF_COST_PREFIXES.find((p) => extras.length > 0 && extras.every((c) => c.id.startsWith(p)));
     const pickOne = Number(req.requiredOptionalCostChoiceCount) === 1 || (action === "ACTIVATE_ABILITY" && Boolean(oneOf));
-    if (pickOne && extras.length > 1) steps.push({ key: "cost", role: "cost", label: costLabelText, required: true, choices: extras });
+    if (pickOne && extras.length > 1) steps.push({ key: "cost", role: "cost", label: costLabelOf(extras), required: true, choices: extras });
     required = pickOne && extras.length === 1 ? [extras[0].id] : req.requiredOptionalCosts ?? [];
     optional = pickOne ? [] : extras;
   }

@@ -207,8 +207,17 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       (id) => id !== pick!.action.sourceObjectId && moveOf(id) && (pick!.group.includes(id) || destinationsOf(id).some((d) => shared.has(d))),
     );
   }, [grouping, actions, pick, stepChoices]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Once targets are set, an optional cost that names a unit (冥想: exhaust a friendly unit to draw again)
+  // lights that unit; clicking it toggles the cost, like the cost's chip in the pick bar.
+  const costUnits = useMemo(() => {
+    const map = new Map<string, string>();
+    if (!pick || currentStep) return map;
+    for (const c of offeredCosts(pick)) for (const id of choiceObjectIds(c)) if (objects[id]) map.set(id, c.id);
+    return map;
+  }, [pick, currentStep, objects]);
   const legal = useMemo(() => {
     if (!pick && ruleChoice) return ruleChoice.map;
+    if (costUnits.size) return costUnits;
     const map = new Map<string, string>();
     for (const choice of stepChoices) {
       if (pick?.sel.targets.includes(choice.id) || pick?.sel.optionalCosts.includes(choice.id)) continue;
@@ -216,7 +225,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     }
     for (const id of peers) map.set(id, GROUP + id);
     return map;
-  }, [stepChoices, peers, pick, ruleChoice]);
+  }, [stepChoices, peers, pick, ruleChoice, costUnits]);
 
   const submitPick = (picked: Pick) => {
     setPick(null);
@@ -295,6 +304,10 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   };
 
   const choose = (choiceId: string) => {
+    if (pick && !currentStep && [...costUnits.values()].includes(choiceId)) {
+      setPick({ ...pick, sel: { ...pick.sel, optionalCosts: toggleCost(pick, choiceId) } });
+      return;
+    }
     if (!pick || !currentStep) return;
     if (choiceId.startsWith(GROUP)) {
       const id = choiceId.slice(GROUP.length);
@@ -417,6 +430,9 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     if (menuFor === id || pick?.action.sourceObjectId === id || mulligan.includes(id) || pick?.sel.targets.includes(id) || inGroup || runeSel.includes(id))
       marks.push("selected");
     if ((pick || ruleChoice) && legal.has(id) && !inGroup) marks.push("legal");
+    // Units a play's costs use (chosen, or the only legal one taken automatically) show as picked.
+    if (pick && [...pick.action.requiredCosts, ...pick.sel.optionalCosts].some((c) => !isTap(c) && !isRecycle(c) && c.split(":").pop() === id))
+      marks.push("selected");
     if (!pick && committed.includes(id)) marks.push("selected");
     if (!pick && actions.has(id)) marks.push(autoTapOf(id) != null ? "autopay" : "playable");
     if (o?.isAttacking) marks.push("attacking");
