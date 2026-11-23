@@ -62,6 +62,7 @@ signalR.AddJsonProtocol(options =>
 {
     options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    PromptWireProjection.Configure(options.PayloadSerializerOptions);
 });
 builder.Services.AddRiftboundPersistence(builder.Configuration);
 builder.Services.TryAddSingleton<IPlayerIdentityStore, InMemoryPlayerIdentityStore>();
