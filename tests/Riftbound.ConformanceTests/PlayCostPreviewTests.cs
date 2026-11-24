@@ -107,13 +107,21 @@ public sealed class PlayCostPreviewTests
         Assert.Null(quote.Cost);
     }
 
-    [Fact]
-    public async Task SessionPreviewIsReadOnlyAndCannotAuthorizeAStaleSubmission()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task SessionPreviewIsReadOnlyAndCannotAuthorizeAStaleSubmission(bool olderPromptId)
     {
         var state = Position(new(5, 2));
         var journal = new Journal();
         var session = new MatchSession(state, new CoreRuleEngine(), journal);
         var request = Request(state, Command([HasteOptionalCostNames.HasteReady]));
+        if (olderPromptId)
+        {
+            var id = $"{state.RoomId}:{state.Tick}:P1:PLAY_CARD,END_TURN,SURRENDER";
+            Assert.NotEqual(id, request.PromptId);
+            request = request with { PromptId = id };
+        }
         var first = await session.PreviewPlayCardAsync("P1", request, default);
         var second = await session.PreviewPlayCardAsync("P1", request, default);
         Assert.Equal(JsonSerializer.Serialize(first), JsonSerializer.Serialize(second));
