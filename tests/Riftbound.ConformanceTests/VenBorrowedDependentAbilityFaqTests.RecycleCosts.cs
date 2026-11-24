@@ -77,7 +77,11 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
             await game.Top();
             Assert.Equal("HAND", game.State.ObjectLocations[response == "source" ? "HOST" : "DONOR"].Zone);
         }
+        var beforeResolution = game.Events().Length;
         await game.Top();
+        var completed = Assert.Single(game.Events().Skip(beforeResolution), e => e.Event.Kind == "STACK_ITEM_RESOLVED");
+        var borrowerName = OfficialCardSourceIdentityGroups.KnownDisplayName(initial.CardObjects["HOST"].CardNo);
+        Assert.Equal(response == "source" ? "技能结算" : $"{borrowerName}的技能结算", completed.Event.Description);
         Assert.Null(game.State.PendingRuleChoice);
         Assert.Empty(game.State.StackItems);
         if (draw) Assert.Contains("TOP", game.State.PlayerZones["P1"].Hand);

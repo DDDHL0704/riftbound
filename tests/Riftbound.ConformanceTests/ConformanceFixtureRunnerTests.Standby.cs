@@ -1951,7 +1951,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         var state = await StandbySourceRulesTests.ReadyShadow("OGN·057/298");
         var command = new RevealCardCommand("SHADOW", "OGN·057/298", ["SHADOW-OUTSIDE"],
             "STANDBY_REVEAL", ["STANDBY_REVEAL_0"], "STACK");
-        await StandbyTestDriver.AssertRevealRejected(state, command, ErrorCodes.InvalidTarget, "target");
+        await StandbyTestDriver.AssertRevealRejected(state, command, ErrorCodes.InvalidTarget, "格挡需要选择 1 个单位作为目标。");
     }
 
     [Fact]
@@ -1982,7 +1982,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         var command = new RevealCardCommand("SHADOW", "OGN·197/298", [],
             "STANDBY_REVEAL", ["STANDBY_REVEAL_0"], "BATTLEFIELD:F");
         command = command with { OptionalCosts = ["STANDBY_REVEAL_0", "ECHO"] };
-        await StandbyTestDriver.AssertRevealRejected(state, command, ErrorCodes.UnsupportedCardBehavior, "optional cost");
+        await StandbyTestDriver.AssertRevealRejected(state, command, ErrorCodes.UnsupportedCardBehavior, "提莫不支持所选的额外费用。");
     }
 
     [Fact]
@@ -2159,7 +2159,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         var command = new RevealCardCommand("SHADOW", "OGN·197/298", [],
             "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "BATTLEFIELD:F");
         command = command with { OptionalCosts = ["STANDBY_REVEAL_0", "ECHO"] };
-        await StandbyTestDriver.AssertRevealRejected(state, command, ErrorCodes.UnsupportedCardBehavior, "optional cost");
+        await StandbyTestDriver.AssertRevealRejected(state, command, ErrorCodes.UnsupportedCardBehavior, "提莫不支持所选的额外费用。");
     }
 
     [Fact]
@@ -2373,7 +2373,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         var state = await StandbySourceRulesTests.ReadyShadow("OGN·057/298");
         var command = new RevealCardCommand("SHADOW", "OGN·057/298", ["SHADOW-OUTSIDE"],
             "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK");
-        await StandbyTestDriver.AssertRevealRejected(state, command, ErrorCodes.InvalidTarget, "target");
+        await StandbyTestDriver.AssertRevealRejected(state, command, ErrorCodes.InvalidTarget, "格挡需要选择 1 个单位作为目标。");
     }
 
     [Fact]

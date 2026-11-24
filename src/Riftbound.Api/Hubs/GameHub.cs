@@ -651,7 +651,7 @@ public sealed class GameHub(
         if (!result.Accepted)
         {
             var errorCode = result.ErrorCode ?? ErrorCodes.UnsupportedCommand;
-            var errorMessage = result.ErrorMessage ?? "command rejected";
+            var errorMessage = result.ErrorMessage ?? "当前无法执行这项行动。";
             await Clients.Caller.Error(new WsServerMessage(
                 MessageType.ERROR,
                 roomId,
@@ -912,12 +912,19 @@ public sealed class GameHub(
         var code = ex is MatchSessionException matchSessionException
             ? matchSessionException.Code
             : ErrorCodes.UnsupportedCommand;
+        var message = ex switch
+        {
+            MatchSessionException when code == ErrorCodes.RecoveryInconsistent => "这场对局暂时无法恢复。",
+            MatchSessionException => ex.Message,
+            ArgumentException => "请求参数无效。",
+            _ => "服务端暂时无法处理这项请求。"
+        };
         return Clients.Caller.Error(new WsServerMessage(
             MessageType.ERROR,
             roomId,
             playerId,
             serverTick,
-            new ErrorDto(code, ex.Message)));
+            new ErrorDto(code, message)));
     }
 
     private static CommandReceiptDto CommandReceipt(

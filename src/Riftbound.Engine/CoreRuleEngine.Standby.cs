@@ -73,7 +73,7 @@ public sealed partial class CoreRuleEngine
             || state.TurnPlayerId!=intent.PlayerId || state.StackItems.Count>0)
             return RejectWithCorePrompts(state,"待命埋伏只能在当前玩家的开放主阶段提交。",ErrorCodes.PhaseNotAllowed);
         if (!CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var behavior))
-            return RejectWithCorePrompts(state, $"暂不支持该牌的待命埋伏行为：{command.CardNo}", ErrorCodes.UnsupportedCardBehavior);
+            return RejectWithCorePrompts(state, "这张牌暂不支持待命布置。", ErrorCodes.UnsupportedCardBehavior);
         if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var ownZones)
             || !ownZones.Hand.Concat(ownZones.ChampionZone).Contains(command.SourceObjectId))
             return RejectWithCorePrompts(state, "待命埋伏只能选择自己手牌中的牌。", ErrorCodes.CardNotInHand);
@@ -138,7 +138,7 @@ public sealed partial class CoreRuleEngine
                 new Dictionary<string,object?> { ["mana"]=mana,["power"]=power,
                     ["standbyHideCostWaived"]=permission=="FREE", ["teemoStandbyHideReplacement"]=permission=="TEEMO",
                     ["recycledRuneObjectIds"]=recycledRunes.ToArray() })),
-            new("CARD_HIDDEN","在战场的待命区布置卡牌",new Dictionary<string,object?> {
+            new("CARD_HIDDEN",$"在{GameEventText.ObjectName(state, fieldId, "战场")}布置一张背面待命牌",new Dictionary<string,object?> {
                 ["playerId"]=intent.PlayerId,["sourceObjectId"]=source.ObjectId,["destination"]="BATTLEFIELD:"+fieldId,
                 ["destinationZone"]="BATTLEFIELD",["battlefieldObjectId"]=fieldId,["isFaceDown"]=true }) });
         var next=state with {Tick=state.Tick+1,PlayerZones=zones,CardObjects=cards,ObjectLocations=locations,

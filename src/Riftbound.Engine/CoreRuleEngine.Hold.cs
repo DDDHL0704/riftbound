@@ -206,7 +206,9 @@ public sealed partial class CoreRuleEngine
                     trigger = trigger with { TriggeredByEventKind = eventKind,
                         TimingAlias = CaptureTimingAlias(state, trigger.SourceObjectId, player, field,
                             frame?.CompletionTick ?? state.Tick, "HOLD", activation) };
-                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+                queue.Add(trigger);
+                var source = GameEventText.ObjectName(state, trigger.SourceObjectId, "卡牌");
+                events.Add(BuildTriggerQueuedEvent(trigger, $"{source}的据守技能触发"));
             }
         }
         if (frame is not null) frame.UnitEventOrdinal = unitEventOrdinal;
@@ -256,7 +258,7 @@ public sealed partial class CoreRuleEngine
             && (IsObjectOnField(zones, item.SourceObjectId) || zones[player].LegendZone.Contains(item.SourceObjectId));
         var resolvedTarget = HasHeldTargetConfirmation(item) ? HeldResolvedTarget(state, item) : null;
         if (HasHeldTargetConfirmation(item) && resolvedTarget is null) return Result();
-        events.Add(new("TRIGGER_RESOLVED", "据守技能结算", new Dictionary<string, object?> {
+        events.Add(new("TRIGGER_RESOLVED", $"{GameEventText.StackAction(state, item)}因据守结算", new Dictionary<string, object?> {
             ["triggerId"] = item.StackItemId, ["controllerId"] = player, ["sourceObjectId"] = visibleSource,
             ["effectKind"] = item.EffectKind, ["battlefieldObjectId"] = field }));
         switch (context.Kind)

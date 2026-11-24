@@ -138,32 +138,32 @@ public static class PaymentCostRules
     {
         if (string.IsNullOrWhiteSpace(plan.PlayerId))
         {
-            return new(false, "INVALID_PAYMENT_PLAN", "Payment plan requires a player id.");
+            return new(false, "INVALID_PAYMENT_PLAN", "无法确认负责支付费用的玩家。");
         }
 
         if (!currentPool.HasSupportedAmounts
             || !SupportedManaPurpose(plan.ManaPurpose)
             || !SupportedPowerPurpose(plan.PowerPurpose))
-            return new(false, "INVALID_PAYMENT_PLAN", "Unsupported resource amount or mana payment purpose.");
+            return new(false, "INVALID_PAYMENT_PLAN", "这笔费用的资源数量或支付用途无效。");
 
         if (AvailableMana(currentPool, plan.ManaPurpose, state) < plan.TotalManaCost
             || !CanPayPowerCost(currentPool, plan.GenericPowerCost, plan.PowerCostByTrait, plan.PowerPurpose))
         {
-            return new(false, "INSUFFICIENT_COST", "Not enough rune resources to pay the payment plan.");
+            return new(false, "INSUFFICIENT_COST", "法力或符能不足，无法支付费用。");
         }
 
         if (plan.PowerSourceSelection is { } selected
             && (!CanSpendPowerSources(currentPool, plan.PowerPurpose, selected, plan.GenericPowerCost)
                 || plan.PowerCostByTrait.Any(cost => cost.Value > currentPool.PowerByTrait.GetValueOrDefault(cost.Key))))
-            return new(false, "INVALID_PAYMENT_PLAN", "The selected wildcard power sources cannot pay this plan.");
+            return new(false, "INVALID_PAYMENT_PLAN", "所选符能来源无法支付这笔费用。");
 
         if (plan.ManaSourceSelection is { } selectedMana
             && !CanSpendManaSources(currentPool, plan.ManaPurpose, selectedMana, plan.TotalManaCost, state))
-            return new(false, "INVALID_PAYMENT_PLAN", "The selected mana sources cannot pay this plan.");
+            return new(false, "INVALID_PAYMENT_PLAN", "所选法力来源无法支付这笔费用。");
 
         if (currentExperience < plan.ExperienceCost)
         {
-            return new(false, "INSUFFICIENT_COST", "Not enough experience to pay the payment plan.");
+            return new(false, "INSUFFICIENT_COST", "经验不足，无法支付费用。");
         }
 
         return new(true);
