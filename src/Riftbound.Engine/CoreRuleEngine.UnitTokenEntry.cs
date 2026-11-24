@@ -54,7 +54,7 @@ public sealed partial class CoreRuleEngine
                 ["tokenTags"] = token.Tags.ToArray(), ["isExhausted"] = token.IsExhausted, ["azirTempered"] = token.Tags.Contains(CardEquipmentKeywordNames.Tempered) };
             AddEntryStaticAbilityPayload(payload, ready ? staticAbility : null, staticSourceId, staticSource.CardNo);
             AddTokenHastePayload(payload, hastePaid);
-            events.Add(CaptureUnitEntry(new("UNIT_TOKEN_CREATED", $"{(visibleSource == "HIDDEN" ? "技能" : visibleSource)}打出{actualFactory.TokenFamilyName}", payload), zones, cards, state.UntilEndOfTurnEffects));
+            events.Add(CaptureUnitEntry(new("UNIT_TOKEN_CREATED", $"{GameEventText.ObjectName(state, item.SourceObjectId, "技能")}打出{actualFactory.TokenFamilyName}", payload), zones, cards, state.UntilEndOfTurnEffects));
         }
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
             ObjectLocations = ReconcileObjectLocations(locations, zones), Events = events };

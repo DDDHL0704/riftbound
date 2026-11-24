@@ -380,7 +380,7 @@ public sealed partial class CoreRuleEngine
                     ["trigger"] = item.EffectKind, ["sourceObjectId"] = item.SourceObjectId,
                     ["returnedObjectId"] = item.SourceObjectId, ["ownerPlayerId"] = ownerId,
                     ["paymentId"] = payment.PaymentId, ["paymentWindow"] = payment.PaymentWindow }));
-            events.Add(new("UNIT_RETURNED_TO_HAND", $"{item.SourceObjectId} 返回手牌",
+            events.Add(new("UNIT_RETURNED_TO_HAND", $"{GameEventText.ObjectName(state, item.SourceObjectId, "一名单位")}返回手牌",
                 new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId,
                     ["targetObjectId"] = item.SourceObjectId, ["ownerPlayerId"] = ownerId, ["reason"] = item.EffectKind }));
         }

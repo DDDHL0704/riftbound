@@ -5393,7 +5393,7 @@ public sealed class OfficialOpeningTests
                 return SnapshotOnlyBasicRawCommand(CommandTypes.PlayCard, prompt.SnapshotTick.Value);
             },
             ErrorCodes.UnsupportedCardBehavior,
-            "Unsupported card behavior or mode: MISSING-CARD ");
+            "这张牌或所选模式暂不支持打出。");
     }
 
     private static async Task AssertPlayCardFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
@@ -6807,7 +6807,7 @@ public sealed class OfficialOpeningTests
                 return SnapshotOnlyBasicRawCommand(CommandTypes.PayCost, prompt.SnapshotTick.Value);
             },
             ErrorCodes.PhaseNotAllowed,
-            "当前没有服务端支付窗口可处理 PAY_COST。");
+            "当前没有待支付的费用。");
     }
 
     [Fact]
@@ -6837,7 +6837,7 @@ public sealed class OfficialOpeningTests
                 return SnapshotOnlyBasicRawCommand(CommandTypes.AssignCombatDamage, prompt.SnapshotTick.Value);
             },
             ErrorCodes.InvalidPayload,
-            "ASSIGN_COMBAT_DAMAGE 需要 battleId、battlefieldId 与非空 assignments。");
+            "请确认战场并分配战斗伤害。");
     }
 
     [Fact]
@@ -6867,7 +6867,7 @@ public sealed class OfficialOpeningTests
                 return SnapshotOnlyBasicRawCommand(CommandTypes.OrderTriggers, prompt.SnapshotTick.Value);
             },
             ErrorCodes.InvalidPayload,
-            "ORDER_TRIGGERS 需要非空且不重复的 orderedTriggerIds。");
+            "请至少选择一个触发技能，同一技能只能选择一次。");
     }
 
     [Fact]
@@ -6897,7 +6897,7 @@ public sealed class OfficialOpeningTests
                 return SnapshotOnlyBasicRawCommand(CommandTypes.ChooseHandCards, prompt.SnapshotTick.Value);
             },
             ErrorCodes.PhaseNotAllowed,
-            "当前没有服务端手牌选择窗口可处理 CHOOSE_HAND_CARDS。");
+            "当前无需选择手牌。");
     }
 
     private static async Task AssertGenericCommandFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
@@ -10068,7 +10068,7 @@ public sealed class OfficialOpeningTests
             "wrong-player-first-turn-play-card-snapshot",
             firstTurnPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.PlayCard, firstTurnPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.UnsupportedCardBehavior,
-            "Unsupported card behavior or mode: missing-card ");
+            "这张牌或所选模式暂不支持打出。");
     }
 
     [Fact]
@@ -10628,7 +10628,7 @@ public sealed class OfficialOpeningTests
             "wrong-player-first-turn-pay-cost-snapshot",
             firstTurnPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.PayCost, firstTurnPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.PhaseNotAllowed,
-            "当前没有服务端支付窗口可处理 PAY_COST。");
+            "当前没有待支付的费用。");
     }
 
     [Fact]
@@ -10661,7 +10661,7 @@ public sealed class OfficialOpeningTests
             "wrong-player-first-turn-assign-combat-damage-snapshot",
             firstTurnPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.AssignCombatDamage, firstTurnPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.InvalidPayload,
-            "ASSIGN_COMBAT_DAMAGE 需要 battleId、battlefieldId 与非空 assignments。");
+            "请确认战场并分配战斗伤害。");
     }
 
     [Fact]
@@ -10694,7 +10694,7 @@ public sealed class OfficialOpeningTests
             "wrong-player-first-turn-order-triggers-snapshot",
             firstTurnPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.OrderTriggers, firstTurnPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.InvalidPayload,
-            "ORDER_TRIGGERS 需要非空且不重复的 orderedTriggerIds。");
+            "请至少选择一个触发技能，同一技能只能选择一次。");
     }
 
     [Fact]
@@ -10727,7 +10727,7 @@ public sealed class OfficialOpeningTests
             "wrong-player-first-turn-choose-hand-cards-snapshot",
             firstTurnPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.ChooseHandCards, firstTurnPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.PhaseNotAllowed,
-            "当前没有服务端手牌选择窗口可处理 CHOOSE_HAND_CARDS。");
+            "当前无需选择手牌。");
     }
 
     [Fact]
@@ -12859,7 +12859,7 @@ public sealed class OfficialOpeningTests
             "active-player-first-turn-play-card-with-opposite-wait-snapshot",
             waitPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.PlayCard, waitPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.UnsupportedCardBehavior,
-            "Unsupported card behavior or mode: missing-card ");
+            "这张牌或所选模式暂不支持打出。");
     }
 
     [Fact]
@@ -13123,7 +13123,7 @@ public sealed class OfficialOpeningTests
             "active-player-first-turn-pay-cost-with-opposite-wait-snapshot",
             waitPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.PayCost, waitPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.PhaseNotAllowed,
-            "当前没有服务端支付窗口可处理 PAY_COST。");
+            "当前没有待支付的费用。");
     }
 
     [Fact]
@@ -13156,7 +13156,7 @@ public sealed class OfficialOpeningTests
             "active-player-first-turn-assign-combat-damage-with-opposite-wait-snapshot",
             waitPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.AssignCombatDamage, waitPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.InvalidPayload,
-            "ASSIGN_COMBAT_DAMAGE 需要 battleId、battlefieldId 与非空 assignments。");
+            "请确认战场并分配战斗伤害。");
     }
 
     [Fact]
@@ -13189,7 +13189,7 @@ public sealed class OfficialOpeningTests
             "active-player-first-turn-order-triggers-with-opposite-wait-snapshot",
             waitPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.OrderTriggers, waitPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.InvalidPayload,
-            "ORDER_TRIGGERS 需要非空且不重复的 orderedTriggerIds。");
+            "请至少选择一个触发技能，同一技能只能选择一次。");
     }
 
     [Fact]
@@ -13222,7 +13222,7 @@ public sealed class OfficialOpeningTests
             "active-player-first-turn-choose-hand-cards-with-opposite-wait-snapshot",
             waitPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.ChooseHandCards, waitPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.PhaseNotAllowed,
-            "当前没有服务端手牌选择窗口可处理 CHOOSE_HAND_CARDS。");
+            "当前无需选择手牌。");
     }
 
     [Fact]
@@ -15179,7 +15179,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.UnsupportedCardBehavior, "Unsupported card behavior or mode: missing-card ");
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.UnsupportedCardBehavior, "这张牌或所选模式暂不支持打出。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15612,7 +15612,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "当前没有服务端支付窗口可处理 PAY_COST。");
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "当前没有待支付的费用。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15668,7 +15668,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.InvalidPayload, "ASSIGN_COMBAT_DAMAGE 需要 battleId、battlefieldId 与非空 assignments。");
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.InvalidPayload, "请确认战场并分配战斗伤害。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15724,7 +15724,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.InvalidPayload, "ORDER_TRIGGERS 需要非空且不重复的 orderedTriggerIds。");
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.InvalidPayload, "请至少选择一个触发技能，同一技能只能选择一次。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15780,7 +15780,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "当前没有服务端手牌选择窗口可处理 CHOOSE_HAND_CARDS。");
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "当前无需选择手牌。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);

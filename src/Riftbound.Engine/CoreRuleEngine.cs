@@ -542,7 +542,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "PAY_COST 需要 paymentId、paymentWindow 与 paymentChoiceIds。",
+                "支付费用的信息不完整，请重新选择。",
                 ErrorCodes.InvalidPayload);
         }
 
@@ -560,7 +560,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return RejectWithCorePrompts(
             state,
-            "当前没有服务端支付窗口可处理 PAY_COST。",
+            "当前没有待支付的费用。",
             ErrorCodes.PhaseNotAllowed);
     }
 
@@ -576,7 +576,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "只有当前支付玩家可以提交 PAY_COST。",
+                "请等待负责支付费用的玩家。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -585,7 +585,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "PAY_COST 与当前服务端支付窗口不匹配。",
+                "费用已变更，请重新选择。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -645,7 +645,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "PAY_COST 包含非法支付选项。",
+                "所选支付方式无效。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -660,7 +660,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "PAY_COST 包含非法支付资源动作。",
+                "所选资源动作无法用于本次支付。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -670,7 +670,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "PAY_COST 包含非法支付资源动作。",
+                "所选资源动作无法用于本次支付。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -717,7 +717,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         var events = paymentEvents
             .Concat([
-                new GameEvent("COST_PAID", $"{intent.PlayerId} 完成服务端支付窗口",
+                new GameEvent("COST_PAID", $"{intent.PlayerId} 完成费用支付",
                     PaymentCostRules.BuildCostPaidPayload(paymentPlan, paymentCommit.RunePools, null,
                         new Dictionary<string, object?> {
                             ["mana"] = pendingPayment.ManaCost,
@@ -757,7 +757,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "PAY_COST 包含非法触发支付选项。",
+                "所选支付方式无法用于这个触发技能。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -772,7 +772,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "PAY_COST 包含非法触发支付选项。",
+                "所选支付方式无法用于这个触发技能。",
                 ErrorCodes.InvalidTarget);
         }
         var legalPaymentResourceActions = pendingPayment.PaymentResourceActionIds
@@ -793,7 +793,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "PAY_COST 包含非法触发支付选项。",
+                "所选支付方式无法用于这个触发技能。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -804,7 +804,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "PAY_COST 包含非法触发支付选项。",
+                "所选支付方式无法用于这个触发技能。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -1087,7 +1087,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
         if (wasExhausted)
-            events.Add(new("LEGEND_READIED", $"{legendObjectId} 变为活跃状态",
+            events.Add(new("LEGEND_READIED", $"{GameEventText.ObjectName(state, legendObjectId, "传奇")}变为活跃状态",
                 new Dictionary<string, object?> {
                     ["playerId"] = intent.PlayerId,
                     ["sourceObjectId"] = legendObjectId,
@@ -1233,7 +1233,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }),
             new(
                 "UNIT_RETURNED_TO_HAND",
-                $"{returnedObjectId} 返回手牌",
+                $"{GameEventText.ObjectName(state, returnedObjectId, "一名单位")}返回手牌",
                 new Dictionary<string, object?>
                 {
                     ["sourceObjectId"] = battlefieldObjectId,
@@ -1279,7 +1279,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entryStaticAbilitySourceState.CardNo);
         if (canCreateToken) events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_TOKEN_CREATED",
-            $"{battlefieldObjectId} 打出黄沙士兵",
+            $"{GameEventText.ObjectName(playerZones, cardObjects, battlefieldObjectId, "技能")}打出黄沙士兵",
             tokenPayload), playerZones, cardObjects, state.UntilEndOfTurnEffects));
         else events.Add(PreventedUnitPlay(intent.PlayerId, battlefieldObjectId, "BATTLEFIELD:" + battlefieldObjectId));
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
@@ -1373,7 +1373,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }),
             new(
                 "UNIT_RETURNED_TO_HAND",
-                $"{sourceObjectId} 返回手牌",
+                $"{GameEventText.ObjectName(state, sourceObjectId, "一名单位")}返回手牌",
                 new Dictionary<string, object?>
                 {
                     ["sourceObjectId"] = sourceObjectId,
@@ -1497,7 +1497,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }),
             new(
                 "POWER_MODIFIED_UNTIL_END_OF_TURN",
-                $"{targetObjectId} 因冰谷弓箭手本回合内战力 -1",
+                $"{GameEventText.ObjectName(state, targetObjectId, "一名单位")}受冰谷弓箭手影响，本回合战力 -1",
                 new Dictionary<string, object?>
                 {
                     ["sourceObjectId"] = sourceObjectId,
@@ -1956,7 +1956,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "ASSIGN_COMBAT_DAMAGE 需要 battleId、battlefieldId 与非空 assignments。",
+                "请确认战场并分配战斗伤害。",
                 ErrorCodes.InvalidPayload);
         }
 
@@ -1976,7 +1976,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "只有当前战斗伤害分配玩家可以提交 ASSIGN_COMBAT_DAMAGE。",
+                "请等待负责分配战斗伤害的玩家。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -2299,7 +2299,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || !damagePool.ContainsKey(assignment.TargetObjectId)
                 || !legalTargets.TryGetValue(assignment.SourceObjectId, out var targets)
                 || !targets.Contains(assignment.TargetObjectId, StringComparer.Ordinal))
-                return Reject(ErrorCodes.InvalidTarget, "ASSIGN_COMBAT_DAMAGE 只能将当前玩家的战斗伤害分配给敌方战斗参与者。");
+                return Reject(ErrorCodes.InvalidTarget, "只能对参加这场战斗的敌方单位分配伤害。");
             if (assignment.Damage <= 0)
                 return Reject(ErrorCodes.InvalidPayload, "战斗伤害分配量必须为正整数。");
             sourceTotals[assignment.SourceObjectId] = sourceTotals.GetValueOrDefault(assignment.SourceObjectId) + assignment.Damage;
@@ -2307,7 +2307,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         foreach (var source in requiredSources)
             if (sourceTotals.GetValueOrDefault(source) != damagePool.GetValueOrDefault(source))
-                return Reject(ErrorCodes.InvalidPayload, "ASSIGN_COMBAT_DAMAGE 必须完整分配当前玩家每个伤害源的战斗伤害池。");
+                return Reject(ErrorCodes.InvalidPayload, "请分配每个己方伤害来源的全部战斗伤害。");
 
         foreach (var side in new[] { battle.AttackerObjectIds, battle.DefenderObjectIds })
         {
@@ -2776,7 +2776,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "ORDER_TRIGGERS 需要非空且不重复的 orderedTriggerIds。",
+                "请至少选择一个触发技能，同一技能只能选择一次。",
                 ErrorCodes.InvalidPayload);
         }
 
@@ -2794,7 +2794,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "只有当前 APNAP 排序玩家可以排序触发队列。",
+                "请等待负责排列触发技能的玩家。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -2802,7 +2802,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "ORDER_TRIGGERS 必须提交完整触发队列顺序。",
+                "请排列本次全部待排序的触发技能。",
                 ErrorCodes.InvalidPayload);
         }
 
@@ -2815,7 +2815,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "ORDER_TRIGGERS 包含非法触发编号。",
+                "所选技能不在本次待排序的触发技能中。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -2823,7 +2823,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "ORDER_TRIGGERS 必须提交完整触发队列顺序。",
+                "请排列本次全部待排序的触发技能。",
                 ErrorCodes.InvalidPayload);
         }
 
@@ -3055,7 +3055,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "CHOOSE_HAND_CARDS 需要 choiceId、choiceWindow 与 chosenObjectIds。",
+                "手牌选择信息不完整，请重新选择。",
                 ErrorCodes.InvalidPayload);
         }
 
@@ -3064,7 +3064,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "当前没有服务端手牌选择窗口可处理 CHOOSE_HAND_CARDS。",
+                "当前无需选择手牌。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -3072,7 +3072,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "只有当前选择玩家可以提交 CHOOSE_HAND_CARDS。",
+                "请等待负责选择手牌的玩家。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -3081,7 +3081,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "CHOOSE_HAND_CARDS 与当前服务端手牌选择窗口不匹配。",
+                "当前的手牌选择已变更，请重新选择。",
                 ErrorCodes.PromptExpired);
         }
 
@@ -3107,7 +3107,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "CHOOSE_HAND_CARDS 提交数量或重复项非法。",
+                "所选手牌数量不符，或有重复选择。",
                 ErrorCodes.InvalidPayload);
         }
 
@@ -3121,7 +3121,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "CHOOSE_HAND_CARDS 包含非法手牌对象。",
+                "选中的手牌不符合条件。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3151,7 +3151,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 return RejectWithCorePrompts(
                     state,
-                    "CHOOSE_HAND_CARDS 包含非法手牌对象。",
+                    "选中的手牌不符合条件。",
                     ErrorCodes.InvalidTarget);
             }
 
@@ -3289,7 +3289,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "CHOOSE_CARDS 需要 choiceId、choiceWindow 与 chosenObjectIds。",
+                "卡牌选择信息不完整，请重新选择。",
                 ErrorCodes.InvalidPayload);
         }
 
@@ -3298,7 +3298,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "当前没有服务端卡牌选择窗口可处理 CHOOSE_CARDS。",
+                "当前无需选择卡牌。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -3306,7 +3306,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "只有当前选择玩家可以提交 CHOOSE_CARDS。",
+                "请等待负责选择卡牌的玩家。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -3315,7 +3315,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "CHOOSE_CARDS 与当前服务端卡牌选择窗口不匹配。",
+                "当前的卡牌选择已变更，请重新选择。",
                 ErrorCodes.PromptExpired);
         }
 
@@ -3331,7 +3331,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "CHOOSE_CARDS 提交数量或重复项非法。",
+                "所选卡牌数量不符，或有重复选择。",
                 ErrorCodes.InvalidPayload);
         }
 
@@ -3340,7 +3340,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "CHOOSE_CARDS 包含非法卡牌对象。",
+                "选中的卡牌不符合条件。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3907,7 +3907,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playPaidPayload["unitOrEquipmentPlayOnlyPowerSpent"] = permanentPlayOnlyBeforePayment - remaining;
             playPaidPayload["remainingUnitOrEquipmentPlayOnlyPower"] = remaining;
         }
-        events.Add(new GameEvent("COST_PAID", $"{intent.PlayerId} 支付 {plan.TotalManaCost} 点费用", playPaidPayload));
+        events.Add(new GameEvent("COST_PAID", $"{intent.PlayerId} 支付出牌费用（{plan.TotalManaCost} 点法力）", playPaidPayload));
         if (battlefieldNextSpellEchoConsumed)
         {
             events.Add(new GameEvent(
@@ -4231,7 +4231,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                paymentAuthorization.Reason ?? $"Not enough resources to assemble {assembleProfile.DisplayName}.",
+                paymentAuthorization.Reason ?? $"资源不足，无法装配{assembleProfile.DisplayName}。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -4243,7 +4243,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                paymentCommit.ErrorMessage ?? $"Not enough resources to assemble {assembleProfile.DisplayName}.",
+                paymentCommit.ErrorMessage ?? $"资源不足，无法装配{assembleProfile.DisplayName}。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -5320,6 +5320,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
 
     private static GameEvent BuildTriggerQueuedEvent(TriggerQueueItemState trigger)
+        => BuildTriggerQueuedEvent(trigger, "触发能力加入队列");
+
+    private static GameEvent BuildTriggerQueuedEvent(TriggerQueueItemState trigger, string description)
     {
         var payload = new Dictionary<string, object?>
         {
@@ -5398,7 +5401,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return new GameEvent(
             "TRIGGER_QUEUED",
-            "触发能力加入队列",
+            description,
             payload);
     }
 
@@ -7452,7 +7455,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }),
             new(
                 "UNIT_EXHAUSTED",
-                $"{command.SourceObjectId} 横置",
+                $"{GameEventText.ObjectName(state, command.SourceObjectId, "一张牌")}横置",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
@@ -7538,7 +7541,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"{ability.DisplayName} requires {ability.RequiredTargetCount} target(s).",
+                $"{ability.DisplayName}需要选择 {ability.RequiredTargetCount} 个目标。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7567,9 +7570,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                string.IsNullOrWhiteSpace(requiredCostToken)
-                    ? $"{ability.DisplayName} does not accept optional costs."
-                    : $"{ability.DisplayName} requires {requiredCostToken}.",
+                graveyardBanishCostId is not null
+                    ? "请只选择一张符合要求的废牌来支付技能费用。"
+                    : string.IsNullOrWhiteSpace(requiredCostToken)
+                        ? $"{ability.DisplayName}没有可选费用。"
+                        : requiredCostToken == requiredManaCostToken
+                            ? $"{ability.DisplayName}需要支付 {manaCost} 点法力。"
+                            : $"{ability.DisplayName}需要支付规定的技能费用。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -7625,7 +7632,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"{ability.DisplayName} requires the controller to have played another card this turn.",
+                $"本回合打出另一张牌后，才能发动{ability.DisplayName}。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -7634,7 +7641,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"{ability.DisplayName} requires the controller to have played an armament this turn.",
+                $"本回合打出过武装后，才能发动{ability.DisplayName}。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -7643,7 +7650,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"{ability.DisplayName} requires two enemy unit or equipment targets from spells or unit skills this turn.",
+                $"本回合需用法术或单位技能指定过两个敌方单位或装备，才能发动{ability.DisplayName}。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -7652,7 +7659,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"{ability.DisplayName} target must be an owned Teemo unit in the champion zone or on the field.",
+                $"{ability.DisplayName}需要选择一名属于你的提莫，且该单位在英雄区或场上。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7661,7 +7668,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"{ability.DisplayName} target must satisfy its implemented legend target restrictions.",
+                $"请选择符合{ability.DisplayName}要求的单位。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7685,7 +7692,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"{ability.DisplayName} equipment target must satisfy its implemented legend target restrictions.",
+                $"请选择符合{ability.DisplayName}要求的装备。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7740,7 +7747,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"Not enough mana to activate {ability.DisplayName}.",
+                $"法力不足，无法发动{ability.DisplayName}。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -7751,7 +7758,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"Not enough experience to activate {ability.DisplayName}.",
+                $"经验不足，无法发动{ability.DisplayName}。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -7759,7 +7766,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                paymentAuthorization.Reason ?? $"Not enough resources to activate {ability.DisplayName}.",
+                paymentAuthorization.Reason ?? $"资源不足，无法发动{ability.DisplayName}。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -7783,7 +7790,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                paymentCommit.ErrorMessage ?? $"Not enough resources to activate {ability.DisplayName}.",
+                paymentCommit.ErrorMessage ?? $"资源不足，无法发动{ability.DisplayName}。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -7838,7 +7845,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         events.Add(
             new(
                 "LEGEND_EXHAUSTED",
-                $"{command.SourceObjectId} 横置",
+                $"{GameEventText.ObjectName(state, command.SourceObjectId, "一张牌")}横置",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
@@ -8590,7 +8597,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects[targetObjectId] = granted;
         events.Add(new GameEvent(
             "BOON_GRANTED",
-            $"{targetObjectId} 获得增益",
+            $"{GameEventText.ObjectName(playerZones, cardObjects, targetObjectId, "一名单位")}获得增益",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
@@ -8622,7 +8629,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         events.Add(new GameEvent(
             "ROAM_GRANTED",
-            $"{targetObjectId} 本回合获得游走",
+            "一名单位本回合获得游走",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
@@ -8819,7 +8826,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entryStaticAbilitySourceState.CardNo);
         events.Add(CaptureEquipmentPlayed(new GameEvent(
             "EQUIPMENT_TOKEN_CREATED",
-            $"{publicSourceObjectId ?? sourceObjectId} 打出装备指示物",
+            $"{GameEventText.ObjectName(playerZones, cardObjects, publicSourceObjectId ?? sourceObjectId, "技能")}打出{tokenName}",
             payload), playerZones, cardObjects, tokenState, playerId));
     }
 
@@ -9945,9 +9952,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var sourceState = cardObjects[sourceObjectId];
             var effectKind = sourceBehavior.SourcePowerOnControllerStandbyHiddenEffectKind;
             var powerDelta = sourceBehavior.SourcePowerOnControllerStandbyHiddenAmount;
-            var sourceDisplayName = string.IsNullOrWhiteSpace(sourceBehavior.DisplayName)
-                ? sourceObjectId
-                : sourceBehavior.DisplayName;
+            var sourceDisplayName = GameEventText.ObjectName(playerZones, cardObjects, sourceObjectId, "卡牌");
             var nextSourceState = ApplyDirectUntilEndPowerModifier(
                 sourceState,
                 sourceObjectId,
@@ -9972,7 +9977,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }));
             events.Add(new GameEvent(
                 "POWER_MODIFIED_UNTIL_END_OF_TURN",
-                $"{sourceObjectId} 本回合战力 +2",
+                $"{sourceDisplayName}本回合战力 +{powerDelta}",
                 new Dictionary<string, object?>
                 {
                     ["sourceObjectId"] = sourceObjectId,
@@ -12755,7 +12760,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
             events.Add(new GameEvent(
                 "UNIT_RECALLED_TO_BASE",
-                $"{attackerObjectId} 因战斗清理召回基地",
+                $"{GameEventText.ObjectName(playerZones, cardObjects, attackerObjectId, "一名单位")}在战斗结束后被召回基地",
                 new Dictionary<string, object?>
                 {
                     ["battlefieldId"] = battlefieldId,
@@ -14677,7 +14682,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         events.Add(CaptureSelfReady(new GameEvent(
             "UNIT_READIED",
-            $"{targetObjectId} 变为活跃状态",
+            $"{GameEventText.ObjectName(playerZones, cardObjects, targetObjectId, "一名单位")}变为活跃状态",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
@@ -15179,7 +15184,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 events.Add(new GameEvent(
                     "SCORE_GAINED",
-                    $"{unitObjectId} 的征服效果让 {playerId} 获得 {scoreAmount} 分",
+                    $"{GameEventText.ObjectName(playerZones, cardObjects, unitObjectId, "一名单位")}的征服效果让 {playerId} 获得 {scoreAmount} 分",
                     new Dictionary<string, object?>
                     {
                         ["playerId"] = playerId,
@@ -15325,7 +15330,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         events.Add(new GameEvent(
             "UNIT_CONQUEST_EFFECT_ACTIVATED",
-            $"{unitObjectId} 的征服效果已激活",
+            "单位的征服技能已激活",
             payload));
     }
 
@@ -15580,7 +15585,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }));
         events.Add(new GameEvent(
             "UNIT_MOVED_TO_BASE",
-            $"{targetObjectId} 因战场防守触发移动到基地",
+            $"{GameEventText.ObjectName(playerZones, cardObjects, targetObjectId, "一名单位")}因防守技能移动到基地",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
@@ -15659,7 +15664,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 entryStaticAbilitySourceState.CardNo);
             events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_TOKEN_CREATED",
-                $"{battlefieldObjectId} 打出{entryDefinition.TokenFamilyName}",
+                $"{GameEventText.ObjectName(playerZones, cardObjects, battlefieldObjectId, "技能")}打出{entryDefinition.TokenFamilyName}",
                 payload), playerZones, cardObjects, turnEffects));
         }
     }
@@ -16065,7 +16070,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }));
         events.Add(CaptureBoonConsumption(new GameEvent(
             "BOON_CONSUMED",
-            $"{targetObjectId} 因征服战场消耗增益",
+            $"{GameEventText.ObjectName(state, targetObjectId, "一名单位")}因征服技能消耗增益",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
@@ -16661,7 +16666,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }));
         if (canReady) events.Add(CaptureSelfReady(new GameEvent(
             "EQUIPMENT_READIED",
-            $"{equipmentObjectId} 变为活跃状态",
+            $"{GameEventText.ObjectName(playerZones, cardObjects, equipmentObjectId, "一件装备")}变为活跃状态",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
@@ -16674,7 +16679,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             events.Add(new GameEvent(
                 "EQUIPMENT_DETACHED",
-                $"{equipmentObjectId} 从单位卸除",
+                $"{GameEventText.ObjectName(playerZones, cardObjects, equipmentObjectId, "一件装备")}从单位卸下",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
@@ -16775,7 +16780,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entryStaticAbilitySourceState.CardNo);
         events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_TOKEN_CREATED",
-            $"{battlefieldObjectId} 打出战鹰",
+            $"{GameEventText.ObjectName(playerZones, cardObjects, battlefieldObjectId, "技能")}打出战鹰",
             tokenPayload), playerZones, cardObjects, turnEffects));
         return true;
     }
@@ -16833,7 +16838,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entryStaticAbilitySourceState.CardNo);
         events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_TOKEN_CREATED",
-            $"{sourceObjectId} 打出战鹰",
+            $"{GameEventText.ObjectName(playerZones, cardObjects, sourceObjectId, "技能")}打出战鹰",
             payload), playerZones, cardObjects, turnEffects));
     }
 
@@ -17501,7 +17506,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"Unsupported card behavior or mode: {command.CardNo} {command.Mode}",
+                "这张牌或所选模式暂不支持打出。",
                 ErrorCodes.UnsupportedCardBehavior);
             return false;
         }
@@ -17551,7 +17556,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                "PLAY_CARD source is already pending on the stack.",
+                "这张牌已在结算链中。",
                 ErrorCodes.PhaseNotAllowed);
             return false;
         }
@@ -17715,7 +17720,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires {DescribeTargetCount(state, intent.PlayerId, behavior, command.SourceObjectId)} {DescribeTargetScope(targetScope)} target(s).",
+                $"{behavior.DisplayName}需要选择 {DescribeTargetCount(state, intent.PlayerId, behavior, command.SourceObjectId)} {DescribeTargetScope(targetScope)}。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -17745,12 +17750,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (!ManaSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutManaSpend, out var manaSpend))
         {
-            rejection = Reject(state, "Invalid actual mana source selection.", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, "所选法力来源无效。", ErrorCodes.InvalidTarget);
             return false;
         }
         if (!PlayPowerSpendSelectionRules.TryExtract(costsWithoutManaSpend, out var costsWithoutPowerSpend, out var powerSpend))
         {
-            rejection = Reject(state, "Invalid actual power spend selection.", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, "所选符能来源无效。", ErrorCodes.InvalidTarget);
             return false;
         }
         if (!VariableAdditionalPowerCostRules.TryExtract(costsWithoutPowerSpend,
@@ -17798,7 +17803,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Where(cost => cost.StartsWith(PrintedPowerCostRules.ChoicePrefix, StringComparison.Ordinal)).ToArray();
         if (printedPowerChoices.Length > 1)
         {
-            rejection = Reject(state, "Choose one printed power allocation.", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, "请选择一种卡面符能支付方式。", ErrorCodes.InvalidTarget);
             return false;
         }
         normalizedCommandOptionalCosts = normalizedCommandOptionalCosts
@@ -17832,7 +17837,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"Unsupported payment resource action for {behavior.DisplayName}.",
+                $"{behavior.DisplayName}不能用所选的资源动作来支付费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -17900,7 +17905,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"Unsupported optional cost for {behavior.DisplayName}.",
+                $"{behavior.DisplayName}不支持所选的额外费用。",
                 ErrorCodes.UnsupportedCardBehavior);
             return false;
         }
@@ -17916,7 +17921,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires its optional target only when its additional cost is paid.",
+                $"只有支付额外费用时，才可为{behavior.DisplayName}选择额外目标。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -17926,7 +17931,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly unit as an additional cost.",
+                $"{behavior.DisplayName}需要选择一名友方单位来支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -17936,7 +17941,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly powerful unit as an additional cost.",
+                $"{behavior.DisplayName}需要选择一名拥有强力的友方单位来支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -17946,7 +17951,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly Bird, Cat, Dog, or Poro unit as an additional cost.",
+                $"{behavior.DisplayName}需要选择一名友方鸟、猫、狗或魄罗来支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -17956,7 +17961,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly equipment as an additional cost.",
+                $"{behavior.DisplayName}需要选择一件友方装备来支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -17964,7 +17969,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.RequiresReturnFriendlyUnitAdditionalCost
             && returnedAdditionalCostTargetObjectIds.Count != 1)
         {
-            rejection = Reject(state, $"{behavior.DisplayName} requires a friendly unit returned as an additional cost.", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, $"{behavior.DisplayName}需要将一名友方单位返回手牌作为额外费用。", ErrorCodes.InvalidTarget);
             return false;
         }
 
@@ -17981,7 +17986,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires an active friendly unit for its optional cost.",
+                $"{behavior.DisplayName}需要选择一名活跃的友方单位来支付可选费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18007,7 +18012,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly unit as an additional cost.",
+                $"{behavior.DisplayName}需要选择一名友方单位来支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18018,7 +18023,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly powerful unit as an additional cost.",
+                $"{behavior.DisplayName}需要选择一名拥有强力的友方单位来支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18029,7 +18034,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly Bird, Cat, Dog, or Poro unit as an additional cost.",
+                $"{behavior.DisplayName}需要选择一名友方鸟、猫、狗或魄罗来支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18040,7 +18045,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly equipment as an additional cost.",
+                $"{behavior.DisplayName}需要选择一件友方装备来支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18049,7 +18054,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && returnedAdditionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanReturnFriendlyUnitAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
         {
-            rejection = Reject(state, $"{behavior.DisplayName} requires a visible friendly field unit returned as an additional cost.", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, $"{behavior.DisplayName}需要将场上一名正面朝上的友方单位返回手牌作为额外费用。", ErrorCodes.InvalidTarget);
             return false;
         }
 
@@ -18091,7 +18096,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a graveyard unit whose mana and power costs do not exceed those of the destroyed unit.",
+                $"{behavior.DisplayName}需要选择废牌堆中的一名单位，法力和符能费用都不能超过被摧毁的单位。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18101,7 +18106,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a different hand card for its optional cost.",
+                $"{behavior.DisplayName}需要选择另一张手牌来支付可选费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18784,9 +18789,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, ProjectionViewers.Spectator)).ToArray()
                 };
             if (highCostSkillObservers.Length > 0) resolvedPayload[HighCostSkillCaptureKey] = highCostSkillObservers;
-            var completionEvent = new GameEvent(
-                confirmPermanent ? "PERMANENT_CONFIRMED" : stackResolution.PendingCardChoice is not null || stackResolution.PendingPayment?.ResolvingStackItemId is not null ? "STACK_ITEM_SUSPENDED" : stackResolution.PendingEffectPlay is not null ? "EFFECT_PLAY_REQUESTED" : "STACK_ITEM_RESOLVED",
-                confirmPermanent ? "常驻牌完成确认并入场" : $"{resolvedItem.StackItemId} 结算", resolvedPayload);
+            var completionKind = confirmPermanent ? "PERMANENT_CONFIRMED"
+                : stackResolution.PendingCardChoice is not null || stackResolution.PendingPayment?.ResolvingStackItemId is not null
+                    ? "STACK_ITEM_SUSPENDED"
+                    : stackResolution.PendingEffectPlay is not null ? "EFFECT_PLAY_REQUESTED" : "STACK_ITEM_RESOLVED";
+            var completionText = completionKind switch
+            {
+                "PERMANENT_CONFIRMED" => $"{GameEventText.ObjectName(state, resolvedItem.SourceObjectId, "常驻牌")}确认入场",
+                "STACK_ITEM_SUSPENDED" => $"{GameEventText.StackAction(state, resolvedItem)}等待选择后继续结算",
+                "EFFECT_PLAY_REQUESTED" => $"{GameEventText.StackAction(state, resolvedItem)}等待再次打出卡牌",
+                _ => $"{GameEventText.StackAction(state, resolvedItem)}结算"
+            };
+            var completionEvent = new GameEvent(completionKind, completionText, resolvedPayload);
             events.Add(equipmentSkillCompletionCaptured
                 ? WithEquipmentSkillCompletion(completionEvent, nextState.Status == MatchStatuses.InProgress
                     ? equipmentSkillObservers : []) : completionEvent);
@@ -19967,7 +19981,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }),
             new GameEvent(
                 "POWER_MODIFIED_UNTIL_END_OF_TURN",
-                $"{targetObjectId} 本回合战力 +1",
+                $"{GameEventText.ObjectName(playerZones, cardObjects, targetObjectId, "一名单位")}本回合战力 +1",
                 new Dictionary<string, object?>
                 {
                     ["sourceObjectId"] = legendObjectId,
@@ -23133,86 +23147,66 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && !targetState.IsFaceDown;
     }
 
-    private static string DescribeTargetScope(string targetScope)
+    private static string DescribeTargetScope(string targetScope) => targetScope switch
     {
-        if (targetScope == CardTargetScopes.AnyUnitOrEquipment) return "unit or equipment";
-        if (targetScope == CardTargetScopes.UnitEquipmentOrRune) return "unit, equipment, or rune";
-        if (targetScope == CardTargetScopes.UnitThenRunes) return "unit then runes";
-        if (targetScope == CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit) return "friendly equipment then battlefield unit";
-        if (targetScope == CardTargetScopes.FriendlyEquipmentThenBattlefield) return "friendly equipment then battlefield";
-        if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "empowered unit";
-        if (targetScope == CardTargetScopes.ControlledBattlefieldThenFriendlyUnit) return "controlled battlefield then friendly unit at another location";
-        if (targetScope == CardTargetScopes.AnyGraveyardCard) return "card in any owner's graveyard";
-        if (targetScope == CardTargetScopes.FriendlyBaseUnitThenBattlefield) return "friendly base unit then battlefield";
-        if (targetScope == CardTargetScopes.BattlefieldThenEnemyUnit) return "battlefield then enemy unit at that battlefield";
-        return string.Equals(targetScope, CardTargetScopes.AnyUnit, StringComparison.Ordinal)
-            ? "unit"
-            : string.Equals(targetScope, CardTargetScopes.BaseUnit, StringComparison.Ordinal)
-                ? "base unit"
-                : string.Equals(targetScope, CardTargetScopes.BattlefieldUnitOrEquipment, StringComparison.Ordinal)
-                    ? "battlefield unit or equipment"
-            : string.Equals(targetScope, CardTargetScopes.FriendlyUnit, StringComparison.Ordinal)
-                ? "friendly unit"
-                : string.Equals(targetScope, CardTargetScopes.FriendlyUnitThenBattlefield, StringComparison.Ordinal)
-                    ? "friendly unit then battlefield"
-                : string.Equals(targetScope, CardTargetScopes.FriendlyUnitThenFriendlyUnit, StringComparison.Ordinal)
-                    ? "friendly unit then another friendly unit"
-                    : string.Equals(targetScope, CardTargetScopes.FriendlyThenEnemyUnits, StringComparison.Ordinal)
-                        ? "friendly unit then enemy unit"
-                        : string.Equals(targetScope, CardTargetScopes.EnemyThenFriendlyUnits, StringComparison.Ordinal)
-                            ? "enemy unit then friendly unit"
-                        : string.Equals(targetScope, CardTargetScopes.FriendlyEquipmentThenEnemyEquipment, StringComparison.Ordinal)
-                            ? "friendly equipment then enemy equipment"
-                            : string.Equals(targetScope, CardTargetScopes.FriendlyThenEnemyBattlefieldUnits, StringComparison.Ordinal)
-                                ? "friendly unit then enemy battlefield unit"
-                                : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits, StringComparison.Ordinal)
-                                    ? "friendly battlefield unit then enemy battlefield unit"
-                                    : string.Equals(targetScope, CardTargetScopes.FriendlyUnitThenStackSpell, StringComparison.Ordinal)
-                                        ? "friendly unit then spell on the stack"
-                                    : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell, StringComparison.Ordinal)
-                                        ? "friendly battlefield unit then spell on the stack"
-                                        : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnit, StringComparison.Ordinal)
-                                            ? "friendly battlefield unit"
-                                                : string.Equals(targetScope, CardTargetScopes.FriendlyHandCard, StringComparison.Ordinal)
-                                                    ? "friendly hand card"
-                                                    : string.Equals(targetScope, CardTargetScopes.FriendlyHandCardThenBattlefieldUnit, StringComparison.Ordinal)
-                                                        ? "friendly hand card then battlefield unit"
-                                                        : string.Equals(targetScope, CardTargetScopes.FriendlyMainDeckCard, StringComparison.Ordinal)
-                                                            ? "friendly main deck card"
-                                                            : string.Equals(targetScope, CardTargetScopes.FriendlyGraveyardCard, StringComparison.Ordinal)
-                                                                ? "friendly graveyard card"
-                                                                : string.Equals(targetScope, CardTargetScopes.FriendlyBaseUnit, StringComparison.Ordinal)
-                                                                    ? "friendly base unit"
-                                                                    : string.Equals(targetScope, CardTargetScopes.AttackingUnit, StringComparison.Ordinal)
-                                                                        ? "attacking unit"
-                                                                        : string.Equals(targetScope, CardTargetScopes.EnemyAttackingUnit, StringComparison.Ordinal)
-                                                                            ? "enemy attacking unit"
-                                                                            : string.Equals(targetScope, CardTargetScopes.EnemyBattlefieldUnit, StringComparison.Ordinal)
-                                                                                ? "enemy battlefield unit"
-                                                                                : string.Equals(targetScope, CardTargetScopes.EnemyUnit, StringComparison.Ordinal)
-                                                                                    ? "enemy unit"
-                                                                                    : string.Equals(targetScope, CardTargetScopes.EnemyUnitThenEnemyUnit, StringComparison.Ordinal)
-                                                                                        ? "enemy unit then another enemy unit"
-                                                                                        : string.Equals(targetScope, CardTargetScopes.OpponentHandCard, StringComparison.Ordinal)
-                                                                                            ? "opponent hand card"
-                                                                                            : string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal)
-                                                                                                ? "opponent graveyard card"
-                                                                                                : string.Equals(targetScope, CardTargetScopes.OpponentMainDeckTopCard, StringComparison.Ordinal)
-                                                                                                    ? "opponent main deck top card"
-                                                                                                    : string.Equals(targetScope, CardTargetScopes.AnyMainDeckTopFiveCard, StringComparison.Ordinal)
-                                                                                                        ? "main deck top five card"
-                                                                                                        : string.Equals(targetScope, CardTargetScopes.Equipment, StringComparison.Ordinal)
-                                                                                                            ? "equipment"
-                                                                                                            : string.Equals(targetScope, CardTargetScopes.Legend, StringComparison.Ordinal)
-                                                                                                                ? "legend"
-                                                                                                                : string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
-                                                                                                                    ? "spell on the stack"
-                                                                                                                    : string.Equals(targetScope, CardTargetScopes.UnitThenItsControllersWeapon, StringComparison.Ordinal)
-                                                                                                                        ? "unit and its controller's weapon"
-                                                                                                                        : string.Equals(targetScope, CardTargetScopes.SacredJudgmentKeepCard, StringComparison.Ordinal)
-                                                                                                                            ? "cards kept for Judgment Day"
-                                                                                                                            : "battlefield unit";
-    }
+        CardTargetScopes.FriendlyEquipment => "件友方装备作为目标",
+        CardTargetScopes.Battlefield => "处战场作为目标",
+        CardTargetScopes.BattlefieldUnit => "个战场上的单位作为目标",
+        CardTargetScopes.BattlefieldUnitOrEquipment => "个战场上的单位或装备作为目标",
+        CardTargetScopes.BaseUnit => "个基地里的单位作为目标",
+        CardTargetScopes.AnyUnit => "个单位作为目标",
+        CardTargetScopes.AnyUnitOrEquipment => "个单位或装备作为目标",
+        CardTargetScopes.UnitEquipmentOrRune => "个单位、装备或符文作为目标",
+        CardTargetScopes.AnyEmpoweredUnit => "个已强化的单位作为目标",
+        CardTargetScopes.FriendlyUnit => "个友方单位作为目标",
+        CardTargetScopes.FriendlyUnitThenBattlefield => "个目标（先选友方单位，再选战场）",
+        CardTargetScopes.UnitThenRunes => "个目标（先选单位，再选符文）",
+        CardTargetScopes.FriendlyUnitThenEnemyBattlefield => "个目标（先选友方单位，再选敌方战场）",
+        CardTargetScopes.FriendlyEquipmentThenBattlefield => "个目标（先选友方装备，再选战场）",
+        CardTargetScopes.EnemyBattlefield => "处敌方战场作为目标",
+        CardTargetScopes.ControlledBattlefieldThenFriendlyUnit => "个目标（先选你控制的战场，再选位于别处的友方单位）",
+        CardTargetScopes.FriendlyBaseUnitThenBattlefield => "个目标（先选己方基地中的单位，再选战场）",
+        CardTargetScopes.BattlefieldThenEnemyUnit => "个目标（先选战场，再选该处的敌方单位）",
+        CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => "个目标（先选友方单位占据的战场，再选该处的敌方单位）",
+        CardTargetScopes.FriendlyUnitThenFriendlyUnit => "个不同的友方单位作为目标",
+        CardTargetScopes.FriendlyThenEnemyUnits => "个目标（先选友方单位，再选敌方单位）",
+        CardTargetScopes.EnemyThenFriendlyUnits => "个目标（先选敌方单位，再选友方单位）",
+        CardTargetScopes.UnitThenItsControllersWeapon => "个目标（先选单位，再选其控制者的武器）",
+        CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => "个目标（先选友方装备，再选敌方装备）",
+        CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit => "个目标（先选友方装备，再选战场上的单位）",
+        CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => "个目标（先选友方单位，再选战场上的敌方单位）",
+        CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => "个目标（先选战场上的友方单位，再选战场上的敌方单位）",
+        CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => "个目标（先选战场上的友方单位，再选结算链中的法术）",
+        CardTargetScopes.FriendlyUnitThenStackSpell => "个目标（先选友方单位，再选结算链中的法术）",
+        CardTargetScopes.FriendlyBattlefieldUnit => "个战场上的友方单位作为目标",
+        CardTargetScopes.FriendlyHandCard => "张己方手牌作为目标",
+        CardTargetScopes.AnyHandCard => "张手牌作为目标",
+        CardTargetScopes.FriendlyHandCardThenBattlefieldUnit => "个目标（先选己方手牌，再选战场上的单位）",
+        CardTargetScopes.FriendlyMainDeckCard => "张己方主牌堆中的牌作为目标",
+        CardTargetScopes.FriendlyGraveyardCard => "张己方废牌堆中的牌作为目标",
+        CardTargetScopes.AnyGraveyardCard => "张废牌堆中的牌作为目标",
+        CardTargetScopes.AttackingUnit => "个进攻单位作为目标",
+        CardTargetScopes.EnemyAttackingUnit => "个敌方进攻单位作为目标",
+        CardTargetScopes.EnemyBattlefieldUnit => "个战场上的敌方单位作为目标",
+        CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => "个目标（先选战场上的敌方单位，再选友方单位）",
+        CardTargetScopes.FriendlyUnitThenFriendlyEquipment => "个目标（先选友方单位，再选友方装备）",
+        CardTargetScopes.EnemyUnitAtSourceBattlefield => "个与技能来源位于同一战场的敌方单位作为目标",
+        CardTargetScopes.EnemyUnitAtSourceLocation => "个与技能来源位于同一位置的敌方单位作为目标",
+        CardTargetScopes.EnemyUnit => "个敌方单位作为目标",
+        CardTargetScopes.EnemyUnitOrEquipment => "个敌方单位或装备作为目标",
+        CardTargetScopes.EnemyUnitThenEnemyUnit => "个不同的敌方单位作为目标",
+        CardTargetScopes.OpponentHandCard => "张对手的手牌作为目标",
+        CardTargetScopes.OpponentGraveyardCard => "张对手废牌堆中的牌作为目标",
+        CardTargetScopes.OpponentMainDeckTopCard => "张对手主牌堆顶的牌作为目标",
+        CardTargetScopes.AnyMainDeckTopFiveCard => "张主牌堆顶五张牌中的牌作为目标",
+        CardTargetScopes.FriendlyBaseUnit => "个己方基地中的单位作为目标",
+        CardTargetScopes.Equipment => "件装备作为目标",
+        CardTargetScopes.Legend => "个传奇作为目标",
+        CardTargetScopes.FriendlyLegend => "个友方传奇作为目标",
+        CardTargetScopes.StackSpell => "个结算链中的法术作为目标",
+        CardTargetScopes.SacredJudgmentKeepCard => "张要在圣裁中保留的牌",
+        _ => "个符合条件的目标"
+    };
 
     private static StackResolutionResult NoopStackResolutionResult(MatchState state)
     {
@@ -25229,7 +25223,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             };
                             var applied = new GameEvent(
                                 "STATUS_EFFECT_APPLIED",
-                                $"{behavior.DisplayName}施加{statusEffectId}",
+                                GameEventText.StatusApplied(behavior.DisplayName, statusEffectId),
                                 new Dictionary<string, object?>
                                 {
                                     ["sourceObjectId"] = stackItem.SourceObjectId,
@@ -26837,7 +26831,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_TOKEN_CREATED",
-                $"{stackItem.SourceObjectId} 打出{tokenName}",
+                $"{GameEventText.ObjectName(playerZones, cardObjects, stackItem.SourceObjectId, "技能")}打出{(entryHasDefinition ? entryDefinition.TokenFamilyName : tokenName)}",
                 payload), playerZones, cardObjects, turnEffects));
         }
     }
@@ -27274,7 +27268,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (StackObjectRules.IsAbility(targetStackItem))
         {
-            counteredEvent = new GameEvent("STACK_ITEM_COUNTERED", $"{counteringStackItem.SourceObjectId}无效化技能",
+            counteredEvent = new GameEvent("STACK_ITEM_COUNTERED", $"{GameEventText.StackAction(state, counteringStackItem)}使{GameEventText.StackAction(state, targetStackItem)}失效",
                 new Dictionary<string, object?> {
                     ["stackItemId"] = targetStackItem.StackItemId, ["counteredByStackItemId"] = counteringStackItem.StackItemId,
                     ["sourceObjectId"] = targetStackItem.SourceObjectId, ["controllerId"] = targetStackItem.ControllerId,
@@ -27297,7 +27291,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         counteredEvent = new GameEvent(
             "STACK_ITEM_COUNTERED",
-            $"{counteringStackItem.SourceObjectId}无效化法术",
+            $"{GameEventText.StackAction(state, counteringStackItem)}使{GameEventText.StackAction(state, targetStackItem)}失效",
             new Dictionary<string, object?>
             {
                 ["stackItemId"] = targetStackItem.StackItemId,
@@ -27398,7 +27392,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 };
                 events.Add(new GameEvent(
                     "STATUS_EFFECT_APPLIED",
-                    $"{behavior.DisplayName}施加{statusEffectId}",
+                    GameEventText.StatusApplied(behavior.DisplayName, statusEffectId),
                     new Dictionary<string, object?>
                     {
                         ["sourceObjectId"] = stackItem.SourceObjectId,
@@ -29949,7 +29943,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
             nextBoonEvents.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
-                $"{targetObjectId} 因获得增益而触发活跃",
+                $"{GameEventText.ObjectName(playerZones, cardObjects, targetObjectId, "一名单位")}因获得增益而触发技能",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = stackItem.ControllerId,
@@ -29962,7 +29956,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }));
             nextBoonEvents.Add(CaptureSelfReady(new GameEvent(
                 "UNIT_READIED",
-                $"{targetObjectId} 变为活跃状态",
+                $"{GameEventText.ObjectName(playerZones, cardObjects, targetObjectId, "一名单位")}变为活跃状态",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = stackItem.ControllerId,
@@ -32809,7 +32803,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
             events.Add(new GameEvent(
                 "BATTLEFIELD_HELD",
-                $"{playerId} 据守战场",
+                $"{playerId} 据守{GameEventText.ObjectName(scoreState, battlefieldObjectId, "战场")}",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,

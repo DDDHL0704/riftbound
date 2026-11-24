@@ -55,6 +55,8 @@ public sealed class ViRecycleMightTests
         Assert.Equal(3, ArmamentMightTests.Might(game.State));
         Assert.NotNull(Assert.Single(game.State.StackItems).RecycleMightActivation);
         await game.Top(); Assert.Equal(4, ArmamentMightTests.Might(game.State));
+        var completion = Assert.Single(game.Events(), e => e.Event.Kind == "STACK_ITEM_RESOLVED");
+        Assert.Equal($"{OfficialCardSourceIdentityGroups.KnownDisplayName(no)}的技能结算", completion.Event.Description);
         await game.Act("P1", Activate("C2")); await game.Top(); Assert.Equal(5, ArmamentMightTests.Might(game.State));
         await game.Act("P1", new EndTurnCommand()); Assert.Equal(3, ArmamentMightTests.Might(game.State));
         await game.Replay();
@@ -136,6 +138,8 @@ public sealed class ViRecycleMightTests
         Assert.DoesNotContain("HOST", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
         var priorEvents = game.Events().Length; await game.Top();
         Assert.DoesNotContain("\"HOST\"", JsonSerializer.Serialize(game.Events().Skip(priorEvents)));
+        var completion = Assert.Single(game.Events().Skip(priorEvents), e => e.Event.Kind == "STACK_ITEM_RESOLVED");
+        Assert.Equal("技能结算", completion.Event.Description);
         Assert.Equal(3, game.State.CardObjects["HOST"].Power); Assert.Equal("C1", game.State.PlayerZones["P1"].MainDeck.Last());
         await game.Replay();
     }

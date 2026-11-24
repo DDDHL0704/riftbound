@@ -92,7 +92,7 @@ public sealed class DestructionGraveyardSourceOccupationTests
         var state = run.State; var command = new PlayCardCommand("RAY", Ray, ["TARGET"]);
         var rejected = await new CoreRuleEngine().ResolveAsync(state, new("duplicate-real-stack-card", "P1", command.CmdType), command, default);
         Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
-        Assert.Equal("PLAY_CARD source is already pending on the stack.", rejected.ErrorMessage);
+        Assert.Equal("这张牌已在结算链中。", rejected.ErrorMessage);
         Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(rejected.State));
         await RideTheWindCurrentMovementTests.Replay(initial, run);
     }

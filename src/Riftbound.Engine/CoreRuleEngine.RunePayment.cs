@@ -14,7 +14,7 @@ public sealed partial class CoreRuleEngine
             || !TryPreviewOrderedPaymentResources(state, intent.PlayerId,
                 state.RunePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty),
                 choices.Where(c => IsTapRunePaymentResourceActionId(c) || IsRecycleRunePaymentResourceActionId(c)).ToArray(), out _))
-            return RejectWithCorePrompts(state, "PAY_COST 包含非法支付资源动作。", ErrorCodes.InvalidTarget);
+            return RejectWithCorePrompts(state, "所选资源动作无法用于本次支付。", ErrorCodes.InvalidTarget);
 
         // Stage resource acquisition together with the existing payment resolver. A failed
         // choice or payment returns the original state, including unexhausted runes.

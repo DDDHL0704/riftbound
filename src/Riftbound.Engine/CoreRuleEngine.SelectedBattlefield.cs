@@ -88,7 +88,7 @@ public sealed partial class CoreRuleEngine
                     cards[id] = cards[id] with {
                         UntilEndOfTurnEffects = cards[id].UntilEndOfTurnEffects.Append(effect)
                             .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };
-                    events.Add(new("STATUS_EFFECT_APPLIED", $"{behavior.DisplayName}施加{spec.FriendlyStatusEffectId}",
+                    events.Add(new("STATUS_EFFECT_APPLIED", GameEventText.StatusApplied(behavior.DisplayName, spec.FriendlyStatusEffectId),
                         new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId,
                             ["targetObjectId"] = id, ["effectId"] = spec.FriendlyStatusEffectId }));
                 }
