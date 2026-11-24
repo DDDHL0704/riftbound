@@ -131,13 +131,9 @@ class PracticeBot {
         tried.add(option.key);
         let cmd = option.cmd;
         if (option.play && !option.play.plain) {
-          // Quote the play like the table does: add rune taps for missing mana, skip what can't be paid.
-          let quote = await this.client.previewPlayCard(cmd);
-          const missing = quote?.isValid ? quote.cost?.missingMana ?? 0 : 0;
-          if (missing > 0 && option.play.taps.length >= missing) {
-            cmd = { ...cmd, optionalCosts: [...((cmd.optionalCosts as string[]) ?? []), ...option.play.taps.slice(0, missing)] };
-            quote = await this.client.previewPlayCard(cmd);
-          }
+          // Quote the play like the table does (one round trip, missing mana covered by rune taps); skip what can't be paid.
+          const { quote, added } = await this.client.quotePlayWithTaps(cmd, option.play.taps);
+          if (added.length) cmd = { ...cmd, optionalCosts: [...added, ...((cmd.optionalCosts as string[]) ?? [])] };
           if (quote && !(quote.isValid && quote.canPay)) continue;
         }
         await new Promise((r) => setTimeout(r, option.pause));

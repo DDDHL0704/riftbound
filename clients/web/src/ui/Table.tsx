@@ -286,13 +286,9 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       void client.submit(buildCommand(p.action, sel), p.action.promptId);
       return;
     }
-    let quote = await client.previewPlayCard(buildCommand(p.action, sel));
-    const missingMana = quote?.isValid ? quote.cost?.missingMana ?? 0 : 0;
-    const taps = p.action.taps.filter((t) => !sel.optionalCosts.includes(t)).slice(0, missingMana);
-    if (missingMana > 0 && taps.length === missingMana) {
-      sel = { ...sel, optionalCosts: [...sel.optionalCosts, ...taps] };
-      quote = await client.previewPlayCard(buildCommand(p.action, sel));
-    }
+    // One quote: the server also adds the rune taps that cover missing mana (#694).
+    const { quote, added } = await client.quotePlayWithTaps(buildCommand(p.action, sel), p.action.taps);
+    if (added.length) sel = { ...sel, optionalCosts: [...added, ...sel.optionalCosts] };
     if (!quote || (quote.isValid && quote.canPay)) {
       void client.submit(buildCommand(p.action, tapBeforeRecycle(p.action, sel)), p.action.promptId);
       return;

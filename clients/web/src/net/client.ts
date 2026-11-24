@@ -325,6 +325,41 @@ export class GameClient {
     return result?.match.roomId ?? null;
   }
 
+  /** Whether the server offers PreviewPlayCardWithRuneTaps (#694); unknown until the first quote. */
+  private quoteWithTaps: boolean | null = null;
+
+  /**
+   * Quotes a play and, when mana is missing, adds rune taps from `tapCandidates` in the same round trip (#694).
+   * `added` goes in front of the command's optional costs when it is sent. A server without that method gets
+   * the older two-step quote: quote, add the missing taps, quote again.
+   */
+  async quotePlayWithTaps(cmd: Record<string, unknown>, tapCandidates: string[]): Promise<{ quote: PlayCostQuote | null; added: string[] }> {
+    const prompt = this.state.prompt;
+    if (!this.connection || !prompt?.promptId) return { quote: null, added: [] };
+    if (this.quoteWithTaps !== false) {
+      try {
+        const result = await this.connection.invoke<{ quote: PlayCostQuote; addedOptionalCosts?: string[] }>(
+          "PreviewPlayCardWithRuneTaps",
+          this.state.roomId,
+          { requestId: `quote-${++seq}`, promptId: prompt.promptId, snapshotTick: prompt.snapshotTick, command: cmd },
+          tapCandidates,
+        );
+        this.quoteWithTaps = true;
+        return { quote: result.quote, added: result.addedOptionalCosts ?? [] };
+      } catch {
+        if (this.quoteWithTaps) return { quote: null, added: [] };
+        this.quoteWithTaps = false;
+      }
+    }
+    let quote = await this.previewPlayCard(cmd);
+    const missing = quote?.isValid ? quote.cost?.missingMana ?? 0 : 0;
+    const selected = (cmd.optionalCosts as string[] | undefined) ?? [];
+    const taps = tapCandidates.filter((t) => !selected.includes(t)).slice(0, missing);
+    if (missing === 0 || taps.length < missing) return { quote, added: [] };
+    quote = await this.previewPlayCard({ ...cmd, optionalCosts: [...taps, ...selected] });
+    return { quote, added: taps };
+  }
+
   /** The sets the server currently opens for sealed; empty when it cannot say. */
   async listSealedSets(): Promise<SealedSet[]> {
     try {
