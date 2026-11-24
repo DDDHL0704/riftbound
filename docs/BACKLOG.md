@@ -1114,6 +1114,13 @@
 - [x] **P3-3 清理 `docs/legacy/`**：[#295](https://github.com/DDDHL0704/riftbound/pull/295) 已合入。4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`，内容逐字节一致；删除其余退役文档和没有调用方的治理报告工具，历史内容保留在 Git 中。夜验只删除退役审计提交获取步骤，完整验收保留。AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束。32 条夹具读取定向测试逐条对齐 #262 清单通过，零跳过；182 项 Python 检查通过；完整 [41001117429](https://github.com/DDDHL0704/riftbound/actions/runs/41001117429) 的九片规则、三局完整对局及门槛全部通过，9,491 个方法、19,625 条用例 Counter 与固定计划及全绿 main 逐条一致，零跳过。
 - [x] **P3-5 卡牌登记冲突热点**（`a/registration-hotspots`）：[#359](https://github.com/DDDHL0704/riftbound/pull/359) 记录统计结论；#287 已于 2026-10-31 合入；数据见 [`docs/registration-hotspots.csv`](registration-hotspots.csv)，覆盖最近 30 个 `feat(cards)` PR（含已关闭的 #241/#284）。`scripts/registration-hotspots.py` 按每个批次的文件命中标记推导计数，不能由手工汇总替代。当前数据推导为：`CardBehaviorRegistry.cs` 30/30、逻辑 `CoreRuleEngine` 30/30、`RuleTextParsers.cs` 27/30、`VendettaCardSources.cs` 19/30、`RadiantCardSources.cs` 11/30、`PrintedCardFactory.cs` 15/30、`CardCatalogBaselineTests.cs` 3/30；`ReviewedRuntimeCatalogAdmissionTests.cs` 为 29/30（#257 未修改该文件），与旧记录的 30/30 不一致。登记脚本及现有 `scripts/tests` 共 209 项测试已通过；30 条账本的 GitHub 分支、标题和状态元数据逐条一致；#287 的 61 个变更文件与账本逐项一致。当前账本状态为 28 个 merged、2 个 closed，脚本测试 4/4 通过。
 
+## 对局服务端性能（W 线）
+
+- [x] **热局出牌与报价**。规则结算只生成实际发布的投影，同一状态复用提示候选，单个出牌来源共用费用选项。提示新鲜度改动的本机 Release 对照中，热局首次出牌约 450 → 46 ms，后续出牌约 383 → 20 ms，同状态补横置后的费用预览约 188 → 0.68 ms。 [#703](https://github.com/DDDHL0704/riftbound/pull/703) · [#706](https://github.com/DDDHL0704/riftbound/pull/706) · [#708](https://github.com/DDDHL0704/riftbound/pull/708)
+- [x] **长局目标组合**。开关回退各跑两组，同组消息和回执逐条一致。第 11 回合卡莎横置符文从 7.49–7.90 秒降至 0.44–0.58 秒，其中四组有三组低于 0.5 秒。个别第 9 回合命令仍超过 0.5 秒。 [#710](https://github.com/DDDHL0704/riftbound/pull/710)
+- [x] **首局初始化**。第二席 READY 中位数从 4.43 降至 2.05 秒，首次出牌从 11.91 降至 4.65 秒。随后在另一组四进程对照中，两次换牌从 10.01、10.04 秒降至 4.23、4.60 秒，启动至首张牌结算累计从 28.72 降至 17.98 秒。该组首次出牌从 5.82 升至 6.48 秒。两组共 740 份归一化消息和回执逐份一致，两席均保留起手牌。 [#711](https://github.com/DDDHL0704/riftbound/pull/711) · [#712](https://github.com/DDDHL0704/riftbound/pull/712)
+- [ ] **网页复验（Claude）**。真人桌面和练习桌各复测冷启动两次换牌、首次出牌及第 9–11 回合操作，记录点击至首个回执耗时和实际使用的 JSON 或 MessagePack。检查复杂费用报价、组合支付和恰好付得起时的自动横置，记录报价及提交次数，并复验旧服务端回退。 [#700](https://github.com/DDDHL0704/riftbound/pull/700) · [#702](https://github.com/DDDHL0704/riftbound/pull/702) · [#707](https://github.com/DDDHL0704/riftbound/pull/707)
+
 ## 服务端传输（X 线）
 
 - [x] **提示瘦身与协议协商**。35 条出牌提示离线对比，JSON 中位数从 51,164 B 降至 19,652 B（减少 61.6%），最大值从 148,588 B 降至 52,396 B。DevUi 可按需查询诊断。客户端选用 MessagePack 后，同一批瘦身提示的中位数为 16,348 B。现有 JSON 客户端兼容，未测量 UU 链路 RTT。 [#688](https://github.com/DDDHL0704/riftbound/pull/688) · [#689](https://github.com/DDDHL0704/riftbound/pull/689)
