@@ -213,7 +213,7 @@ public sealed class RadMutualMightSpellTests
         var original = PreconstructedDeckCatalog.Build(catalog).First().Decklist;
         var deck = original with { MainDeck = [CardNo, ..original.MainDeck.Skip(1)] };
         var errors = OfficialDeckValidator.Validate(deck, catalog).Errors;
-        Assert.Contains(errors, error => error.Contains(CardNo, StringComparison.Ordinal) && error.Contains("传奇英雄标签不匹配", StringComparison.Ordinal));
+        Assert.Contains("专属牌《轮回绝境》与所选传奇英雄标签不匹配。", errors);
         var initial = MatchReplayInitialStateBuilder.FromSeats("rad-realm-deck-restriction",
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" });
         var session = new MatchSession(initial, new CoreRuleEngine(), NoopMatchJournal.Instance);

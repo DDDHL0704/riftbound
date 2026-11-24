@@ -276,8 +276,8 @@ public sealed class RadAlternativeAssembleCostTests
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
         var deck = PreconstructedDeckCatalog.Build(catalog).First().Decklist;
         deck = deck with { MainDeck = [Blade, ..deck.MainDeck.Skip(1)] };
-        Assert.Contains(OfficialDeckValidator.Validate(deck, catalog).Errors,
-            e => e.Contains(Blade, StringComparison.Ordinal) && e.Contains("传奇英雄标签不匹配", StringComparison.Ordinal));
+        Assert.Contains("专属牌《放逐之锋》与所选传奇英雄标签不匹配。",
+            OfficialDeckValidator.Validate(deck, catalog).Errors);
         var state = MatchReplayInitialStateBuilder.FromSeats("rad-blade-deck-restriction",
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" });
         var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);

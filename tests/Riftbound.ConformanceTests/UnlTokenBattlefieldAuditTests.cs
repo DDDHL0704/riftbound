@@ -18,6 +18,6 @@ public sealed class UnlTokenBattlefieldAuditTests
         fields[0] = "UNL·T01";
         var rejected = OfficialDeckValidator.Validate(deck with { Battlefields = fields }, catalog);
         Assert.False(rejected.IsValid);
-        Assert.Contains(rejected.Errors, error => error.Contains("UNL·T01") && error.Contains("必须是战场牌"));
+        Assert.Contains("战场牌组中的《男爵巢穴》必须是战场牌。", rejected.Errors);
     }
 }

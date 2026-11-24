@@ -10,12 +10,12 @@ public sealed partial class GameHubJoinTests
 {
     public static IEnumerable<object[]> InvalidMixedPackOptions()
     {
-        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("XYZ", 6)]), "系列 XYZ"];
+        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("XYZ", 6)]), "卡包组合中有尚未开放现开赛的系列。"];
         yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 3), new("OGN", 3)]), "不能重复"];
         yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 5)]), "6 至 12"];
         yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 13)]), "6 至 12"];
         yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 0), new("SFD", 6)]), "至少为 1"];
-        yield return [new CreatePublicMatchOptionsDto("sealed", "OGN", 1, [new("OGN", 6)]), "不能同时指定"];
+        yield return [new CreatePublicMatchOptionsDto("sealed", "OGN", 1, [new("OGN", 6)]), "请选择自定义卡包组合或单一系列。"];
     }
 
     [Theory]
@@ -42,7 +42,9 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(await directory.ListOpenAsync(default));
         Assert.Empty(groups.Added);
         Assert.Empty(clients.CallerClient.Snapshots);
-        Assert.IsType<ErrorDto>(Assert.Single(clients.CallerClient.Errors).Payload);
+        var clientError = Assert.IsType<ErrorDto>(Assert.Single(clients.CallerClient.Errors).Payload);
+        Assert.Equal(ErrorCodes.InvalidPayload, clientError.Code);
+        Assert.Contains(expectedMessage, clientError.Message);
     }
 
     [Theory]
