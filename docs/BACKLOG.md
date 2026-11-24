@@ -1105,6 +1105,12 @@
 - [x] **P3-3 清理 `docs/legacy/`**：[#295](https://github.com/DDDHL0704/riftbound/pull/295) 已合入。4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`，内容逐字节一致；删除其余退役文档和没有调用方的治理报告工具，历史内容保留在 Git 中。夜验只删除退役审计提交获取步骤，完整验收保留。AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束。32 条夹具读取定向测试逐条对齐 #262 清单通过，零跳过；182 项 Python 检查通过；完整 [41001117429](https://github.com/DDDHL0704/riftbound/actions/runs/41001117429) 的九片规则、三局完整对局及门槛全部通过，9,491 个方法、19,625 条用例 Counter 与固定计划及全绿 main 逐条一致，零跳过。
 - [x] **P3-5 卡牌登记冲突热点**（`a/registration-hotspots`）：[#359](https://github.com/DDDHL0704/riftbound/pull/359) 记录统计结论；#287 已于 2026-10-31 合入；数据见 [`docs/registration-hotspots.csv`](registration-hotspots.csv)，覆盖最近 30 个 `feat(cards)` PR（含已关闭的 #241/#284）。`scripts/registration-hotspots.py` 按每个批次的文件命中标记推导计数，不能由手工汇总替代。当前数据推导为：`CardBehaviorRegistry.cs` 30/30、逻辑 `CoreRuleEngine` 30/30、`RuleTextParsers.cs` 27/30、`VendettaCardSources.cs` 19/30、`RadiantCardSources.cs` 11/30、`PrintedCardFactory.cs` 15/30、`CardCatalogBaselineTests.cs` 3/30；`ReviewedRuntimeCatalogAdmissionTests.cs` 为 29/30（#257 未修改该文件），与旧记录的 30/30 不一致。登记脚本及现有 `scripts/tests` 共 209 项测试已通过；30 条账本的 GitHub 分支、标题和状态元数据逐条一致；#287 的 61 个变更文件与账本逐项一致。当前账本状态为 28 个 merged、2 个 closed，脚本测试 4/4 通过。
 
+## 服务端传输（X 线）
+
+- [x] **提示瘦身与协议协商**。35 条出牌提示离线对比，JSON 中位数从 51,164 B 降至 19,652 B（减少 61.6%），最大值从 148,588 B 降至 52,396 B。DevUi 可按需查询诊断。客户端选用 MessagePack 后，同一批瘦身提示的中位数为 16,348 B。现有 JSON 客户端兼容，未测量 UU 链路 RTT。 [#688](https://github.com/DDDHL0704/riftbound/pull/688) · [#689](https://github.com/DDDHL0704/riftbound/pull/689)
+- [x] **减少符文支付和复杂出牌的往返**。服务端回归验证同一枚符文在一条命令中先横置再回收，费用被拒绝时不改状态。复杂出牌新增 `PreviewPlayCardWithRuneTaps`。网页接入后，组合支付从两次命令降到一次，复杂出牌从两次报价降到一次，仍需单独提交出牌。四个实现 PR 的 L2 均已通过。 [#692](https://github.com/DDDHL0704/riftbound/pull/692) · [#694](https://github.com/DDDHL0704/riftbound/pull/694)
+- [ ] **网页接入（Claude）**。组合支付移除 `tapBeforeRecycle` 的独立横置，复杂出牌接入新报价并按返回顺序提交费用。MessagePack 由客户端显式选择，接入细节见对应 PR。
+
 ## 现开赛（F 线）
 
 - [x] **现开赛自由组合卡包**（`f/sealed-mixed-packs`，PR [#457](https://github.com/DDDHL0704/riftbound/pull/457) 已合入）：新增非官方自定义玩法 `packs: [{ setCode, count }]`，官方单系列六包保持默认；服务端按顺序逐包生成、私有种子按包序号派生，保存／恢复／重放与大厅和快照投影保留组合及每包系列，卡池仍按真实印次计数且不泄漏给对手或观战。建房拒绝未开放、重复、数量越界及同时提供 `setCode` 的组合；补完整混合卡池冷恢复和一局完整对局回归。契约见 ADR 0001。 |
