@@ -1,4 +1,5 @@
 import * as signalR from "@microsoft/signalr";
+import { MessagePackHubProtocol } from "@microsoft/signalr-protocol-msgpack";
 import type {
   CommandReceipt,
   GameEvent,
@@ -185,18 +186,22 @@ export class GameClient {
     return Boolean(saved?.handle && saved.key && saved.roomId && saved.reconnectToken);
   }
 
-  async connect(server: string, handle: string) {
+  /**
+   * Connects with the binary MessagePack hub protocol (#689: smaller frames, same field names and command shapes);
+   * a server that does not offer it gets the JSON protocol instead.
+   */
+  async connect(server: string, handle: string, binary = true): Promise<boolean> {
     const saved = loadSaved(this.ns);
     const normalized = handle.trim();
     this.key = keyFor(this.ns, normalized) || randomKey();
     this.set({ phase: "connecting", server, handle: normalized, connectionNote: "" });
 
     await this.connection?.stop().catch(() => undefined);
-    const connection = new signalR.HubConnectionBuilder()
+    const builder = new signalR.HubConnectionBuilder()
       .withUrl(`${server.replace(/\/$/, "")}/hubs/game`)
       .withAutomaticReconnect([0, 1000, 2000, 5000, 10000])
-      .configureLogging(signalR.LogLevel.Warning)
-      .build();
+      .configureLogging(signalR.LogLevel.Warning);
+    const connection = (binary ? builder.withHubProtocol(new MessagePackHubProtocol()) : builder).build();
     this.connection = connection;
 
     connection.on("Joined", (m: ServerMessage<PlayerSession>) => {
@@ -252,11 +257,16 @@ export class GameClient {
         await connection.invoke("Reconnect", resume.roomId, this.state.handle, resume.reconnectToken);
       }
     });
-    connection.onclose(() => this.set({ connectionNote: "已与服务器断开，请刷新页面重新连接。" }));
+    // Only the live connection reports a drop; a connection replaced or refused (name taken) keeps its own note.
+    connection.onclose(() => {
+      if (this.connection !== connection || this.state.phase === "offline") return;
+      this.set({ connectionNote: "已与服务器断开，请刷新页面重新连接。" });
+    });
 
     try {
       await connection.start();
     } catch {
+      if (binary) return this.connect(server, handle, false);
       this.set({ phase: "offline", connectionNote: `无法连接 ${server}，请确认服务端已启动。` });
       return false;
     }
