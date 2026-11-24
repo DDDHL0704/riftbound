@@ -69,6 +69,8 @@
 
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
+- [x] **恰好付得起时提供出牌提示（Y 线）**。首回合的提示判断漏算了可横置符文的法力。现按实际支付方案判断，法力池和剩余符文恰好够付时也会提供出牌候选。回归覆盖自动横置、回收符文补符能、拒绝命令不改状态、冷恢复和回放。[修复 #699](https://github.com/DDDHL0704/riftbound/pull/699) 已合入，[L2 九个分片和汇总检查](https://github.com/DDDHL0704/riftbound/actions/runs/45309483066) 全部通过。
+
 - [x] **11 月 23 日同类规则排查（U 线）**。从 `8c62d2c2f` 核查了 500 条，按规则类别和卡牌印次计数。已修复均衡门徒的有效战力与触发时点、剑头蛟的卵强化后的法力提示，以及鲜血祭坛错扣法力的问题。目标修复覆盖同场与总战力约束、按单位控制者判断敌我、回音击待命翻开时误列同场单位。怒吼清算补齐弃牌回响选项，劲风修士补齐额外法力选项。依据中国区核心规则 135、143、203、355、383、417、820 与相应卡面。七个代码 PR 均已通过 L2 并合入，最后一批 27,652 条用例通过，零失败、零跳过。[#679](https://github.com/DDDHL0704/riftbound/pull/679) [#681](https://github.com/DDDHL0704/riftbound/pull/681) [#686](https://github.com/DDDHL0704/riftbound/pull/686) [#687](https://github.com/DDDHL0704/riftbound/pull/687) [#690](https://github.com/DDDHL0704/riftbound/pull/690) [#693](https://github.com/DDDHL0704/riftbound/pull/693) [#695](https://github.com/DDDHL0704/riftbound/pull/695)
 - [ ] **11 月 23 日同类规则排查待确认（T 线）**。决斗架势（OGN·046）的同处额外加成、拾荒小能手（OGN·099）的回收三张费用、妖异狐火（OGN·256）的打出目标同战场限制。待 T 线提供合入与定向回归证据。
 
