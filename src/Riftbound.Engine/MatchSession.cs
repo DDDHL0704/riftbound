@@ -2470,7 +2470,10 @@ internal static partial class ActionPromptBuilder
         string TargetScope,
         IReadOnlyList<string> RequiredOptionalCosts,
         bool Composable,
-        string? UnsupportedReason);
+        string? UnsupportedReason)
+    {
+        public IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>? SharedBattlefieldChoicesByTargetObjectId { get; init; }
+    }
 
     private sealed record AssembleEquipmentPromptRequirement(
         string SourceObjectId,
@@ -2909,7 +2912,12 @@ internal static partial class ActionPromptBuilder
                 [new(StandbyRevealOptionalCost, "免基础费用；额外费用请使用完整出牌面板")],
                 targetChoices,
                 PromptMinTargetCount(behavior,condition,CoreRuleEngine.ActiveLevelAdditionalTargetCount(state,playerId,behavior)), count, PromptTargetScopeForBehavior(behavior), [StandbyRevealOptionalCost],
-                !CoreRuleEngine.UsesDeclaredMovementDestination(behavior), CoreRuleEngine.UsesDeclaredMovementDestination(behavior) ? "请使用完整出牌面板选择移动计划" : null));
+                !CoreRuleEngine.UsesDeclaredMovementDestination(behavior), CoreRuleEngine.UsesDeclaredMovementDestination(behavior) ? "请使用完整出牌面板选择移动计划" : null)
+            {
+                SharedBattlefieldChoicesByTargetObjectId = behavior.TargetsShareBattlefield
+                    ? PromptSharedBattlefieldChoices(state, targetChoices.Values.SelectMany(choices => choices))
+                    : null
+            });
         }
         return result;
     }
@@ -4008,6 +4016,24 @@ internal static partial class ActionPromptBuilder
             .ToArray();
     }
 
+    // The target picker uses the intersection of each selected target's choices.
+    private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> PromptSharedBattlefieldChoices(
+        MatchState state,
+        IEnumerable<ActionPromptChoiceDto> targetChoices)
+    {
+        var byTarget = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        foreach (var choice in targetChoices.DistinctBy(choice => choice.Id))
+        {
+            if (state.ObjectLocations.TryGetValue(choice.Id, out var location)
+                && location.Zone == "BATTLEFIELD"
+                && location.BattlefieldObjectId is { Length: > 0 } battlefield)
+            {
+                byTarget.Add(choice.Id, [new($"BATTLEFIELD:{battlefield}", BattlefieldLocationLabel(state, battlefield))]);
+            }
+        }
+        return byTarget;
+    }
+
     private static bool PlayCardHasServerTargetSelectionConstraint(
         MatchState state,
         string playerId,
@@ -5063,7 +5089,7 @@ internal static partial class ActionPromptBuilder
     private static IReadOnlyDictionary<string, object?> RevealCardSourceRequirementView(
         RevealCardPromptRequirement requirement)
     {
-        return new Dictionary<string, object?>
+        var view = new Dictionary<string, object?>
         {
             ["sourceObjectId"] = requirement.SourceObjectId,
             ["cardNo"] = requirement.CardNo,
@@ -5080,6 +5106,9 @@ internal static partial class ActionPromptBuilder
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
+        if (requirement.SharedBattlefieldChoicesByTargetObjectId is { } choices)
+            view["destinationChoicesByTargetObjectId"] = choices;
+        return view;
     }
 
     private static IReadOnlyDictionary<string, object?> HideCardSourceRequirementView(
@@ -5466,12 +5495,15 @@ internal static partial class ActionPromptBuilder
                 .OrderBy(objectId => objectId, StringComparer.Ordinal)
                 .ToArray()
             : [];
-        var destinationChoicesByTargetObjectId = behavior.MovesTargetsToChosenLocation
-            ? movementTargetObjectIds.ToDictionary(
-                objectId => objectId,
-                objectId => CoreRuleEngine.ChosenMovementDestinationsForTarget(state, playerId, behavior, objectId),
-                StringComparer.Ordinal)
-            : null;
+        IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>? destinationChoicesByTargetObjectId =
+            behavior.MovesTargetsToChosenLocation
+                ? movementTargetObjectIds.ToDictionary(
+                    objectId => objectId,
+                    objectId => CoreRuleEngine.ChosenMovementDestinationsForTarget(state, playerId, behavior, objectId),
+                    StringComparer.Ordinal)
+                : behavior.TargetsShareBattlefield
+                    ? PromptSharedBattlefieldChoices(state, targetChoices.SelectMany(choices => choices))
+                    : null;
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
