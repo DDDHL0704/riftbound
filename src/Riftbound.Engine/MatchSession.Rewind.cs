@@ -8,7 +8,8 @@ public sealed partial class MatchSession
 {
     public bool RewindAllowed => options.RewindAllowed;
 
-    private sealed record RewindPoint(RewindTargetDto Target, MatchState Before);
+    private sealed record RewindPoint(RewindTargetDto Target, MatchState Before,
+        bool Selectable, string? ActorDescription);
     private sealed record RewindFrame(MatchState State, long TickOffset, RewindRequestDto? Request,
         ImmutableSortedDictionary<long, RewindPoint> Points)
     {
@@ -46,7 +47,8 @@ public sealed partial class MatchSession
         => frame.SeriesState?.Games.FirstOrDefault(game => !game.Completed)?.GameNumber
             ?? frame.SeriesState?.Games.LastOrDefault()?.GameNumber ?? 1;
 
-    private ResolutionResult ResolveRewind(string playerId, RewindCommand command, out RewindRequestDto? nextRequest)
+    private ResolutionResult ResolveRewind(string playerId, RewindCommand command, bool replayAcceptedCommand,
+        out RewindRequestDto? nextRequest)
     {
         var pending = rewindFrame?.Request;
         nextRequest = pending;
@@ -64,7 +66,8 @@ public sealed partial class MatchSession
         {
             if (pending is not null)
                 return ResolutionResult.Rejected(state, "已有待处理的回退请求。", ErrorCodes.PhaseNotAllowed);
-            if (!points.ContainsKey(request.TargetStep))
+            // Existing journals may already contain an accepted request for a control step.
+            if (!points.TryGetValue(request.TargetStep, out var point) || (!point.Selectable && !replayAcceptedCommand))
                 return ResolutionResult.Rejected(state, "回退目标不属于当前对局。", ErrorCodes.InvalidTarget);
             nextRequest = new RewindRequestDto(lastEventSequence + 1, playerId, request.TargetStep);
             gameEvent = RewindEvent("REWIND_REQUESTED", "玩家发起回退请求", nextRequest);
@@ -113,7 +116,7 @@ public sealed partial class MatchSession
 
     private async ValueTask<ResolutionResult> RecordCommandAsync(string playerId, string intentId, string commandType,
         JsonElement? raw, TypedCommandInput? typed, ResolutionResult result, CancellationToken cancellationToken,
-        RewindRequestDto? nextRequest = null)
+        RewindRequestDto? nextRequest = null, GameCommand? command = null)
     {
         var startedTick = ServerTick;
         var startedSequence = lastEventSequence;
@@ -130,8 +133,15 @@ public sealed partial class MatchSession
             else if (result.Events.Count != 0 && (CanRewind(state) || CanRewind(result.State)))
             {
                 var step = startedSequence + 1;
-                var target = new RewindTargetDto(step, gameNumber, state.TurnNumber, playerId, RewindDescription(commandType));
-                points = points.Add(step, new RewindPoint(target, state));
+                var description = RewindDescription(commandType);
+                string? actorDescription = null;
+                if (command is AcceptRewindCommand && next.Request is { } request)
+                    description = $"撤销回到第 {points[request.TargetStep].Target.TurnNumber} 回合的回退";
+                else if (command is not null && !isControl)
+                    (description, actorDescription) = DescribeRewindCommand(state, playerId, command, result.Events, description);
+                var target = new RewindTargetDto(step, gameNumber, state.TurnNumber, playerId, description);
+                points = points.Add(step, new RewindPoint(target, state,
+                    !isControl || commandType == CommandTypes.AcceptRewind, actorDescription));
             }
             next = new RewindFrame(result.State, tickOffset, nextRequest, points);
         }
@@ -152,7 +162,7 @@ public sealed partial class MatchSession
         return next is null ? stored : stored with
         {
             Snapshots = stored.Snapshots.ToDictionary(pair => pair.Key,
-                pair => ProjectRewindSnapshot(pair.Value, next, includeTargets: true), StringComparer.Ordinal)
+                pair => ProjectRewindSnapshot(pair.Value, pair.Key, next, includeTargets: true), StringComparer.Ordinal)
         };
     }
 
@@ -167,13 +177,14 @@ public sealed partial class MatchSession
         {
             TimelineTick = tick,
             Snapshots = result.Snapshots.ToDictionary(pair => pair.Key,
-                pair => ProjectRewindSnapshot(pair.Value, frame, includeTargets), StringComparer.Ordinal),
+                pair => ProjectRewindSnapshot(pair.Value, pair.Key, frame, includeTargets), StringComparer.Ordinal),
             Prompts = result.Prompts.ToDictionary(pair => pair.Key,
                 pair => ProjectRewindPrompt(pair.Value, frame), StringComparer.Ordinal)
         };
     }
 
-    private static SnapshotDto ProjectRewindSnapshot(SnapshotDto snapshot, RewindFrame? frame, bool includeTargets)
+    private static SnapshotDto ProjectRewindSnapshot(SnapshotDto snapshot, string viewerPlayerId,
+        RewindFrame? frame, bool includeTargets)
     {
         if (frame is null) return snapshot;
         return snapshot with
@@ -181,7 +192,10 @@ public sealed partial class MatchSession
             Tick = frame.Tick,
             RewindRequest = frame.Request,
             RewindTargets = includeTargets && CanRewind(frame.State)
-                ? frame.Points.Values.Select(point => point.Target) : null
+                ? frame.Points.Values.Where(point => point.Selectable).Select(point =>
+                    point.Target.PlayerId == viewerPlayerId && point.ActorDescription is { } description
+                        ? point.Target with { Description = description } : point.Target)
+                : null
         };
     }
 
