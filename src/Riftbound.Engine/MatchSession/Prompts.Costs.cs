@@ -207,6 +207,15 @@ internal static partial class ActionPromptBuilder
             return [];
         }
 
+        // Single-target legality is fixed at each position. Only relations
+        // between selected objects need to be checked for each combination.
+        for (var index = 0; index < choicesByIndex.Length; index++)
+        {
+            choicesByIndex[index] = choicesByIndex[index]
+                .Where(id => IsPlayCardTargetAllowedInSelection(state, playerId, behavior, id, index, sourceObjectId))
+                .ToArray();
+        }
+
         // All selections here share the same state, player and source. When
         // no target changes the price except spellshield, quote once per tax.
         var possibleTargets = choicesByIndex.SelectMany(choices => choices).Distinct(StringComparer.Ordinal).ToArray();
@@ -251,7 +260,7 @@ internal static partial class ActionPromptBuilder
             if (targetCount == 0)
             {
                 var emptySelection = Array.Empty<string>();
-                if (IsLegalPlayCardTargetSelection(state, playerId, behavior, emptySelection, sourceObjectId, CanPay))
+                if (IsLegalPlayCardTargetCombination(state, playerId, behavior, emptySelection) && CanPay(emptySelection))
                 {
                     legalSelections.Add(emptySelection);
                 }
@@ -274,7 +283,7 @@ internal static partial class ActionPromptBuilder
             if (targetIndex >= targetCount)
             {
                 var selection = currentSelection.ToArray();
-                if (IsLegalPlayCardTargetSelection(state, playerId, behavior, selection, sourceObjectId, CanPay))
+                if (IsLegalPlayCardTargetCombination(state, playerId, behavior, selection) && CanPay(selection))
                 {
                     legalSelections.Add(selection);
                 }
