@@ -460,6 +460,7 @@ public sealed partial record CardBehaviorDefinition(
     public bool RemovesTargetMightLimitIfExperiencePaid { get; init; }
     public string EntryBattlefieldTokenCardNo { get; init; } = "";
     public int? PowerModifierAmountAtLevel { get; init; }
+    public int AdditionalPowerModifierForOnlyFriendlyUnitAtLocation { get; init; }
     public int AdditionalTargetsAtLevel { get; init; }
     public bool AppliesStatusAfterChosenMovement { get; init; }
     public bool LosesGrantedControlAtEndStep { get; init; }
@@ -8649,7 +8650,7 @@ public static class CardBehaviorRegistry
             0,
             1,
             TargetScope: CardTargetScopes.FriendlyUnit,
-            PowerModifierAmount: 1),
+            PowerModifierAmount: 1) { AdditionalPowerModifierForOnlyFriendlyUnitAtLocation = 1 },
         new(
             "UNL-031/219",
             "实战经验",
