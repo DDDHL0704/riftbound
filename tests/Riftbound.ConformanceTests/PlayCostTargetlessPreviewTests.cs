@@ -47,7 +47,7 @@ public sealed class PlayCostTargetlessPreviewTests
         Assert.False(quote.IsValid);
         Assert.Null(quote.Cost);
         Assert.Equal(ErrorCodes.InvalidTarget, quote.ErrorCode);
-        Assert.Contains("requires", quote.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("焚烧需要选择 1 个战场上的单位作为目标。", quote.Message);
         Assert.DoesNotContain("当前选择无法打出", quote.Message);
     }
 

@@ -12991,7 +12991,7 @@ public sealed class OfficialOpeningTests
             "active-player-first-turn-hide-card-with-opposite-wait-snapshot",
             waitPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.HideCard, waitPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.UnsupportedCardBehavior,
-            "暂不支持该牌的待命埋伏行为：missing-card");
+            "这张牌暂不支持待命布置。");
     }
 
     [Fact]
