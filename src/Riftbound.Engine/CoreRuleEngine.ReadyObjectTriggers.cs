@@ -15,8 +15,8 @@ public sealed partial class CoreRuleEngine
     internal const string ReadyOtherObjectEffect = "SOURCE_PLAY_OR_FIRST_EQUIPMENT_READY_OTHER_OBJECT";
     private const string ReadyObjectObservationKey = "readyObjectTriggerObservations";
     private static readonly Lazy<IReadOnlyDictionary<string, TriggerSpec>> ReadyOtherObjectSpecs = new(() =>
-        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
-            .Select(c => (c.CardNo, Spec: RuleTextParser.Parse(c).Triggers.FirstOrDefault(t =>
+        RuntimePlayTriggerCatalog.Entries.Value
+            .Select(c => (c.CardNo, Spec: c.Triggers.FirstOrDefault(t =>
                 t.Kind is TriggerKinds.SourcePlayedOrFirstEquipmentReadyOtherObject or TriggerKinds.UnitFirstMovementReadyOtherObject)))
             .Where(c => c.Spec is not null).ToDictionary(c => c.CardNo, c => c.Spec!, StringComparer.Ordinal));
 

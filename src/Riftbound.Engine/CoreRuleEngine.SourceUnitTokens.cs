@@ -14,8 +14,8 @@ public sealed partial class CoreRuleEngine
     internal const string SourceUnitTokenEffect = "SOURCE_PLAY_OR_SCORE_UNIT_TOKEN";
     private const string SourceUnitTokenObservationKey = "sourceUnitTokenObservations";
     private static readonly Lazy<IReadOnlyDictionary<string, TriggerSpec>> SourceUnitTokenSpecs = new(() =>
-        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
-            .Select(c => (c.CardNo, Spec: RuleTextParser.Parse(c).Triggers.FirstOrDefault(t =>
+        RuntimePlayTriggerCatalog.Entries.Value
+            .Select(c => (c.CardNo, Spec: c.Triggers.FirstOrDefault(t =>
                 t.Kind is TriggerKinds.SourceUnitPlayedOrScoredCreateUnit or TriggerKinds.UnitBattlefieldHeldCreateUnitHere)))
             .Where(c => c.Spec is not null).ToDictionary(c => c.CardNo, c => c.Spec!, StringComparer.Ordinal));
 
