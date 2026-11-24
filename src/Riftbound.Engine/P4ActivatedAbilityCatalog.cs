@@ -1085,19 +1085,7 @@ public static class P4ActivatedAbilityCatalog
 
     private static IReadOnlyList<P4ActivatedAbilityDefinition> BuildBehaviorSpecActivatedAbilityDefinitions()
     {
-        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
-        var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var behaviors = CardBehaviorRegistry.GetAll()
-            .Select(behavior => new ImplementedCardBehavior(
-                behavior.CardNo,
-                behavior.EffectKind,
-                behavior.DisplayName))
-            .ToArray();
-        var implementedBehaviors = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(
-            catalog.Cards,
-            behaviors);
-
-        return BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, implementedBehaviors)
+        return RuntimeCardBehaviorSpecs.Entries
             .SelectMany(spec => spec.ActivatedAbilities
                 .Where(ability => IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility(ability)
                     || IsDestroySourceGraveyardRecycleSpec(ability) && spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
