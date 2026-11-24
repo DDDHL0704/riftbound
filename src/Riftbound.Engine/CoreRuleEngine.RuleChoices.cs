@@ -81,20 +81,21 @@ public sealed partial class CoreRuleEngine
             answers = answers.Append(new RuleChoiceAnswer(MatchStateHasher.HashValue(pending.Request), selected[0])).ToArray();
             command = GameCommandJsonMapper.Map(pending.Command);
         }
+        using var views = DeferredResolutionViews.DuringResolution();
         var frame = new RuleChoiceFrame(origin, answers) { CompletionTick = state.Tick + 1, CommandType = command.CmdType }; var previous = RuleChoices.Value; RuleChoices.Value = frame;
         try {
             var result = await ResolveCoreAsync(origin, originalIntent, command, cancellationToken);
-            if (!frame.Complete) return RejectWithCorePrompts(state, "替换选择记录未完整消费。", ErrorCodes.InvalidTarget);
-            if (pending is null) return RecordPowerPayments(state, result);
-            if (!result.Accepted) return RejectWithCorePrompts(state, result.ErrorMessage!, result.ErrorCode!);
+            if (!frame.Complete) return DeferredResolutionViews.Materialize(RejectWithCorePrompts(state, "替换选择记录未完整消费。", ErrorCodes.InvalidTarget));
+            if (pending is null) return DeferredResolutionViews.Materialize(RecordPowerPayments(state, result));
+            if (!result.Accepted) return DeferredResolutionViews.Materialize(RejectWithCorePrompts(state, result.ErrorMessage!, result.ErrorCode!));
             var events = UncommittedRuleChoiceEvents(result.Events, committedResources);
             var next = FinalizeRuleChoiceBattleRoleCoordinates(state, result, events, state.Tick + 1)
                 with { Tick = state.Tick + 1, PendingRuleChoice = null };
-            return RecordPowerPayments(state, result with { State = next, Events = events,
-                Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) });
+            return DeferredResolutionViews.Materialize(RecordPowerPayments(state, result with { State = next, Events = events,
+                Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) }));
         }
         catch (Exception unsupported) when (unsupported is DamageNumericLimitException or ResourceNumericLimitException) {
-            return RejectWithCorePrompts(state, $"当前服务端数值范围尚未支持本次结算的{unsupported.Message}。", ErrorCodes.UnsupportedCardBehavior);
+            return DeferredResolutionViews.Materialize(RejectWithCorePrompts(state, $"当前服务端数值范围尚未支持本次结算的{unsupported.Message}。", ErrorCodes.UnsupportedCardBehavior));
         }
         catch (RuleChoiceRequired required) {
             var raw = pending?.Command ?? CaptureRuleChoiceCommand(command);
@@ -107,8 +108,8 @@ public sealed partial class CoreRuleEngine
             var events = UncommittedRuleChoiceEvents(resources.SelectMany(step => step.Events).ToArray(), committedResources)
                 .Append(new GameEvent("RULE_CHOICE_REQUESTED", required.Request.Reason,
                     new Dictionary<string,object?> { ["playerId"] = required.Request.PlayerId, ["choiceId"] = required.Request.Id })).ToArray();
-            return RecordPowerPayments(state, new(true, null, next, events,
-                ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)));
+            return DeferredResolutionViews.Materialize(RecordPowerPayments(state, new(true, null, next, events,
+                ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next))));
         }
         finally { RuleChoices.Value = previous; }
     }

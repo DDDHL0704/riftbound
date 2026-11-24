@@ -466,6 +466,9 @@ public sealed partial record ResolutionResult
     }
 
     public static IReadOnlyDictionary<string, SnapshotDto> BuildSnapshots(MatchState state)
+        => DeferredResolutionViews.Build(state, BuildSnapshotsCore);
+
+    private static IReadOnlyDictionary<string, SnapshotDto> BuildSnapshotsCore(MatchState state)
     {
         return SnapshotSeats(state).ToDictionary(
             entry => entry.Key,
