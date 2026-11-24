@@ -137,6 +137,45 @@ public sealed class StandbySourceRulesTests
     }
 
     [Fact]
+    public async Task ReferencedStandbyMovementOffersOnlyUnitsThatCanEnterTheOriginalBattlefield()
+    {
+        const string card = "VEN·034";
+        var state = await ReadyShadow(card);
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var candidate = Assert.Single(prompt.Candidates!, choice => choice.Enabled && choice.Action == CommandTypes.RevealCard);
+        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]);
+        var source = Assert.Single(requirements, row => Equals(row["sourceObjectId"], "SHADOW"));
+        var choices = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(source["targetChoicesByIndex"]);
+        Assert.Equal(["F"], choices["0"].Select(choice => choice.Id));
+        Assert.Equal(["SHADOW-OUTSIDE"], choices["1"].Select(choice => choice.Id));
+
+        var reveal = new RevealCardCommand("SHADOW", card, ["F", "SHADOW-OUTSIDE"],
+            "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK");
+        var illegal = reveal with { TargetObjectIds = ["F", "SHADOW-INSIDE"] };
+        var rejected = await new CoreRuleEngine().ResolveAsync(state,
+            new("standby-same-field-mover", "P1", illegal.CmdType), illegal, default);
+        Assert.False(rejected.Accepted);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(rejected.State));
+
+        var played = await Act(state, "P1", reveal);
+        var settled = await Top(played.State);
+        Assert.Equal("F", settled.State.ObjectLocations["SHADOW-OUTSIDE"].BattlefieldObjectId);
+        Assert.Equal(state.CardObjects["SHADOW-OUTSIDE"].Power + 2, settled.State.CardObjects["SHADOW-OUTSIDE"].Power);
+    }
+
+    [Fact]
+    public async Task ReferencedStandbyMovementIsUnavailableWhenNoUnitCanMoveThere()
+    {
+        const string card = "VEN·034";
+        var initial = LocalDestructionRecallTests.At(Position(card), "SHADOW-OUTSIDE", "P1", "BATTLEFIELD", "F");
+        var state = await ReadyShadow(card, initial);
+        var candidates = ResolutionResult.BuildPrompts(state)["P1"].Candidates ?? [];
+        Assert.DoesNotContain(candidates, choice => choice.Enabled && choice.Action == CommandTypes.RevealCard
+            && choice.Sources?.Any(source => source.Id == "SHADOW") == true);
+    }
+
+    [Fact]
     public async Task OwnerPromptShowsActualPowerCostAndBattlefieldDestinationsForSpellStandby()
     {
         var s=Position();var prompt=ResolutionResult.BuildPrompts(s)["P1"];
