@@ -125,7 +125,7 @@ public sealed class AdditionalLegendSelectionTests
                 selected = prints.Select(c => c.CardNo).ToArray(); error = "不同的卡牌名称"; break;
             case "starting-legend": selected = [deck.LegendCardNo]; error = "起始传奇"; break;
             case "not-legend": selected = [deck.ChampionCardNo]; error = "必须是一张传奇牌"; break;
-            case "unknown": selected = ["missing"]; error = "additionalLegendCardNos"; break;
+            case "unknown": selected = ["missing"]; error = "额外传奇牌组中有未知牌号"; break;
         }
         var validation = OfficialDeckValidator.Validate(deck with { AdditionalLegendCardNos = selected }, catalog);
         Assert.False(validation.IsValid); Assert.Contains(validation.Errors, message => message.Contains(error, StringComparison.Ordinal));

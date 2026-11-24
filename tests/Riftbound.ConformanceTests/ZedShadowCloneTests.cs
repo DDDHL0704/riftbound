@@ -120,7 +120,8 @@ public sealed class ZedShadowCloneTests
         Assert.True(OfficialDeckValidator.Validate(deck, catalog).IsValid);
         var validation = OfficialDeckValidator.Validate(deck with { MainDeck = deck.MainDeck.Append(cardNo).ToArray() }, catalog);
         Assert.False(validation.IsValid);
-        Assert.Contains($"主牌堆中不能使用指示物：{cardNo}。", validation.Errors);
+        var token = catalog.Cards.Single(card => card.CardNo == cardNo);
+        Assert.Contains($"主牌堆中不能使用指示物《{OfficialCardSourceIdentityGroups.DisplayName(token)}》。", validation.Errors);
     }
 
     [Fact]

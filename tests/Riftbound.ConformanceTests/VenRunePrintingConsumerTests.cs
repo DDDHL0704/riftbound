@@ -76,7 +76,9 @@ public sealed class VenRunePrintingConsumerTests
         var template = Template(catalog, trait, false);
         Assert.True(OfficialDeckValidator.Validate(template.Decklist, catalog).IsValid);
         var result = OfficialDeckValidator.Validate(template.Decklist with { RuneDeck = Enumerable.Repeat(no, 12).ToArray() }, catalog);
-        Assert.False(result.IsValid); Assert.Contains(result.Errors, e => e.Contains(no, StringComparison.Ordinal));
+        Assert.False(result.IsValid);
+        var name = Printings.Single(printing => printing.No == no).Name;
+        Assert.StartsWith($"符文牌堆中的《{name}》 包含所选传奇不支持的特性", Assert.Single(result.Errors));
     }
 
     [Fact]

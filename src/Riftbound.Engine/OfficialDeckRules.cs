@@ -150,7 +150,7 @@ public static partial class OfficialDeckValidator
         {
             var card = RequireCard(cardsByNo, no, "additionalLegendCardNos", errors);
             if (card is null) continue;
-            if (card.CardCategoryName != "传奇") errors.Add($"额外传奇 {no} 必须是一张传奇牌。");
+            if (card.CardCategoryName != "传奇") errors.Add($"额外传奇中的{DeckCardLabel(card)}必须是一张传奇牌。");
             if (!selectedNames.Add(card.CardName)) errors.Add("额外选择的传奇必须具有不同的卡牌名称。");
             if (card.CardName == startingLegend?.CardName) errors.Add("额外传奇不能与起始传奇具有相同的卡牌名称。");
         }
@@ -175,21 +175,21 @@ public static partial class OfficialDeckValidator
             cards.Add(card);
             if (OfficialRuleDomainBehaviorCatalog.IsTokenCard(card))
             {
-                errors.Add($"主牌堆中不能使用指示物：{card.CardNo}。");
+                errors.Add($"主牌堆中不能使用指示物{DeckCardLabel(card)}。");
             }
             else if (card.CardCategoryNameList.Count == 0 || !card.CardCategoryNameList.All(MainDeckCategories.Contains))
             {
-                errors.Add($"主牌堆中的 {card.CardNo} 不能使用类别：{card.CardCategoryName}。");
+                errors.Add($"主牌堆中的{DeckCardLabel(card)}属于{card.CardCategoryName}，不能放入主牌堆。");
             }
 
             if (IsExclusive(card)
                 && legend is not null
                 && !string.Equals(card.Hero, legend.Hero, StringComparison.Ordinal))
             {
-                errors.Add($"专属牌 {card.CardNo} 与所选传奇英雄标签不匹配。");
+                errors.Add($"专属牌{DeckCardLabel(card)}与所选传奇英雄标签不匹配。");
             }
 
-            ValidateLegendTraits(card, legend, $"主牌堆中的 {card.CardNo}", errors);
+            ValidateLegendTraits(card, legend, $"主牌堆中的{DeckCardLabel(card)}", errors);
         }
 
         if (enforceConstructionLimits) ValidateCopyLimits(cards, errors);
@@ -221,10 +221,10 @@ public static partial class OfficialDeckValidator
 
             if (!string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal))
             {
-                errors.Add($"符文牌堆中的 {card.CardNo} 必须是符文牌。");
+                errors.Add($"符文牌堆中的{DeckCardLabel(card)}必须是符文牌。");
             }
 
-            ValidateLegendTraits(card, legend, $"符文牌堆中的 {card.CardNo}", errors);
+            ValidateLegendTraits(card, legend, $"符文牌堆中的{DeckCardLabel(card)}", errors);
         }
     }
 
@@ -247,10 +247,10 @@ public static partial class OfficialDeckValidator
             battlefieldCards.Add(card);
             if (!string.Equals(card.CardCategoryName, "战场", StringComparison.Ordinal))
             {
-                errors.Add($"战场牌组中的 {card.CardNo} 必须是战场牌。");
+                errors.Add($"战场牌组中的{DeckCardLabel(card)}必须是战场牌。");
             }
 
-            ValidateLegendTraits(card, legend, $"战场牌组中的 {card.CardNo}", errors);
+            ValidateLegendTraits(card, legend, $"战场牌组中的{DeckCardLabel(card)}", errors);
         }
 
         if (allowDuplicates) return;
@@ -303,6 +303,8 @@ public static partial class OfficialDeckValidator
         }
     }
 
+    private static string DeckCardLabel(OfficialCard card) => $"《{OfficialCardSourceIdentityGroups.DisplayName(card)}》";
+
     private static OfficialCard? RequireCard(
         IReadOnlyDictionary<string, OfficialCard> cardsByNo,
         string cardNo,
@@ -320,7 +322,7 @@ public static partial class OfficialDeckValidator
             return card;
         }
 
-        errors.Add($"{FieldLabel(field)}引用未知牌号 {cardNo}。");
+        errors.Add($"{FieldLabel(field)}中有未知牌号，请重新选择。");
         return null;
     }
 
@@ -333,7 +335,7 @@ public static partial class OfficialDeckValidator
             "mainDeck" => "主牌堆",
             "runeDeck" => "符文牌堆",
             "battlefields" => "战场牌组",
-            "additionalLegendCardNos" => "额外传奇牌组（additionalLegendCardNos）",
+            "additionalLegendCardNos" => "额外传奇牌组",
             _ => "卡组字段"
         };
     }

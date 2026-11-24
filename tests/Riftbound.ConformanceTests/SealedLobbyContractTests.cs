@@ -10,12 +10,12 @@ public sealed partial class GameHubJoinTests
 {
     public static IEnumerable<object[]> InvalidMixedPackOptions()
     {
-        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("XYZ", 6)]), "系列 XYZ"];
-        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 3), new("OGN", 3)]), "不能重复"];
-        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 5)]), "6 至 12"];
-        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 13)]), "6 至 12"];
-        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 0), new("SFD", 6)]), "至少为 1"];
-        yield return [new CreatePublicMatchOptionsDto("sealed", "OGN", 1, [new("OGN", 6)]), "不能同时指定"];
+        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("XYZ", 6)]), "卡包组合中有尚未开放现开赛的系列。"];
+        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 3), new("OGN", 3)]), "自定义卡包组合中的系列不能重复。"];
+        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 5)]), "自定义卡包组合的总包数必须为 6 至 12 包。"];
+        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 13)]), "自定义卡包组合的总包数必须为 6 至 12 包。"];
+        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 0), new("SFD", 6)]), "每个系列的卡包数量必须至少为 1。"];
+        yield return [new CreatePublicMatchOptionsDto("sealed", "OGN", 1, [new("OGN", 6)]), "请选择自定义卡包组合或单一系列。"];
     }
 
     [Theory]
@@ -24,11 +24,11 @@ public sealed partial class GameHubJoinTests
         CreatePublicMatchOptionsDto options, string expectedMessage)
     {
         var error = Assert.Throws<ArgumentException>(() => PublicMatchCreation.Normalize(options));
-        Assert.Contains(expectedMessage, error.Message);
+        Assert.Equal(expectedMessage, error.Message);
         var directory = new InMemoryPublicMatchDirectory();
         var directoryError = await Assert.ThrowsAsync<ArgumentException>(async () =>
             await directory.CreateAsync("mixed-invalid", "alice", options, default));
-        Assert.Contains(expectedMessage, directoryError.Message);
+        Assert.Equal(expectedMessage, directoryError.Message);
         Assert.Empty(await directory.ListOpenAsync(default));
 
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
@@ -42,7 +42,9 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(await directory.ListOpenAsync(default));
         Assert.Empty(groups.Added);
         Assert.Empty(clients.CallerClient.Snapshots);
-        Assert.IsType<ErrorDto>(Assert.Single(clients.CallerClient.Errors).Payload);
+        var clientError = Assert.IsType<ErrorDto>(Assert.Single(clients.CallerClient.Errors).Payload);
+        Assert.Equal(ErrorCodes.InvalidPayload, clientError.Code);
+        Assert.Equal(expectedMessage, clientError.Message);
     }
 
     [Theory]
@@ -76,13 +78,17 @@ public sealed partial class GameHubJoinTests
         Assert.Single(clients.CallerClient.Snapshots);
     }
 
+    private const string InvalidRoomOptionsMessage =
+        "建房参数无效：构筑赛只支持单局制；现开赛须指定已开放系列或卡包组合及 1 或 3 局制。";
+
     [Theory]
-    [InlineData("sealed", "unknown", 1)]
-    [InlineData("sealed", null, 3)]
-    [InlineData("sealed", "OGN", 2)]
-    [InlineData("constructed", null, 3)]
-    [InlineData("invalid", null, 1)]
-    public async Task SealedLobbyUnavailableModesRejectBeforeCreatingOrPublishingARoom(string format, string? setCode, int bestOf)
+    [InlineData("sealed", "unknown", 1, "该系列尚未开放现开赛。")]
+    [InlineData("sealed", null, 3, InvalidRoomOptionsMessage)]
+    [InlineData("sealed", "OGN", 2, "现开比赛只支持单局制或三局两胜。")]
+    [InlineData("constructed", null, 3, InvalidRoomOptionsMessage)]
+    [InlineData("invalid", null, 1, InvalidRoomOptionsMessage)]
+    public async Task SealedLobbyUnavailableModesRejectBeforeCreatingOrPublishingARoom(
+        string format, string? setCode, int bestOf, string expectedMessage)
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
         var directory = new InMemoryPublicMatchDirectory();
@@ -99,7 +105,9 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(await directory.ListOpenAsync(default));
         Assert.Empty(groups.Added);
         Assert.Empty(clients.CallerClient.Snapshots);
-        Assert.Equal(ErrorCodes.InvalidPayload, Assert.IsType<ErrorDto>(Assert.Single(clients.CallerClient.Errors).Payload).Code);
+        var error = Assert.IsType<ErrorDto>(Assert.Single(clients.CallerClient.Errors).Payload);
+        Assert.Equal(ErrorCodes.InvalidPayload, error.Code);
+        Assert.Equal(expectedMessage, error.Message);
     }
 
     [Theory]

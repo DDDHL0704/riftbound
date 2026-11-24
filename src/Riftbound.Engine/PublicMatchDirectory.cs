@@ -22,7 +22,7 @@ public static class PublicMatchCreation
         if (format == MatchFormats.Sealed && options?.Packs is { } packs)
         {
             if (!string.IsNullOrWhiteSpace(options.SetCode))
-                throw new ArgumentException("自定义卡包组合不能同时指定单一系列 setCode。");
+                throw new ArgumentException("请选择自定义卡包组合或单一系列。");
             var room = MatchSessionOptions.ForSealed(packs, options.BestOf);
             return new(MatchFormats.Sealed, null, room.SealedBestOf, room.SealedPacks);
         }

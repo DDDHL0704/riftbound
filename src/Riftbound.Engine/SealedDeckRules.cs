@@ -71,7 +71,7 @@ public static partial class OfficialDeckValidator
         if (deck.RuneDeck.Count != RuneDeckCount)
             errors.Add($"符文牌堆必须正好包含 {RuneDeckCount} 张符文牌。");
         var bestOf = context?.BestOf ?? 1;
-        if (bestOf is not (1 or 3)) errors.Add("现开比赛的 bestOf 必须为 1 或 3。");
+        if (bestOf is not (1 or 3)) errors.Add("现开比赛只支持单局制或三局两胜。");
         var battlefieldCount = bestOf == 3 ? 1 : BattlefieldCount;
         if (deck.Battlefields.Count != battlefieldCount)
             errors.Add($"现开{(bestOf == 3 ? "三局两胜" : "单局制")}必须提交 {battlefieldCount} 张战场牌。");
@@ -84,14 +84,14 @@ public static partial class OfficialDeckValidator
             if (cardsByNo.TryGetValue(cardNo, out var card)
                 && card.CardCategoryNameList.Any(category => category.StartsWith("专属", StringComparison.Ordinal) && category != "专属法术")
                 && (legend is null || !string.Equals(card.Hero, legend.Hero, StringComparison.Ordinal)))
-                errors.Add($"专属牌 {cardNo} 与所选传奇英雄标签不匹配（非专属法术仍遵守核心 103.3.d.2）。");
+                errors.Add($"专属牌{DeckCardLabel(card)}与所选传奇英雄标签不匹配（非专属法术仍遵守核心 103.3.d.2）。");
         }
         ValidateBattlefields(cardsByNo, deck.Battlefields, null, errors, allowDuplicates: true);
         foreach (var cardNo in deck.RuneDeck)
         {
             var rune = RequireCard(cardsByNo, cardNo, "runeDeck", errors);
             if (rune is not null && !SealedDeckRules.IsBasicRune(rune))
-                errors.Add($"符文牌堆中的 {cardNo} 必须是六种基础符文之一。");
+                errors.Add($"符文牌堆中的{DeckCardLabel(rune)}必须是六种基础符文之一。");
         }
 
         var usedCardNos = deck.MainDeck.Concat(deck.RuneDeck).Concat(deck.Battlefields)
@@ -115,7 +115,8 @@ public static partial class OfficialDeckValidator
             {
                 var owned = context.Pool.GetValueOrDefault(group.Key);
                 if (group.Count() > owned)
-                    errors.Add($"卡牌 {group.Key} 使用 {group.Count()} 张，超过服务端卡池持有的 {owned} 张。");
+                    // Prints with the same name consume separate physical copies.
+                    errors.Add($"{DeckCardLabel(group.First())}（{group.Key}）使用 {group.Count()} 张，超过卡池持有的 {owned} 张。");
             }
         }
         return errors.Count == 0 ? OfficialDeckValidationResult.Valid

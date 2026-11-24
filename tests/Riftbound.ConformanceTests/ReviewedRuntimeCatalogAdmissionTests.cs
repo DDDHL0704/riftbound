@@ -169,7 +169,8 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
         var result = await session.SubmitDeckAsync("P1", "bad-deck", command, JsonSerializer.SerializeToElement(command, Web), default);
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidDeck, result.ErrorCode);
-        Assert.Contains("未知牌号 " + cardNo, result.ErrorMessage);
+        Assert.Contains("主牌堆中有未知牌号", result.ErrorMessage);
+        Assert.DoesNotContain(cardNo, result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(before, MatchStateHasher.Hash(result.State));
     }

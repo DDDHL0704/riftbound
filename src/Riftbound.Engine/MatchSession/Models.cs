@@ -846,8 +846,7 @@ public sealed record MatchSessionOptions(
             SealedSetCode = setCode?.Trim().ToUpperInvariant(),
             SealedBestOf = bestOf
         };
-        SealedRoomPools.RequireOptions(options);
-        return options;
+        return ValidateSealedCreationOptions(options);
     }
 
     public static MatchSessionOptions ForSealed(IReadOnlyList<SealedPackChoiceDto> packs, int bestOf = 1)
@@ -862,7 +861,14 @@ public sealed record MatchSessionOptions(
             }).ToImmutableArray(),
             SealedBestOf = bestOf
         };
-        SealedRoomPools.RequireOptions(options);
+        return ValidateSealedCreationOptions(options);
+    }
+
+    private static MatchSessionOptions ValidateSealedCreationOptions(MatchSessionOptions options)
+    {
+        // Public room creation forwards this reason directly to the player.
+        if (SealedRoomPools.OptionError(options) is { } error)
+            throw new ArgumentException(error);
         return options;
     }
 
