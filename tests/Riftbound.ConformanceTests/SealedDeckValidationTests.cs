@@ -200,8 +200,7 @@ public sealed class SealedDeckValidationTests
         var error = Assert.Throws<ArgumentException>(() => new MatchSession("sealed-no-pool",
             new CoreRuleEngine(), NoopMatchJournal.Instance, NoopMatchPlayerStore.Instance,
             new MatchSessionOptions(false, OfficialDeckFormat.Sealed)));
-        Assert.Equal("options", error.ParamName);
-        Assert.Contains("隐藏提交内容", error.Message);
+        Assert.Equal("现开房间必须校验卡组并隐藏提交内容。", error.Message);
     }
 
     [Theory]

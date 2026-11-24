@@ -80,7 +80,7 @@ public sealed class InMemoryMatchmakingQueue : IMatchmakingQueue
                 var roomId = NormalizeRoomId(roomIdFactory());
                 var session = await sessions.GetOrCreateAsync(roomId, cancellationToken).ConfigureAwait(false);
                 if (session.OpeningRule != OpeningRules.Standard || session.RewindAllowed)
-                    throw new InvalidOperationException("快速匹配仅使用关闭回退的 STANDARD 房间。");
+                    throw new InvalidOperationException("快速匹配只支持关闭回退的标准开局房间。");
                 var opponentSession = await session.EnsurePlayerAsync(opponentPlayerId, cancellationToken)
                     .ConfigureAwait(false);
                 var playerSession = await session.EnsurePlayerAsync(normalizedPlayerId, cancellationToken)
@@ -147,7 +147,7 @@ public sealed class InMemoryMatchmakingQueue : IMatchmakingQueue
         var normalizedPlayerId = PlayerIdentityService.NormalizeHandle(playerId);
         if (normalizedPlayerId.Length == 0)
         {
-            throw new ArgumentException("Player id is required.", nameof(playerId));
+            throw new ArgumentException("请提供玩家名称。");
         }
 
         return normalizedPlayerId;
@@ -158,7 +158,7 @@ public sealed class InMemoryMatchmakingQueue : IMatchmakingQueue
         var normalized = (roomId ?? string.Empty).Trim().ToUpperInvariant();
         if (normalized.Length == 0)
         {
-            throw new InvalidOperationException("Matchmaking room id factory returned an empty room id.");
+            throw new InvalidOperationException("暂时无法创建匹配房间。");
         }
 
         return normalized;

@@ -818,7 +818,7 @@ public sealed record MatchSessionOptions(
 
     public static MatchSessionOptions ForOpeningRule(string openingRule)
     {
-        if (!OpeningRules.IsValid(openingRule)) throw new ArgumentException("未知的开局规则。", nameof(openingRule));
+        if (!OpeningRules.IsValid(openingRule)) throw new ArgumentException("未知的开局规则。");
         return new(false, OfficialDeckFormat.ChinaStandard20260724)
         {
             OpeningRule = openingRule == OpeningRules.Standard ? null : openingRule,
@@ -846,7 +846,8 @@ public sealed record MatchSessionOptions(
             SealedSetCode = setCode?.Trim().ToUpperInvariant(),
             SealedBestOf = bestOf
         };
-        return ValidateSealedCreationOptions(options);
+        SealedRoomPools.RequireOptions(options);
+        return options;
     }
 
     public static MatchSessionOptions ForSealed(IReadOnlyList<SealedPackChoiceDto> packs, int bestOf = 1)
@@ -861,14 +862,7 @@ public sealed record MatchSessionOptions(
             }).ToImmutableArray(),
             SealedBestOf = bestOf
         };
-        return ValidateSealedCreationOptions(options);
-    }
-
-    private static MatchSessionOptions ValidateSealedCreationOptions(MatchSessionOptions options)
-    {
-        // Public room creation forwards this reason directly to the player.
-        if (SealedRoomPools.OptionError(options) is { } error)
-            throw new ArgumentException(error);
+        SealedRoomPools.RequireOptions(options);
         return options;
     }
 
@@ -964,7 +958,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
     {
         ArgumentNullException.ThrowIfNull(creationOptions);
         if (!Enum.IsDefined(creationOptions.DeckFormat))
-            throw new ArgumentOutOfRangeException(nameof(creationOptions), "Unknown room deck format.");
+            throw new ArgumentOutOfRangeException(paramName: null, message: "房间的卡组格式无效。");
         SealedRoomPools.RequireOptions(creationOptions);
         CityOpeningRules.RequireOptions(creationOptions);
         await gate.WaitAsync(cancellationToken).ConfigureAwait(false);

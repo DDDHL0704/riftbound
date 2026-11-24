@@ -54,7 +54,7 @@ public static class SealedRoomPools
 
     public static void RequireOptions(MatchSessionOptions options)
     {
-        if (OptionError(options) is { } error) throw new ArgumentException(error, nameof(options));
+        if (OptionError(options) is { } error) throw new ArgumentException(error);
     }
 
     internal static MatchState AddPlayer(MatchState state, string playerId, OfficialCardCatalog catalog)
