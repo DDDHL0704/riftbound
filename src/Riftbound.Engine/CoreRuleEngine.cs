@@ -23634,7 +23634,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     events, state.PlayerScores);
             }
 
-            if (confirmPermanent && HasPendingPermanentPlayAbility(state, stackItem, behavior))
+            if (confirmPermanent && HasPendingPermanentPlayAbility(state, stackItem, behavior)
+                && (behavior.SourceDrawCount == 0 || SourceUnitDrawConditionApplies(
+                    DamageFrame() with { CardObjects = cardObjects }, behavior, stackItem)))
                 return PendingPermanentPlayAbility(state, stackItem, playerZones, cardObjects, events);
 
             if ((confirmPermanent || stackItem.SourceConfirmed) && stackItem.Showcase is not null
@@ -23675,19 +23677,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     }));
             }
 
-            if (TryResolveSourceUnitConditionalDraw(
-                    playerZones,
-                    cardObjects,
-                    behavior,
-                    stackItem,
-                    out var conditionalSourceDrawCount))
+            // The condition immediately follows the trigger, so it was already
+            // checked when this play ability was queued (CN 383.2.a.1).
+            if (stackItem.SourceConfirmed && behavior.SourceDrawCount > 0)
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
                     playerZones, cardObjects,
                     playerScores,
                     stackItem.ControllerId,
-                    conditionalSourceDrawCount,
+                    behavior.SourceDrawCount,
                     rngCursor,
                     events,
                     deferNormalVictory: true);
@@ -27679,12 +27678,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static int SumOtherControlledUnitPower(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        MatchState state,
         string playerId,
         string excludedObjectId)
     {
-        if (!playerZones.TryGetValue(playerId, out var zones))
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
         {
             return 0;
         }
@@ -27694,10 +27692,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Where(objectId => !string.Equals(objectId, excludedObjectId, StringComparison.Ordinal))
             .Distinct(StringComparer.Ordinal)
-            .Sum(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId)
-                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                    ? cardObject.Power
+            .Sum(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, playerId, objectId)
+                && IsFaceUpNonStandbyUnit(cardObject)
+                    ? ResolveCurrentFieldUnitPower(state, cardObject)
                     : 0);
     }
 
@@ -28668,38 +28666,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
     }
 
-    private static bool TryResolveSourceUnitConditionalDraw(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+    private static bool SourceUnitDrawConditionApplies(
+        MatchState state,
         CardBehaviorDefinition behavior,
-        StackItemState stackItem,
-        out int drawCount)
-    {
-        drawCount = 0;
-        if (behavior.SourceDrawCount <= 0)
-        {
-            return false;
-        }
-
-        var conditionApplies = behavior.SourceDrawConditionKind switch
+        StackItemState stackItem)
+        => behavior.SourceDrawConditionKind switch
         {
             CardSourceDrawConditionKinds.OtherControlledUnitPowerAtLeast =>
                 behavior.SourceDrawRequiredOtherControlledUnitPower > 0
-                && SumOtherControlledUnitPower(
-                    playerZones,
-                    cardObjects,
-                    stackItem.ControllerId,
-                    stackItem.SourceObjectId) >= behavior.SourceDrawRequiredOtherControlledUnitPower,
+                && SumOtherControlledUnitPower(state, stackItem.ControllerId, stackItem.SourceObjectId)
+                    >= behavior.SourceDrawRequiredOtherControlledUnitPower,
             _ => false
         };
-        if (!conditionApplies)
-        {
-            return false;
-        }
-
-        drawCount = behavior.SourceDrawCount;
-        return true;
-    }
 
     private static int ResolveFriendlyEquipmentStaticPowerBonus(
         CardBehaviorDefinition behavior,

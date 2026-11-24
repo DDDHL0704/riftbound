@@ -144,6 +144,43 @@ public sealed class VenContinuousCardTests
     }
 
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task BalancedDiscipleChecksEffectiveMightWhenItsPlayAbilityTriggers(bool playAmplifier)
+    {
+        const string disciple = "UNL-097/219";
+        var state = RadGearTestPosition.Put(Position("VEN·018"), "DISCIPLE", disciple, "P1", "HAND");
+        state = AttackDamageDistributionTests.Spell(state, "FREEZE", "SFD·066/221", "P1");
+        var draw = state.PlayerZones["P1"].MainDeck[0];
+        var driver = new Driver(state);
+        if (playAmplifier)
+            await driver.Act("P1", new PlayCardCommand("UNIT", "VEN·018", []));
+
+        Assert.Equal(playAmplifier ? 5 : 4, Might(driver.State, "P1", "ALLY"));
+        var prompt = ResolutionResult.BuildPrompts(driver.State)["P1"];
+        Assert.Contains(prompt.Candidates!, candidate => candidate.Action == CommandTypes.PlayCard && candidate.Enabled
+            && candidate.Metadata?.GetValueOrDefault("sourceRequirements")
+                is IEnumerable<IReadOnlyDictionary<string, object?>> rows
+            && rows.Any(row => Equals(row.GetValueOrDefault("sourceObjectId"), "DISCIPLE")));
+
+        await driver.Act("P1", new PlayCardCommand("DISCIPLE", disciple, []));
+        Assert.Contains("DISCIPLE", driver.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(draw, driver.State.PlayerZones["P1"].Hand);
+        if (playAmplifier)
+        {
+            Assert.Equal("DISCIPLE", Assert.Single(driver.State.StackItems).SourceObjectId);
+            await driver.Act("P1", new PlayCardCommand("FREEZE", "SFD·066/221", ["ALLY"]));
+            await driver.Top();
+            Assert.Equal(3, Might(driver.State, "P1", "ALLY"));
+            await driver.Top();
+            Assert.Contains(draw, driver.State.PlayerZones["P1"].Hand);
+        }
+
+        Assert.Empty(driver.State.StackItems);
+        await driver.Replay();
+    }
+
+    [Theory]
     [InlineData("VEN·097", "P1", "powerDelta")]
     [InlineData("VEN·097", "P2", "participantObjectIds")]
     [InlineData("VEN·097", "spectator", "missing")]

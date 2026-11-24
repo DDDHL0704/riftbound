@@ -5255,6 +5255,7 @@ internal static partial class ActionPromptBuilder
     }
 
     private static IReadOnlyDictionary<string, object?> ActivateAbilitySourceRequirementView(
+        MatchState state,
         ActivateAbilityPromptRequirement requirement)
     {
         var view = new Dictionary<string, object?>
@@ -5333,7 +5334,8 @@ internal static partial class ActionPromptBuilder
         {
             view["resourceSkill"] = true;
             view["reactionSpeed"] = true;
-            view["generatedMana"] = resourceAbility.GeneratedMana;
+            view["generatedMana"] = CoreRuleEngine.ImmediateResourceMana(resourceAbility,
+                state.CardObjects.GetValueOrDefault(requirement.SourceObjectId));
             view["generatedPower"] = resourceAbility.GeneratedPower;
             view["generatedPowerByTrait"] = P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(resourceAbility);
             view["resourceLifecycle"] = "rune-pool";
