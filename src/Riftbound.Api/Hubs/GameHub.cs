@@ -477,6 +477,29 @@ public sealed class GameHub(
         }
     }
 
+    public async Task<PlayCostQuoteWithRuneTapsDto> PreviewPlayCardWithRuneTaps(
+        string roomId, PlayCostPreviewRequestDto request, IReadOnlyList<string>? tapCandidates)
+    {
+        var quote = await PreviewPlayCard(roomId, request);
+        if (!quote.IsValid || quote.Cost is not { MissingMana: > 0 } cost || tapCandidates is null)
+            return new(quote, []);
+
+        var selected = request.Command.OptionalCosts ?? [];
+        var taps = tapCandidates
+            .Where(candidate => candidate?.StartsWith("TAP_RUNE:", StringComparison.Ordinal) == true)
+            .Except(selected, StringComparer.Ordinal)
+            .Take(cost.MissingMana)
+            .ToArray();
+        if (taps.Length != cost.MissingMana)
+            return new(quote, []);
+
+        // Put the added taps before any selected recycle of the same rune.
+        // Keep the order of the choices already made by the player.
+        var retry = request with { Command = request.Command with { OptionalCosts = [.. taps, .. selected] } };
+        var revisedQuote = await PreviewPlayCard(roomId, retry);
+        return new(revisedQuote, revisedQuote.IsValid ? taps : []);
+    }
+
     public async Task SeedScenario(string roomId, string playerId, string scenarioId, string clientIntentId)
     {
         var normalizedPlayerId = NormalizeRoomPlayerId(playerId);
