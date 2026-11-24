@@ -1132,6 +1132,10 @@
 - [x] **减少符文支付和复杂出牌的往返**。服务端回归验证同一枚符文在一条命令中先横置再回收，费用被拒绝时不改状态。复杂出牌新增 `PreviewPlayCardWithRuneTaps`。网页接入后，组合支付从两次命令降到一次，复杂出牌从两次报价降到一次，仍需单独提交出牌。四个实现 PR 的 L2 均已通过。 [#692](https://github.com/DDDHL0704/riftbound/pull/692) · [#694](https://github.com/DDDHL0704/riftbound/pull/694)
 - [ ] **网页接入（Claude）**。组合支付移除 `tapBeforeRecycle` 的独立横置，复杂出牌接入新报价并按返回顺序提交费用。MessagePack 由客户端显式选择，接入细节见对应 PR。
 
+## 对局记录与拒绝提示（Z 线）
+
+- [x] **服务端文案中文化**。结算、触发、据守、随从、回收及费用使用可读名称。补齐开局、待命翻开、卡组校验、建房和快速匹配的中文提示。共享记录只写公开名称，隐藏牌和未公开选择用泛称，卡组校验详情只给卡组所有者。定向测试覆盖隐藏信息、回放、重连和客户端收到的完整拒绝原因，三个代码 PR 均通过 L2。 [#715](https://github.com/DDDHL0704/riftbound/pull/715) · [#716](https://github.com/DDDHL0704/riftbound/pull/716) · [#717](https://github.com/DDDHL0704/riftbound/pull/717)
+
 ## 现开赛（F 线）
 
 - [x] **现开赛自由组合卡包**（`f/sealed-mixed-packs`，PR [#457](https://github.com/DDDHL0704/riftbound/pull/457) 已合入）：新增非官方自定义玩法 `packs: [{ setCode, count }]`，官方单系列六包保持默认；服务端按顺序逐包生成、私有种子按包序号派生，保存／恢复／重放与大厅和快照投影保留组合及每包系列，卡池仍按真实印次计数且不泄漏给对手或观战。建房拒绝未开放、重复、数量越界及同时提供 `setCode` 的组合；补完整混合卡池冷恢复和一局完整对局回归。契约见 ADR 0001。 |
