@@ -21,7 +21,8 @@ public sealed class LeeSinPenitentBoonTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["UNIT"] = new("P1", "BASE") },
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
                 ["UNIT"] = unit with { Power = unit.Power + boons, BoonCount = boons,
-                    Tags = unit.Tags.Concat(boons > 0 ? [CardObjectTags.Boon] : []).Distinct().Order().ToArray() } } };
+                    Tags = unit.Tags.Concat(boons > 0 ? [CardObjectTags.Boon] : [])
+                        .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() } } };
     }
 
     private static P4ActivatedAbilityDefinition Ability(string no = Lee)
