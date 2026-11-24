@@ -220,7 +220,7 @@ public sealed class AbilityRunePaymentTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) {
                 ["SHIELD"] = new("P2", "BATTLEFIELD", state.ObjectLocations["OTHER"].BattlefieldObjectId ?? "OTHER") } };
 
-    private static MatchState Runes(MatchState state)
+    internal static MatchState Runes(MatchState state)
     {
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var locations = state.ObjectLocations.ToDictionary(p => p.Key, p => p.Value);
