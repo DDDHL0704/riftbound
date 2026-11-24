@@ -5884,7 +5884,7 @@ public sealed partial class MatchSession : IMatchSession
         this.playerStore = playerStore;
         this.options = options ?? MatchSessionOptions.Default;
         if (!Enum.IsDefined(this.options.DeckFormat))
-            throw new ArgumentOutOfRangeException(nameof(options), "Unknown room deck format.");
+            throw new ArgumentOutOfRangeException(paramName: null, message: "房间的卡组格式无效。");
         SealedRoomPools.RequireOptions(this.options);
         CityOpeningRules.RequireOptions(this.options);
         state = MatchState.Create(roomId) with

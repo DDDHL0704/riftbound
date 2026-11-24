@@ -111,6 +111,37 @@ public sealed partial class GameHubJoinTests
     }
 
     [Theory]
+    [InlineData((OfficialDeckFormat)(-1), null, "房间的卡组格式无效。")]
+    [InlineData(OfficialDeckFormat.Sealed, null, "现开房间必须校验卡组并隐藏提交内容。")]
+    [InlineData(OfficialDeckFormat.ChinaStandard20260724, "unknown", "未知的开局规则。")]
+    [InlineData(OfficialDeckFormat.ChinaStandard20260724, OpeningRules.S5CityMode1, "城市挑战赛测试开局只支持提交正式卡组的构筑单局制。")]
+    public async Task MatchmakingRoomRejectionSendsOnlyTheChineseReason(
+        OfficialDeckFormat deckFormat, string? openingRule, string expectedMessage)
+    {
+        var options = new MatchSessionOptions(DeckFormat: deckFormat) { OpeningRule = openingRule };
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance,
+            NoopMatchRecoveryStore.Instance, NoopMatchPlayerStore.Instance, options);
+        var queue = new InMemoryMatchmakingQueue(registry, () => "RB-MATCH1");
+        Assert.Equal(MatchmakingStates.Queued, (await queue.EnqueueAsync("alice", default)).State);
+        var identity = new PlayerIdentityService(new InMemoryPlayerIdentityStore());
+        var clients = new RecordingHubClients();
+        var hub = CreateHub(clients, new RecordingGroupManager(), "room-rejection", registry,
+            playerIdentity: identity, matchmakingQueue: queue);
+        Assert.True((await hub.Authenticate("Bob", "bob-room-rejection-key")).Authenticated);
+
+        var result = await hub.EnqueueMatchmaking("Bob");
+
+        Assert.Equal(MatchmakingStates.Rejected, result.State);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal(expectedMessage, result.Message);
+        var error = Assert.IsType<ErrorDto>(Assert.Single(clients.CallerClient.Errors).Payload);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, error.Code);
+        Assert.Equal(expectedMessage, error.Message);
+        Assert.DoesNotContain("(Parameter", error.Message, StringComparison.Ordinal);
+        Assert.Null(await registry.FindAsync("RB-MATCH1", default));
+    }
+
+    [Theory]
     [InlineData("OGN", 1)]
     [InlineData("SFD", 3)]
     [InlineData("UNL", 1)]

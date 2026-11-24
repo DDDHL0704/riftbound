@@ -35,7 +35,7 @@ public static class CityOpeningRules
 
     public static void RequireOptions(MatchSessionOptions options)
     {
-        if (OptionError(options) is { } error) throw new ArgumentException(error, nameof(options));
+        if (OptionError(options) is { } error) throw new ArgumentException(error);
     }
 
     internal static OpeningSetupDto? View(MatchState state, string? viewer)
