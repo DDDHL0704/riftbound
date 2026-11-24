@@ -69,6 +69,8 @@
 
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
+- [x] **自建房间双方同意回退**。好友房、练习房和自建现开房可回到当前单局的指定步骤，保留随机结果和原日志，支持断线恢复与重放。目标描述按座位显示，每次成功回退提供一个可撤销目标。服务端 [#682](https://github.com/DDDHL0704/riftbound/pull/682) 和目标列表 [#691](https://github.com/DDDHL0704/riftbound/pull/691) 已合入，两个 PR 的 L2 均通过。协议见 [ADR 0007](adr/0007-match-rewind.md)。
+
 - [x] **主牌堆批量回收的随机偏差**。洞察、起手调度及其他批量主牌回收共用无偏的确定性洗牌。符文回收仍由拥有者排序，旧对局沿用原算法恢复和回放。依据中国区核心规则 417.5、417.5.a、437.1.a、117.3。已合入 [#675](https://github.com/DDDHL0704/riftbound/pull/675)，本地定向 50/50、[L2 九个分片及门槛](https://github.com/DDDHL0704/riftbound/actions/runs/45114682598)均通过。
 
 - [x] **第五赛季城市挑战赛可选开局流程**（11-15 用户决定；规则 [#666](https://github.com/DDDHL0704/riftbound/pull/666)）：好友房间与人机练习在建房时可选 `STANDARD`、`S5_CITY_MODE1`、`S5_CITY_MODE2`、`S5_CITY_MODE3`，省略保持原默认开局；快速匹配固定 STANDARD。仅支持构筑单局；现开及构筑三局两胜测试流程未实现。官方材料归档与哈希继续保留在 [2026-11-13 快照清单](../data/official/upstream/2026-11-13/manifest.json)，来源为 [10-16 正文](../data/official/upstream/2026-11-13/article.txt)、[10-28 转载](../data/official/upstream/2026-11-13/post-20261028.txt)与[配图全部文字转写](../data/official/upstream/2026-11-13/schedule-20261028.txt)。
