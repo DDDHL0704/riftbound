@@ -4056,7 +4056,8 @@ internal static partial class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior,
         IReadOnlyList<string> targetObjectIds,
-        string? sourceObjectId = null)
+        string? sourceObjectId,
+        Func<IReadOnlyList<string>, bool> canPay)
     {
         var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior, sourceObjectId);
         var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies, CoreRuleEngine.ActiveLevelAdditionalTargetCount(state, playerId, behavior));
@@ -4117,15 +4118,7 @@ internal static partial class ActionPromptBuilder
             return false;
         }
 
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        var manaRequired = CoreRuleEngine.CalculatePlayManaCost(state, playerId, behavior, targets: targetObjectIds).Total;
-        manaRequired = Math.Max(0, manaRequired - CoreRuleEngine.AvailableOptionalPlayManaReduction(state, playerId, behavior));
-        var ward = behavior.IgnoresSpellshield ? 0 : CoreRuleEngine.SpellshieldPowerCostForTargets(state, playerId, targetObjectIds);
-        return CanPayPlayPowerCosts(state, playerId, runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior),
-            behavior, ward, "", targets: targetObjectIds, manaCost: manaRequired,
-            availableMana: PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, null));
+        return canPay(targetObjectIds);
     }
 
     private static bool PromptHasRequiredAnyTargetTag(
