@@ -1119,7 +1119,12 @@
 - [x] **热局出牌与报价**。规则结算只生成实际发布的投影，同一状态复用提示候选，单个出牌来源共用费用选项。提示新鲜度改动的本机 Release 对照中，热局首次出牌约 450 → 46 ms，后续出牌约 383 → 20 ms，同状态补横置后的费用预览约 188 → 0.68 ms。 [#703](https://github.com/DDDHL0704/riftbound/pull/703) · [#706](https://github.com/DDDHL0704/riftbound/pull/706) · [#708](https://github.com/DDDHL0704/riftbound/pull/708)
 - [x] **长局目标组合**。开关回退各跑两组，同组消息和回执逐条一致。第 11 回合卡莎横置符文从 7.49–7.90 秒降至 0.44–0.58 秒，其中四组有三组低于 0.5 秒。个别第 9 回合命令仍超过 0.5 秒。 [#710](https://github.com/DDDHL0704/riftbound/pull/710)
 - [x] **首局初始化**。第二席 READY 中位数从 4.43 降至 2.05 秒，首次出牌从 11.91 降至 4.65 秒。随后在另一组四进程对照中，两次换牌从 10.01、10.04 秒降至 4.23、4.60 秒，启动至首张牌结算累计从 28.72 降至 17.98 秒。该组首次出牌从 5.82 升至 6.48 秒。两组共 740 份归一化消息和回执逐份一致，两席均保留起手牌。 [#711](https://github.com/DDDHL0704/riftbound/pull/711) · [#712](https://github.com/DDDHL0704/riftbound/pull/712)
-- [ ] **网页复验（Claude）**。真人桌面和练习桌各复测冷启动两次换牌、首次出牌及第 9–11 回合操作，记录点击至首个回执耗时和实际使用的 JSON 或 MessagePack。检查复杂费用报价、组合支付和恰好付得起时的自动横置，记录报价及提交次数，并复验旧服务端回退。 [#700](https://github.com/DDDHL0704/riftbound/pull/700) · [#702](https://github.com/DDDHL0704/riftbound/pull/702) · [#707](https://github.com/DDDHL0704/riftbound/pull/707)
+- [x] **网页复验（Claude）**。2026-11-24 在 main `d559b36f2` 上复验。本机 Release、内存模式，网页走 MessagePack，人机练习桌，桌面点击和脚本出牌都测了。数字是客户端测到的往返耗时。
+  - 冷启动首局：换牌 1.8 秒，从准备到轮到出牌 7.4 秒，首次出牌 1.3 秒。
+  - 长局：第 3–13 回合共 68 条命令，中位数 88 ms，九成在 188 ms 以内，第 9–11 回合最慢 188 ms。少数命令在本局第一次出现时会慢一些：第一次焦点让过 1.0 秒，第一次宣战 1.3 秒。
+  - 带目标、回收符文换符能、补横置的出牌，从点击“确认打出”算起只发 1 次报价（73 ms）和 1 次提交（88 ms）。恰好付得起的普通出牌不报价，直接提交。
+  - 模拟服务端没有 `PreviewPlayCardWithRuneTaps` 时，网页退回旧的两步报价（32 ms + 2 ms），补上 1 枚横置后提交成功。
+  - 没有单独测两名真人的好友房。 [#700](https://github.com/DDDHL0704/riftbound/pull/700) · [#702](https://github.com/DDDHL0704/riftbound/pull/702) · [#707](https://github.com/DDDHL0704/riftbound/pull/707)
 
 ## 服务端传输（X 线）
 
