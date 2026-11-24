@@ -6260,7 +6260,7 @@ public sealed partial class MatchSession : IMatchSession
             {
                 new GameEvent(
                     "DEV_SCENARIO_SEEDED",
-                    $"开发测试场景已载入: {normalizedScenarioId}",
+                    "已载入测试对局",
                     new Dictionary<string, object?>
                     {
                         ["playerId"] = normalizedPlayerId,
@@ -6526,8 +6526,8 @@ public sealed partial class MatchSession : IMatchSession
                     if (errors.Length > 0)
                     {
                         var rejected = Rejected(state,
-                            options.DeckFormat == OfficialDeckFormat.Sealed && owner != normalizedPlayerId
-                                ? "有玩家的现开卡组需要更新。"
+                            owner != normalizedPlayerId
+                                ? "对手的卡组需要更新。"
                                 : $"卡组需要更新：{string.Join("；", errors)}", ErrorCodes.InvalidDeck);
                         intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
                         return rejected;

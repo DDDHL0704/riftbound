@@ -57,7 +57,7 @@ public sealed class ReviewedResourceLegendSourcesTests
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidDeck, result.ErrorCode);
         Assert.Contains("英雄牌的英雄标签必须与所选传奇一致", result.ErrorMessage);
-        Assert.DoesNotContain("未知牌号 " + cardNo, result.ErrorMessage);
+        Assert.DoesNotContain("未知牌号", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(MatchStateHasher.Hash(initial), MatchStateHasher.Hash(result.State));
     }

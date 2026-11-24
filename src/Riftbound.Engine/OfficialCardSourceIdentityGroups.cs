@@ -7,10 +7,13 @@ internal static class OfficialCardSourceIdentityGroups
     private static readonly Lazy<IReadOnlyDictionary<string, string>> Names = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(
             card => NormalizeCardNo(card.CardNo),
-            card => string.IsNullOrWhiteSpace(card.SubTitle) ? card.CardName : card.CardName + " - " + card.SubTitle,
+            DisplayName,
             StringComparer.Ordinal));
 
     public static string DisplayName(string cardNo) => Names.Value.GetValueOrDefault(NormalizeCardNo(cardNo), cardNo);
+
+    internal static string DisplayName(OfficialCard card)
+        => string.IsNullOrWhiteSpace(card.SubTitle) ? card.CardName : $"{card.CardName} - {card.SubTitle}";
 
     public static string? KnownDisplayName(string? cardNo)
         => Names.Value.GetValueOrDefault(NormalizeCardNo(cardNo));

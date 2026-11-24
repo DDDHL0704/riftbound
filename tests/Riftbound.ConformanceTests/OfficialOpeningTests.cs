@@ -118,12 +118,12 @@ public sealed class OfficialOpeningTests
         AssertInvalid(valid with
         {
             MainDeck = ReplaceFirst(valid.MainDeck, firstNonChampion, runeCard.CardNo)
-        }, catalog, "不能使用类别：符文。");
+        }, catalog, $"《{OfficialCardSourceIdentityGroups.DisplayName(runeCard)}》属于符文，不能放入主牌堆。");
 
         AssertInvalid(valid with
         {
             MainDeck = ReplaceFirst(valid.MainDeck, firstNonChampion, "UNKNOWN-000")
-        }, catalog, "主牌堆引用未知牌号 UNKNOWN-000。");
+        }, catalog, "主牌堆中有未知牌号，请重新选择。");
 
         AssertInvalid(valid with
         {
@@ -153,12 +153,43 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public async Task ReadyNamesInvalidDeckCardsOnlyForTheirOwner()
+    {
+        const OfficialDeckFormat format = OfficialDeckFormat.ChinaStandard20260724;
+        var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
+        var deck = PreconstructedDeckCatalog.Build(catalog, format).First().Decklist;
+        var misplacedCard = catalog.Cards.Single(card => card.CardNo == deck.ChampionCardNo);
+        var invalid = deck with { RuneDeck = [misplacedCard.CardNo, .. deck.RuneDeck.Skip(1)] };
+        var initial = MatchReplayInitialStateBuilder.FromSeats("ready-deck-text",
+            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with
+        {
+            SessionOptions = new MatchSessionOptions(false, format),
+            PlayerDecklists = new Dictionary<string, OfficialDecklist> { ["P1"] = deck, ["P2"] = invalid }
+        };
+        var session = new MatchSession(initial, new CoreRuleEngine(), NoopMatchJournal.Instance);
+
+        var opponent = await session.ReadyAsync("P1", "ready-opponent", null, default);
+        Assert.False(opponent.Accepted);
+        Assert.Equal(ErrorCodes.InvalidDeck, opponent.ErrorCode);
+        Assert.Equal("对手的卡组需要更新。", opponent.ErrorMessage);
+
+        var owner = await session.ReadyAsync("P2", "ready-owner", null, default);
+        Assert.False(owner.Accepted);
+        Assert.Equal(ErrorCodes.InvalidDeck, owner.ErrorCode);
+        Assert.Contains($"《{OfficialCardSourceIdentityGroups.DisplayName(misplacedCard)}》必须是符文牌", owner.ErrorMessage);
+        Assert.Empty(owner.Events);
+        Assert.Empty(opponent.Events);
+        Assert.Equal(MatchStateHasher.Hash(initial), MatchStateHasher.Hash(owner.State));
+        Assert.Equal(MatchStateHasher.Hash(initial), MatchStateHasher.Hash(opponent.State));
+    }
+
+    [Fact]
     public async Task SubmitDeckRejectsInvalidOfficialDeckWithChineseMessage()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var invalid = BuildValidDeck(catalog) with
         {
-            MainDeck = []
+            MainDeck = ["UNKNOWN-000"]
         };
         var session = new MatchSession("official-invalid-deck-room", new CoreRuleEngine());
         session.EnsurePlayer("P1");
@@ -176,7 +207,8 @@ public sealed class OfficialOpeningTests
         Assert.Contains("卡组不合法：", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Contains("主牌堆至少需要 40 张牌。", result.ErrorMessage, StringComparison.Ordinal);
         Assert.DoesNotContain("invalid deck", result.ErrorMessage, StringComparison.Ordinal);
-        Assert.DoesNotContain("mainDeck must", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Contains("主牌堆中有未知牌号", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("UNKNOWN-000", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(MatchStatuses.Seating, result.State.Status);
         Assert.Equal(MatchPhases.Room, result.State.Phase);
         Assert.Equal(TimingStates.Room, result.State.TimingState);
@@ -6717,7 +6749,7 @@ public sealed class OfficialOpeningTests
                 return SnapshotOnlyBasicRawCommand(CommandTypes.RevealCard, prompt.SnapshotTick.Value);
             },
             ErrorCodes.UnsupportedCardBehavior,
-            "暂不支持该牌的待命翻开行为：missing-card");
+            "这张牌暂不支持从待命状态翻开。");
     }
 
     [Fact]
@@ -10529,7 +10561,7 @@ public sealed class OfficialOpeningTests
             "wrong-player-first-turn-reveal-card-snapshot",
             firstTurnPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.RevealCard, firstTurnPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.UnsupportedCardBehavior,
-            "暂不支持该牌的待命翻开行为：missing-card");
+            "这张牌暂不支持从待命状态翻开。");
     }
 
     [Fact]
@@ -13024,7 +13056,7 @@ public sealed class OfficialOpeningTests
             "active-player-first-turn-reveal-card-with-opposite-wait-snapshot",
             waitPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.RevealCard, waitPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.UnsupportedCardBehavior,
-            "暂不支持该牌的待命翻开行为：missing-card");
+            "这张牌暂不支持从待命状态翻开。");
     }
 
     [Fact]
@@ -15449,7 +15481,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.UnsupportedCardBehavior, "暂不支持该牌的待命翻开行为：missing-card");
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.UnsupportedCardBehavior, "这张牌暂不支持从待命状态翻开。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);

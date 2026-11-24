@@ -29,7 +29,7 @@ public sealed class VenTentacleCreationTests
         Assert.True(token.IsExhausted);
         var validation = OfficialDeckValidator.Validate(new("", "", [no], [], []), catalog);
         Assert.False(validation.IsValid);
-        Assert.Contains($"主牌堆中不能使用指示物：{no}。", validation.Errors);
+        Assert.Contains($"主牌堆中不能使用指示物《{OfficialCardSourceIdentityGroups.DisplayName(card)}》。", validation.Errors);
         var state = VenUnitEntryBasicTests.Position("VEN·100");
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["UNIT"] = factory.CreateObject("UNIT", "P1", "P1") } };

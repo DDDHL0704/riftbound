@@ -4868,6 +4868,7 @@ public sealed partial class GameHubJoinTests
         var acceptedEvents = EventsFor(acceptedClients);
         var seedEvent = Assert.Single(acceptedEvents);
         Assert.Equal("DEV_SCENARIO_SEEDED", seedEvent.Kind);
+        Assert.Equal("已载入测试对局", seedEvent.Description);
         Assert.Equal("basic-play", Assert.IsType<string>(seedEvent.Payload["scenarioId"]));
         var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
             .Select(message => message.PlayerId)

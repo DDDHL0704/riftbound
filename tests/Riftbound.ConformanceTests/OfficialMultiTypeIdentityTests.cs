@@ -58,7 +58,7 @@ public sealed class OfficialMultiTypeIdentityTests
         var validation = OfficialDeckValidator.Validate(deck, catalog with {
             Cards = catalog.Cards.Select(c => c.CardNo == card.CardNo ? forged : c).ToArray() });
         Assert.False(validation.IsValid);
-        Assert.Contains(validation.Errors, e => e.Contains("不能使用类别", StringComparison.Ordinal));
+        Assert.Contains(validation.Errors, e => e.Contains("不能放入主牌堆", StringComparison.Ordinal));
     }
 
     [Fact]

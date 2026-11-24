@@ -17315,7 +17315,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static ResolutionResult ResolveRevealCard(MatchState state, PlayerIntent intent, RevealCardCommand command)
     {
         if (!CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var definition))
-            return RejectWithCorePrompts(state, $"暂不支持该牌的待命翻开行为：{command.CardNo}", ErrorCodes.UnsupportedCardBehavior);
+            return RejectWithCorePrompts(state, "这张牌暂不支持从待命状态翻开。", ErrorCodes.UnsupportedCardBehavior);
         if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var source) || string.IsNullOrWhiteSpace(source.CardNo))
             return RejectWithCorePrompts(state, "待命翻开需要服务端已确认的牌信息。", ErrorCodes.InvalidTarget);
         if (source.CardNo != command.CardNo)

@@ -26,10 +26,10 @@ public static class SealedRoomPools
                 ? "非现开房间不能设置现开系列或多局配置。" : null;
         if (options.AllowLegacyReadyWithoutDeck || !options.HideSubmittedDeckIdentities)
             return "现开房间必须校验卡组并隐藏提交内容。";
-        if (options.SealedBestOf is not (1 or 3)) return "现开比赛的 bestOf 必须为 1 或 3。";
+        if (options.SealedBestOf is not (1 or 3)) return "现开比赛只支持单局制或三局两胜。";
         if (options.SealedPacks is { } choices)
         {
-            if (options.SealedSetCode is not null) return "自定义卡包组合不能同时指定单一系列 setCode。";
+            if (options.SealedSetCode is not null) return "请选择自定义卡包组合或单一系列。";
             if (choices.Count == 0 || choices.Any(choice => choice is null))
                 return "自定义卡包组合不能为空，且每项都必须完整。";
             var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -39,7 +39,7 @@ public static class SealedRoomPools
                 if (choice.Count < 1) return "每个系列的卡包数量必须至少为 1。";
                 if (!SealedSetCatalog.TryGet(choice.SetCode, out var set) || !set.Enabled
                     || choice.SetCode != set.SetCode)
-                    return $"系列 {choice.SetCode} 尚未开放现开赛。";
+                    return "卡包组合中有尚未开放现开赛的系列。";
                 if (!seen.Add(set.SetCode)) return "自定义卡包组合中的系列不能重复。";
                 total += choice.Count;
             }

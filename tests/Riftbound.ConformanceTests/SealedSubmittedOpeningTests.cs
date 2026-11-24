@@ -78,7 +78,7 @@ public sealed partial class SealedSubmittedOpeningTests
         var result = await run.Live.SubmitDeckAsync("alice", "forged-pool", forged, raw, default);
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidDeck, result.ErrorCode);
-        Assert.Contains("超过服务端卡池持有", result.ErrorMessage);
+        Assert.Contains("超过卡池持有", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(before, MatchStateHasher.Hash(result.State));
         var repeat = await run.Live.SubmitDeckAsync("alice", "forged-pool", forged, raw, default);

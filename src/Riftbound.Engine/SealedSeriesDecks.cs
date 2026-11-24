@@ -72,7 +72,11 @@ public static class SealedSeriesDecks
                     && game.Cards.GetValueOrDefault(playerId) == cardNo);
                 var owned = pool.Pool.GetValueOrDefault(cardNo);
                 if (used + deck.Battlefields.Count(no => no == cardNo) > owned)
-                    errors.Add($"战场 {cardNo} 已使用 {used} 张，卡池共 {owned} 张，同一轮内每张实体只能使用一次（602.3.e.4.a、602.3.f）。");
+                {
+                    var name = OfficialCardSourceIdentityGroups.KnownDisplayName(cardNo);
+                    var label = name is null ? "所选战场" : $"《{name}》（{cardNo}）";
+                    errors.Add($"{label}已使用 {used} 张，卡池共 {owned} 张，同一轮内每张实体只能使用一次（602.3.e.4.a、602.3.f）。");
+                }
             }
         }
         return errors;

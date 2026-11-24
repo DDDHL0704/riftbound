@@ -172,7 +172,8 @@ public sealed class SealedDeckValidationTests
         var deck = Deck() with { MainDeck = Deck(24).MainDeck.Append("OGN·027a/298").ToArray() };
         var pool = Pool(deck); pool.Remove("OGN·027a/298"); pool["OGN·027/298"] = 1;
         var before = JsonSerializer.Serialize(pool);
-        Invalid(Validate(catalog, deck, pool), "OGN·027a/298");
+        var alternate = catalog.Cards.Single(card => card.CardNo == "OGN·027a/298");
+        Invalid(Validate(catalog, deck, pool), $"《{OfficialCardSourceIdentityGroups.DisplayName(alternate)}》（{alternate.CardNo}）");
         Assert.Equal(before, JsonSerializer.Serialize(pool));
         pool["OGN·027a/298"] = 1;
         Valid(Validate(catalog, deck, pool));
@@ -212,7 +213,7 @@ public sealed class SealedDeckValidationTests
         var deck = Deck() with { Battlefields = Enumerable.Repeat(Blank, required).ToArray() };
         Valid(Validate(catalog, deck, bestOf: bestOf));
         Invalid(Validate(catalog, deck with { Battlefields = Enumerable.Repeat(Blank, required + 1).ToArray() }, bestOf: bestOf), $"提交 {required} 张");
-        Invalid(Validate(catalog, deck, bestOf: 2), "必须为 1 或 3");
+        Invalid(Validate(catalog, deck, bestOf: 2), "只支持单局制或三局两胜");
     }
 
     [Fact]
@@ -238,7 +239,7 @@ public sealed class SealedDeckValidationTests
         Invalid(Validate(catalog, Deck() with { LegendCardNo = Common }), "必须指向一张传奇");
         Invalid(Validate(catalog, Deck() with { ChampionCardNo = Common }), "必须指向一张英雄单位");
         Invalid(Validate(catalog, Deck() with { Battlefields = [Common, Blank, Blank] }), "必须是战场牌");
-        Invalid(Validate(catalog, Deck() with { MainDeck = Deck(24).MainDeck.Append(Blank).ToArray() }), "不能使用类别");
+        Invalid(Validate(catalog, Deck() with { MainDeck = Deck(24).MainDeck.Append(Blank).ToArray() }), "不能放入主牌堆");
     }
 
     [Fact]
@@ -248,6 +249,6 @@ public sealed class SealedDeckValidationTests
         var result = OfficialDeckValidator.Validate(Deck(40), catalog);
         Invalid(result, "传奇牌编号");
         Invalid(result, "英雄牌编号");
-        Invalid(result, "未知牌号 " + Blank);
+        Invalid(result, "战场牌组中有未知牌号");
     }
 }
