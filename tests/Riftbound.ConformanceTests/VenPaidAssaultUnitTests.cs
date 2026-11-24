@@ -46,6 +46,39 @@ public sealed class VenPaidAssaultUnitTests
         Assert.Contains("GRAVE", game.State.PlayerZones["P1"].Graveyard); await game.Replay();
     }
 
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    public async Task MonkPromptOffersItsManaOnlyPlayFeeWhenAffordable(int mana)
+    {
+        const string card = "VEN·101";
+        const string fee = "SPEND_MANA:1";
+        var initial = Position();
+        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new(mana, 0) } };
+        var prompt = ResolutionResult.BuildPrompts(initial)["P1"];
+        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            Assert.Single(prompt.Candidates!, candidate => candidate.Action == CommandTypes.PlayCard && candidate.Enabled)
+                .Metadata!["sourceRequirements"]);
+        var unit = Assert.Single(requirements, row => Equals(row["sourceObjectId"], "UNIT"));
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(unit["optionalCostChoices"]);
+        var paid = new PlayCardCommand("UNIT", card, [], OptionalCosts: [fee]);
+
+        if (mana == 2)
+        {
+            Assert.DoesNotContain(choices, item => item.Id == fee);
+            await Reject(initial, "P1", paid);
+        }
+        else
+        {
+            Assert.Single(choices, item => item.Id == fee);
+            var game = new Driver(initial);
+            await game.Act("P1", paid);
+            Assert.Equal(0, game.State.RunePools["P1"].Mana);
+            Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+            Assert.Equal("TRIGGER_CONFIRMATION", game.State.PendingCardChoice?.ChoiceWindow);
+        }
+    }
+
     [Fact]
     public async Task PayingThePlayFeeWithNoGraveyardCardStillEntersButCannotConfirmTheSkill()
     {

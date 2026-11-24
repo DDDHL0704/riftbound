@@ -4875,7 +4875,7 @@ internal static partial class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId)
     {
-        return behavior.TargetEffectAdditionalPowerCost > 0
+        return (behavior.TargetEffectAdditionalManaCost > 0 || behavior.TargetEffectAdditionalPowerCost > 0)
             && (CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
                 || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId, behavior.TargetEffectAdditionalManaCost)
                     >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.TargetEffectAdditionalManaCost)
