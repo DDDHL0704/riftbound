@@ -69,6 +69,9 @@
 
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
+- [x] **11 月 23 日同类规则排查（U 线）**。从 `8c62d2c2f` 核查了 500 条，按规则类别和卡牌印次计数。已修复均衡门徒的有效战力与触发时点、剑头蛟的卵强化后的法力提示，以及鲜血祭坛错扣法力的问题。目标修复覆盖同场与总战力约束、按单位控制者判断敌我、回音击待命翻开时误列同场单位。怒吼清算补齐弃牌回响选项，劲风修士补齐额外法力选项。依据中国区核心规则 135、143、203、355、383、417、820 与相应卡面。七个代码 PR 均已通过 L2 并合入，最后一批 27,652 条用例通过，零失败、零跳过。[#679](https://github.com/DDDHL0704/riftbound/pull/679) [#681](https://github.com/DDDHL0704/riftbound/pull/681) [#686](https://github.com/DDDHL0704/riftbound/pull/686) [#687](https://github.com/DDDHL0704/riftbound/pull/687) [#690](https://github.com/DDDHL0704/riftbound/pull/690) [#693](https://github.com/DDDHL0704/riftbound/pull/693) [#695](https://github.com/DDDHL0704/riftbound/pull/695)
+- [ ] **11 月 23 日同类规则排查待确认（T 线）**。决斗架势（OGN·046）的同处额外加成、拾荒小能手（OGN·099）的回收三张费用、妖异狐火（OGN·256）的打出目标同战场限制。待 T 线提供合入与定向回归证据。
+
 - [x] **自建房间双方同意回退**。好友房、练习房和自建现开房可回到当前单局的指定步骤，保留随机结果和原日志，支持断线恢复与重放。目标描述按座位显示，每次成功回退提供一个可撤销目标。服务端 [#682](https://github.com/DDDHL0704/riftbound/pull/682) 和目标列表 [#691](https://github.com/DDDHL0704/riftbound/pull/691) 已合入，两个 PR 的 L2 均通过。协议见 [ADR 0007](adr/0007-match-rewind.md)。
 
 - [x] **主牌堆批量回收的随机偏差**。洞察、起手调度及其他批量主牌回收共用无偏的确定性洗牌。符文回收仍由拥有者排序，旧对局沿用原算法恢复和回放。依据中国区核心规则 417.5、417.5.a、437.1.a、117.3。已合入 [#675](https://github.com/DDDHL0704/riftbound/pull/675)，本地定向 50/50、[L2 九个分片及门槛](https://github.com/DDDHL0704/riftbound/actions/runs/45114682598)均通过。
@@ -1168,6 +1171,8 @@ M 已核对旧远端分支、Windows 本地提交与脏树、主目录半途 che
 恢复时先核验 bundle，再取所需引用到临时非分支命名空间；按提交取单个文件并与当前 main 比较。归档标签仅用于恢复资料，不作为产品分支合入。
 
 ## 前端（Claude）
+
+- [ ] **同类规则排查的网页复验（U 线发现，Claude 跟进）**。灼热焦土、换换乐、顽皮触手、新月打击、远古巨龙两个印次、奥义！影缚和公开处刑共八个印次。服务端已验证拒绝非法组合。用真实提示运行选牌代码时，部分步骤仍可选到跨场、超总战力、同处重复或其他不满足组合约束的目标。待浏览器逐步复验。另复验风箱炎息与怒吼清算选择不同回响目标、怒吼清算互斥弃牌，以及龙栖峰符能不足时仍可勾选但提交前被报价拦截的问题。[#679](https://github.com/DDDHL0704/riftbound/pull/679) [#681](https://github.com/DDDHL0704/riftbound/pull/681)
 
 - [x] **前端需适配 #559**（`web/server-adapt-20261113` 已适配：替代费用单列为「打出 · 替代费用」，显示所需符能，命令带上该费用编号；普通费用一项不再把它当作可勾选的额外费用）：出牌提示的 `sourceRequirements` 可同时提供普通费用与替代费用；读取 `spellManaAlternativeCostChoiceId`／`spellManaAlternativeCostChoices` 和 `optionalCostChoices`。选择烬的替代费用时，在 `PLAY_CARD.optionalCosts` 提交 `SPELL_MANA_ALTERNATIVE_COST:4:1:blue`；未选时使用普通费用。条件为该玩家本回合单次法术实际法力付款至少 4，被无效化仍计入，界面按服务端给出的两种费用与可支付状态展示。
 
