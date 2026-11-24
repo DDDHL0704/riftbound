@@ -37,12 +37,12 @@ public sealed partial class CoreRuleEngine
     }
 
     private static readonly Lazy<HashSet<string>> OutsideHandPlayObserverFaces = new(() =>
-        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
-            .Where(card => RuleTextParser.Parse(card).Triggers.Any(t => t.Kind == TriggerKinds.ControllerOutsideHandPlayEmpowerSource))
+        RuntimePlayTriggerCatalog.Entries.Value
+            .Where(card => card.Triggers.Any(t => t.Kind == TriggerKinds.ControllerOutsideHandPlayEmpowerSource))
             .Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal));
     private static readonly Lazy<HashSet<string>> OpponentTurnPlayObserverFaces = new(() =>
-        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
-            .Where(card => RuleTextParser.Parse(card).Triggers.Any(t => t.Kind == TriggerKinds.ControllerOpponentTurnPlayCreateMinion))
+        RuntimePlayTriggerCatalog.Entries.Value
+            .Where(card => card.Triggers.Any(t => t.Kind == TriggerKinds.ControllerOpponentTurnPlayCreateMinion))
             .Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal));
 
     // Capture when the play completes, not at declaration or after the rest of

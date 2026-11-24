@@ -116,19 +116,7 @@ internal static class CardStaticAbilitySpecRules
 
     private static IReadOnlyDictionary<string, IReadOnlyList<StaticAbilitySpec>> BuildStaticAbilityMap()
     {
-        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
-        var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var playCardBehaviors = CardBehaviorRegistry.GetAll()
-            .Select(behavior => new ImplementedCardBehavior(
-                behavior.CardNo,
-                behavior.EffectKind,
-                behavior.DisplayName))
-            .ToArray();
-        var implementedBehaviors = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(
-            catalog.Cards,
-            playCardBehaviors);
-
-        var result = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, implementedBehaviors)
+        var result = RuntimeStaticCardSpecs.Entries.Value
             .Where(spec => spec.StaticAbilities.Count > 0)
             .ToDictionary(
                 spec => spec.CardNo,
