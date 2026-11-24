@@ -59,33 +59,44 @@ public sealed class MeditationOptionalCostPromptTests
     }
 
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public async Task PreviewAndPlayAgreeAndRecoverAcrossTheResponseWindow(bool payExhaust, bool tapRunes)
+    [InlineData(false, 5, 2, 0)]
+    [InlineData(true, 5, 2, 0)]
+    [InlineData(false, 5, 0, 2)]
+    [InlineData(true, 5, 0, 2)]
+    [InlineData(false, 1, 0, 2)]
+    [InlineData(false, 1, 1, 1)]
+    public async Task PreviewAndPlayAgreeAndRecoverAcrossTheResponseWindow(
+        bool payExhaust, int turn, int mana, int readyRunes)
     {
         var state = Position();
-        if (tapRunes)
+        state = state with
         {
-            state = Put(state, "RUNE-ONE", "UNL-R02", "P1", "BASE");
-            state = Put(state, "RUNE-TWO", "UNL-R02", "P1", "BASE");
-            state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = RunePool.Empty } };
-        }
+            TurnNumber = turn,
+            OpeningSecondActionPlayerId = "P2",
+            MulliganCompletedPlayerIds = ["P1", "P2"],
+            RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(mana, 0) }
+        };
+        string[] runeIds = ["RUNE-ONE", "RUNE-TWO"];
+        foreach (var id in runeIds.Take(readyRunes))
+            state = Put(state, id, "UNL-R02", "P1", "BASE");
+
         var game = new Driver(state) { RecoverAfterEveryCommand = false };
         var before = MatchStateHasher.Hash(state);
-        var requirement = Requirement(PlayCandidate(game.PromptFor("P1")));
+        var candidate = PlayCandidate(game.PromptFor("P1"));
+        Assert.True(candidate.Enabled, candidate.Reason);
+        var requirement = Requirement(candidate);
         var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["optionalCostChoices"]);
         var exhaust = Assert.Single(choices, choice => choice.Id.StartsWith(Exhaust, StringComparison.Ordinal));
         var costs = new List<string>();
         if (payExhaust) costs.Add(exhaust.Id);
-        if (tapRunes)
+        if (readyRunes > 0)
         {
             Assert.Equal(2, requirement["minimumManaCost"]);
-            Assert.Equal(0, requirement["availableMana"]);
+            Assert.Equal(mana, requirement["availableMana"]);
+            Assert.Equal(2, requirement["availableManaWithPaymentResources"]);
             var resources = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["paymentResourceChoices"]);
             var taps = resources.Where(choice => choice.Id.StartsWith("TAP_RUNE:", StringComparison.Ordinal)).Select(choice => choice.Id).ToArray();
-            Assert.Equal(new[] { "TAP_RUNE:RUNE-ONE", "TAP_RUNE:RUNE-TWO" }, taps);
+            Assert.Equal(runeIds.Take(readyRunes).Select(id => "TAP_RUNE:" + id), taps);
             costs.AddRange(taps);
         }
         var command = Play(costs.ToArray());
@@ -99,11 +110,7 @@ public sealed class MeditationOptionalCostPromptTests
         Assert.Equal(payExhaust, game.State.CardObjects["ALLY"].IsExhausted);
         Assert.Empty(game.State.PlayerZones["P1"].Hand);
         Assert.Equal(quote.Cost.RemainingMana, game.State.RunePools["P1"].Mana);
-        if (tapRunes)
-        {
-            Assert.True(game.State.CardObjects["RUNE-ONE"].IsExhausted);
-            Assert.True(game.State.CardObjects["RUNE-TWO"].IsExhausted);
-        }
+        Assert.All(runeIds.Take(readyRunes), id => Assert.True(game.State.CardObjects[id].IsExhausted));
         await game.ColdCheckpoint();
         await game.Top();
         Assert.Equal(state.PlayerZones["P1"].MainDeck.Take(payExhaust ? 2 : 1), game.State.PlayerZones["P1"].Hand);

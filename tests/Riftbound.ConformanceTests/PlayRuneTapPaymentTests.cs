@@ -40,10 +40,34 @@ public sealed class PlayRuneTapPaymentTests
     [Fact]
     public async Task OneRuneMayBeTappedThenRecycledForTheSameCardPayment()
     {
-        var initial = Position() with { RunePools = new Dictionary<string, RunePool> { ["P1"] = new(0, 0), ["P2"] = RunePool.Empty } };
+        var initial = Position() with
+        {
+            TurnNumber = 1,
+            OpeningSecondActionPlayerId = "P2",
+            MulliganCompletedPlayerIds = ["P1", "P2"],
+            RunePools = new Dictionary<string, RunePool> { ["P1"] = RunePool.Empty, ["P2"] = RunePool.Empty }
+        };
+        var candidate = Assert.Single(ResolutionResult.BuildPrompts(initial)["P1"].Candidates!, c => c.Action == CommandTypes.PlayCard);
+        Assert.True(candidate.Enabled, candidate.Reason);
+        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]);
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(Assert.Single(requirements)["paymentResourceChoices"]);
+        const string recycle = "RECYCLE_RUNE:TAP-PAY-R1";
+        Assert.All(Taps.Append(recycle), id => Assert.Contains(choices, choice => choice.Id == id));
+        var engine = new CoreRuleEngine();
+        var command = PlayCostPreviewTests.Command([.. Taps, recycle]);
+        var quote = engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
+        Assert.True(quote.CanPay, quote.Message);
+        Assert.Equal(0, quote.Cost!.RemainingMana);
+        Assert.Empty(quote.Cost.RemainingPowerByTrait!);
+
+        var insufficient = PlayCostPreviewTests.Command([.. Taps.Take(3), recycle]);
+        Assert.False(engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, insufficient)).CanPay);
+        await RadGearTestPosition.Reject(initial, "P1", insufficient);
         var driver = new Driver(initial);
-        await driver.Act("P1", PlayCostPreviewTests.Command([.. Taps, "RECYCLE_RUNE:TAP-PAY-R1"]));
+        await driver.Act("P1", command);
         Assert.Contains("TAP-PAY-R1", driver.State.PlayerZones["P1"].RuneDeck);
+        Assert.All(Taps.Skip(1), id => Assert.True(driver.State.CardObjects[id["TAP_RUNE:".Length..]].IsExhausted));
+        Assert.Equal(0, driver.State.RunePools["P1"].Mana);
         Assert.Equal(0, driver.State.RunePools["P1"].TotalStoredPower);
         await driver.Replay();
     }
