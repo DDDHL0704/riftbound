@@ -3939,15 +3939,6 @@ internal static partial class ActionPromptBuilder
         string playerId,
         string objectId)
     {
-        // The official opening's first main prompt only permits the opening
-        // resource actions.  Do not let otherwise playable hand cards leak
-        // into that prompt (CN core opening procedure); the command gate and
-        // the prompt must share this boundary.
-        if (IsOfficialOpeningFirstResourcePrompt(state, playerId))
-        {
-            return [];
-        }
-
         if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
             || string.IsNullOrWhiteSpace(cardObject.CardNo))
         {
@@ -4619,7 +4610,7 @@ internal static partial class ActionPromptBuilder
         // it out when the pool already covers the cost prevents unrelated
         // payment prompts from advertising every ready rune.
         if (available < requiredMana)
-            available += PromptTapRuneGeneratedMana(state, playerId);
+            available += CoreRuleEngine.TapRunePaymentResourceActionIds(state, playerId).Count;
         // All acquired mana shares the stored-mana capacity, including pools
         // restricted to a different purpose.
         return (int)Math.Min(available, (long)AvailablePlayMana(state, runePool, behavior)
@@ -4649,7 +4640,7 @@ internal static partial class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId)
     {
-        if (PromptTapRuneGeneratedMana(state, playerId) <= 0)
+        if (CoreRuleEngine.TapRunePaymentResourceActionIds(state, playerId).Count == 0)
             return false;
 
         var baseMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
@@ -4692,60 +4683,6 @@ internal static partial class ActionPromptBuilder
                     yield return echo.Mana;
             }
         }
-    }
-
-    private static int PromptTapRuneGeneratedMana(MatchState state, string playerId)
-    {
-        // The opening main prompt is intentionally limited to resource actions
-        // until the first player's turn has advanced.  Keep that prompt
-        // boundary independent from ordinary turn-one test positions, which
-        // do not carry the official opening marker.
-        if (IsOfficialOpeningFirstTurn(state, playerId))
-            return 0;
-
-        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
-        var capacity = Math.Max(0, int.MaxValue - pool.TotalStoredMana);
-        return Math.Min(CoreRuleEngine.TapRunePaymentResourceActionIds(state, playerId).Count, capacity);
-    }
-
-    private static bool IsOfficialOpeningFirstTurn(MatchState state, string playerId)
-    {
-        return IsOfficialOpeningMainPhase(state)
-            && string.Equals(state.TurnPlayerId, playerId, StringComparison.Ordinal);
-    }
-
-    private static bool IsOfficialOpeningFirstResourcePrompt(MatchState state, string playerId)
-    {
-        if (!IsOfficialOpeningFirstTurn(state, playerId)
-            || !state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
-        if (pool.TotalStoredMana > 0 || pool.TotalPower > 0)
-        {
-            return false;
-        }
-
-        // The official opening begins with two ready runes in the active
-        // player's base.  Once a rune has been tapped or recycled, the
-        // opening resource prompt has been completed and ordinary PLAY_CARD
-        // candidates must be exposed for the rest of that first turn.
-        var baseRunes = zones.Base
-            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
-            .ToArray();
-        return baseRunes.Length > 0
-            && baseRunes.All(objectId => !state.CardObjects[objectId].IsExhausted);
-    }
-
-    private static bool IsOfficialOpeningMainPhase(MatchState state)
-    {
-        return state.TurnNumber == 1
-            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            && !string.IsNullOrWhiteSpace(state.OpeningSecondActionPlayerId)
-            && state.MulliganCompletedPlayerIds.Count >= 2;
     }
 
     private static int PromptLuxSpellOnlyGeneratedMana(
