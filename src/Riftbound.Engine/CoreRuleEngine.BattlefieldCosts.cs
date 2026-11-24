@@ -18,6 +18,18 @@ public sealed partial class CoreRuleEngine
         => BattlefieldLocalRules.HasAbilityKind(BattlefieldLocalRules.AtObject(state, targetId),
             StaticAbilityKinds.BattlefieldIgnoreSpellshield);
 
+    internal static bool HasSpellshieldTaxForAnyTarget(MatchState state, string player, IEnumerable<string> targets)
+    {
+        MatchState? evaluated = null;
+        foreach (var targetId in targets)
+        {
+            evaluated ??= RecomputeRuleDerivedKeywords(state);
+            if (SpellshieldPowerCostForEvaluatedTarget(evaluated, player, targetId) > 0)
+                return true;
+        }
+        return false;
+    }
+
     internal static IReadOnlyDictionary<string, (bool IgnoresTax, int Tax)> SpellshieldByTarget(
         MatchState state, string player, IReadOnlyList<string> possibleTargets)
     {

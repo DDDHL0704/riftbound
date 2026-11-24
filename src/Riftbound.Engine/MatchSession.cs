@@ -4045,10 +4045,9 @@ internal static partial class ActionPromptBuilder
             || CoreRuleEngine.HasTargetGroupConstraint(behavior)
             || !string.IsNullOrWhiteSpace(behavior.AnyTargetRequiredTag)
             || behavior.SwapsTargetLocations
-            || choicesByIndex
-                .SelectMany(choiceIds => choiceIds)
-                .Distinct(StringComparer.Ordinal)
-                .Any(objectId => !behavior.IgnoresSpellshield && SpellshieldTaxPowerForTarget(state, playerId, objectId) > 0);
+            || (!behavior.IgnoresSpellshield
+                && CoreRuleEngine.HasSpellshieldTaxForAnyTarget(state, playerId,
+                    choicesByIndex.SelectMany(choiceIds => choiceIds).Distinct(StringComparer.Ordinal)));
     }
 
     private static bool IsPlayCardTargetAllowedInSelection(
