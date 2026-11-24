@@ -213,9 +213,29 @@ internal static partial class ActionPromptBuilder
         Dictionary<int, bool>? paymentByWard = CoreRuleEngine.HasTargetDependentPlayPayment(
             state, playerId, behavior, possibleTargets) ? null : new();
 
+        var spellshieldByTarget = behavior.IgnoresSpellshield ? null : CoreRuleEngine.SpellshieldByTarget(state, playerId, possibleTargets);
+
+        int TaxForSelection(IReadOnlyList<string> targets)
+        {
+            if (spellshieldByTarget is null)
+                return 0;
+
+            var total = 0;
+            foreach (var target in targets)
+            {
+                var (ignoresTax, tax) = spellshieldByTarget[target];
+                // A single target at a Ward-exempt battlefield suppresses the entire tax.
+                if (ignoresTax)
+                    return 0;
+                total += tax;
+            }
+
+            return total;
+        }
+
         bool CanPay(IReadOnlyList<string> targets)
         {
-            var ward = behavior.IgnoresSpellshield ? 0 : CoreRuleEngine.SpellshieldPowerCostForTargets(state, playerId, targets);
+            var ward = TaxForSelection(targets);
             if (paymentByWard is not null && paymentByWard.TryGetValue(ward, out var cached))
                 return cached;
 

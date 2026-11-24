@@ -12,11 +12,31 @@ public sealed partial class CoreRuleEngine
     // The modifier belongs to the complete payment instruction: choosing any
     // object here suppresses all Ward costs for this spell/skill (CN FAQ, Haisu).
     private static bool TargetsIgnoreSpellshield(MatchState state, IReadOnlyList<string> targets)
-        => targets.Any(id => BattlefieldLocalRules.HasAbilityKind(BattlefieldLocalRules.AtObject(state, id),
-            StaticAbilityKinds.BattlefieldIgnoreSpellshield));
+        => targets.Any(id => TargetIgnoresSpellshield(state, id));
 
-    internal static int SpellshieldPowerCostForTargets(MatchState state, string player, IReadOnlyList<string> targets)
-        => ResolveSpellshieldTargetTaxPower(state, player, targets, out _);
+    private static bool TargetIgnoresSpellshield(MatchState state, string targetId)
+        => BattlefieldLocalRules.HasAbilityKind(BattlefieldLocalRules.AtObject(state, targetId),
+            StaticAbilityKinds.BattlefieldIgnoreSpellshield);
+
+    internal static IReadOnlyDictionary<string, (bool IgnoresTax, int Tax)> SpellshieldByTarget(
+        MatchState state, string player, IReadOnlyList<string> possibleTargets)
+    {
+        var result = new Dictionary<string, (bool IgnoresTax, int Tax)>(StringComparer.Ordinal);
+        MatchState? evaluated = null;
+        foreach (var targetId in possibleTargets)
+        {
+            var ignoresTax = TargetIgnoresSpellshield(state, targetId);
+            var tax = 0;
+            if (!ignoresTax && IsEnemyFieldObject(state, player, targetId) && state.CardObjects.ContainsKey(targetId))
+            {
+                evaluated ??= RecomputeRuleDerivedKeywords(state);
+                tax = Math.Max(0, SpellshieldPowerCostForEvaluatedTarget(evaluated, player, targetId));
+            }
+            result.Add(targetId, (ignoresTax, tax));
+        }
+
+        return result;
+    }
 
     private static int BattlefieldReactionPowerIncrease(MatchState state, string player, CardBehaviorDefinition behavior)
         => !EffectPlayIgnoresAllCosts(state, player) && behavior.CanPlayDuringPriority && state.SpellDuelState.IsActive
