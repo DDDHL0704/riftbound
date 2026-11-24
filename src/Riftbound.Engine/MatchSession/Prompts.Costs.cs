@@ -167,6 +167,24 @@ internal static partial class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
+        var runePool = state.RunePools.GetValueOrDefault(playerId) ?? RunePool.Empty;
+        return PlayCardLegalTargetSelections(state, playerId, behavior, sourceObjectId, (targets, ward) =>
+        {
+            var mana = CoreRuleEngine.CalculatePlayManaCost(state, playerId, behavior, targets: targets).Total;
+            mana = Math.Max(0, mana - CoreRuleEngine.AvailableOptionalPlayManaReduction(state, playerId, behavior));
+            return CanPayPlayPowerCosts(state, playerId, runePool,
+                PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "",
+                targets: targets, manaCost: mana, availableMana: PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, null));
+        });
+    }
+
+    internal static IReadOnlyList<IReadOnlyList<string>> PlayCardLegalTargetSelections(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId,
+        Func<IReadOnlyList<string>, int, bool> quote)
+    {
         // Unbounded grouped targets use the server quote for each submitted set;
         // enumerating every permutation here grows factorially with zero-power units.
         if (behavior.AnyNumberOfTargets) return [];
@@ -189,6 +207,52 @@ internal static partial class ActionPromptBuilder
             return [];
         }
 
+        // Single-target legality is fixed at each position. Only relations
+        // between selected objects need to be checked for each combination.
+        for (var index = 0; index < choicesByIndex.Length; index++)
+        {
+            choicesByIndex[index] = choicesByIndex[index]
+                .Where(id => IsPlayCardTargetAllowedInSelection(state, playerId, behavior, id, index, sourceObjectId))
+                .ToArray();
+        }
+
+        // All selections here share the same state, player and source. When
+        // no target changes the price except spellshield, quote once per tax.
+        var possibleTargets = choicesByIndex.SelectMany(choices => choices).Distinct(StringComparer.Ordinal).ToArray();
+        Dictionary<int, bool>? paymentByWard = CoreRuleEngine.HasTargetDependentPlayPayment(
+            state, playerId, behavior, possibleTargets) ? null : new();
+
+        var spellshieldByTarget = behavior.IgnoresSpellshield ? null : CoreRuleEngine.SpellshieldByTarget(state, playerId, possibleTargets);
+
+        int TaxForSelection(IReadOnlyList<string> targets)
+        {
+            if (spellshieldByTarget is null)
+                return 0;
+
+            var total = 0;
+            foreach (var target in targets)
+            {
+                var (ignoresTax, tax) = spellshieldByTarget[target];
+                // A single target at a Ward-exempt battlefield suppresses the entire tax.
+                if (ignoresTax)
+                    return 0;
+                total += tax;
+            }
+
+            return total;
+        }
+
+        bool CanPay(IReadOnlyList<string> targets)
+        {
+            var ward = TaxForSelection(targets);
+            if (paymentByWard is not null && paymentByWard.TryGetValue(ward, out var cached))
+                return cached;
+
+            var result = quote(targets, ward);
+            paymentByWard?.Add(ward, result);
+            return result;
+        }
+
         var legalSelections = new List<IReadOnlyList<string>>();
         var hasGroupConstraint = CoreRuleEngine.HasTargetGroupConstraint(behavior);
         for (var targetCount = minTargetCount; targetCount <= maxTargetCount; targetCount++)
@@ -196,7 +260,7 @@ internal static partial class ActionPromptBuilder
             if (targetCount == 0)
             {
                 var emptySelection = Array.Empty<string>();
-                if (IsLegalPlayCardTargetSelection(state, playerId, behavior, emptySelection, sourceObjectId))
+                if (IsLegalPlayCardTargetCombination(state, playerId, behavior, emptySelection) && CanPay(emptySelection))
                 {
                     legalSelections.Add(emptySelection);
                 }
@@ -219,7 +283,7 @@ internal static partial class ActionPromptBuilder
             if (targetIndex >= targetCount)
             {
                 var selection = currentSelection.ToArray();
-                if (IsLegalPlayCardTargetSelection(state, playerId, behavior, selection, sourceObjectId))
+                if (IsLegalPlayCardTargetCombination(state, playerId, behavior, selection) && CanPay(selection))
                 {
                     legalSelections.Add(selection);
                 }

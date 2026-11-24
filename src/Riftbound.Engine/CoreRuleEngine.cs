@@ -21376,8 +21376,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     internal static int SpellshieldPowerCostForTarget(MatchState state, string playerId, string objectId)
+        => SpellshieldPowerCostForEvaluatedTarget(RecomputeRuleDerivedKeywords(state), playerId, objectId);
+
+    private static int SpellshieldPowerCostForEvaluatedTarget(MatchState state, string playerId, string objectId)
     {
-        state = RecomputeRuleDerivedKeywords(state);
         if (!IsEnemyFieldObject(state, playerId, objectId) || !state.CardObjects.TryGetValue(objectId, out var card)
             || card.IsFaceDown || TargetsIgnoreSpellshield(state, [objectId])) return 0;
         return ResourceKeywordAmountWithoutFriendlyAuras(state, card, CardResourceKeywordNames.Spellshield)

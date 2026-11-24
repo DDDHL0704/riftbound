@@ -100,6 +100,14 @@ public sealed partial class CoreRuleEngine
             .Any(option => reachability.CanPay(option.GenericPower, option.TypedPower));
     }
 
+    // Target enumeration already handles spellshield separately. These are the
+    // other target-dependent adjustments used by the mana and power quotes.
+    internal static bool HasTargetDependentPlayPayment(MatchState state, string player,
+        CardBehaviorDefinition behavior, IReadOnlyList<string> possibleTargets)
+        => !string.IsNullOrEmpty(behavior.TargetTraitsManaReductionTags)
+            || BattlefieldFriendlyTargetSpellPowerReduction(state, player, behavior, possibleTargets) > 0
+            || TargetedSpellReducers(state, player, behavior, possibleTargets).Count != 0;
+
     private static IReadOnlyList<ActionPromptChoiceDto> SpellPowerChoices(IReadOnlyList<SpellPowerReductionOption> options)
         => options.Where(a => a.ChoiceId.Length > 0).DistinctBy(a => a.ChoiceId)
             .Select(a => new ActionPromptChoiceDto(a.ChoiceId, "减去 " + SpellPowerReductionLabel(a.ChoiceId),

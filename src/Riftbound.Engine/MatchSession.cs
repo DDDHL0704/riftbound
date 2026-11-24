@@ -4045,87 +4045,48 @@ internal static partial class ActionPromptBuilder
             || CoreRuleEngine.HasTargetGroupConstraint(behavior)
             || !string.IsNullOrWhiteSpace(behavior.AnyTargetRequiredTag)
             || behavior.SwapsTargetLocations
-            || choicesByIndex
-                .SelectMany(choiceIds => choiceIds)
-                .Distinct(StringComparer.Ordinal)
-                .Any(objectId => !behavior.IgnoresSpellshield && SpellshieldTaxPowerForTarget(state, playerId, objectId) > 0);
+            || (!behavior.IgnoresSpellshield
+                && CoreRuleEngine.HasSpellshieldTaxForAnyTarget(state, playerId,
+                    choicesByIndex.SelectMany(choiceIds => choiceIds).Distinct(StringComparer.Ordinal)));
     }
 
-    private static bool IsLegalPlayCardTargetSelection(
+    private static bool IsPlayCardTargetAllowedInSelection(
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
-        IReadOnlyList<string> targetObjectIds,
-        string? sourceObjectId = null)
+        string objectId,
+        int targetIndex,
+        string? sourceObjectId)
     {
-        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior, sourceObjectId);
-        var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies, CoreRuleEngine.ActiveLevelAdditionalTargetCount(state, playerId, behavior));
-        var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
-        if (targetObjectIds.Count < minTargetCount
-            || targetObjectIds.Count > maxTargetCount)
-        {
-            return false;
-        }
+        return (!behavior.DiscardsTargetFromHand
+                || string.IsNullOrWhiteSpace(sourceObjectId)
+                || !string.Equals(sourceObjectId, objectId, StringComparison.Ordinal))
+            && IsPromptTargetObjectInScope(state, playerId, objectId, PromptTargetScopeForBehavior(behavior),
+                targetIndex, behavior.CanCounterAbilities)
+            && IsPromptPlayCardTargetAllowed(state, playerId, behavior, objectId, targetIndex)
+            && (!behavior.MovesTargetsToChosenLocation || !CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
+                || CoreRuleEngine.CanMoveUnitWithAttachedEquipmentForEffect(state, playerId, objectId));
+    }
 
-        if (!behavior.AllowsRepeatedTargets
-            && targetObjectIds.Distinct(StringComparer.Ordinal).Count() != targetObjectIds.Count)
-        {
-            return false;
-        }
-
+    private static bool IsLegalPlayCardTargetCombination(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds)
+    {
         for (var targetIndex = 0; targetIndex < targetObjectIds.Count; targetIndex++)
         {
-            if (behavior.DiscardsTargetFromHand
-                && !string.IsNullOrWhiteSpace(sourceObjectId)
-                && string.Equals(sourceObjectId, targetObjectIds[targetIndex], StringComparison.Ordinal))
-            {
-                return false;
-            }
-
-            var targetScope = PromptTargetScopeForBehavior(behavior);
-                if (!IsPromptTargetObjectInScope(
-                    state,
-                    playerId,
-                    targetObjectIds[targetIndex],
-                    targetScope,
-                    targetIndex,
-                    behavior.CanCounterAbilities)
-                || !IsPromptPlayCardTargetAllowed(state, playerId, behavior, targetObjectIds[targetIndex], targetIndex))
-            {
-                return false;
-            }
             if (!CoreRuleEngine.IsSelectedBattlefieldTargetRelationAllowed(state, behavior, targetObjectIds, targetIndex)
                 || !CoreRuleEngine.IsTargetPowerComparisonAllowed(state, playerId, behavior, targetObjectIds, targetIndex)
                 || !CoreRuleEngine.IsTargetReferencedMovementRelationAllowed(state, playerId, behavior, targetObjectIds, targetIndex)
                 || !CoreRuleEngine.IsMovementEquipmentRelationAllowed(state, playerId, behavior, targetObjectIds, targetIndex))
                 return false;
-            if (behavior.MovesTargetsToChosenLocation
-                && CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
-                && !CoreRuleEngine.CanMoveUnitWithAttachedEquipmentForEffect(state, playerId, targetObjectIds[targetIndex]))
-                return false;
         }
 
-        if (!CoreRuleEngine.HasValidTargetGroup(state, behavior, targetObjectIds)
-            || !CoreRuleEngine.HasValidDistributedSpellTargets(state, playerId, behavior, targetObjectIds))
-        {
-            return false;
-        }
-
-        if (!PromptHasRequiredAnyTargetTag(state, behavior, targetObjectIds)
-            || !PromptHasValidSwapTargetLocations(state, behavior, targetObjectIds))
-        {
-            return false;
-        }
-
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        var manaRequired = CoreRuleEngine.CalculatePlayManaCost(state, playerId, behavior, targets: targetObjectIds).Total;
-        manaRequired = Math.Max(0, manaRequired - CoreRuleEngine.AvailableOptionalPlayManaReduction(state, playerId, behavior));
-        var ward = behavior.IgnoresSpellshield ? 0 : CoreRuleEngine.SpellshieldPowerCostForTargets(state, playerId, targetObjectIds);
-        return CanPayPlayPowerCosts(state, playerId, runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior),
-            behavior, ward, "", targets: targetObjectIds, manaCost: manaRequired,
-            availableMana: PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, null));
+        return CoreRuleEngine.HasValidTargetGroup(state, behavior, targetObjectIds)
+            && CoreRuleEngine.HasValidDistributedSpellTargets(state, playerId, behavior, targetObjectIds)
+            && PromptHasRequiredAnyTargetTag(state, behavior, targetObjectIds)
+            && PromptHasValidSwapTargetLocations(state, behavior, targetObjectIds);
     }
 
     private static bool PromptHasRequiredAnyTargetTag(
