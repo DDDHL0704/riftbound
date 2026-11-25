@@ -46,6 +46,11 @@ export function toggleCost(pick: Pick, id: string): string[] {
   return [...(key ? chosen.filter((c) => !c.startsWith(key)) : chosen), id];
 }
 
+/** A chosen target is offered again only when the play may hit one unit more than once (星落 OGN·029). */
+export function targetTaken(pick: Pick, id: string) {
+  return pick.sel.targets.includes(id) && !pick.action.requirement?.allowsRepeatedTargets;
+}
+
 /** Every unit the selection targets, in any mode. */
 function chosenTargets(sel: Selection) {
   return new Set([...sel.targets, ...Object.values(sel.modeTargets ?? {}).flat()]);

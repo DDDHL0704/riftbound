@@ -38,7 +38,7 @@ import {
   useViewportFit,
 } from "./table/hooks";
 import { MulliganPanel } from "./table/MulliganPanel";
-import { applyChoice, boonSteppers, GROUP, offeredCosts, offeredSelection, toggleCost, type Pick } from "./table/pick";
+import { applyChoice, boonSteppers, GROUP, offeredCosts, offeredSelection, targetTaken, toggleCost, type Pick } from "./table/pick";
 import { PickBar } from "./table/PickBar";
 import { ResultPanel } from "./table/ResultPanel";
 import { RuneBar } from "./table/RuneBar";
@@ -227,7 +227,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     if (costUnits.size) return costUnits;
     const map = new Map<string, string>();
     for (const choice of stepChoices) {
-      if (pick?.sel.targets.includes(choice.id) || pick?.sel.optionalCosts.includes(choice.id)) continue;
+      if (pick && (targetTaken(pick, choice.id) || pick.sel.optionalCosts.includes(choice.id))) continue;
       for (const id of choiceObjectIds(choice)) map.set(id, choice.id);
     }
     for (const id of peers) map.set(id, GROUP + id);

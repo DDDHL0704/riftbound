@@ -3,7 +3,7 @@ import { motion, useIsPresent } from "motion/react";
 import type { ActionStep, ObjectAction } from "../../game/actions";
 import { cardInfo, cardName, paymentChoiceLabel } from "../../game/cards";
 import type { Choice, GameObject } from "../../game/types";
-import { boonSteppers, neededPower, offeredCosts, providedPower, type BoonCostGroup, type Pick } from "./pick";
+import { boonSteppers, neededPower, offeredCosts, providedPower, targetTaken, type BoonCostGroup, type Pick } from "./pick";
 
 type PickBarProps = {
   pick: Pick;
@@ -129,7 +129,7 @@ export function PickBar({ pick, step, choices, otherActions, onOtherAction, extr
             {moving && pick.group.length > 0 && <p className="pickbar__hint pickbar__hint--group">{pick.group.length + 1} 个单位一起移动</p>}
             <div className="pickbar__choices">
               {choices
-                .filter((c) => !pick.sel.targets.includes(c.id) && !(step.role === "cost" && pick.sel.optionalCosts.includes(c.id)))
+                .filter((c) => !targetTaken(pick, c.id) && !(step.role === "cost" && pick.sel.optionalCosts.includes(c.id)))
                 .map((c) => (
                   <button key={c.id} className="chip" onClick={() => onChoose(c.id)} {...cardRefAttrs(c.id, objects)}>
                     {choiceName(c.id, c.label, objects)}
