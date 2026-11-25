@@ -5507,6 +5507,8 @@ internal static partial class ActionPromptBuilder
         var optionalCostChoices = PlayCardOptionalCostChoicesForBehavior(
             state, playerId, behavior, sourceObjectId, reductionGroups, paymentResourceChoices);
 
+        // A base-power waiver removes both the amount shown to the client and its traits.
+        var printedPower = PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo);
         var requirement = new Dictionary<string, object?>
         {
             ["sourceObjectId"] = sourceObjectId,
@@ -5533,9 +5535,9 @@ internal static partial class ActionPromptBuilder
             ["manaCost"] = behavior.ManaCost,
             ["minimumManaCost"] = minimumManaCost,
             ["minimumPrintedPowerShortfall"] = printedPowerShortfall,
-            ["printedPowerCost"] = PrintedPowerCostRules.ForCard(behavior.CardNo).Amount,
+            ["printedPowerCost"] = printedPower.Amount,
             ["effectPlayReason"] = behavior.AppliedSelfGraveyardPlay is not null ? "从废牌堆支付卡牌指定的替代费用打出" : behavior.AppliedFlowCost is not null ? "流转：从废牌堆支付替代基础费用打出；离开结算链时改为放逐" : behavior.StandbyPlayFrom is not null ? "从待命打出：免基础费用，额外费用另计；遵守原战场限制" : state.PendingEffectPlay is { } effectPlay ? CoreRuleEngine.EffectPlayReason(effectPlay) : null,
-            ["printedPowerTraits"] = PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Traits,
+            ["printedPowerTraits"] = printedPower.Traits,
             ["printedPowerChoices"] = PrintedPowerChoices(behavior),
             ["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata,
             ["manaSpendSelection"] = ManaSpendSelectionRules.Metadata,

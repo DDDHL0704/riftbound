@@ -41,6 +41,49 @@ public sealed class OfficialUnitRevivalTests
     }
 
     [Fact]
+    public async Task MatronPromptShowsNoBasePowerForTheSameUnitThatCostsOneFromHand()
+    {
+        const string matron = "OGN·226/298";
+        const string unit = "UNL-137/219";
+        var state = Position(matron, unit) with
+        {
+            RunePools = new Dictionary<string, RunePool> { ["P1"] = new(4, 2), ["P2"] = RunePool.Empty }
+        };
+        var fromHand = state with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones)
+            {
+                ["P1"] = state.PlayerZones["P1"] with { Hand = ["C", "G"], Graveyard = [] }
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations)
+            {
+                ["G"] = new("P1", "HAND")
+            }
+        };
+        var normal = Requirement(fromHand);
+        Assert.Equal("HAND", normal.GetProperty("sourceZone").GetString());
+        Assert.Equal(1, normal.GetProperty("printedPowerCost").GetInt32());
+
+        var played = await Act(state, "P1", new PlayCardCommand("C", matron, ["G"]));
+        var opened = await Top(played.State);
+        Assert.Equal(0, opened.State.RunePools["P1"].TotalPower);
+        var waived = Requirement(opened.State);
+        Assert.Equal("GRAVEYARD", waived.GetProperty("sourceZone").GetString());
+        Assert.Equal(0, waived.GetProperty("printedPowerCost").GetInt32());
+        Assert.Empty(waived.GetProperty("printedPowerTraits").EnumerateArray());
+
+        static JsonElement Requirement(MatchState position)
+        {
+            var session = new MatchSession(position, new CoreRuleEngine(), NoopMatchJournal.Instance);
+            var prompt = JsonSerializer.SerializeToElement(session.PromptFor("P1"), new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            var play = Assert.Single(prompt.GetProperty("candidates").EnumerateArray(),
+                c => c.GetProperty("action").GetString() == CommandTypes.PlayCard && c.GetProperty("enabled").GetBoolean());
+            return Assert.Single(play.GetProperty("metadata").GetProperty("sourceRequirements").EnumerateArray(),
+                r => r.GetProperty("sourceObjectId").GetString() == "G" && r.GetProperty("cardNo").GetString() == unit);
+        }
+    }
+
+    [Fact]
     public async Task LoyaltyAnimalDiscountAppearsInPromptQuoteAndPayment()
     {
         var state=Position("UNL-168/219","SFD·069/221");
