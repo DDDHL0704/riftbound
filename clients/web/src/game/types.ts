@@ -153,6 +153,8 @@ export type Snapshot = {
     roomStatus: string;
     battle?: { isActive: boolean; battlefieldObjectId?: string | null; attackerObjectIds: string[]; defenderObjectIds: string[] };
     spellDuel?: { isActive: boolean; battlefieldObjectId?: string | null };
+    /** A resolving effect waits for its player to play a card (幽灵主母 plays a unit from the graveyard). */
+    pendingEffectPlay?: { playerId: string; optional: boolean; step: string; reason: string } | null;
   };
   turnState: string;
   table?: {
