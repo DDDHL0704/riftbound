@@ -511,18 +511,25 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     );
   };
 
-  // A card an effect makes this player play from outside the table (增援 banishes one from the deck top and
-  // plays it): it has no object to click, so it is offered in the rail with its play and refusal.
+  // A card an effect makes this player play from outside the table is offered in the rail with its play and
+  // refusal: one with no object to click (增援 banishes it from the deck top), or one in a pile while the
+  // effect waits on it (幽灵主母 plays a unit from the graveyard, and the turn stays put until it does).
+  const effectWaits = snapshot.timing.pendingEffectPlay?.playerId === meId;
+  const inPile = (id: string) => Boolean(me?.zones.graveyard.includes(id) || me?.zones.banished.includes(id));
   const effectPlays = [...actions].filter(
-    ([id, list]) => !objects[id] && list.some((a) => a.cmdType === "PLAY_CARD" || a.cmdType === "REFUSE_PLAY_PAYMENT"),
+    ([id, list]) =>
+      (!objects[id] || (effectWaits && inPile(id))) && list.some((a) => a.cmdType === "PLAY_CARD" || a.cmdType === "REFUSE_PLAY_PAYMENT"),
   );
   const effectPlayCardNo = (id: string, list: ObjectAction[]) =>
+    objects[id]?.cardNo ??
     (snapshot.stack?.find((item) => item.sourceObjectId === id)?.cardNo as string | undefined) ??
     list.map((a) => a.candidate.sources?.find((c) => c.id === id)).map((c) => c && choiceCardNo(c.label, c.id)).find(Boolean);
   const effectPlayPanel = effectPlays.length ? (
     <div className="panel">
       {effectPlays.map(([id, list]) => {
         const play = list.find((a) => a.cmdType === "PLAY_CARD");
+        // A zero fee cannot be refused (CN 445.1.b), so a free play offers no refusal.
+        const shown = list.filter((a) => !(a.cmdType === "REFUSE_PLAY_PAYMENT" && play?.detail === "免费"));
         return (
           <div key={id} className="effectplay">
             <Card
@@ -534,7 +541,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
               animate={false}
             />
             <div className="tempo">
-              {list.map((a) => (
+              {shown.map((a) => (
                 <button key={a.key} className={`btn btn--wide${a.cmdType === "PLAY_CARD" ? " btn--primary" : ""}`} disabled={state.pending} onClick={() => start(a)}>
                   {a.label}
                   {a.detail ? ` · ${a.detail}` : ""}
