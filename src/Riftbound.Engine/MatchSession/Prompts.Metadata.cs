@@ -135,9 +135,10 @@ internal static partial class ActionPromptBuilder
         return choiceId;
     }
 
-    private static IReadOnlyDictionary<string, object?> HideCardMetadataFor(MatchState state, string playerId)
+    private static IReadOnlyDictionary<string, object?> HideCardMetadataFor(
+        IReadOnlyList<HideCardPromptRequirement> requirements)
     {
-        var sourceRequirements = HideCardSourceRequirements(state, playerId)
+        var sourceRequirements = requirements
             .Select(HideCardSourceRequirementView)
             .ToArray();
         return new Dictionary<string, object?>

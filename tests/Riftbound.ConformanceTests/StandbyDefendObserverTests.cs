@@ -221,10 +221,12 @@ public sealed class StandbyDefendObserverTests
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)
             { TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
         public RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
+        public ActionPromptDto PromptFor(string player) => session.PromptFor(player);
+
         public async Task<ResolutionResult> Act(string player, GameCommand command)
         {
             var name = "defend-step-" + entries.Count;
-            var prompt = session.PromptFor(player);
+            var prompt = PromptFor(player);
             Export(name + "-prompt.json", prompt);
             Export(name + "-snapshot.json", ResolutionResult.BuildSnapshots(State)[player]);
             Export(name + "-selection.json", command);

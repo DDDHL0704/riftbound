@@ -2669,11 +2669,20 @@ internal static partial class ActionPromptBuilder
         bool promptActionable,
         string promptReason)
     {
-        var sources = AnnotatePromptChoiceObjectIds(SourcesFor(state, playerId, action));
+        // Each hide source shares the same destinations and fee options for this player.
+        var hideRequirements = action == CommandTypes.HideCard ? HideCardSourceRequirements(state, playerId) : null;
+        var firstHideRequirement = hideRequirements?.FirstOrDefault();
+        var sources = AnnotatePromptChoiceObjectIds(hideRequirements is null
+            ? SourcesFor(state, playerId, action)
+            : hideRequirements.Select(r => ObjectChoice(state, r.SourceObjectId, "implemented standby source")).ToArray());
         var targets = AnnotatePromptChoiceObjectIds(TargetsFor(state, playerId, action));
-        var destinations = AnnotatePromptChoiceObjectIds(DestinationsFor(state, playerId, action));
+        var destinations = AnnotatePromptChoiceObjectIds(hideRequirements is null
+            ? DestinationsFor(state, playerId, action)
+            : firstHideRequirement?.DestinationChoices ?? []);
         var modes = AnnotatePromptChoiceObjectIds(ModesFor(state, playerId, action));
-        var optionalCosts = AnnotatePromptChoiceObjectIds(OptionalCostsFor(state, playerId, action));
+        var optionalCosts = AnnotatePromptChoiceObjectIds(hideRequirements is null
+            ? OptionalCostsFor(state, playerId, action)
+            : firstHideRequirement?.OptionalCostChoices.Concat(firstHideRequirement.PaymentResourceChoices).ToArray());
         var requiresSourceChoices = string.Equals(action, "PLAY_CARD", StringComparison.Ordinal)
             || string.Equals(action, "MOVE_UNIT", StringComparison.Ordinal)
             || string.Equals(action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal)
@@ -2761,7 +2770,7 @@ internal static partial class ActionPromptBuilder
             destinations,
             modes,
             optionalCosts,
-            MetadataFor(state, playerId, action),
+            hideRequirements is null ? MetadataFor(state, playerId, action) : HideCardMetadataFor(hideRequirements),
             selectionSteps,
             commandTemplate,
             ComposerFor(selectionSteps, commandTemplate),
@@ -2787,11 +2796,6 @@ internal static partial class ActionPromptBuilder
             "PLAY_CARD" => CoreRuleEngine.EffectPlaySources(state, playerId)
                 .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
                 .Select(objectId => ObjectChoice(state, objectId, "implemented payable PLAY_CARD source"))
-                .ToArray(),
-            "HIDE_CARD" => HideCardSourceRequirements(state, playerId)
-                .Select(requirement => requirement.SourceObjectId)
-                .Distinct(StringComparer.Ordinal)
-                .Select(objectId => ObjectChoice(state, objectId, "implemented standby source"))
                 .ToArray(),
             "REVEAL_CARD" => RevealCardSourceRequirements(state, playerId)
                 .Select(requirement => requirement.SourceObjectId)
@@ -2839,23 +2843,25 @@ internal static partial class ActionPromptBuilder
         MatchState state,
         string playerId)
     {
-        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            return [];
-        }
-
-        var costChoices = HideCardOptionalCostChoicesForState(state, playerId);
-        if (costChoices.Length == 0)
-        {
-            return [];
-        }
-
+        var sources = CoreRuleEngine.StandbyHideSources(state, playerId);
+        if (sources.Count == 0) return [];
         var destinationChoices = HideCardDestinationChoicesForState(state, playerId);
         if (destinationChoices.Length == 0) return [];
-        var resources = RecycleRunePaymentResourceChoices(state, playerId, "回收符文获得符能并支付待命布置费用");
-        var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, resources);
-        var requirements = new List<HideCardPromptRequirement>();
-        foreach (var objectId in CoreRuleEngine.StandbyHideSources(state, playerId))
+
+        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
+        var recycles = RecycleRunePaymentResourceChoices(state, playerId, "回收符文获得符能并支付待命布置费用");
+        var availableMana = PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state);
+        var hasTeemo = HasTeemoStandbyHidePermission(state, playerId);
+        var taps = hasTeemo && availableMana == 0
+            ? AbilityTapRunePaymentChoices(state, playerId, "获得 1 点法力并支付待命布置费用") : [];
+        var costChoices = HideCardOptionalCostChoicesForState(state, playerId,
+            pool.TotalPower >= 1 || recycles.Count > 0, hasTeemo && (availableMana >= 1 || taps.Count > 0));
+        if (costChoices.Length == 0) return [];
+
+        var resources = recycles.Concat(taps).ToArray();
+        var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, recycles);
+        var requirements = new List<HideCardPromptRequirement>(sources.Count);
+        foreach (var objectId in sources)
         {
             if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
                 || string.IsNullOrWhiteSpace(cardObject.CardNo)
@@ -2869,7 +2875,7 @@ internal static partial class ActionPromptBuilder
                 behavior.CardNo,
                 behavior.DisplayName,
                 destinationChoices,
-                costChoices.Where(c => c.Id == StandbyHideTeemoOptionalCost || StandbyRules.HasPrintedKeyword(behavior.CardNo)).ToArray(),
+                costChoices,
                 0,
                 true,
                 null) { PaymentResourceChoices = resources, PaymentResourcePowerByChoice = byChoice });
@@ -2960,13 +2966,12 @@ internal static partial class ActionPromptBuilder
         return false;
     }
 
-    private static ActionPromptChoiceDto[] HideCardOptionalCostChoicesForState(MatchState state, string playerId)
+    private static ActionPromptChoiceDto[] HideCardOptionalCostChoicesForState(
+        MatchState state, string playerId, bool canPayPower, bool canPayTeemoMana)
     {
-        var pool = state.RunePools.GetValueOrDefault(playerId) ?? RunePool.Empty;
         var choices = new List<ActionPromptChoiceDto>();
-        if (pool.TotalPower >= 1 || CoreRuleEngine.RecycleRunePaymentResourceActionIds(state, playerId).Count > 0)
-            choices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
-        if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) >= 1 && HasTeemoStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
+        if (canPayPower) choices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
+        if (canPayTeemoMana) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
         if (HasFreeStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideFreeOptionalCost, "免费布置待命", "本回合的结算效果许可"));
         return choices.ToArray();
     }
@@ -4249,18 +4254,6 @@ internal static partial class ActionPromptBuilder
     {
         var choices = ActivateAbilitySourceRequirements(state, playerId)
             .SelectMany(requirement => requirement.OptionalCostChoices)
-            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
-            .Select(group => group.First())
-            .ToArray();
-        return choices.Length == 0 ? null : choices;
-    }
-
-    private static IReadOnlyList<ActionPromptChoiceDto>? HideCardOptionalCostChoices(
-        MatchState state,
-        string playerId)
-    {
-        var choices = HideCardSourceRequirements(state, playerId)
-            .SelectMany(requirement => requirement.OptionalCostChoices.Concat(requirement.PaymentResourceChoices))
             .GroupBy(choice => choice.Id, StringComparer.Ordinal)
             .Select(group => group.First())
             .ToArray();
