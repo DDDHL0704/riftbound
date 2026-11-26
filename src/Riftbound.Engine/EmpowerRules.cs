@@ -229,14 +229,20 @@ public sealed partial class CoreRuleEngine
         var effects = state.UntilEndOfTurnEffects;
         if (discarded is not null)
         {
-            if (!TryDiscardCardFromHand(zones, cards, intent.PlayerId, discarded.ObjectId))
+            var discardPools = payment.RunePools.ToDictionary();
+            var outcome = ResolveSingleHandDiscard(state, zones, cards, discardPools, intent.PlayerId, discarded.ObjectId, events);
+            if (outcome == HandDiscardOutcome.Invalid)
                 return RejectWithCorePrompts(state, "无法支付所选弃牌费用。", ErrorCodes.InvalidTarget);
-            events.Add(new("CARD_DISCARDED", "弃置所选手牌作为强化费用", new Dictionary<string, object?> {
-                ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
-                ["targetObjectId"] = discarded.ObjectId, ["destinationZone"] = "GRAVEYARD", ["reason"] = "REQUIRED_COST" }));
-            ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED",
-                source.ObjectId, [discarded.ObjectId], events);
-            effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [discarded.ObjectId], zones);
+            payment = payment with { RunePools = discardPools };
+            if (outcome == HandDiscardOutcome.Discarded)
+            {
+                events.Add(new("CARD_DISCARDED", "弃置所选手牌作为强化费用", new Dictionary<string, object?> {
+                    ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
+                    ["targetObjectId"] = discarded.ObjectId, ["destinationZone"] = "GRAVEYARD", ["reason"] = "REQUIRED_COST" }));
+                ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED",
+                    source.ObjectId, [discarded.ObjectId], events);
+                effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [discarded.ObjectId], zones);
+            }
             locations = ReconcileObjectLocations(locations, zones);
         }
         if (cost.Exhaust) cards[source.ObjectId] = ExhaustForInstruction(zones, cards, cards[source.ObjectId]);

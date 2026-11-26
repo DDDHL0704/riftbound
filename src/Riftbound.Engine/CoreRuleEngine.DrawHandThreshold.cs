@@ -124,17 +124,17 @@ public sealed partial class CoreRuleEngine
             throw new InvalidOperationException("Invalid captured draw hand-threshold skill.");
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary();
         var events = new List<GameEvent>(); var effects = state.UntilEndOfTurnEffects;
-        TryDiscardPlayerHand(zones, cards, c.ControllerId, out var discarded);
-        if (discarded.Count > 0)
+        var pools = state.RunePools.ToDictionary();
+        var discarded = ResolveHandDiscards(state, zones, cards, pools, c.ControllerId, zones[c.ControllerId].Hand, events).Discarded;
+        if (discarded.Length > 0)
         {
             events.Add(new("CARDS_DISCARDED", "抽牌技能弃置全部手牌", new Dictionary<string, object?> {
-                ["playerId"] = c.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["count"] = discarded.Count,
-                ["objectIds"] = discarded.ToArray(), ["destinationZone"] = "GRAVEYARD" }));
+                ["playerId"] = c.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["count"] = discarded.Length,
+                ["objectIds"] = discarded, ["destinationZone"] = "GRAVEYARD" }));
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, c.ControllerId, "CARDS_DISCARDED", item.SourceObjectId, discarded, events);
             effects = MarkPlayerDiscardedHandCardsThisTurn(effects, c.ControllerId, discarded, zones);
         }
         var result = NoopStackResolutionResult(state);
-        var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value);
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
         if (cards.TryGetValue(c.Source.ObjectId, out var source) && source.ObjectGeneration == c.Source.Generation
             && IsObjectOnField(zones, source.ObjectId))

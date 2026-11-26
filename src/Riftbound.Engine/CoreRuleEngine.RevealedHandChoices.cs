@@ -88,6 +88,7 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = new Dictionary<string, CardObjectState>(state.CardObjects);
         var experience = NormalizeExperienceForSeats(state);
+        var pools = state.RunePools.ToDictionary();
         var effects = state.UntilEndOfTurnEffects;
         var scores = state.PlayerScores;
         var rng = state.RngCursor;
@@ -111,13 +112,17 @@ public sealed partial class CoreRuleEngine
             }
             else
             {
-                if (!TryDiscardCardFromHand(zones, cards, owner, selected[0]))
+                var outcome = ResolveSingleHandDiscard(state, zones, cards, pools, owner, selected[0], events);
+                if (outcome == HandDiscardOutcome.Invalid)
                     return RejectWithCorePrompts(state, "所选卡牌已不在对手手牌中。", ErrorCodes.InvalidTarget);
-                events.Add(new("CARD_DISCARDED", "对手弃置展示的卡牌", new Dictionary<string, object?> {
-                    ["playerId"] = owner, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = selected[0],
-                    ["discardedByPlayerId"] = item.ControllerId, ["destinationZone"] = "GRAVEYARD" }));
-                ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, owner, "CARD_DISCARDED", item.SourceObjectId, selected, events);
-                effects = MarkPlayerDiscardedHandCardsThisTurn(effects, owner, selected, zones);
+                if (outcome == HandDiscardOutcome.Discarded)
+                {
+                    events.Add(new("CARD_DISCARDED", "对手弃置展示的卡牌", new Dictionary<string, object?> {
+                        ["playerId"] = owner, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = selected[0],
+                        ["discardedByPlayerId"] = item.ControllerId, ["destinationZone"] = "GRAVEYARD" }));
+                    ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, owner, "CARD_DISCARDED", item.SourceObjectId, selected, events);
+                    effects = MarkPlayerDiscardedHandCardsThisTurn(effects, owner, selected, zones);
+                }
                 if (spec.Action == RevealedHandAction.DiscardDraw) {
                     var drawn = ApplyDrawToPlayer(state, zones, cards, scores, owner, 1, rng, events, deferNormalVictory: true);
                     scores = drawn.PlayerScores; rng = drawn.RngCursor; winner = drawn.WinnerPlayerId ?? winner;
@@ -132,7 +137,7 @@ public sealed partial class CoreRuleEngine
             completion["unitEventHandExecution"] = item.CompletedHandExecutions;
         }
         events.Add(new("CARD_CHOICE_RESOLVED", "展示手牌选择完成", completion));
-        var next = state with { PendingCardChoice = null, PlayerZones = zones, CardObjects = cards, PlayerExperience = experience,
+        var next = state with { PendingCardChoice = null, PlayerZones = zones, CardObjects = cards, PlayerExperience = experience, RunePools = pools,
             UntilEndOfTurnEffects = effects, PlayerScores = scores, WinnerPlayerId = winner, RngCursor = rng,
             Status = winner is null ? state.Status : MatchStatuses.Finished,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),

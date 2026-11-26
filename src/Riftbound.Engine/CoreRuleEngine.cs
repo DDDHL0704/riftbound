@@ -138,9 +138,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string GainedExperienceThisTurnEffectPrefix = "GAINED_EXPERIENCE_THIS_TURN:";
     private const string PlayedSpellThisTurnEffectPrefix = "PLAYED_SPELL_THIS_TURN:";
     private const string PlayedFourPlusCostSpellThisTurnEffectPrefix = "PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:";
-    private const string FlameChompersCardNo = "OGN·006/298";
-    private const string FlameChompersDiscardReplacementPayChoice = "PAY_RED";
-    private const string FlameChompersDiscardReplacementReason = "OGN_FLAME_CHOMPERS_DISCARD_ALT_PLAY_UNIT";
 
     private ValueTask<ResolutionResult> ResolveCoreAsync(
         MatchState state,
@@ -3129,39 +3126,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
-        var discardedObjectIds = new List<string>();
-        var playedObjectCount = 0;
-        foreach (var objectId in submittedObjectIds)
-        {
-            if (TryResolveFlameChompersDiscardReplacement(
-                    state,
-                    pendingChoice,
-                    intent.PlayerId,
-                    objectId,
-                    playerZones,
-                    cardObjects,
-                    runePools,
-                    events))
-            {
-                playedObjectCount++;
-                continue;
-            }
-
-            if (!TryDiscardCardFromHand(playerZones, cardObjects, intent.PlayerId, objectId))
-            {
-                return RejectWithCorePrompts(
-                    state,
-                    "选中的手牌不符合条件。",
-                    ErrorCodes.InvalidTarget);
-            }
-
-            events.Add(BuildHandChoiceDiscardedEvent(
-                pendingChoice,
-                intent.PlayerId,
-                objectId,
-                autoDiscard: false));
-            discardedObjectIds.Add(objectId);
-        }
+        var discard = ResolveHandDiscards(state, playerZones, cardObjects, runePools,
+            intent.PlayerId, submittedObjectIds, events);
+        var discardedObjectIds = discard.Discarded;
+        foreach (var objectId in discardedObjectIds)
+            events.Add(BuildHandChoiceDiscardedEvent(pendingChoice, intent.PlayerId, objectId, autoDiscard: false));
 
         ResolveHandCardsDiscardedReadyPowerTriggers(
             playerZones,
@@ -3226,8 +3195,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = pendingChoice.SourceObjectId,
                 ["effectKind"] = pendingChoice.EffectKind,
                 ["chosenCount"] = submittedObjectIds.Length,
-                ["discardedCount"] = discardedObjectIds.Count,
-                ["replacedCount"] = playedObjectCount,
+                ["discardedCount"] = discardedObjectIds.Length,
+                ["replacedCount"] = discard.ReplacedCount,
                 ["drawCount"] = pendingChoice.DrawCount
             }));
 
@@ -3248,7 +3217,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
             CardObjects = cardObjects,
             RunePools = runePools,
-            PlayerCardsPlayedThisTurn = IncrementPlayerCardsPlayedThisTurn(state, intent.PlayerId, playedObjectCount),
             PlayerScores = drawApplication.PlayerScores,
             UntilEndOfTurnEffects = untilEndOfTurnEffects,
             RngCursor = drawApplication.RngCursor,
@@ -4036,14 +4004,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 "ADDITIONAL_COST"));
         }
 
-        var discardedOptionalCostObjectIds = new List<string>();
-        foreach (var discardedOptionalCostTargetObjectId in plan.DiscardedOptionalCostTargetObjectIds)
+        var discardedOptionalCostObjectIds = ResolveHandDiscards(state with { ObjectLocations = objectLocations },
+            playerZones, cardObjects, runePools, intent.PlayerId, plan.DiscardedOptionalCostTargetObjectIds, events).Discarded;
+        foreach (var discardedOptionalCostTargetObjectId in discardedOptionalCostObjectIds)
         {
-            if (!TryDiscardCardFromHand(playerZones, cardObjects, intent.PlayerId, discardedOptionalCostTargetObjectId))
-            {
-                continue;
-            }
-
             events.Add(new GameEvent(
                 "CARD_DISCARDED",
                 $"{behavior.DisplayName}弃置手牌作为额外费用",
@@ -4055,7 +4019,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["reason"] = "OPTIONAL_COST",
                     ["destinationZone"] = "GRAVEYARD"
                 }));
-            discardedOptionalCostObjectIds.Add(discardedOptionalCostTargetObjectId);
         }
         ResolveHandCardsDiscardedReadyPowerTriggers(
             playerZones,
@@ -4125,6 +4088,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         nextState = nextState with
         {
             Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
+            RunePools = runePools,
             EquipmentPlayGrants = TurnEquipmentPlayRules.Consume(state, behavior),
             TimedBanishPlayGrants = TimedBanishPlayRules.Consume(state, command.SourceObjectId),
             CardObjects = cardObjects,
@@ -10544,19 +10508,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Base.Contains(runeObjectId, StringComparer.Ordinal)
-            && state.CardObjects.TryGetValue(runeObjectId, out var runeState)
-            && runeState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
-            && SourceObjectControlledByPlayerOrLegacyOwned(runeState, playerId)
-            && !runeState.IsFaceDown
-            && TryGetRuneTrait(runeState, out _);
+            && IsRecyclableRuneResource(state.CardObjects, playerId, runeObjectId);
     }
+
+    private static bool IsRecyclableRuneResource(IReadOnlyDictionary<string, CardObjectState> cards,
+        string player, string id)
+        => cards.TryGetValue(id, out var rune)
+            && rune.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(rune, player)
+            && !rune.IsFaceDown
+            && TryGetRuneTrait(rune, out _);
 
     // CN 430: acquiring a legal rune resource is voluntary, even when its trait
     // is unrelated to the current fee. Cost authorization still checks exact traits.
     internal static IReadOnlyList<string> RecycleRunePaymentResourceActionIds(MatchState state, string playerId)
         => state.RunePools.GetValueOrDefault(playerId, RunePool.Empty) is { HasSupportedAmounts: true } pool
             && pool.TotalStoredPower < int.MaxValue && state.PlayerZones.TryGetValue(playerId, out var zones)
-            ? zones.Base.Where(id => CanRecycleRuneForPayment(state, playerId, id)
+            ? zones.Base.Where(id => IsRecyclableRuneResource(state.CardObjects, playerId, id)
                 && !string.IsNullOrWhiteSpace(state.CardObjects[id].CardNo))
                 .Select(id => RecycleRunePaymentOptionalCostPrefix + id)
                 .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
@@ -15923,108 +15891,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }), playerZones, cardObjects));
 
         return new RecycleResult(events, rngCursor);
-    }
-
-    private static bool TryResolveBattlefieldConquerDiscardDrawTrigger(
-        MatchState state,
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, int> playerScores,
-        string playerId,
-        string battlefieldId,
-        string sourceObjectId,
-        long rngCursor,
-        List<GameEvent> events,
-        out DrawApplicationResult drawApplication,
-        out IReadOnlyList<string> discardedObjectIds,
-        out PendingHandChoiceState? pendingHandChoice)
-    {
-        drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
-        discardedObjectIds = [];
-        pendingHandChoice = null;
-        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetTrigger(
-                battlefieldState.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardDrawTrigger,
-                out var trigger))
-        {
-            return false;
-        }
-
-        var drawCount = trigger.DrawCount.GetValueOrDefault();
-        var legalHand = playerZones.TryGetValue(playerId, out var handZones)
-            ? handZones.Hand.Where(id => IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, id)).ToArray()
-            : [];
-        var discardCount = Math.Min(trigger.DiscardCount.GetValueOrDefault(), legalHand.Length);
-        if (legalHand.Length > discardCount && discardCount > 0)
-        {
-            pendingHandChoice = new PendingHandChoiceState(
-                choiceId: $"conquest-discard:{state.Tick}:{battlefieldObjectId}:{playerId}",
-                choiceWindow: TriggerKinds.BattlefieldConquerDiscardDraw, playerId: playerId,
-                requiredCount: discardCount, maxCount: discardCount, legalObjectIds: legalHand,
-                reason: TriggerKinds.BattlefieldConquerDiscardDraw, sourceObjectId: battlefieldObjectId,
-                effectKind: TriggerKinds.BattlefieldConquerDiscardDraw, drawCount: drawCount);
-            events.Add(new GameEvent("HAND_CHOICE_REQUESTED", "征服战场：选择要弃置的手牌，然后抽牌",
-                new Dictionary<string, object?> {
-                    ["choiceId"] = pendingHandChoice.ChoiceId, ["choiceWindow"] = pendingHandChoice.ChoiceWindow,
-                    ["playerId"] = playerId, ["sourceObjectId"] = battlefieldObjectId,
-                    ["effectKind"] = trigger.Kind, ["requiredCount"] = discardCount,
-                    ["maxCount"] = discardCount, ["legalCount"] = legalHand.Length, ["drawCount"] = drawCount
-                }));
-            return true;
-        }
-        events.Add(new GameEvent(
-            "BATTLEFIELD_TRIGGER_RESOLVED",
-            $"{playerId} 征服战场并弃牌抽牌",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["battlefieldId"] = battlefieldId,
-                ["battlefieldObjectId"] = battlefieldObjectId,
-                ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = TriggerKinds.BattlefieldConquerDiscardDraw,
-                ["sourceObjectId"] = sourceObjectId,
-                ["drawCount"] = drawCount
-            }));
-
-        var discarded = new List<string>();
-        foreach (var discardedObjectId in legalHand.Take(discardCount))
-        {
-            if (TryDiscardCardFromHand(playerZones, cardObjects, playerId, discardedObjectId))
-            {
-                events.Add(new GameEvent(
-                    "CARD_DISCARDED",
-                    $"{playerId} 因征服战场弃置手牌",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = playerId,
-                        ["sourceObjectId"] = battlefieldObjectId,
-                        ["targetObjectId"] = discardedObjectId,
-                        ["reason"] = TriggerKinds.BattlefieldConquerDiscardDraw,
-                        ["destinationZone"] = trigger.DiscardDestinationZone
-                    }));
-                ResolveHandCardsDiscardedReadyPowerTriggers(
-                    playerZones,
-                    cardObjects,
-                    playerId,
-                    "CARD_DISCARDED",
-                    battlefieldObjectId,
-                    [discardedObjectId],
-                    events);
-                discarded.Add(discardedObjectId);
-            }
-        }
-
-        discardedObjectIds = discarded;
-        drawApplication = ApplyDrawToPlayer(
-            state,
-            playerZones, cardObjects,
-            playerScores,
-            playerId,
-            drawCount,
-            rngCursor,
-            events);
-        return true;
     }
 
     private static bool TryResolveBattlefieldConquerConsumeBoonDrawTrigger(
@@ -23981,14 +23847,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (behavior.DiscardsTargetFromHand)
         {
-            var discardedTargetObjectIds = new List<string>();
-            foreach (var targetObjectId in stackItem.TargetObjectIds)
+            var discardedTargetObjectIds = ResolveHandDiscards(state, playerZones, cardObjects, runePools,
+                stackItem.ControllerId, stackItem.TargetObjectIds, events).Discarded;
+            foreach (var targetObjectId in discardedTargetObjectIds)
             {
-                if (!TryDiscardCardFromHand(playerZones, cardObjects, stackItem.ControllerId, targetObjectId))
-                {
-                    continue;
-                }
-
                 var payload = new Dictionary<string, object?>
                 {
                     ["playerId"] = stackItem.ControllerId,
@@ -24006,7 +23868,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     "CARD_DISCARDED",
                     $"{behavior.DisplayName}弃置手牌",
                     payload));
-                discardedTargetObjectIds.Add(targetObjectId);
             }
             ResolveHandCardsDiscardedReadyPowerTriggers(
                 playerZones,
@@ -24027,7 +23888,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var discardedTargetObjectIdsByPlayer = new Dictionary<string, List<string>>(StringComparer.Ordinal);
             foreach (var targetObjectId in stackItem.TargetObjectIds)
             {
-                if (!TryDiscardCardFromAnyHand(playerZones, cardObjects, targetObjectId, out var ownerPlayerId))
+                var ownerPlayerId = HandDiscardPlayer(state, playerZones, targetObjectId);
+                if (ownerPlayerId is null || ResolveSingleHandDiscard(state, playerZones, cardObjects, runePools,
+                    ownerPlayerId, targetObjectId, events) != HandDiscardOutcome.Discarded)
                 {
                     continue;
                 }
@@ -24516,10 +24379,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         else if (behavior.DiscardsAllPlayersHandsThenDraws)
         {
-            foreach (var discardPlayerId in SeatPlayerIds(state))
+            var players = SeatPlayerIds(state);
+            var discards = ResolveHandDiscards(state, playerZones, cardObjects, runePools,
+                players.Select(player => (player, playerZones[player].Hand)), events);
+            foreach (var discardPlayerId in players)
             {
-                if (!TryDiscardPlayerHand(playerZones, cardObjects, discardPlayerId, out var discardedObjectIds)
-                    || discardedObjectIds.Count == 0)
+                var discardedObjectIds = discards[discardPlayerId].Discarded;
+                if (discardedObjectIds.Length == 0)
                 {
                     continue;
                 }
@@ -24531,8 +24397,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     {
                         ["playerId"] = discardPlayerId,
                         ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["count"] = discardedObjectIds.Count,
-                        ["objectIds"] = discardedObjectIds.ToArray(),
+                        ["count"] = discardedObjectIds.Length,
+                        ["objectIds"] = discardedObjectIds,
                         ["destinationZone"] = "GRAVEYARD"
                     }));
                 ResolveHandCardsDiscardedReadyPowerTriggers(
@@ -26641,17 +26507,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 pendingChoice);
         }
 
+        var runePools = state.RunePools.ToDictionary();
         if (choiceCount > 0)
         {
-            var discardedObjectIds = new List<string>();
-            foreach (var discardedObjectId in handObjectIds.Take(choiceCount))
+            var discardedObjectIds = ResolveHandDiscards(state, playerZones, cardObjects, runePools,
+                stackItem.ControllerId, handObjectIds.Take(choiceCount).ToArray(), events).Discarded;
+            foreach (var discardedObjectId in discardedObjectIds)
             {
-                if (!TryDiscardCardFromHand(playerZones, cardObjects, stackItem.ControllerId, discardedObjectId))
-                {
-                    continue;
-                }
-
-                discardedObjectIds.Add(discardedObjectId);
                 events.Add(BuildHandChoiceDiscardedEvent(
                     pendingChoice,
                     stackItem.ControllerId,
@@ -26659,7 +26521,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     autoDiscard: true));
             }
 
-            if (discardedObjectIds.Count > 0)
+            if (discardedObjectIds.Length > 0)
             {
                 ResolveHandCardsDiscardedReadyPowerTriggers(
                     playerZones,
@@ -26708,7 +26570,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects,
             drawApplication.PlayerScores,
             NormalizeExperienceForSeats(state),
-            state.RunePools,
+            runePools,
             untilEndOfTurnEffects,
             drawApplication.WinnerPlayerId,
             events,
@@ -29144,158 +29006,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && string.Equals(RuneTrait.Normalize(powerTrait), requiredTrait, StringComparison.Ordinal));
     }
 
-    private static bool TryResolveFlameChompersDiscardReplacement(
-        MatchState state,
-        PendingHandChoiceState pendingChoice,
-        string playerId,
-        string objectId,
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        Dictionary<string, RunePool> runePools,
-        List<GameEvent> events)
-    {
-        if (!cardObjects.TryGetValue(objectId, out var card)
-            || !string.Equals(card.CardNo, FlameChompersCardNo, StringComparison.Ordinal)
-            || !CardBehaviorRegistry.TryGetByCardNo(FlameChompersCardNo, out var behavior)
-            || !behavior.PlaysSourceToBaseAsUnit)
-        {
-            return false;
-        }
-
-        var pool = runePools.GetValueOrDefault(playerId, RunePool.Empty);
-        var hasRedPower = pool.HasSupportedAmounts
-            && pool.PowerByTrait.GetValueOrDefault(RuneTrait.Red) > 0;
-        if (!hasRedPower)
-        {
-            return false;
-        }
-
-        var replacement = RuleChoices.Value!.Choose(
-            playerId,
-            "嚼火者手雷被弃置时，可支付1点红色符能改为打出到基地。",
-            [
-                new(FlameChompersDiscardReplacementPayChoice, "支付1点红色符能，改为打出到基地"),
-                new(DeclinePaymentChoiceId, "放弃替代，正常弃置")
-            ],
-            powerCost: 1,
-            kind: "FLAME_CHOMPERS_DISCARD_REPLACEMENT");
-        if (!string.Equals(replacement, FlameChompersDiscardReplacementPayChoice, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        var paymentId = PaymentCostRules.BuildPaymentId(
-            state.Tick + 1,
-            RuleChoiceWindow,
-            playerId,
-            objectId,
-            reason: FlameChompersDiscardReplacementReason);
-        var paymentPlan = new PaymentCostRules.PaymentPlan(
-            paymentId,
-            RuleChoiceWindow,
-            playerId,
-            totalPowerCost: 1,
-            powerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = 1 },
-            reason: FlameChompersDiscardReplacementReason,
-            sourceObjectId: objectId,
-            abilityId: behavior.EffectKind);
-        var payment = PaymentCostRules.TryCommitPayment(paymentPlan, runePools, state: state);
-        if (!payment.Accepted)
-        {
-            throw new InvalidOperationException(payment.ErrorMessage ?? "嚼火者手雷替代费用无法支付。");
-        }
-
-        runePools.Clear();
-        foreach (var entry in payment.RunePools)
-        {
-            runePools[entry.Key] = entry.Value;
-        }
-
-        if (!playerZones.TryGetValue(playerId, out var zones)
-            || !zones.Hand.Contains(objectId, StringComparer.Ordinal)
-            || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
-        {
-            throw new InvalidOperationException("嚼火者手雷替代对象已不在合法手牌中。");
-        }
-
-        var stackItem = new StackItemState(
-            $"STACK-{state.Tick + 1}-{objectId}",
-            playerId,
-            objectId,
-            behavior.EffectKind,
-            behavior.CardNo,
-            [],
-            behavior.DamageAmount,
-            1,
-            [],
-            destination: MoveUnitBaseZone,
-            timingContext: StackTimingContextForNewStackItem(state))
-        {
-            PlayedFromHand = true
-        };
-
-        // The card crosses directly from hand to the base. ObjectContinuity
-        // records the new incarnation after this command completes.
-        playerZones[playerId] = zones with
-        {
-            Hand = RemoveFromZone(zones.Hand, objectId)
-        };
-
-        var origin = CardPlayHandOrigin(state, objectId, playerId);
-        var played = new GameEvent(
-            "CARD_PLAYED",
-            $"{playerId} 打出{behavior.DisplayName}（弃置替代）",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = objectId,
-                ["cardNo"] = behavior.CardNo,
-                ["mode"] = "DISCARD_REPLACEMENT",
-                ["destination"] = MoveUnitBaseZone,
-                ["replacementEffectKind"] = FlameChompersDiscardReplacementReason
-            });
-        played = CaptureCardPlayHistory(
-            played,
-            card,
-            playerId,
-            stackItem.StackItemId,
-            resolved: false,
-            zone: "STACK",
-            origin.OtherHandPlayerId,
-            origin.OutsideHands,
-            zones: playerZones,
-            cards: cardObjects);
-        events.Add(played);
-        events.Add(new GameEvent(
-            "COST_PAID",
-            $"{playerId} 支付嚼火者手雷替代费用",
-            PaymentCostRules.BuildCostPaidPayload(
-                paymentPlan,
-                payment.RunePools,
-                payment.PlayerExperience,
-                new Dictionary<string, object?>
-                {
-                    ["mana"] = 0,
-                    ["power"] = 1,
-                    ["powerByTrait"] = new Dictionary<string, int> { [RuneTrait.Red] = 1 },
-                    ["reason"] = FlameChompersDiscardReplacementReason,
-                    ["replacement"] = true
-                })));
-
-        PlaySourceUnitToBase(
-            playerZones,
-            cardObjects,
-            behavior,
-            stackItem,
-            state.TurnNumber,
-            state.PlayerExperience,
-            state.DestroyedUnitOwnerIdsThisTurn,
-            state.UntilEndOfTurnEffects,
-            events,
-            state.PlayerScores);
-        return true;
-    }
-
     private static void PlaySourceUnitToBase(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -31229,25 +30939,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool TryDiscardCardFromHand(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string targetObjectId)
-    {
-        if (!playerZones.TryGetValue(playerId, out var zones)
-            || !zones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
-            || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
-        {
-            return false;
-        }
-
-        playerZones[playerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, playerId,
-            zones with { Hand = RemoveFromZone(zones.Hand, targetObjectId) }, [targetObjectId]);
-        AdvanceNonFieldObjectIdentity(cardObjects, targetObjectId);
-        return true;
-    }
-
     private static GameEvent BuildHandChoiceDiscardedEvent(
         PendingHandChoiceState pendingChoice,
         string playerId,
@@ -31269,55 +30960,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["reason"] = pendingChoice.Reason,
                 ["autoDiscard"] = autoDiscard
             });
-    }
-
-    private static bool TryDiscardCardFromAnyHand(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string targetObjectId,
-        out string ownerPlayerId)
-    {
-        ownerPlayerId = string.Empty;
-        foreach (var (playerId, zones) in playerZones)
-        {
-            if (!zones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
-                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
-            {
-                continue;
-            }
-
-            playerZones[playerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, playerId,
-                zones with { Hand = RemoveFromZone(zones.Hand, targetObjectId) }, [targetObjectId]);
-            AdvanceNonFieldObjectIdentity(cardObjects, targetObjectId);
-            ownerPlayerId = playerId;
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool TryDiscardPlayerHand(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        out IReadOnlyList<string> discardedObjectIds)
-    {
-        discardedObjectIds = [];
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        discardedObjectIds = zones.Hand
-            .Where(objectId =>
-                !string.IsNullOrWhiteSpace(objectId)
-                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
-            .ToArray();
-        var discardedObjectIdSet = discardedObjectIds.ToHashSet(StringComparer.Ordinal);
-        playerZones[playerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, playerId,
-            zones with { Hand = zones.Hand.Where(objectId => !discardedObjectIdSet.Contains(objectId)).ToArray() }, discardedObjectIds);
-        foreach (var id in discardedObjectIds) AdvanceNonFieldObjectIdentity(cardObjects, id);
-        return true;
     }
 
     private static bool TryReturnGraveyardCardToHand(
@@ -33337,26 +32979,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         playerCardsPlayedThisTurn[playerId] = playerCardsPlayedThisTurn.TryGetValue(playerId, out var count)
             ? count + 1
             : 1;
-        return playerCardsPlayedThisTurn;
-    }
-
-    private static IReadOnlyDictionary<string, int> IncrementPlayerCardsPlayedThisTurn(
-        MatchState state,
-        string playerId,
-        int amount)
-    {
-        if (amount <= 0)
-        {
-            return state.PlayerCardsPlayedThisTurn;
-        }
-
-        var playerCardsPlayedThisTurn = state.PlayerCardsPlayedThisTurn.ToDictionary(
-            entry => entry.Key,
-            entry => entry.Value,
-            StringComparer.Ordinal);
-        playerCardsPlayedThisTurn[playerId] = playerCardsPlayedThisTurn.TryGetValue(playerId, out var count)
-            ? checked(count + amount)
-            : amount;
         return playerCardsPlayedThisTurn;
     }
 

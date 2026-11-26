@@ -114,18 +114,16 @@ public sealed partial class CoreRuleEngine
                 ["battlefieldObjectId"] = context.Source.ObjectId, ["battlefieldCardNo"] = context.CardNo,
                 ["trigger"] = item.EffectKind, ["sourceObjectId"] = VisibleZaunConquestSource(state, context.ConquestSourceObjectId),
                 ["drawCount"] = drawCount }) };
-        var discarded = new List<string>();
-        foreach (var id in legal.Take(discardCount))
+        var pools = state.RunePools.ToDictionary();
+        var discarded = ResolveHandDiscards(state, zones, cards, pools, item.ControllerId, legal.Take(discardCount).ToArray(), events).Discarded;
+        foreach (var id in discarded)
         {
-            if (!TryDiscardCardFromHand(zones, cards, item.ControllerId, id))
-                throw new InvalidOperationException("A captured legal hand card could not be discarded.");
             events.Add(new GameEvent("CARD_DISCARDED", "征服战场：弃置手牌",
                 new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
                     ["sourceObjectId"] = context.Source.ObjectId, ["targetObjectId"] = id,
                     ["reason"] = item.EffectKind, ["destinationZone"] = spec.DiscardDestinationZone }));
-            discarded.Add(id);
         }
-        if (discarded.Count > 0)
+        if (discarded.Length > 0)
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, item.ControllerId, "CARD_DISCARDED",
                 context.Source.ObjectId, discarded, events);
         var until = MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, item.ControllerId, discarded, zones);
@@ -141,7 +139,7 @@ public sealed partial class CoreRuleEngine
                 ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds,
                 ["reason"] = item.EffectKind }));
         }
-        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
+        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
             PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor,
             UntilEndOfTurnEffects = until, Events = events };
     }

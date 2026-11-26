@@ -103,6 +103,10 @@ public sealed partial class CoreRuleEngine
                 events.Add(ev with { Payload = ev.Payload.Where(p => p.Key != CardPlayHistoryObservationKey)
                     .ToDictionary(p => p.Key, p => p.Value) });
             var entry = observation.Entry;
+            if (!observation.Resolved && result.State.TurnNumber == before.TurnNumber
+                && Equals(ev.Payload.GetValueOrDefault("mode"), DiscardReplacementPlayMode))
+                result = result with { State = result.State with {
+                    PlayerCardsPlayedThisTurn = IncrementPlayerCardsPlayedThisTurn(result.State, entry.PlayerId) } };
             var generation = entry.Source.Generation;
             if (before.CardObjects.TryGetValue(entry.Source.ObjectId, out var old)
                 && locations.TryGetValue(entry.Source.ObjectId, out var oldLocation)

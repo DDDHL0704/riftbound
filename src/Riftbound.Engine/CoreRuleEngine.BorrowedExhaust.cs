@@ -259,12 +259,18 @@ public sealed partial class CoreRuleEngine
             if (!SimpleActivationDiscardChoices(paidState, intent.PlayerId, ability.Spec.DiscardsHandCardAsCost).Contains(discard[0]))
                 return RejectWithCorePrompts(state, "所选手牌已无法支付弃置费用。", ErrorCodes.InvalidTarget);
             var discarded = discard[0]["DISCARD_HAND_CARD:".Length..];
-            if (!TryDiscardCardFromHand(zones, cards, intent.PlayerId, discarded))
+            var discardPools = payment.RunePools.ToDictionary();
+            var outcome = ResolveSingleHandDiscard(paidState, zones, cards, discardPools, intent.PlayerId, discarded, events);
+            if (outcome == HandDiscardOutcome.Invalid)
                 return RejectWithCorePrompts(state, "无法弃置所选手牌。", ErrorCodes.InvalidTarget);
-            events.Add(new("CARD_DISCARDED", "弃置手牌以支付获得的技能费用", new Dictionary<string, object?> {
-                ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = discarded,
-                ["reason"] = "ABILITY_COST", ["destinationZone"] = "GRAVEYARD" }));
-            ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED", source.ObjectId, [discarded], events);
+            payment = payment with { RunePools = discardPools };
+            if (outcome == HandDiscardOutcome.Discarded)
+            {
+                events.Add(new("CARD_DISCARDED", "弃置手牌以支付获得的技能费用", new Dictionary<string, object?> {
+                    ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = discarded,
+                    ["reason"] = "ABILITY_COST", ["destinationZone"] = "GRAVEYARD" }));
+                ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED", source.ObjectId, [discarded], events);
+            }
         }
         if (recycled.Length > 0)
         {

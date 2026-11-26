@@ -424,21 +424,38 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var source = cards[item.SourceObjectId];
         var events = new List<GameEvent>();
+        var pools = state.RunePools.ToDictionary();
         ObjectBinding? discarded = null;
+        var outcome = HandDiscardOutcome.Invalid;
         if (LeadingTriggerCost(item)!.Discard)
         {
             var card = cards[selected[0]];
-            if (!TryDiscardCardFromHand(zones, cards, item.ControllerId, card.ObjectId))
+            outcome = ResolveSingleHandDiscard(state, zones, cards, pools, item.ControllerId, card.ObjectId, events);
+            if (outcome == HandDiscardOutcome.Invalid)
                 return RejectWithCorePrompts(state, "无法支付所选弃牌费用。", ErrorCodes.InvalidTarget);
             discarded = new(card.ObjectId, card.ObjectGeneration);
-            events.Add(new("CARD_DISCARDED", "弃置所选手牌作为触发技能费用", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = card.ObjectId,
-                ["destinationZone"] = "GRAVEYARD", ["reason"] = TriggerCostWindow }));
+            if (outcome == HandDiscardOutcome.Discarded)
+                events.Add(new("CARD_DISCARDED", "弃置所选手牌作为触发技能费用", new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = card.ObjectId,
+                    ["destinationZone"] = "GRAVEYARD", ["reason"] = TriggerCostWindow }));
             if (HasGraveyardConquestDiscardCost(item))
-                events[^1] = events[^1] with { Payload = new Dictionary<string, object?>(events[^1].Payload) {
+            {
+                var binding = new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = card.ObjectId,
                     ["sourceGeneration"] = TriggerCostSourceGeneration(item), ["targetGeneration"] = card.ObjectGeneration,
                     ["stackItemId"] = item.StackItemId, ["choiceId"] = "TRIGGER-COST:" + item.StackItemId,
-                    ["choiceWindow"] = TriggerCostWindow } };
+                    ["choiceWindow"] = TriggerCostWindow, ["reason"] = TriggerCostWindow };
+                if (outcome == HandDiscardOutcome.Discarded)
+                {
+                    binding["destinationZone"] = "GRAVEYARD";
+                    events[^1] = events[^1] with { Payload = binding };
+                }
+                else
+                {
+                    binding["discardReplaced"] = true;
+                    events.Add(new("COST_PAID", "替换事件已支付触发技能的弃牌费用", binding));
+                }
+            }
         }
         if (LeadingTriggerCost(item)!.Exhaust)
         {
@@ -450,11 +467,11 @@ public sealed partial class CoreRuleEngine
             events.Add(new(exhaustedEvent, "支付休眠费用", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId, ["reason"] = TriggerCostWindow }));
         }
-        if (discarded is not null)
+        if (outcome == HandDiscardOutcome.Discarded)
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, item.ControllerId, "CARD_DISCARDED", source.ObjectId, selected, events);
-        var next = state with { PlayerZones = zones, CardObjects = cards,
+        var next = state with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
-            UntilEndOfTurnEffects = discarded is null ? state.UntilEndOfTurnEffects
+            UntilEndOfTurnEffects = outcome != HandDiscardOutcome.Discarded ? state.UntilEndOfTurnEffects
                 : MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, item.ControllerId, selected, zones) };
         return CompleteTriggerCost(next, item, new(new(source.ObjectId, TriggerCostSourceGeneration(item)), discarded), events);
     }
