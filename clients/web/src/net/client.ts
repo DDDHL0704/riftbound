@@ -192,8 +192,12 @@ export class GameClient {
    */
   async connect(server: string, handle: string, binary = true): Promise<boolean> {
     const saved = loadSaved(this.ns);
-    const normalized = handle.trim();
-    this.key = keyFor(this.ns, normalized) || randomKey();
+    // The server knows a player by the trimmed, lower-cased name (PlayerIdentityService.NormalizeHandle) and
+    // addresses every snapshot and prompt to it, so "Alice" must play as "alice" or none of them reach this seat.
+    const typed = handle.trim();
+    const normalized = typed.toLowerCase();
+    // A key saved before names were lower-cased sits under the typed case, and the server holds the name to it.
+    this.key = keyFor(this.ns, normalized) || keyFor(this.ns, typed) || randomKey();
     this.set({ phase: "connecting", server, handle: normalized, connectionNote: "" });
 
     await this.connection?.stop().catch(() => undefined);
@@ -272,7 +276,7 @@ export class GameClient {
     }
     if (!(await this.authenticate())) return false;
 
-    if (saved && saved.handle === normalized && saved.roomId && saved.reconnectToken) {
+    if (saved && saved.handle.toLowerCase() === normalized && saved.roomId && saved.reconnectToken) {
       this.set({ phase: "room", roomId: saved.roomId });
       await connection.invoke("Reconnect", saved.roomId, normalized, saved.reconnectToken);
     } else {
