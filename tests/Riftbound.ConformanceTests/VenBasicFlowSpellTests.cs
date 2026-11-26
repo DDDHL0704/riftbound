@@ -242,6 +242,7 @@ public sealed class VenBasicFlowSpellTests
         internal int ReplayAuditCount { get; private set; }
         private (string Player, string Intent, GameCommand Command, JsonElement Raw)? last;
         internal ActionPromptDto PromptFor(string player) => session.PromptFor(player);
+        internal SnapshotDto SnapshotFor(string player) => session.SnapshotFor(player);
         internal Driver(MatchState initial) { this.initial = initial; State = initial; session = new(initial, new CoreRuleEngine(), this); }
         // A few focused fixtures build a validated opening and then alter a
         // private zone before exercising the rule directly. They do not append
@@ -255,6 +256,18 @@ public sealed class VenBasicFlowSpellTests
         internal RecoveredCommand[] Commands() => entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
         internal RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((v, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
+        internal async Task PlayQuoted(string player, PlayCardCommand command)
+        {
+            var prompt = PromptFor(player);
+            Assert.True(prompt.Actionable);
+            Assert.Contains(CommandTypes.PlayCard, prompt.EnabledActions());
+            var request = new PlayCostPreviewRequestDto("quote-" + State.Tick, prompt.PromptId!, prompt.SnapshotTick!.Value, command);
+            var quote = await session.PreviewPlayCardAsync(player, request, default);
+            Assert.True(quote.IsValid && quote.CanPay, quote.Message);
+            Assert.Equal(prompt.PromptId, PromptFor(player).PromptId);
+            await Act(player, command);
+        }
+
         internal async Task TapRunes(string player, IEnumerable<string> runeIds)
         {
             // Prepare the same physical resources with production batches. Act still
