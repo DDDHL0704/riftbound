@@ -714,12 +714,6 @@ internal static partial class ActionPromptBuilder
         return action switch
         {
             "PLAY_CARD" => PlayCardDestinationChoices(state, playerId),
-            "HIDE_CARD" => [
-                .. HideCardSourceRequirements(state, playerId)
-                    .SelectMany(requirement => requirement.DestinationChoices)
-                    .GroupBy(choice => choice.Id, StringComparer.Ordinal)
-                    .Select(group => group.First())
-            ],
             "REVEAL_CARD" => [
                 .. RevealCardSourceRequirements(state, playerId)
                     .SelectMany(requirement => requirement.DestinationChoices)
@@ -845,7 +839,6 @@ internal static partial class ActionPromptBuilder
         return action switch
         {
             "PLAY_CARD" => PlayCardOptionalCostChoices(state, playerId),
-            "HIDE_CARD" => HideCardOptionalCostChoices(state, playerId),
             "REVEAL_CARD" => RevealCardOptionalCostChoices(state, playerId),
             "MOVE_UNIT" => MoveUnitOptionalCostChoices(state, playerId),
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentOptionalCostChoices(state, playerId),
@@ -1852,7 +1845,6 @@ internal static partial class ActionPromptBuilder
             "PAY_COST" => PayCostMetadataFor(state, playerId),
             "CHOOSE_HAND_CARDS" => HandChoiceMetadataFor(state, playerId),
             "CHOOSE_CARDS" => CardChoiceMetadataFor(state, playerId),
-            "HIDE_CARD" => HideCardMetadataFor(state, playerId),
             "REVEAL_CARD" => RevealCardMetadataFor(state, playerId),
             "TAP_RUNE" => new Dictionary<string, object?>
             {

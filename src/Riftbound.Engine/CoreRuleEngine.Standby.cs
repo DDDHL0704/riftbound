@@ -77,7 +77,7 @@ public sealed partial class CoreRuleEngine
         if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var ownZones)
             || !ownZones.Hand.Concat(ownZones.ChampionZone).Contains(command.SourceObjectId))
             return RejectWithCorePrompts(state, "待命埋伏只能选择自己手牌中的牌。", ErrorCodes.CardNotInHand);
-        if (!TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId, NormalizeOptionalCosts(command.OptionalCosts),
+        if (!TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, NormalizeOptionalCosts(command.OptionalCosts),
                 out var costs, out var resourceActions, out var recycledRunes))
             return RejectWithCorePrompts(state, "待命支付包含非法或重复的符文资源动作。", ErrorCodes.InvalidTarget);
         var teemoPermission = HasTeemoStandbyHidePermission(state, intent.PlayerId);
@@ -109,20 +109,21 @@ public sealed partial class CoreRuleEngine
         var payment=new PaymentCostRules.PaymentPlan(PaymentCostRules.BuildPaymentId(state.Tick+1,"HIDE_CARD",intent.PlayerId,command.SourceObjectId),
             "HIDE_CARD",intent.PlayerId,baseManaCost:mana,totalManaCost:mana,genericPowerCost:power,totalPowerCost:power,
             optionalCostIds:costs,paymentResourceActionIds:resourceActions,reason:"STANDBY_HIDE",sourceObjectId:command.SourceObjectId);
-        // CN 811.1.b / 430.3: acquire reaction resources inside the hide payment.
-        // Validate the complete debit before moving any rune or hidden card.
+        // CN 204.4.b.1 and 811.1.b: resource reactions can fund the chosen hide fee.
+        // A rune can be tapped then recycled, so validate and apply the declared order.
         var pool = state.RunePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty);
-        if (!pool.HasSupportedAmounts || (long)pool.TotalStoredPower + recycledRunes.Count * BasicRuneRecyclePowerGain > int.MaxValue)
-            return RejectWithCorePrompts(state, "待命支付的资源容量无效。", ErrorCodes.InvalidTarget);
-        var adjusted = ApplyRecycleRunePaymentToPool(pool, state.CardObjects, recycledRunes);
-        if (!PaymentCostRules.AuthorizePayment(payment, adjusted).Accepted)
+        if (!TryPreviewOrderedPaymentResources(state, intent.PlayerId, pool, resourceActions, out var adjusted))
+            return RejectWithCorePrompts(state, "待命支付中的符文顺序或资源容量无效。", ErrorCodes.InvalidTarget);
+        if (!PaymentCostRules.AuthorizePayment(payment, adjusted, state: state).Accepted)
             return RejectWithCorePrompts(state, "待命所需资源不足。", ErrorCodes.InsufficientCost);
         var zones=NormalizeZonesForSeats(state);
         var cards=state.CardObjects.ToDictionary(p=>p.Key,p=>p.Value,StringComparer.Ordinal);
         var locations=ReconcileObjectLocations(state.ObjectLocations,zones);
         var events=new List<GameEvent>();
-        var pools=ApplyRecycleRunePaymentResourceActions(state.RunePools, zones, cards, locations,
-            intent.PlayerId, recycledRunes, events, "HIDE_CARD", payment.PaymentId);
+        var pools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, resourceActions,
+                zones, ref cards, locations, ref pools, events, payment.PaymentWindow, payment.PaymentId))
+            return RejectWithCorePrompts(state, "待命支付中的符文顺序或来源无效。", ErrorCodes.InvalidTarget);
         var committed=PaymentCostRules.TryCommitPayment(payment,pools,state.PlayerExperience, state: state);
         if(!committed.Accepted)return RejectWithCorePrompts(state,"待命所需资源不足。",ErrorCodes.InsufficientCost);
         var own=zones[intent.PlayerId];

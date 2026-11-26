@@ -4,11 +4,12 @@ namespace Riftbound.Engine;
 
 internal static partial class ActionPromptBuilder
 {
-    private static IReadOnlyList<ActionPromptChoiceDto> AbilityTapRunePaymentChoices(MatchState state, string playerId)
+    private static IReadOnlyList<ActionPromptChoiceDto> AbilityTapRunePaymentChoices(
+        MatchState state, string playerId, string reason = "获得 1 点法力并继续支付技能费用")
         => CoreRuleEngine.TapRunePaymentResourceActionIds(state, playerId).Select(id =>
         {
             var source = ObjectChoice(state, id[TapRunePaymentOptionalCostPrefix.Length..], "技能付款资源");
-            return new ActionPromptChoiceDto(id, $"横置符文支付：{source.Label}", "获得 1 点法力并继续支付技能费用");
+            return new ActionPromptChoiceDto(id, $"横置符文支付：{source.Label}", reason);
         }).ToArray();
 
     private static int AbilityAvailableManaWithRuneTaps(MatchState state, string playerId,
