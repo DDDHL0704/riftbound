@@ -242,7 +242,15 @@ public sealed class MatchRewindTests
         var undo = visibleTargets[^1];
         Assert.Equal($"撤销回到第 {target.TurnNumber} 回合的回退", undo.Description);
 
-        live = await Recover(journal, store, engine);
+        var restored = await Recover(journal, store, engine);
+        foreach (var player in Players)
+        {
+            Assert.Equal(MatchStateHasher.HashValue(live.SnapshotFor(player)),
+                MatchStateHasher.HashValue(restored.SnapshotFor(player)));
+            Assert.Equal(MatchStateHasher.HashValue(live.PromptFor(player)),
+                MatchStateHasher.HashValue(restored.PromptFor(player)));
+        }
+        live = restored;
         Assert.Equal(visibleTargets, live.SnapshotFor(actor).RewindTargets!.ToArray());
         Assert.Equal(rewound.Snapshots[opponent].RewindTargets!.ToArray(),
             live.SnapshotFor(opponent).RewindTargets!.ToArray());

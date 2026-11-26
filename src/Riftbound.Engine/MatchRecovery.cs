@@ -140,7 +140,8 @@ public static class MatchActionLogReplayer
         MatchRecoveryFrame recovery,
         IRuleEngine ruleEngine,
         CancellationToken cancellationToken,
-        Action<MatchSession>? captureReplayedSession)
+        Action<MatchSession>? captureReplayedSession,
+        Action<string>? reportReplayMismatch = null)
     {
         ArgumentNullException.ThrowIfNull(recovery);
         ArgumentNullException.ThrowIfNull(ruleEngine);
@@ -433,7 +434,8 @@ public static class MatchActionLogReplayer
                 ruleEngine,
                 cancellationToken,
                 recovery.Events,
-                captureReplayedSession)
+                captureReplayedSession,
+                reportReplayMismatch)
             .ConfigureAwait(false);
         return replay.IsMatch
             ? []
@@ -631,7 +633,8 @@ public static class MatchActionLogReplayer
         IRuleEngine ruleEngine,
         CancellationToken cancellationToken,
         IReadOnlyList<RecoveredEvent>? events,
-        Action<MatchSession>? captureReplayedSession)
+        Action<MatchSession>? captureReplayedSession,
+        Action<string>? reportReplayMismatch = null)
     {
         ArgumentNullException.ThrowIfNull(initialState);
         ArgumentNullException.ThrowIfNull(commands);
@@ -658,12 +661,20 @@ public static class MatchActionLogReplayer
             .ThenBy(command => command.CompletedEventSequence)
             .ThenBy(command => command.ClientIntentId, StringComparer.Ordinal))
         {
+            void ReportMismatch(string field)
+            {
+                // Log the field and journal position, never the raw command or event payload.
+                reportReplayMismatch?.Invoke($"action-log replay differs at {field} after event {command.StartedEventSequence}");
+                reportReplayMismatch = null;
+            }
+
             if (TryReadRawCommandType(command.RawCommand, out var rawCommandType)
                 && !string.Equals(
                     rawCommandType,
                     ExpectedRawCommandType(command.CommandType.Trim()),
                     StringComparison.Ordinal))
             {
+                ReportMismatch("raw command type");
                 errors.Add(
                     $"command {command.ClientIntentId} raw cmdType {rawCommandType} does not match recovered command type {command.CommandType}");
                 continue;
@@ -676,30 +687,35 @@ public static class MatchActionLogReplayer
             }
             catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException or JsonException)
             {
+                ReportMismatch("command execution");
                 errors.Add($"command {command.ClientIntentId} failed to replay: {ex.Message}");
                 continue;
             }
 
             if (result.Accepted != command.Accepted)
             {
+                ReportMismatch("command acceptance");
                 errors.Add(
                     $"command {command.ClientIntentId} accepted={result.Accepted} but recovered accepted={command.Accepted}");
             }
 
             if (!string.Equals(result.ErrorMessage, command.ErrorMessage, StringComparison.Ordinal))
             {
+                ReportMismatch("command error message");
                 errors.Add(
                     $"command {command.ClientIntentId} error message {FormatReplayError(result.ErrorMessage)} but recovered error message {FormatReplayError(command.ErrorMessage)}");
             }
 
             if (!string.Equals(result.ErrorCode, command.ErrorCode, StringComparison.Ordinal))
             {
+                ReportMismatch("command error code");
                 errors.Add(
                     $"command {command.ClientIntentId} error code {FormatReplayError(result.ErrorCode)} but recovered error code {FormatReplayError(command.ErrorCode)}");
             }
 
             if (result.ServerTick != command.CompletedTick)
             {
+                ReportMismatch("completed tick");
                 errors.Add(
                     $"command {command.ClientIntentId} completed tick {result.ServerTick} but recovered tick {command.CompletedTick}");
             }
@@ -707,6 +723,7 @@ public static class MatchActionLogReplayer
             var expectedEventCount = command.CompletedEventSequence - command.StartedEventSequence;
             if (result.Events.Count != expectedEventCount)
             {
+                ReportMismatch($"event count (replayed {result.Events.Count}, stored {expectedEventCount})");
                 errors.Add(
                     $"command {command.ClientIntentId} replayed {result.Events.Count} event(s) but recovered span expects {expectedEventCount}");
             }
@@ -720,7 +737,8 @@ public static class MatchActionLogReplayer
                     .OrderBy(gameEvent => gameEvent.Sequence)
                     .ThenBy(gameEvent => gameEvent.Order)
                     .ToArray();
-                ValidateReplayedEvents(command, result.Events, recoveredEvents, errors);
+                if (ValidateReplayedEvents(command, result.Events, recoveredEvents, errors) is { } field)
+                    ReportMismatch(field);
             }
 
             replayedState = result.State;
@@ -730,6 +748,7 @@ public static class MatchActionLogReplayer
         var expectedHash = MatchStateHasher.Hash(expectedFinalState);
         if (!string.Equals(replayedHash, expectedHash, StringComparison.Ordinal))
         {
+            reportReplayMismatch?.Invoke("action-log replay differs at final authoritative state hash");
             errors.Add($"replayed final state hash {replayedHash} does not match expected {expectedHash}");
         }
 
@@ -746,14 +765,16 @@ public static class MatchActionLogReplayer
         return errorMessage is null ? "<null>" : $"\"{errorMessage}\"";
     }
 
-    private static void ValidateReplayedEvents(
+    private static string? ValidateReplayedEvents(
         RecoveredCommand command,
         IReadOnlyList<GameEvent> replayedEvents,
         IReadOnlyList<RecoveredEvent> recoveredEvents,
         List<string> errors)
     {
+        string? firstMismatch = null;
         if (replayedEvents.Count != recoveredEvents.Count)
         {
+            firstMismatch = "event stream count";
             errors.Add(
                 $"command {command.ClientIntentId} replayed {replayedEvents.Count} event(s) but recovered event stream has {recoveredEvents.Count}");
         }
@@ -763,6 +784,7 @@ public static class MatchActionLogReplayer
         {
             if (!string.Equals(replayedEvents[index].Kind, recoveredEvents[index].Event.Kind, StringComparison.Ordinal))
             {
+                firstMismatch ??= $"event {recoveredEvents[index].Sequence} kind";
                 errors.Add(
                     $"command {command.ClientIntentId} replayed event {index + 1} kind {replayedEvents[index].Kind} but recovered event sequence {recoveredEvents[index].Sequence} kind {recoveredEvents[index].Event.Kind}");
             }
@@ -772,6 +794,7 @@ public static class MatchActionLogReplayer
                     recoveredEvents[index].Event.Description,
                     StringComparison.Ordinal))
             {
+                firstMismatch ??= $"event {recoveredEvents[index].Sequence} description";
                 errors.Add(
                     $"command {command.ClientIntentId} replayed event {index + 1} description {FormatReplayError(replayedEvents[index].Description)} but recovered event sequence {recoveredEvents[index].Sequence} description {FormatReplayError(recoveredEvents[index].Event.Description)}");
             }
@@ -780,10 +803,12 @@ public static class MatchActionLogReplayer
             var recoveredPayloadHash = ReplayPayloadHash(recoveredEvents[index].Event);
             if (!string.Equals(replayedPayloadHash, recoveredPayloadHash, StringComparison.Ordinal))
             {
+                firstMismatch ??= $"event {recoveredEvents[index].Sequence} payload";
                 errors.Add(
                     $"command {command.ClientIntentId} replayed event {index + 1} payload hash {replayedPayloadHash} but recovered event sequence {recoveredEvents[index].Sequence} payload hash {recoveredPayloadHash}");
             }
         }
+        return firstMismatch;
     }
 
     private static string ReplayPayloadHash(GameEvent gameEvent)

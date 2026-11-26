@@ -89,7 +89,10 @@ builder.Services.AddSingleton<IMatchSessionRegistry>(services => new InMemoryMat
     services.GetRequiredService<IMatchRecoveryStore>(),
     services.GetRequiredService<IMatchPlayerStore>(),
     new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false,
-        DeckFormat: OfficialDeckFormat.ChinaStandard20260724)));
+        DeckFormat: OfficialDeckFormat.ChinaStandard20260724),
+    (roomId, eventSequence, reason) => services.GetRequiredService<ILogger<InMemoryMatchSessionRegistry>>()
+        .LogWarning("Match recovery failed for room {RoomId} at event {EventSequence}. {Reason}",
+            roomId, eventSequence, reason)));
 builder.Services.AddSingleton<IMatchmakingQueue>(services => new InMemoryMatchmakingQueue(
     services.GetRequiredService<IMatchSessionRegistry>(), RoomCodeGenerator.NewRoomId,
     services.GetRequiredService<PlayerConnections>()));

@@ -139,6 +139,29 @@ public sealed class RadFirstPermanentBattlefieldTests
         Assert.Contains("battlefield permanent play uses differ from accepted play history", errors);
     }
 
+    [Theory]
+    [InlineData(MatchStatuses.Seating, "SERIES_GAME_COMPLETED")]
+    [InlineData(MatchStatuses.InProgress, "MATCH_STARTED")]
+    public async Task RecoveryIgnoresPreviousGamesBattlefieldPlayUses(string status, string boundaryKind)
+    {
+        var game = new Driver(Position() with { TurnNumber = 1 });
+        await game.Act("P1", new PlayCardCommand("FIRST", "OGN·219/298", [], Destination: "BATTLEFIELD:BF"));
+        Assert.Contains(game.State.UntilEndOfTurnEffects,
+            use => use.StartsWith("BATTLEFIELD_PERMANENT_PLAY_THIS_TURN:", StringComparison.Ordinal));
+
+        var play = Assert.Single(game.Commands());
+        var boundary = new RecoveredCommand("P1", "series-boundary", CommandTypes.Ready, null,
+            play.CompletedTick, play.CompletedTick + 1, play.CompletedEventSequence,
+            play.CompletedEventSequence + 1, true, null);
+        var events = game.Events().Append(new RecoveredEvent(boundary.CompletedEventSequence, boundary.CompletedTick,
+            0, new GameEvent(boundaryKind, "", new Dictionary<string, object?>()))).ToArray();
+        var state = game.State with { Status = status, Tick = boundary.CompletedTick, UntilEndOfTurnEffects = [] };
+        var errors = MatchRecoveryValidator.Validate(state.RoomId, boundary.CompletedEventSequence,
+            [play, boundary], events, new Dictionary<string, RecoveredPlayerView>(), state, state.Tick);
+
+        Assert.DoesNotContain("battlefield permanent play uses differ from accepted play history", errors);
+    }
+
     private static MatchState Position(string battlefieldCardNo = "RAD·163/167")
     {
         var state = new MatchState("RAD-FIRST-PERMANENT", 0, 5, "P1",

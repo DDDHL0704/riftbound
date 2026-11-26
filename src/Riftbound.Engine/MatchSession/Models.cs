@@ -898,6 +898,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
     private readonly IMatchRecoveryStore recoveryStore;
     private readonly IMatchPlayerStore playerStore;
     private readonly MatchSessionOptions sessionOptions;
+    private readonly Action<string, long, string>? logRecoveryFailure;
     private readonly Dictionary<string, IMatchSession> sessions = new();
     private readonly SemaphoreSlim gate = new(1, 1);
 
@@ -928,13 +929,15 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
         IMatchJournal journal,
         IMatchRecoveryStore recoveryStore,
         IMatchPlayerStore playerStore,
-        MatchSessionOptions sessionOptions)
+        MatchSessionOptions sessionOptions,
+        Action<string, long, string>? logRecoveryFailure = null)
     {
         this.ruleEngine = ruleEngine;
         this.journal = journal;
         this.recoveryStore = recoveryStore;
         this.playerStore = playerStore;
         this.sessionOptions = sessionOptions ?? MatchSessionOptions.Default;
+        this.logRecoveryFailure = logRecoveryFailure;
     }
 
     public async ValueTask<IMatchSession?> FindAsync(string roomId, CancellationToken cancellationToken)
@@ -1001,6 +1004,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
 
         if (!string.Equals(recovery.RoomId, roomId, StringComparison.Ordinal))
         {
+            logRecoveryFailure?.Invoke(roomId, recovery.LastEventSequence, "stored room ID differs from requested room ID");
             throw new MatchSessionException(
                 ErrorCodes.RecoveryInconsistent,
                 $"match recovery returned room {recovery.RoomId} for requested room {roomId}");
@@ -1017,29 +1021,60 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
             recovery.SpectatorReplayFrame);
         if (validationErrors.Count > 0)
         {
+            logRecoveryFailure?.Invoke(roomId, recovery.LastEventSequence,
+                RecoveryValidationDiagnostic(recovery, validationErrors));
             throw new MatchSessionException(
                 ErrorCodes.RecoveryInconsistent,
                 $"match recovery validation failed: {string.Join("; ", validationErrors)}");
         }
 
-        MatchSession? replayed = null;
-        if (recovery.IsConsistent)
+        if (!recovery.IsConsistent)
         {
-            var replayErrors = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(
-                    recovery,
-                    ruleEngine,
-                    cancellationToken,
-                    session => replayed = session)
-                .ConfigureAwait(false);
-            if (replayErrors.Count > 0)
-            {
-                throw new MatchSessionException(
-                    ErrorCodes.RecoveryInconsistent,
-                    $"match recovery action-log audit failed: {string.Join("; ", replayErrors)}");
-            }
+            logRecoveryFailure?.Invoke(roomId, recovery.LastEventSequence,
+                RecoveryValidationDiagnostic(recovery, recovery.ValidationErrors));
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
+                $"match recovery is inconsistent: {string.Join("; ", recovery.ValidationErrors)}");
         }
 
-        return MatchSession.Restore(recovery, ruleEngine, journal, playerStore, MatchSessionOptions.Default, replayed);
+        MatchSession? replayed = null;
+        string? replayDiagnostic = null;
+        var replayErrors = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(
+                recovery, ruleEngine, cancellationToken, session => replayed = session,
+                diagnostic => replayDiagnostic = diagnostic)
+            .ConfigureAwait(false);
+        if (replayErrors.Count > 0)
+        {
+            logRecoveryFailure?.Invoke(roomId, recovery.LastEventSequence, replayDiagnostic
+                ?? $"action-log input validation failed ({replayErrors.Count} checks)");
+            throw new MatchSessionException(
+                ErrorCodes.RecoveryInconsistent,
+                $"match recovery action-log audit failed: {string.Join("; ", replayErrors)}");
+        }
+
+        try
+        {
+            return MatchSession.Restore(recovery, ruleEngine, journal, playerStore, MatchSessionOptions.Default, replayed);
+        }
+        catch (MatchSessionException ex) when (ex.Code == ErrorCodes.RecoveryInconsistent)
+        {
+            logRecoveryFailure?.Invoke(roomId, recovery.LastEventSequence, "restored session position or rewind projection is inconsistent");
+            throw;
+        }
+    }
+
+    private static string RecoveryValidationDiagnostic(MatchRecoveryFrame recovery, IReadOnlyList<string> errors)
+    {
+        // Detailed validator messages can contain private card IDs and lists.
+        if (recovery.AuthoritativeState?.RuleInputs is { } stored && stored != RuleInputIdentity.Current)
+        {
+            var current = RuleInputIdentity.Current;
+            return $"rule input identity differs (stored {stored.IdentitySha256}, running {current.IdentitySha256}; "
+                + $"implementation stored {stored.ImplementationSha256}, running {current.ImplementationSha256})";
+        }
+        if (errors.Contains(MatchRecoveryValidator.BattlefieldPermanentPlayHistoryMismatch))
+            return MatchRecoveryValidator.BattlefieldPermanentPlayHistoryMismatch;
+
+        return $"stored match frame validation failed ({errors.Count} checks)";
     }
 }
 
