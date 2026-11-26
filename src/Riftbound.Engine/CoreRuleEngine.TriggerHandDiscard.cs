@@ -103,23 +103,27 @@ public sealed partial class CoreRuleEngine
         if (origin.CostPaid || origin.DiscardCost is not { } cost || !ValidTriggerHandDiscardCost(state, origin, item.ControllerId)) return false;
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-        if (!TryDiscardCardFromHand(zones, cards, item.ControllerId, cost.Card.ObjectId)) return false;
+        var pools = state.RunePools.ToDictionary();
+        var outcome = ResolveSingleHandDiscard(state, zones, cards, pools, item.ControllerId, cost.Card.ObjectId, events);
+        if (outcome == HandDiscardOutcome.Invalid) return false;
         var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
-        events.Add(new("CARD_DISCARDED", "支付触发技能的弃牌费用", new Dictionary<string, object?> {
-            ["playerId"] = item.ControllerId, ["sourceObjectId"] = source,
-            ["targetObjectId"] = cost.Card.ObjectId, ["destinationZone"] = "GRAVEYARD", ["isCost"] = true }));
+        var discarded = outcome == HandDiscardOutcome.Discarded ? new[] { cost.Card.ObjectId } : [];
+        if (discarded.Length != 0)
+            events.Add(new("CARD_DISCARDED", "支付触发技能的弃牌费用", new Dictionary<string, object?> {
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = source,
+                ["targetObjectId"] = cost.Card.ObjectId, ["destinationZone"] = "GRAVEYARD", ["isCost"] = true }));
         var plan = new PaymentCostRules.PaymentPlan("TRIGGER-DISCARD:" + item.StackItemId, TriggerHandDiscardWindow,
             item.ControllerId, baseManaCost: 0, totalManaCost: 0, genericPowerCost: 0, totalPowerCost: 0,
             sourceObjectId: item.SourceObjectId);
         events.Add(new("COST_PAID", "支付触发技能的弃牌费用",
-            PaymentCostRules.BuildCostPaidPayload(plan, state.RunePools, state.PlayerExperience,
+            PaymentCostRules.BuildCostPaidPayload(plan, pools, state.PlayerExperience,
                 new Dictionary<string, object?> { ["sourceObjectId"] = source,
-                    ["discardedObjectIds"] = new[] { cost.Card.ObjectId }, ["stackItemId"] = item.StackItemId })));
+                    ["discardedObjectIds"] = discarded, ["stackItemId"] = item.StackItemId })));
         ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, item.ControllerId, "CARD_DISCARDED", item.SourceObjectId,
-            [cost.Card.ObjectId], events);
-        next = state with { PlayerZones = zones, CardObjects = cards,
+            discarded, events);
+        next = state with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
-            UntilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, item.ControllerId, [cost.Card.ObjectId], zones) };
+            UntilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, item.ControllerId, discarded, zones) };
         paid = item with { FieldContext = item.FieldContext with { PaidUnitTrigger = origin with { CostPaid = true } } };
         return true;
     }

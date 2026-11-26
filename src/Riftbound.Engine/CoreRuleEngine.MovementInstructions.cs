@@ -77,17 +77,19 @@ public sealed partial class CoreRuleEngine
                     }
                 }
                 var effects = state.UntilEndOfTurnEffects;
-                foreach (var group in chosen.GroupBy(c => c.Player)) {
-                    var ids = group.Select(c => c.Id).ToArray();
+                var pools = state.RunePools.ToDictionary();
+                var discards = ResolveHandDiscards(state, zones, cards, pools,
+                    chosen.GroupBy(c => c.Player).Select(group => (group.Key, (IReadOnlyList<string>)group.Select(c => c.Id).ToArray())), events);
+                foreach (var (player, outcome) in discards) {
+                    var ids = outcome.Discarded;
                     foreach (var id in ids) {
-                        if (!TryDiscardCardFromHand(zones, cards, group.Key, id)) throw new InvalidOperationException("Movement discard no longer legal.");
                         events.Add(new("CARD_DISCARDED", "移动技能让各玩家弃置手牌", new Dictionary<string, object?> {
-                            ["playerId"] = group.Key, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id, ["destinationZone"] = "GRAVEYARD" }));
+                            ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id, ["destinationZone"] = "GRAVEYARD" }));
                     }
-                    ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, group.Key, "CARD_DISCARDED", item.SourceObjectId, ids, events);
-                    effects = MarkPlayerDiscardedHandCardsThisTurn(effects, group.Key, ids, zones);
+                    ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, player, "CARD_DISCARDED", item.SourceObjectId, ids, events);
+                    effects = MarkPlayerDiscardedHandCardsThisTurn(effects, player, ids, zones);
                 }
-                result = result with { UntilEndOfTurnEffects = effects };
+                result = result with { UntilEndOfTurnEffects = effects, RunePools = pools };
             }
             else throw new InvalidOperationException("Unconfirmed movement mode.");
         }

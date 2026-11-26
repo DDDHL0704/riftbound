@@ -25,16 +25,16 @@ public sealed partial class CoreRuleEngine
             chosen.Add(id); hand.Remove(id);
         }
         var events = new List<GameEvent>();
-        foreach (var id in chosen)
+        var pools = state.RunePools.ToDictionary();
+        var discarded = ResolveHandDiscards(state, zones, cards, pools, player, chosen, events).Discarded;
+        foreach (var id in discarded)
         {
-            if (!TryDiscardCardFromHand(zones, cards, player, id))
-                throw new InvalidOperationException("Chosen discard is no longer in hand.");
             events.Add(new("CARD_DISCARDED", "技能弃置手牌", new Dictionary<string, object?> {
                 ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId,
                 ["targetObjectId"] = id, ["destinationZone"] = "GRAVEYARD" }));
         }
-        ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, player, "CARD_DISCARDED", item.SourceObjectId, chosen, events);
-        var effects = MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, player, chosen, zones);
+        ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, player, "CARD_DISCARDED", item.SourceObjectId, discarded, events);
+        var effects = MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, player, discarded, zones);
         var current = state with { PlayerZones = zones, CardObjects = cards, UntilEndOfTurnEffects = effects };
         var draw = ApplyDrawToPlayer(current, zones, cards, state.PlayerScores, player, drawCount,
             state.RngCursor, events, deferNormalVictory: true);
@@ -43,7 +43,7 @@ public sealed partial class CoreRuleEngine
             if (Equals(events[i].Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId))
                 events[i] = events[i] with { Payload = new Dictionary<string, object?>(events[i].Payload) {
                     ["sourceObjectId"] = visibleSource } };
-        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
+        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
             UntilEndOfTurnEffects = effects, PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId,
             RngCursor = draw.RngCursor, Events = events, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
     }
